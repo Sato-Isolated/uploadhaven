@@ -24,12 +24,11 @@ const quickActions = [
     gradient: "from-purple-500 to-indigo-500",
     bgGradient:
       "from-purple-50 to-indigo-50 dark:from-purple-950 dark:to-indigo-950",
-  },
-  {
+  },  {
     title: "Analytics",
     description: "Track your file statistics",
     icon: TrendingUp,
-    href: "/dashboard",
+    href: "/dashboard/analytics",
     gradient: "from-green-500 to-emerald-500",
     bgGradient:
       "from-green-50 to-emerald-50 dark:from-green-950 dark:to-emerald-950",

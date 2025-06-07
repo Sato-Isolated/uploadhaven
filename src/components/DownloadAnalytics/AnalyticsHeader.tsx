@@ -5,14 +5,15 @@ import { RefreshCw } from "lucide-react";
 
 interface AnalyticsHeaderProps {
   onRefresh: () => void;
+  title?: string;
 }
 
-export default function AnalyticsHeader({ onRefresh }: AnalyticsHeaderProps) {
+export default function AnalyticsHeader({ onRefresh, title = "Download Analytics" }: AnalyticsHeaderProps) {
   return (
     <div className="flex items-center justify-between">
       <div>
         <h3 className="text-2xl font-bold bg-gradient-to-r from-gray-900 via-blue-800 to-indigo-800 dark:from-white dark:via-blue-200 dark:to-indigo-200 bg-clip-text text-transparent">
-          Download Analytics
+          {title}
         </h3>
         <p className="text-gray-600 dark:text-gray-400 mt-1">
           Monitor file download trends and performance
