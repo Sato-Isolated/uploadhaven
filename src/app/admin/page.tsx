@@ -169,7 +169,8 @@ export default async function AdminPage() {
             </TabsContent>
             <TabsContent value="users" className="space-y-6">
               <AdminUserListWrapper users={usersData?.users || []} />
-            </TabsContent>            <TabsContent value="analytics" className="space-y-6">
+            </TabsContent>{" "}
+            <TabsContent value="analytics" className="space-y-6">
               <AdminAnalytics />
             </TabsContent>
           </Tabs>

@@ -5,7 +5,7 @@ import { User, File } from "@/lib/models";
 export async function GET() {
   try {
     await connectDB();
-    
+
     // Fetch all users with basic info
     const usersFromDB = await User.find(
       {},
@@ -25,32 +25,38 @@ export async function GET() {
       {
         $match: {
           isDeleted: false,
-          userId: { $exists: true, $ne: null }
-        }
+          userId: { $exists: true, $ne: null },
+        },
       },
       {
         $group: {
           _id: "$userId",
           storageUsed: { $sum: "$size" },
-          fileCount: { $sum: 1 }
-        }
-      }
+          fileCount: { $sum: 1 },
+        },
+      },
     ]);
 
     // Create a map for quick lookup of user stats
     const userStatsMap = new Map(
-      userStats.map(stat => [stat._id, { storageUsed: stat.storageUsed, fileCount: stat.fileCount }])
+      userStats.map((stat) => [
+        stat._id,
+        { storageUsed: stat.storageUsed, fileCount: stat.fileCount },
+      ])
     );
 
     // Transform _id to id for frontend compatibility
-    const users = usersFromDB.map(user => {
+    const users = usersFromDB.map((user) => {
       // Consider user active if they've been active in the last 30 days
       const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
       const isActive = user.lastActivity && user.lastActivity > thirtyDaysAgo;
-      
+
       // Get actual stats for this user or default to 0
-      const stats = userStatsMap.get(user._id.toString()) || { storageUsed: 0, fileCount: 0 };
-      
+      const stats = userStatsMap.get(user._id.toString()) || {
+        storageUsed: 0,
+        fileCount: 0,
+      };
+
       return {
         id: user._id.toString(),
         name: user.name,
@@ -59,7 +65,9 @@ export async function GET() {
         isEmailVerified: user.emailVerified,
         isActive: isActive,
         createdAt: user.createdAt.toISOString(),
-        lastActiveAt: user.lastActivity ? user.lastActivity.toISOString() : user.createdAt.toISOString(),
+        lastActiveAt: user.lastActivity
+          ? user.lastActivity.toISOString()
+          : user.createdAt.toISOString(),
         storageUsed: stats.storageUsed,
         fileCount: stats.fileCount,
       };

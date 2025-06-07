@@ -54,47 +54,46 @@ export default function SecurityStatsGrid({
       </div>
     );
   }
-
   const statCards = [
     {
       title: "Total Events",
-      value: stats.totalEvents,
+      value: stats.totalEvents || 0,
       icon: <Shield className="w-4 h-4" />,
       color: "text-blue-600 dark:text-blue-400",
     },
     {
       title: "Rate Limits",
-      value: stats.rateLimits,
+      value: stats.rateLimitHits || 0,
       icon: <AlertTriangle className="w-4 h-4" />,
       color: "text-yellow-600 dark:text-yellow-400",
     },
     {
       title: "Invalid Files",
-      value: stats.invalidFiles,
+      value: stats.invalidFiles || 0,
       icon: <FileX className="w-4 h-4" />,
       color: "text-orange-600 dark:text-orange-400",
     },
     {
       title: "Blocked IPs",
-      value: stats.blockedIPs,
+      value: stats.blockedIPs || 0,
       icon: <Ban className="w-4 h-4" />,
       color: "text-red-600 dark:text-red-400",
     },
     {
       title: "Last 24h",
-      value: stats.last24h,
+      value: stats.last24h || 0,
       icon: <Clock className="w-4 h-4" />,
       color: "text-purple-600 dark:text-purple-400",
     },
     {
       title: "Malware Detected",
-      value: stats.malwareDetected,
+      value: stats.malwareDetected || 0,
       icon: <Bug className="w-4 h-4" />,
       color: "text-red-700 dark:text-red-500",
     },
     {
       title: "Large Files Blocked",
-      value: stats.largeFilesBlocked,
+      value: stats.largeSizeBlocked || 0,
       icon: <HardDrive className="w-4 h-4" />,
       color: "text-gray-600 dark:text-gray-400",
     },

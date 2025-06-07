@@ -69,7 +69,8 @@ export const getEventIcon: GetEventIconFunction = (type) => {
 
 export const formatTimestamp: FormatTimestampFunction = (timestamp) => {
   const now = new Date();
-  const diff = now.getTime() - timestamp.getTime();
+  const date = timestamp instanceof Date ? timestamp : new Date(timestamp);
+  const diff = now.getTime() - date.getTime();
   const seconds = Math.floor(diff / 1000);
   const minutes = Math.floor(seconds / 60);
   const hours = Math.floor(minutes / 60);

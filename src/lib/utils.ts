@@ -1,6 +1,7 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import bcrypt from "bcryptjs";
+import { NextRequest } from "next/server";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -11,9 +12,9 @@ export function cn(...inputs: ClassValue[]) {
  * @returns string - A unique identifier
  */
 export function generateUuid(): string {
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
     const r = crypto.getRandomValues(new Uint8Array(1))[0] % 16;
-    const v = c === 'x' ? r : (r & 0x3) | 0x8;
+    const v = c === "x" ? r : (r & 0x3) | 0x8;
     return v.toString(16);
   });
 }
@@ -438,4 +439,40 @@ export function isSafeForPreview(mimeType: string): boolean {
   ];
 
   return safeTypes.includes(mimeType) || mimeType.startsWith("text/");
+}
+
+/**
+ * Extract client IP address from Next.js request
+ * @param request - NextRequest object
+ * @returns string - Client IP address
+ */
+export function getClientIP(request: NextRequest): string {
+  // Try to get real IP from headers (for reverse proxies)
+  const xForwardedFor = request.headers.get("x-forwarded-for");
+  const xRealIP = request.headers.get("x-real-ip");
+  const cfConnectingIP = request.headers.get("cf-connecting-ip");
+
+  if (xForwardedFor) {
+    return xForwardedFor.split(",")[0].trim();
+  }
+
+  if (xRealIP) {
+    return xRealIP;
+  }
+
+  if (cfConnectingIP) {
+    return cfConnectingIP;
+  }
+
+  // Try to get IP from connection (development fallback)
+  const forwarded = request.headers.get("forwarded");
+  if (forwarded) {
+    const forMatch = forwarded.match(/for=([^;,\s]+)/);
+    if (forMatch) {
+      return forMatch[1].replace(/"/g, "");
+    }
+  }
+  // Development fallback - in localhost, this will be ::1 or 127.0.0.1
+  // In production with proper reverse proxy setup, the above headers should work
+  return "127.0.0.1";
 }

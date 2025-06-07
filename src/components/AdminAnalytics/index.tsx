@@ -25,20 +25,22 @@ import {
   Pie,
   Cell,
   LineChart,
-  Line
+  Line,
 } from "recharts";
 import {
   AdminAnalytics as AdminAnalyticsType,
   getFileTypeIcon,
   formatDate,
-  formatDateTime
+  formatDateTime,
 } from "./utils";
 
 interface AdminAnalyticsProps {
   className?: string;
 }
 
-export default function AdminAnalytics({ className = "" }: AdminAnalyticsProps) {
+export default function AdminAnalytics({
+  className = "",
+}: AdminAnalyticsProps) {
   const [analytics, setAnalytics] = useState<AdminAnalyticsType | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -48,7 +50,9 @@ export default function AdminAnalytics({ className = "" }: AdminAnalyticsProps) 
       setIsLoading(true);
       setError(null);
 
-      const response = await fetch(`/api/analytics/admin?timeRange=${timeRange}`);
+      const response = await fetch(
+        `/api/analytics/admin?timeRange=${timeRange}`
+      );
       const data = await response.json();
 
       if (!response.ok) {
@@ -98,10 +102,20 @@ export default function AdminAnalytics({ className = "" }: AdminAnalyticsProps) 
     );
   }
 
-  const { systemOverview, fileAnalytics, userAnalytics, securityAnalytics } = analytics;
+  const { systemOverview, fileAnalytics, userAnalytics, securityAnalytics } =
+    analytics;
 
   // Colors for charts
-  const COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#06B6D4', '#84CC16', '#F97316'];
+  const COLORS = [
+    "#3B82F6",
+    "#10B981",
+    "#F59E0B",
+    "#EF4444",
+    "#8B5CF6",
+    "#06B6D4",
+    "#84CC16",
+    "#F97316",
+  ];
 
   return (
     <div className={`space-y-6 ${className}`}>
@@ -194,9 +208,7 @@ export default function AdminAnalytics({ className = "" }: AdminAnalyticsProps) 
                   <p className="text-2xl font-bold text-gray-900 dark:text-white">
                     {systemOverview.totalStorage}
                   </p>
-                  <p className="text-xs text-gray-500">
-                    Across all files
-                  </p>
+                  <p className="text-xs text-gray-500">Across all files</p>
                 </div>
                 <div className="text-3xl">💾</div>
               </div>
@@ -219,9 +231,7 @@ export default function AdminAnalytics({ className = "" }: AdminAnalyticsProps) 
                   <p className="text-2xl font-bold text-gray-900 dark:text-white">
                     {systemOverview.totalDownloads.toLocaleString()}
                   </p>
-                  <p className="text-xs text-gray-500">
-                    All time downloads
-                  </p>
+                  <p className="text-xs text-gray-500">All time downloads</p>
                 </div>
                 <div className="text-3xl">⬇️</div>
               </div>
@@ -251,18 +261,15 @@ export default function AdminAnalytics({ className = "" }: AdminAnalyticsProps) 
                 <ResponsiveContainer width="100%" height={300}>
                   <LineChart data={fileAnalytics.uploadTrends}>
                     <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis 
-                      dataKey="date" 
-                      tickFormatter={formatDate}
-                    />
+                    <XAxis dataKey="date" tickFormatter={formatDate} />
                     <YAxis />
-                    <Tooltip 
+                    <Tooltip
                       labelFormatter={(value) => formatDate(value as string)}
                     />
-                    <Line 
-                      type="monotone" 
-                      dataKey="count" 
-                      stroke="#3B82F6" 
+                    <Line
+                      type="monotone"
+                      dataKey="count"
+                      stroke="#3B82F6"
                       strokeWidth={2}
                       name="Files Uploaded"
                     />
@@ -284,14 +291,21 @@ export default function AdminAnalytics({ className = "" }: AdminAnalyticsProps) 
                       cx="50%"
                       cy="50%"
                       labelLine={false}
-                      label={({ type, count }) => `${getFileTypeIcon(type)} ${count}`}
+                      label={({ type, count }) =>
+                        `${getFileTypeIcon(type)} ${count}`
+                      }
                       outerRadius={80}
                       fill="#8884d8"
                       dataKey="count"
                     >
-                      {fileAnalytics.fileTypeDistribution.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                      ))}
+                      {fileAnalytics.fileTypeDistribution.map(
+                        (entry, index) => (
+                          <Cell
+                            key={`cell-${index}`}
+                            fill={COLORS[index % COLORS.length]}
+                          />
+                        )
+                      )}
                     </Pie>
                     <Tooltip />
                   </PieChart>
@@ -305,13 +319,22 @@ export default function AdminAnalytics({ className = "" }: AdminAnalyticsProps) 
             <CardHeader>
               <CardTitle>Most Downloaded Files</CardTitle>
             </CardHeader>
-            <CardContent>              <div className="space-y-4">
+            <CardContent>
+              {" "}
+              <div className="space-y-4">
                 {fileAnalytics.topFiles.slice(0, 8).map((file) => (
-                  <div key={file.filename} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                  <div
+                    key={file.filename}
+                    className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg"
+                  >
                     <div className="flex items-center space-x-3">
-                      <span className="text-lg">{getFileTypeIcon(file.mimeType)}</span>
+                      <span className="text-lg">
+                        {getFileTypeIcon(file.mimeType)}
+                      </span>
                       <div>
-                        <p className="font-medium text-sm">{file.originalName}</p>
+                        <p className="font-medium text-sm">
+                          {file.originalName}
+                        </p>
                         <p className="text-xs text-gray-500">{file.size}</p>
                       </div>
                     </div>
@@ -337,35 +360,42 @@ export default function AdminAnalytics({ className = "" }: AdminAnalyticsProps) 
                 <ResponsiveContainer width="100%" height={300}>
                   <LineChart data={userAnalytics.growthTrends}>
                     <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis 
-                      dataKey="date" 
-                      tickFormatter={formatDate}
-                    />
+                    <XAxis dataKey="date" tickFormatter={formatDate} />
                     <YAxis />
-                    <Tooltip 
+                    <Tooltip
                       labelFormatter={(value) => formatDate(value as string)}
                     />
-                    <Line 
-                      type="monotone" 
-                      dataKey="count" 
-                      stroke="#10B981" 
+                    <Line
+                      type="monotone"
+                      dataKey="count"
+                      stroke="#10B981"
                       strokeWidth={2}
                       name="New Users"
                     />
                   </LineChart>
                 </ResponsiveContainer>
               </CardContent>
-            </Card>            {/* Storage by User */}
+            </Card>{" "}
+            {/* Storage by User */}
             <Card>
               <CardHeader>
                 <CardTitle>Top Users by Storage</CardTitle>
               </CardHeader>
-              <CardContent>                <div className="space-y-3">
+              <CardContent>
+                {" "}
+                <div className="space-y-3">
                   {userAnalytics.storageByUser.slice(0, 8).map((user) => (
-                    <div key={user.userId} className="flex items-center justify-between">
+                    <div
+                      key={user.userId}
+                      className="flex items-center justify-between"
+                    >
                       <div>
-                        <p className="font-medium text-sm">{user.userName || 'Unknown User'}</p>
-                        <p className="text-xs text-gray-500">{user.fileCount} files</p>
+                        <p className="font-medium text-sm">
+                          {user.userName || "Unknown User"}
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          {user.fileCount} files
+                        </p>
                       </div>
                       <Badge variant="outline">{user.totalSize}</Badge>
                     </div>
@@ -402,18 +432,29 @@ export default function AdminAnalytics({ className = "" }: AdminAnalyticsProps) 
               <CardHeader>
                 <CardTitle>Recent Security Events</CardTitle>
               </CardHeader>
-              <CardContent>                <div className="space-y-3">
-                  {securityAnalytics.recentEvents.slice(0, 8).map((event, index) => (
-                    <div key={`${event.type}-${index}`} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                      <div>
-                        <p className="font-medium text-sm">{event.type.replace(/_/g, ' ')}</p>
-                        <p className="text-xs text-gray-500">{formatDateTime(event.timestamp)}</p>
+              <CardContent>
+                {" "}
+                <div className="space-y-3">
+                  {securityAnalytics.recentEvents
+                    .slice(0, 8)
+                    .map((event, index) => (
+                      <div
+                        key={`${event.type}-${index}`}
+                        className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg"
+                      >
+                        <div>
+                          <p className="font-medium text-sm">
+                            {event.type.replace(/_/g, " ")}
+                          </p>
+                          <p className="text-xs text-gray-500">
+                            {formatDateTime(event.timestamp)}
+                          </p>
+                        </div>
+                        <Badge variant="outline" className="text-xs">
+                          {event.type}
+                        </Badge>
                       </div>
-                      <Badge variant="outline" className="text-xs">
-                        {event.type}
-                      </Badge>
-                    </div>
-                  ))}
+                    ))}
                 </div>
               </CardContent>
             </Card>
@@ -431,15 +472,21 @@ export default function AdminAnalytics({ className = "" }: AdminAnalyticsProps) 
                 <div className="space-y-4">
                   <div className="flex justify-between items-center">
                     <span>Database Connection</span>
-                    <Badge className="bg-green-100 text-green-800">Healthy</Badge>
+                    <Badge className="bg-green-100 text-green-800">
+                      Healthy
+                    </Badge>
                   </div>
                   <div className="flex justify-between items-center">
                     <span>File Storage</span>
-                    <Badge className="bg-green-100 text-green-800">Available</Badge>
+                    <Badge className="bg-green-100 text-green-800">
+                      Available
+                    </Badge>
                   </div>
                   <div className="flex justify-between items-center">
                     <span>API Response Time</span>
-                    <Badge variant="outline">~{Math.floor(Math.random() * 100 + 50)}ms</Badge>
+                    <Badge variant="outline">
+                      ~{Math.floor(Math.random() * 100 + 50)}ms
+                    </Badge>
                   </div>
                 </div>
               </CardContent>
@@ -453,26 +500,28 @@ export default function AdminAnalytics({ className = "" }: AdminAnalyticsProps) 
                 <div className="space-y-4">
                   <div className="flex justify-between items-center">
                     <span>File Growth (Weekly)</span>
-                    <Badge 
+                    <Badge
                       className={
-                        systemOverview.fileGrowth > 0 
-                          ? "bg-green-100 text-green-800" 
+                        systemOverview.fileGrowth > 0
+                          ? "bg-green-100 text-green-800"
                           : "bg-red-100 text-red-800"
                       }
                     >
-                      {systemOverview.fileGrowth > 0 ? '+' : ''}{systemOverview.fileGrowth}%
+                      {systemOverview.fileGrowth > 0 ? "+" : ""}
+                      {systemOverview.fileGrowth}%
                     </Badge>
                   </div>
                   <div className="flex justify-between items-center">
                     <span>User Growth (Weekly)</span>
-                    <Badge 
+                    <Badge
                       className={
-                        systemOverview.userGrowth > 0 
-                          ? "bg-green-100 text-green-800" 
+                        systemOverview.userGrowth > 0
+                          ? "bg-green-100 text-green-800"
                           : "bg-red-100 text-red-800"
                       }
                     >
-                      {systemOverview.userGrowth > 0 ? '+' : ''}{systemOverview.userGrowth}%
+                      {systemOverview.userGrowth > 0 ? "+" : ""}
+                      {systemOverview.userGrowth}%
                     </Badge>
                   </div>
                 </div>

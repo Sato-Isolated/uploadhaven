@@ -5,18 +5,18 @@ import SecurityActions from "./components/SecurityActions";
 import SecurityStatsGrid from "./components/SecurityStatsGrid";
 import SecurityEventsList from "./components/SecurityEventsList";
 import SecurityAlert from "./components/SecurityAlert";
-import { SecurityEvent, SecurityStats } from "./types";
+import { SecurityEvent, SecurityStats, SecurityEventAPI } from "./types";
 
 export default function SecurityPanel() {
   const [events, setEvents] = useState<SecurityEvent[]>([]);
   const [stats, setStats] = useState<SecurityStats>({
     totalEvents: 0,
-    rateLimits: 0,
+    rateLimitHits: 0,
     invalidFiles: 0,
     blockedIPs: 0,
     last24h: 0,
     malwareDetected: 0,
-    largeFilesBlocked: 0,
+    largeSizeBlocked: 0,
   });
   const [isLoading, setIsLoading] = useState(true);
   const [dismissedAlerts, setDismissedAlerts] = useState<Set<string>>(
@@ -36,9 +36,38 @@ export default function SecurityPanel() {
       if (!response.ok) {
         throw new Error(`Failed to load security data: ${response.status}`);
       }
-      const data = await response.json();
-      setEvents(data.events || []);
-      setStats(data.stats || stats);
+
+      const data = await response.json(); // Transform API data to match SecurityEvent interface
+      const transformedEvents = (data.events || []).map(
+        (event: SecurityEventAPI) => ({
+          id: event.id,
+          type: event.type,
+          message: event.details || `${event.type} event`, // Use details as message
+          severity: event.severity,
+          timestamp: new Date(event.timestamp), // Convert timestamp
+          details: {
+            ip: event.ip,
+            filename: event.filename,
+            fileSize: event.fileSize,
+            userAgent: event.userAgent,
+            endpoint: event.endpoint,
+            reason: event.reason,
+          },
+        })
+      );
+
+      setEvents(transformedEvents);
+      setStats(
+        data.stats || {
+          totalEvents: 0,
+          rateLimitHits: 0,
+          invalidFiles: 0,
+          blockedIPs: 0,
+          last24h: 0,
+          malwareDetected: 0,
+          largeSizeBlocked: 0,
+        }
+      );
     } catch (err) {
       const errorMessage =
         err instanceof Error ? err.message : "Failed to load security data";
@@ -46,7 +75,7 @@ export default function SecurityPanel() {
     } finally {
       setIsLoading(false);
     }
-  }, [stats]);
+  }, []);
   const exportSecurityLogs = async () => {
     try {
       const response = await fetch("/api/security/export");
@@ -88,12 +117,12 @@ export default function SecurityPanel() {
       setEvents([]);
       setStats({
         totalEvents: 0,
-        rateLimits: 0,
+        rateLimitHits: 0,
         invalidFiles: 0,
         blockedIPs: 0,
         last24h: 0,
         malwareDetected: 0,
-        largeFilesBlocked: 0,
+        largeSizeBlocked: 0,
       });
       toast.success("Security logs cleared successfully");
     } catch (err) {
@@ -104,10 +133,6 @@ export default function SecurityPanel() {
   };
   useEffect(() => {
     loadSecurityData();
-
-    // Refresh data every 15 seconds for more real-time monitoring
-    const interval = setInterval(loadSecurityData, 15000);
-    return () => clearInterval(interval);
   }, [loadSecurityData]);
   const dismissAlert = (alertId: string) => {
     setDismissedAlerts((prev) => new Set([...prev, alertId]));

@@ -42,7 +42,8 @@ export interface AdminAnalytics {
     growthTrends: Array<{
       date: string;
       count: number;
-    }>;    storageByUser: Array<{
+    }>;
+    storageByUser: Array<{
       userId: string;
       userName: string;
       totalSize: string;
@@ -84,20 +85,24 @@ export function getFileTypeIcon(type: string): string {
   return "📁";
 }
 
-export function calculateGrowthTrend(current: number, previous: number): TrendData {
+export function calculateGrowthTrend(
+  current: number,
+  previous: number
+): TrendData {
   if (previous === 0) return { trend: "neutral", percentage: 0 };
-  
+
   const change = ((current - previous) / previous) * 100;
-  
+
   if (change > 5) return { trend: "up", percentage: Math.round(change) };
-  if (change < -5) return { trend: "down", percentage: Math.round(Math.abs(change)) };
+  if (change < -5)
+    return { trend: "down", percentage: Math.round(Math.abs(change)) };
   return { trend: "neutral", percentage: Math.round(Math.abs(change)) };
 }
 
 export function formatDate(dateString: string): string {
   return new Date(dateString).toLocaleDateString("en-US", {
     month: "short",
-    day: "numeric"
+    day: "numeric",
   });
 }
 
@@ -106,6 +111,6 @@ export function formatDateTime(date: Date): string {
     month: "short",
     day: "numeric",
     hour: "2-digit",
-    minute: "2-digit"
+    minute: "2-digit",
   });
 }

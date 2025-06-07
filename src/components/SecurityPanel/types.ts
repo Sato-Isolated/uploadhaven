@@ -1,3 +1,18 @@
+// Raw API response types
+export interface SecurityEventAPI {
+  id: string;
+  type: string;
+  details?: string;
+  severity: "low" | "medium" | "high" | "critical";
+  timestamp: string;
+  ip?: string;
+  filename?: string;
+  fileSize?: number;
+  userAgent?: string;
+  endpoint?: string;
+  reason?: string;
+}
+
 export interface SecurityEvent {
   id: string;
   type:
@@ -10,7 +25,7 @@ export interface SecurityEvent {
     | "suspicious_activity";
   message: string;
   severity: "low" | "medium" | "high" | "critical";
-  timestamp: Date;
+  timestamp: Date | string;
   details: {
     ip?: string;
     filename?: string;
@@ -23,12 +38,12 @@ export interface SecurityEvent {
 
 export interface SecurityStats {
   totalEvents: number;
-  rateLimits: number;
+  rateLimitHits: number;
   invalidFiles: number;
   blockedIPs: number;
   last24h: number;
   malwareDetected: number;
-  largeFilesBlocked: number;
+  largeSizeBlocked: number;
 }
 
 export interface SecurityHeaderProps {
@@ -72,4 +87,4 @@ export type GetSeverityColorFunction = (
 export type GetEventIconFunction = (
   type: SecurityEvent["type"]
 ) => React.ReactNode;
-export type FormatTimestampFunction = (timestamp: Date) => string;
+export type FormatTimestampFunction = (timestamp: Date | string) => string;

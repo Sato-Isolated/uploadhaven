@@ -10,10 +10,12 @@ A modern file uploader, built with Next.js 15, TypeScript, and ShadCN/UI. Upload
 - 📱 **Responsive Design** - Works perfectly on desktop and mobile devices
 - 🔗 **Instant Sharing** - Get shareable links immediately after upload
 - 🛡️ **Secure & Private** - Files are validated and stored securely
+- 🔍 **Malware Scanning** - Advanced threat detection with VirusTotal integration
 - ⚡ **Fast Performance** - Built with Next.js and modern web technologies
 - 🎨 **Beautiful UI** - Clean, modern interface using ShadCN/UI components
 - 📊 **File Management** - Track and manage your uploaded files
 - 🔌 **API Access** - RESTful API for programmatic file uploads
+- 👨‍💼 **Admin Dashboard** - Comprehensive security monitoring and management
 
 ## Tech Stack
 
@@ -49,7 +51,22 @@ A modern file uploader, built with Next.js 15, TypeScript, and ShadCN/UI. Upload
    pnpm install
    ```
 
-3. **Run the development server**
+3. **Set up environment variables**
+   ```bash
+   cp .env.example .env.local
+   ```
+   
+   Edit `.env.local` with your configuration:
+   ```bash
+   # Required
+   MONGODB_URI=your-mongodb-connection-string
+   BETTER_AUTH_SECRET=your-secret-key
+   
+   # Optional - for enhanced malware detection
+   VIRUSTOTAL_API_KEY=your-virustotal-api-key
+   ```
+
+4. **Run the development server**
    ```bash
    npm run dev
    # or
@@ -58,7 +75,7 @@ A modern file uploader, built with Next.js 15, TypeScript, and ShadCN/UI. Upload
    pnpm dev
    ```
 
-4. **Open your browser**
+5. **Open your browser**
    Navigate to [http://localhost:3000](http://localhost:3000)
 
 ## Configuration
@@ -93,6 +110,41 @@ Files are currently stored in the local `uploads/` directory. For production dep
 - Cloud storage (AWS S3, Google Cloud Storage, etc.)
 - CDN integration for faster file delivery
 - Database for file metadata and management
+
+## Security Features
+
+### Malware Detection
+
+UploadHaven includes advanced malware detection capabilities:
+
+- **Local Heuristic Scanning**: Pattern-based detection for suspicious file types and content
+- **VirusTotal Integration**: Cloud-based scanning with 70+ antivirus engines
+- **Hybrid Approach**: Combines local and cloud scanning for optimal security
+- **Quota Management**: Automatic tracking of VirusTotal API usage (500 requests/day free tier)
+- **File Caching**: 7-day cache to reduce API calls for previously scanned files
+
+### Setting up VirusTotal Integration
+
+1. Get a free API key from [VirusTotal](https://www.virustotal.com/gui/my-apikey)
+2. Add to your `.env.local`:
+   ```bash
+   VIRUSTOTAL_API_KEY=your-api-key-here
+   ```
+3. The system will automatically use VirusTotal for enhanced threat detection
+
+### Security Monitoring
+
+The admin dashboard provides comprehensive security monitoring:
+
+- Real-time security event tracking
+- Rate limiting and abuse detection
+- File validation and size limits
+- IP-based threat detection
+- Security scan capabilities
+
+### Admin Access
+
+Access the admin dashboard at `/admin` (requires authentication)
 
 ## API Documentation
 
