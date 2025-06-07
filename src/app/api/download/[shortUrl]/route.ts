@@ -41,11 +41,11 @@ export async function GET(
         { success: false, error: "File not found" },
         { status: 404 }
       );
-    }    // Check if file has expired
+    } // Check if file has expired
     if (fileDoc.expiresAt && new Date() > fileDoc.expiresAt) {
       // Instantly delete the expired file
       await checkFileExpiration(fileDoc._id.toString());
-      
+
       // Log expired file download attempt
       await saveSecurityEvent({
         type: "file_download",
