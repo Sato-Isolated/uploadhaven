@@ -6,7 +6,7 @@ import Link from "next/link";
 import AdminDashboard from "@/components/AdminDashboard";
 import AdminFileManager from "@/components/AdminFileManager";
 import AdminUserListWrapper from "@/components/AdminUserList/AdminUserListWrapper";
-import DownloadAnalytics from "@/components/DownloadAnalytics";
+import AdminAnalytics from "@/components/AdminAnalytics";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 // Helper function to fetch data with error handling
@@ -169,9 +169,8 @@ export default async function AdminPage() {
             </TabsContent>
             <TabsContent value="users" className="space-y-6">
               <AdminUserListWrapper users={usersData?.users || []} />
-            </TabsContent>
-            <TabsContent value="analytics" className="space-y-6">
-              <DownloadAnalytics />
+            </TabsContent>            <TabsContent value="analytics" className="space-y-6">
+              <AdminAnalytics />
             </TabsContent>
           </Tabs>
         </div>

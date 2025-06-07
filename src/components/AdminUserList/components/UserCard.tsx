@@ -73,6 +73,7 @@ export default function UserCard({
               </Avatar>
 
               <div className="flex-1 min-w-0">
+                {" "}
                 <div className="flex items-center space-x-2 mb-2">
                   <h3 className="text-lg font-semibold text-gray-900 dark:text-white truncate">
                     {user.name}
@@ -85,14 +86,18 @@ export default function UserCard({
                     <span className="capitalize">{user.role}</span>
                   </Badge>
                 </div>
-
-                <div className="flex items-center space-x-2 mb-3">
+                <div className="flex items-center space-x-2 mb-2">
                   <p className="text-gray-600 dark:text-gray-400 truncate">
                     {user.email}
                   </p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 font-mono">
+                    ID: {user.id.slice(-8)}
+                  </p>
+                </div>
+                <div className="flex items-center space-x-2 mb-3">
                   <Badge
-                    variant={user.isEmailVerified ? "default" : "destructive"}
-                    className="flex items-center space-x-1 text-xs"
+                    variant={user.isEmailVerified ? "default" : "secondary"}
+                    className="flex items-center space-x-1"
                   >
                     {user.isEmailVerified ? (
                       <MailCheck className="h-3 w-3" />
@@ -104,7 +109,6 @@ export default function UserCard({
                     </span>
                   </Badge>
                 </div>
-
                 <div className="grid grid-cols-2 gap-4 text-sm text-gray-600 dark:text-gray-400">
                   <div>
                     <span className="font-medium">Joined:</span>
