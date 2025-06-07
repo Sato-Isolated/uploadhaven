@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { motion } from 'motion/react';
+import { useState, useEffect } from "react";
+import { motion } from "motion/react";
 import {
   AnalyticsLoader,
   AnalyticsError,
@@ -12,7 +12,7 @@ import {
   TrendsChart,
   DownloadAnalytics as DownloadAnalyticsType,
   calculateTrend
-} from './DownloadAnalytics/';
+} from "./DownloadAnalytics/";
 
 interface DownloadAnalyticsProps {
   className?: string;
@@ -21,7 +21,9 @@ interface DownloadAnalyticsProps {
 export default function DownloadAnalytics({
   className = "",
 }: DownloadAnalyticsProps) {
-  const [analytics, setAnalytics] = useState<DownloadAnalyticsType | null>(null);
+  const [analytics, setAnalytics] = useState<DownloadAnalyticsType | null>(
+    null
+  );
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -55,13 +57,20 @@ export default function DownloadAnalytics({
   }
 
   if (error) {
-    return <AnalyticsError error={error} onRetry={fetchAnalytics} className={className} />;
+    return (
+      <AnalyticsError
+        error={error}
+        onRetry={fetchAnalytics}
+        className={className}
+      />
+    );
   }
   if (!analytics) {
     return <AnalyticsEmpty className={className} />;
   }
 
-  const trend = calculateTrend(analytics);
+  // Calculate trend data for overview
+  const trendData = calculateTrend(analytics);
 
   return (
     <motion.div
@@ -71,7 +80,7 @@ export default function DownloadAnalytics({
       transition={{ duration: 0.5 }}
     >
       <AnalyticsHeader onRefresh={fetchAnalytics} />
-      <AnalyticsOverview analytics={analytics} trend={trend} />
+      <AnalyticsOverview analytics={analytics} trend={trendData} />
       <TopFilesSection analytics={analytics} onRefresh={fetchAnalytics} />
       <TrendsChart analytics={analytics} />
     </motion.div>

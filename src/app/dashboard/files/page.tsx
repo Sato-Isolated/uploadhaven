@@ -13,6 +13,7 @@ import Link from "next/link";
 import connectDB from "@/lib/mongodb";
 import { File } from "@/lib/models";
 import DeleteFileButton from "@/components/DeleteFileButton";
+import CopyLinkButton from "@/components/CopyLinkButton";
 
 async function getUserFiles(userId: string) {
   await connectDB();
@@ -119,8 +120,7 @@ export default async function UserFilesPage() {
                         {(file.size / 1024 / 1024).toFixed(2)} MB •
                         {file.downloadCount} downloads
                       </CardDescription>
-                    </div>
-                    <div className="flex items-center gap-2">
+                    </div>                    <div className="flex items-center gap-2">
                       <Button variant="outline" size="sm" asChild>
                         <a
                           href={`/api/files/${file.filename}`}
@@ -130,17 +130,7 @@ export default async function UserFilesPage() {
                           Download
                         </a>
                       </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => {
-                          navigator.clipboard.writeText(
-                            `${window.location.origin}/api/files/${file.filename}`
-                          );
-                        }}
-                      >
-                        Copy Link
-                      </Button>
+                      <CopyLinkButton filename={file.filename} />
                     </div>
                   </div>
                 </CardHeader>

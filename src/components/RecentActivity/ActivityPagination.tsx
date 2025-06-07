@@ -36,8 +36,8 @@ export default function ActivityPagination({
       transition={{ duration: 0.3, delay: 0.2 }}
     >
       <div className="text-sm text-gray-500 dark:text-gray-400">
-        Showing {(pagination.page - 1) * pagination.limit + 1} to
-        {Math.min(pagination.page * pagination.limit, pagination.totalCount)} of
+        Showing {(pagination.page - 1) * pagination.limit + 1} to{" "}
+        {Math.min(pagination.page * pagination.limit, pagination.totalCount)} of{" "}
         {pagination.totalCount} activities
       </div>
 

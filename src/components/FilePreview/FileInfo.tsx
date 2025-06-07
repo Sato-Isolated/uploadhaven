@@ -29,7 +29,7 @@ export default function FileInfo({ file }: FileInfoProps) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 + index * 0.1, duration: 0.3 }}
         >
-          <span className="text-muted-foreground">{info.label}</span>
+          <span className="text-muted-foreground">{info.label}</span>{" "}
           {info.value}
         </motion.div>
       ))}
