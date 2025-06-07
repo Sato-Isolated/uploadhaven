@@ -100,12 +100,10 @@ export default function AdminDashboard({ stats }: AdminDashboardProps) {
       setFilesLoading(false);
     }
   };
-
   const handleManageUsers = () => {
     setShowUsersModal(true);
-    if (users.length === 0) {
-      fetchUsers();
-    }
+    // Always refetch users to ensure we have the latest data
+    fetchUsers();
   };
 
   const handleFileCleanup = () => {

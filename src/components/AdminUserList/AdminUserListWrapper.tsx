@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import AdminUserList from "./index";
 import type { User } from "./types";
 import { toast } from "sonner";
@@ -14,6 +14,10 @@ export default function AdminUserListWrapper({
 }: AdminUserListWrapperProps) {
   const [usersList, setUsersList] = useState<User[]>(users);
 
+  // Sync with parent state changes
+  useEffect(() => {
+    setUsersList(users);
+  }, [users]);
   const handleUserAction = async (
     userId: string,
     action: "delete" | "toggleRole" | "resendVerification"
@@ -22,18 +26,18 @@ export default function AdminUserListWrapper({
       let endpoint = "";
       let method = "POST";
       let body: string | undefined = undefined;
+      let newRole: "admin" | "user" | undefined = undefined;
 
       switch (action) {
         case "delete":
-          endpoint = `/api/admin/users/${userId}/delete`;
-          method = "DELETE";
+          endpoint = `/api/admin/users/${userId}/delete`;          method = "DELETE";
           break;
         case "toggleRole":
           // Find the current user to toggle their role
           const currentUser = usersList.find((u) => u.id === userId);
           if (!currentUser) return;
 
-          const newRole = currentUser.role === "admin" ? "user" : "admin";
+          newRole = currentUser.role === "admin" ? "user" : "admin";
           endpoint = `/api/admin/users/${userId}/role`;
           method = "PATCH";
           body = JSON.stringify({ role: newRole });
@@ -61,12 +65,12 @@ export default function AdminUserListWrapper({
 
         // Update the local state based on the action
         if (action === "delete") {
-          setUsersList((prev) => prev.filter((u) => u.id !== userId));
-        } else if (action === "toggleRole") {
+          setUsersList((prev) => prev.filter((u) => u.id !== userId));        } else if (action === "toggleRole" && newRole) {
+          // Use the newRole we calculated earlier to ensure consistency
           setUsersList((prev) =>
             prev.map((u) =>
               u.id === userId
-                ? { ...u, role: u.role === "admin" ? "user" : "admin" }
+                ? { ...u, role: newRole as "admin" | "user" }
                 : u
             )
           );

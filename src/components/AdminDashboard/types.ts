@@ -46,7 +46,9 @@ export interface FileData {
   size: number;
   mimeType: string;
   uploadDate: string;
+  expiresAt: string | null;
   downloadCount: number;
+  type: 'image' | 'video' | 'audio' | 'document' | 'archive' | 'other';
   userId?: string;
   userName?: string;
   isAnonymous: boolean;
