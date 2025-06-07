@@ -6,7 +6,7 @@ import ClientUserStats from "@/components/ClientUserStats";
 import {
   DashboardHeader,
   QuickActionCards,
-  FilesOverviewCard,
+  DashboardUploadArea,
 } from "@/components/Dashboard";
 
 interface DashboardClientProps {
@@ -47,10 +47,8 @@ export default function DashboardClient({ session }: DashboardClientProps) {
         <DashboardHeader userName={userName} />
 
         {/* Quick Action Cards */}
-        <QuickActionCards />
-
-        {/* Enhanced Files Overview */}
-        <FilesOverviewCard />
+        <QuickActionCards />        {/* Enhanced Upload Area */}
+        <DashboardUploadArea />
 
         {/* Enhanced Quick Stats */}
         <motion.div

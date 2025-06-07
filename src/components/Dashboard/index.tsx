@@ -2,4 +2,4 @@
 
 export { default as DashboardHeader } from "./components/DashboardHeader";
 export { default as QuickActionCards } from "./components/QuickActionCards";
-export { default as FilesOverviewCard } from "./components/FilesOverviewCard";
+export { default as DashboardUploadArea } from "./components/DashboardUploadArea";
