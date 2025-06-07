@@ -99,11 +99,10 @@ export default function SecurityStatsGrid({
       color: "text-gray-600 dark:text-gray-400",
     },
   ];
-
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
-      {statCards.map((stat, index) => (
-        <SecurityStatCard key={index} {...stat} />
+      {statCards.map((stat) => (
+        <SecurityStatCard key={stat.title} {...stat} />
       ))}
     </div>
   );

@@ -26,11 +26,10 @@ export function TrendsChart({ analytics }: TrendsChartProps) {
           <span className="bg-gradient-to-r from-orange-600 to-red-600 dark:from-orange-400 dark:to-red-400 bg-clip-text text-transparent">
             Download Trends (Last 7 Days)
           </span>
-        </h3>
-        <div className="space-y-4">
+        </h3>        <div className="space-y-4">
           {analytics.downloadTrends.map((trend, index) => (
             <motion.div
-              key={index}
+              key={`${trend.date}-${trend.downloads}`}
               className="flex items-center justify-between p-3 bg-white/60 dark:bg-gray-800/60 rounded-lg backdrop-blur-sm"
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
