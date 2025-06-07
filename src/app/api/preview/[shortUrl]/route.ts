@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import connectDB from "@/lib/mongodb";
 import { File, saveSecurityEvent } from "@/lib/models";
+import { checkFileExpiration } from "@/lib/startup";
 
 export async function GET(
   request: NextRequest,
@@ -38,15 +39,34 @@ export async function GET(
         { success: false, error: "File not found" },
         { status: 404 }
       );
-    }
-
-    // Check if file has expired
+    }    // Check if file has expired
     if (fileDoc.expiresAt && new Date() > fileDoc.expiresAt) {
+      // Instantly delete the expired file
+      await checkFileExpiration(fileDoc._id.toString());
+      
       // Log expired file access attempt
       await saveSecurityEvent({
         type: "file_download",
         ip: clientIP,
-        details: `Preview requested for expired file: ${fileDoc.filename}`,
+        details: `Preview requested for expired file: ${fileDoc.filename} (auto-deleted)`,
+        severity: "low",
+        userAgent,
+        filename: fileDoc.filename,
+      });
+
+      return NextResponse.json(
+        { success: false, error: "File has expired", expired: true },
+        { status: 410 }
+      );
+    }
+
+    // Also check for instant expiration (files that just expired)
+    const wasDeleted = await checkFileExpiration(fileDoc._id.toString());
+    if (wasDeleted) {
+      await saveSecurityEvent({
+        type: "file_download",
+        ip: clientIP,
+        details: `Preview requested for just-expired file: ${fileDoc.filename} (auto-deleted)`,
         severity: "low",
         userAgent,
         filename: fileDoc.filename,
