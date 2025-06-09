@@ -22,7 +22,8 @@ export interface SecurityEvent {
     | "malware_detected"
     | "large_file"
     | "access_denied"
-    | "suspicious_activity";
+    | "suspicious_activity"
+    | "system_maintenance";
   message: string;
   severity: "low" | "medium" | "high" | "critical";
   timestamp: Date | string;

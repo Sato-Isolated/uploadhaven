@@ -1,7 +1,7 @@
 // Security utilities for logging and monitoring security events
 export interface SecurityEvent {
   id: string
-  type: 'rate_limit' | 'invalid_file' | 'large_file' | 'blocked_ip' | 'suspicious_activity' | 'file_scan' | 'malware_detected' | 'file_upload' | 'user_registration' | 'file_download' | 'user_login' | 'user_logout'
+  type: 'rate_limit' | 'invalid_file' | 'large_file' | 'blocked_ip' | 'suspicious_activity' | 'file_scan' | 'malware_detected' | 'file_upload' | 'user_registration' | 'file_download' | 'user_login' | 'user_logout' | 'system_maintenance'
   timestamp: number
   ip: string
   details: string

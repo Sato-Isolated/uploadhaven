@@ -8,6 +8,7 @@ import {
   HardDrive,
   UserX,
   Activity,
+  Settings,
 } from "lucide-react";
 import {
   GetSeverityColorFunction,
@@ -59,6 +60,10 @@ export const getEventIcon: GetEventIconFunction = (type) => {
     case "suspicious_activity":
       return React.createElement(Activity, {
         className: "w-4 h-4 text-purple-600 dark:text-purple-400",
+      });
+    case "system_maintenance":
+      return React.createElement(Settings, {
+        className: "w-4 h-4 text-green-600 dark:text-green-400",
       });
     default:
       return React.createElement(Shield, {

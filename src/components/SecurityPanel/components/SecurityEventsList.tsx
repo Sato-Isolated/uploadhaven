@@ -125,8 +125,7 @@ export default function SecurityEventsList({
               <Select value={typeFilter} onValueChange={setTypeFilter}>
                 <SelectTrigger className="w-full sm:w-40">
                   <SelectValue placeholder="Event Type" />
-                </SelectTrigger>
-                <SelectContent>
+                </SelectTrigger>                <SelectContent>
                   <SelectItem value="all">All Types</SelectItem>
                   <SelectItem value="rate_limit">Rate Limit</SelectItem>
                   <SelectItem value="invalid_file">Invalid File</SelectItem>
@@ -136,6 +135,9 @@ export default function SecurityEventsList({
                   <SelectItem value="access_denied">Access Denied</SelectItem>
                   <SelectItem value="suspicious_activity">
                     Suspicious
+                  </SelectItem>
+                  <SelectItem value="system_maintenance">
+                    System Maintenance
                   </SelectItem>
                 </SelectContent>
               </Select>

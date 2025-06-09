@@ -164,7 +164,7 @@ const fileSchema = new mongoose.Schema({  filename: {
 // Security event model schema
 const securityEventSchema = new mongoose.Schema({  type: {
     type: String,
-    enum: ['rate_limit', 'invalid_file', 'large_file', 'blocked_ip', 'suspicious_activity', 'file_scan', 'malware_detected', 'file_deletion', 'bulk_delete', 'file_upload', 'user_registration', 'file_download', 'user_login', 'user_logout', 'user_role_changed'],
+    enum: ['rate_limit', 'invalid_file', 'large_file', 'blocked_ip', 'suspicious_activity', 'file_scan', 'malware_detected', 'file_deletion', 'bulk_delete', 'file_upload', 'user_registration', 'file_download', 'user_login', 'user_logout', 'user_role_changed', 'system_maintenance'],
     required: true
   },
   timestamp: {
