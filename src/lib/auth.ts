@@ -47,13 +47,10 @@ export const auth = betterAuth({
         defaultValue: "user",
         required: false,
       },
-    },
-  },
+    },  },
 
   // Plugins
   plugins: [
     nextCookies(), // Must be the last plugin
   ],
 });
-
-export type Session = typeof auth.$Infer.Session;

@@ -1,5 +1,6 @@
 // Rate limiting utility for API endpoints
 import { NextRequest } from "next/server";
+import { getClientIP } from "./utils";
 
 interface RateLimitConfig {
   windowMs: number; // Time window in milliseconds
@@ -60,29 +61,7 @@ export function rateLimit(config: RateLimitConfig) {
       remaining,
       reset,
       message: config.message || "Rate limit exceeded. Please try again later.",
-    };
-  };
-}
-
-function getClientIP(request: NextRequest): string {
-  // Try to get real IP from headers (for reverse proxies)
-  const xForwardedFor = request.headers.get("x-forwarded-for");
-  const xRealIP = request.headers.get("x-real-ip");
-  const cfConnectingIP = request.headers.get("cf-connecting-ip");
-
-  if (xForwardedFor) {
-    return xForwardedFor.split(",")[0].trim();
-  }
-
-  if (xRealIP) {
-    return xRealIP;
-  }
-
-  if (cfConnectingIP) {
-    return cfConnectingIP;
-  }
-  // Fallback to localhost for development
-  return "127.0.0.1";
+    };  };
 }
 
 // Predefined rate limit configurations

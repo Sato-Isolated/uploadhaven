@@ -67,14 +67,13 @@ export default function FilePreviewClient() {
           setPasswordRequired(true);
         } else {
           setFileInfo(data.fileInfo);
-        }
-      } else {
-        setError(data.error || "Failed to load file information");
-      }
-    } catch (err) {
-      setError("Network error. Please try again.");
-      console.error("Error fetching file info:", err);
-    } finally {
+        }    } else {
+      setError(data.error || "Failed to load file information");
+    }
+  } catch (err) {
+    setError("Network error. Please try again.");
+    // Error fetching file info
+  } finally {
       setLoading(false);
     }
   }, [shortUrl]);
@@ -103,12 +102,11 @@ export default function FilePreviewClient() {
         setFileInfo(result.fileInfo);
         toast.success("Password verified successfully!");
       } else {
-        toast.error(result.error || "Invalid password");
-      }
-    } catch (err) {
-      toast.error("Failed to verify password");
-      console.error("Password verification error:", err);
-    } finally {
+        toast.error(result.error || "Invalid password");    }
+  } catch (err) {
+    toast.error("Failed to verify password");
+    // Password verification error
+  } finally {
       setPasswordLoading(false);
     }
   };
@@ -128,12 +126,10 @@ export default function FilePreviewClient() {
       link.download = fileInfo?.originalName || "download";
       document.body.appendChild(link);
       link.click();
-      document.body.removeChild(link);
-
-      toast.success("Download started!");
+      document.body.removeChild(link);      toast.success("Download started!");
     } catch (err) {
       toast.error("Failed to start download");
-      console.error("Download error:", err);
+      // Download error
     } finally {
       setDownloading(false);
     }

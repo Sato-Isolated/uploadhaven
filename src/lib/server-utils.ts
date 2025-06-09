@@ -33,10 +33,3 @@ export async function generateShortUrl(customAlias?: string): Promise<string> {
 
   throw new Error("Failed to generate unique short URL after maximum attempts");
 }
-
-// Build full short URL for sharing
-export function buildShortUrl(shortId: string, baseUrl?: string): string {
-  const base =
-    baseUrl || process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
-  return `${base}/s/${shortId}`;
-}

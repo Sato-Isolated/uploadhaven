@@ -27,14 +27,12 @@ export default function DashboardClient({ session }: DashboardClientProps) {
     }
   }, [session]);
 
-  const logUserActivity = async () => {
-    try {
+  const logUserActivity = async () => {    try {
       // Update user's lastActivity
       await fetch("/api/user/stats", {
         method: "GET",
-      });
-    } catch (error) {
-      console.error("Failed to log user activity:", error);
+      });    } catch {
+      // Failed to log user activity
     }
   };
 

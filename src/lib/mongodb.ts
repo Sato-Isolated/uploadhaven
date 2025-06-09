@@ -2,9 +2,6 @@ import mongoose from 'mongoose'
 // Import models to ensure they're registered when this module is loaded
 import './models'
 
-// Import models to ensure they're registered
-import './models'
-
 // Global variable to store the cached connection
 declare global {
   /* eslint-disable no-var */

@@ -156,10 +156,8 @@ export default function DashboardUploadArea() {
         if (!ALLOWED_TYPES.includes(file.type)) {
           toast.error(`File type "${file.type}" is not allowed.`);
           continue;
-        }
-
-        const advancedValidation = await validateFileAdvanced(file);
-        if (!advancedValidation.valid) {
+        }        const advancedValidation = await validateFileAdvanced(file);
+        if (!advancedValidation.isValid) {
           toast.error(`File "${file.name}" failed validation: ${advancedValidation.errors[0]}`);
           continue;
         }

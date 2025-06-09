@@ -12,7 +12,6 @@ import { Card } from "@/components/ui/card";
 
 // Internal imports
 import type { UploadedFile } from "./types";
-import { MAX_FILE_SIZE, ALLOWED_TYPES } from "./types";
 import { getFileType, copyToClipboard, saveFileToLocalStorage } from "./utils";
 import FileUploaderHeader from "./components/FileUploaderHeader";
 import UploadSettings from "./components/UploadSettings";
@@ -137,16 +136,10 @@ export default function FileUploader() {
     async (acceptedFiles: File[]) => {
       const validFiles: File[] = [];
 
-      for (const file of acceptedFiles) {
-        // Use advanced file validation
-        const validation = await validateFileAdvanced(file, {
-          allowedTypes: ALLOWED_TYPES,
-          maxSize: MAX_FILE_SIZE,
-          checkSignature: true,
-          allowExecutables: false,
-        });
+      for (const file of acceptedFiles) {        // Use advanced file validation
+        const validation = validateFileAdvanced(file);
 
-        if (!validation.valid) {
+        if (!validation.isValid) {
           // Log security events for validation failures
           validation.errors.forEach((error) => {
             logSecurityEvent(

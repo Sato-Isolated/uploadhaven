@@ -34,13 +34,11 @@ export const saveFileToLocalStorage = (fileInfo: {
   uploadDate: string;
   type: string;
   expiresAt: string;
-}) => {
-  try {
+}) => {  try {
     const savedFiles = localStorage.getItem("uploadedFiles");
-    const filesList = savedFiles ? JSON.parse(savedFiles) : [];
-    filesList.push(fileInfo);
+    const filesList = savedFiles ? JSON.parse(savedFiles) : [];    filesList.push(fileInfo);
     localStorage.setItem("uploadedFiles", JSON.stringify(filesList));
-  } catch (error) {
-    console.error("Error saving file info:", error);
+  } catch {
+    // Error saving file info - ignore silently
   }
 };

@@ -52,38 +52,29 @@ export async function POST(request: NextRequest) {
     await connectDB();
 
     // Get session for authenticated uploads
-    let session = null;
-    try {
-      session = await auth.api.getSession({
+    let session = null;    try {      session = await auth.api.getSession({
         headers: await headers(),
       });
-      console.log("✓ Session retrieved:", session?.user?.id || "No session");
-    } catch (error) {
-      console.log("⚠️ Session error (continuing without session):", error);
+      // Session retrieved successfully
+    } catch {
+      // Session error, continuing without session
       session = null;
-    }
-
-    // Get client IP and user agent
+    }// Get client IP and user agent
     const clientIP =
       request.headers.get("x-forwarded-for") ||
       request.headers.get("x-real-ip") ||
-      "127.0.0.1";
-    const userAgent = request.headers.get("user-agent") || "";
-    console.log("✓ Client info:", {
-      clientIP,
-      userAgent: userAgent.substring(0, 50) + "...",
-    }); // Apply rate limiting
+      "127.0.0.1";    const userAgent = request.headers.get("user-agent") || "";
+    
+    // Apply rate limiting
     let rateLimitCheck;
-    try {
-      rateLimitCheck = rateLimit(rateLimitConfigs.upload)(request);
-      console.log("✓ Rate limit check:", rateLimitCheck);
-    } catch (error) {
-      console.error("❌ Rate limit error:", error);
-      // Continue without rate limiting if it fails
+    try {      rateLimitCheck = rateLimit(rateLimitConfigs.upload)(request);
+      // Rate limit check completed
+    } catch {
+      // Rate limit error, continue without rate limiting
       rateLimitCheck = { success: true };
     }
     if (!rateLimitCheck.success) {
-      console.log("❌ Rate limit exceeded");
+      // Rate limit exceeded
       // Log rate limit hit
       await saveSecurityEvent({
         type: "rate_limit",
@@ -116,69 +107,50 @@ export async function POST(request: NextRequest) {
           },
         }
       );
-    }
-    let formData;
+    }    let formData;
     try {
-      formData = await request.formData();
-      console.log("✓ FormData parsed");
-    } catch (error) {
-      console.error("❌ FormData parsing failed:", error);
+      formData = await request.formData();      // FormData parsed successfully
+    } catch {
+      // FormData parsing failed
       return NextResponse.json(
         { success: false, error: "Invalid form data" },
         { status: 400 }
       );
-    }
-    const file = formData.get("file") as File;
+    }const file = formData.get("file") as File;
     const expiration = (formData.get("expiration") as string) || "24h";
     // Visibility removed - all files use security by obscurity
     const userId = formData.get("userId") as string;
     const password = (formData.get("password") as string) || null;
     const autoGenerateKey = formData.get("autoGenerateKey") === "true";
 
-    console.log("✓ Form fields extracted:", {
-      hasFile: !!file,
-      fileName: file?.name,
-      fileSize: file?.size,
-      fileType: file?.type,
-      expiration,
-      // Visibility removed - all files use security by obscurity
-      hasUserId: !!userId,
-      hasPassword: !!password,
-      passwordLength: password?.length || 0,
-      autoGenerateKey,
-    }); // Handle password protection or auto-generate key
+    // Form fields extracted successfully
+    
+    // Handle password protection or auto-generate key
     let hashedPassword: string | undefined = undefined;
     let isPasswordProtected = false;
-    let generatedKey: string | undefined = undefined;
-
-    if (autoGenerateKey) {
+    let generatedKey: string | undefined = undefined;    if (autoGenerateKey) {
       // Generate a secure random key
-      console.log("🔑 Generating automatic key...");
       generatedKey = nanoid(16); // Generate 16-character secure key
       hashedPassword = await hashPassword(generatedKey);
       isPasswordProtected = true;
-      console.log("✓ Automatic key generated and hashed");
+      // Automatic key generated and hashed
     } else if (password && password.trim()) {
-      console.log("🔑 Validating provided password...");
+      // Validating provided password
       try {
         const passwordValidation = validatePassword(password.trim());
-        console.log("🔑 Password validation result:", passwordValidation);
+        // Password validation completed
 
         if (!passwordValidation.valid) {
-          console.log(
-            "❌ Password validation failed:",
-            passwordValidation.error
-          );
+          // Password validation failed
           return NextResponse.json(
             { success: false, error: passwordValidation.error },
             { status: 400 }
           );
         }
-        hashedPassword = await hashPassword(password.trim());
-        isPasswordProtected = true;
-        console.log("✓ Password hashed successfully");
-      } catch (error) {
-        console.error("❌ Error processing password:", error);
+        hashedPassword = await hashPassword(password.trim());        isPasswordProtected = true;
+        // Password hashed successfully
+      } catch {
+        // Error processing password
         return NextResponse.json(
           { success: false, error: "Error processing password" },
           { status: 400 }
@@ -187,7 +159,7 @@ export async function POST(request: NextRequest) {
     }
 
     if (!file) {
-      console.log("❌ No file provided");
+      // No file provided
       await saveSecurityEvent({
         type: "invalid_file",
         ip: clientIP,
@@ -200,20 +172,13 @@ export async function POST(request: NextRequest) {
         { success: false, error: "No file provided" },
         { status: 400 }
       );
-    }
-
-    console.log("📁 File details:", {
-      name: file.name,
-      size: file.size,
-      type: file.type,
-      lastModified: file.lastModified,
-    });
+    }    // File details extracted successfully
 
     // Visibility validation removed - all files use security by obscurity
 
     // Validate user authentication if userId is provided
     if (userId && (!session?.user || session.user.id !== userId)) {
-      console.log("❌ Invalid user authentication");
+      // Invalid user authentication
       return NextResponse.json(
         { success: false, error: "Invalid user authentication" },
         { status: 401 }
@@ -222,21 +187,21 @@ export async function POST(request: NextRequest) {
 
     // Validate expiration
     if (!Object.keys(EXPIRATION_OPTIONS).includes(expiration)) {
-      console.log("❌ Invalid expiration:", expiration);
+      // Invalid expiration
       return NextResponse.json(
         { success: false, error: "Invalid expiration option" },
         { status: 400 }
       );
     }
-    console.log("✓ Expiration valid:", expiration);
+    // Expiration valid
 
     // Validate file
-    console.log("🔍 Starting file validation...");
+    // Starting file validation
     const validation = uploadSchema.safeParse({ file });
-    console.log("🔍 File validation result:", validation);
+    // File validation completed
 
     if (!validation.success) {
-      console.log("❌ File validation failed:", validation.error.issues);
+      // File validation failed
       await saveSecurityEvent({
         type: "invalid_file",
         ip: clientIP,

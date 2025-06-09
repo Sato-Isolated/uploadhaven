@@ -27,13 +27,11 @@ export default function AdminDashboard({ stats }: AdminDashboardProps) {
   useEffect(() => {
     const fetchRecentActivities = async () => {
       try {
-        const response = await fetch("/api/admin/activities?limit=3");
-        if (response.ok) {
-          const data = await response.json();
+        const response = await fetch("/api/admin/activities?limit=3");        if (response.ok) {        const data = await response.json();
           setRecentActivities(data.activities || []);
         }
-      } catch (error) {
-        console.error("Failed to fetch recent activities:", error);
+      } catch {
+        // Failed to fetch recent activities
       } finally {
         setActivitiesLoading(false);
       }
@@ -41,14 +39,12 @@ export default function AdminDashboard({ stats }: AdminDashboardProps) {
 
     const fetchSecurityStats = async () => {
       try {
-        const response = await fetch("/api/security");
-        if (response.ok) {
-          const data = await response.json();
-          setSecurityStats(data.stats || defaultSecurityStats);
-        }
-      } catch (error) {
-        console.error("Failed to fetch security stats:", error);
-      } finally {
+        const response = await fetch("/api/security");        if (response.ok) {
+          const data = await response.json();        setSecurityStats(data.stats || defaultSecurityStats);
+      }
+    } catch {
+      // Failed to fetch security stats
+    } finally {
         setSecurityLoading(false);
       }
     };    fetchRecentActivities();

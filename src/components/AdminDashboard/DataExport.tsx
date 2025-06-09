@@ -62,14 +62,12 @@ export default function DataExport() {
       document.body.appendChild(a);
       a.click();
       window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
-
-      toast({
+      document.body.removeChild(a);      toast({
         title: "Export successful",
         description: `${exportType} data exported as ${exportFormat.toUpperCase()}`,
       });
-    } catch (error) {
-      console.error("Export failed:", error);
+    } catch {
+      // Export failed
       toast({
         title: "Export failed",
         description: "Failed to export data. Please try again.",

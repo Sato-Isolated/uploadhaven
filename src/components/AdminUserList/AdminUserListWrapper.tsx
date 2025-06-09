@@ -77,12 +77,11 @@ export default function AdminUserListWrapper({
         }
         // For resendVerification, no local state update needed
       } else {
-        toast.error(result.error || "Action failed");
-      }
-    } catch (error) {
-      console.error("User action error:", error);
-      toast.error("An error occurred while performing the action");
-    }
+        toast.error(result.error || "Action failed");    }
+  } catch (error) {
+    // User action error
+    toast.error("An error occurred while performing the action");
+  }
   };
   const handleBulkAction = async (
     userIds: string[],
@@ -98,9 +97,8 @@ export default function AdminUserListWrapper({
         `Successfully performed ${action} on ${userIds.length} user${
           userIds.length > 1 ? "s" : ""
         }`
-      );
-    } catch (error) {
-      console.error("Bulk action error:", error);
+      );    } catch (error) {
+      // Bulk action error
       toast.error(
         "Some actions may have failed. Please check individual results."
       );

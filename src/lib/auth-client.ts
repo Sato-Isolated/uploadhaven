@@ -9,4 +9,4 @@ export const authClient = createAuthClient({
 });
 
 // Export better-auth functions directly
-export const { useSession, getSession, signIn, signUp, signOut } = authClient;
+export const { useSession, signIn, signUp, signOut } = authClient;

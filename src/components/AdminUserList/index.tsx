@@ -17,7 +17,7 @@ export default function AdminUserList({
   // Filter out any invalid user objects
   const validUsers = users.filter((user): user is User => {
     if (!user || !user.id || !user.email || !user.name) {
-      console.warn("Invalid user object filtered out:", user);
+      // Invalid user object filtered out
       return false;
     }
     return true;

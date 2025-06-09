@@ -5,14 +5,14 @@ import { backgroundCleanupService } from "./background-cleanup";
  */
 export async function initializeBackgroundServices(): Promise<void> {
   try {
-    console.log("Initializing background services...");
+    // Initialize background services
 
     // Start the background cleanup service
     await backgroundCleanupService.start();
 
     // Handle graceful shutdown
     const gracefulShutdown = () => {
-      console.log("Shutting down background services...");
+      // Shutting down background services
       backgroundCleanupService.stop();
       process.exit(0);
     };
@@ -22,9 +22,9 @@ export async function initializeBackgroundServices(): Promise<void> {
     process.on("SIGINT", gracefulShutdown);
     process.on("SIGUSR2", gracefulShutdown); // nodemon restart
 
-    console.log("Background services initialized successfully");
+    // Background services initialized successfully
   } catch (error) {
-    console.error("Failed to initialize background services:", error);
+    // Failed to initialize background services
     throw error;
   }
 }

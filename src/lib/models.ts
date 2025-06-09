@@ -247,13 +247,12 @@ export const saveFileMetadata = async (fileData: {
   // Visibility removed - all files use security by obscurity
   password?: string // hashed password
   isPasswordProtected?: boolean
-}) => {
-  try {
+}) => {  try {
     const file = new File(fileData)
     await file.save()
     return file
   } catch (error) {
-    console.error('Error saving file metadata:', error)
+    // Error saving file metadata
     throw error
   }
 }
@@ -268,22 +267,20 @@ export const saveSecurityEvent = async (eventData: {  type: string
   fileType?: string
   metadata?: Record<string, unknown>
   userId?: string
-}) => {
-  try {
+}) => {  try {
     const event = new SecurityEvent(eventData)
     await event.save()
     return event
   } catch (error) {
-    console.error('Error saving security event:', error)
+    // Error saving security event
     throw error
   }
 }
 
-export const getFileMetadata = async (filename: string) => {
-  try {
+export const getFileMetadata = async (filename: string) => {  try {
     return await File.findOne({ filename, isDeleted: false })
   } catch (error) {
-    console.error('Error getting file metadata:', error)
+    // Error getting file metadata
     throw error
   }
 }
@@ -295,8 +292,7 @@ export const incrementDownloadCount = async (filename: string) => {
       { $inc: { downloadCount: 1 } },
       { new: true }
     )
-  } catch (error) {
-    console.error('Error incrementing download count:', error)
+  } catch (error) {    // Error incrementing download count
     throw error
   }
 }
@@ -331,10 +327,8 @@ export const getSecurityStats = async () => {
       blockedIPs,
       last24h: last24hEvents,
       malwareDetected,
-      largeSizeBlocked
-    }
-  } catch (error) {
-    console.error('Error getting security stats:', error)
+      largeSizeBlocked    }  } catch (error) {
+    // Error getting security stats
     throw error
   }
 }
@@ -346,30 +340,7 @@ export const getRecentSecurityEvents = async (limit = 50) => {
       .limit(limit)
       .lean()
   } catch (error) {
-    console.error('Error getting recent security events:', error)
-    throw error
-  }
-}
-
-export const cleanupExpiredFiles = async () => {
-  try {
-    const now = new Date()
-    const expiredFiles = await File.find({
-      expiresAt: { $lt: now },
-      isDeleted: false
-    })
-
-    const result = await File.updateMany(
-      { expiresAt: { $lt: now }, isDeleted: false },
-      { isDeleted: true }
-    )
-
-    return {
-      deletedCount: result.modifiedCount,
-      expiredFiles: expiredFiles.map(f => f.filename)
-    }
-  } catch (error) {
-    console.error('Error cleaning up expired files:', error)
+    // Error getting recent security events
     throw error
   }
 }

@@ -23,10 +23,9 @@ export default function UserCard({
   isSelected = false,
   onUserAction,
   onSelectionChange,
-}: UserCardProps) {
-  // Guard against undefined user or user.id
+}: UserCardProps) {  // Guard against undefined user or user.id
   if (!user || !user.id) {
-    console.warn("UserCard received invalid user data:", user);
+    // UserCard received invalid user data
     return null;
   }
 

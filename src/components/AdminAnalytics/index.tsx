@@ -57,11 +57,9 @@ export default function AdminAnalytics({
 
       if (!response.ok) {
         throw new Error(data.error || "Failed to fetch analytics");
-      }
-
-      setAnalytics(data);
+      }      setAnalytics(data);
     } catch (error) {
-      console.error("Error fetching admin analytics:", error);
+      // Error fetching admin analytics
       setError(error instanceof Error ? error.message : "Unknown error");
     } finally {
       setIsLoading(false);

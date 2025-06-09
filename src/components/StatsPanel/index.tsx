@@ -27,15 +27,14 @@ export default function StatsPanel() {
       const response = await fetch("/api/stats");
       const result = await response.json();
 
-      if (result.success) {
-        setStats(result.stats);
-      } else {
-        toast.error("Failed to load statistics");
-      }
-    } catch {
-      console.error("Failed to fetch stats");
-      toast.error("Error loading statistics");
-    } finally {
+      if (result.success) {      setStats(result.stats);
+    } else {
+      toast.error("Failed to load statistics");
+    }
+  } catch {
+    // Failed to fetch stats
+    toast.error("Error loading statistics");
+  } finally {
       setLoading(false);
     }
   };

@@ -41,12 +41,10 @@ export default function FileManager({ className }: FileManagerProps = {}) {
       const response = await fetch("/api/files");
       if (!response.ok) {
         throw new Error("Failed to fetch files");
-      }
-
-      const data = await response.json();
+      }      const data = await response.json();
       setFiles(data.files || []);
-    } catch (error) {
-      console.error("Error loading files:", error);
+    } catch {
+      // Error loading files
       toast.error("Failed to load files");
     } finally {
       setLoading(false);
@@ -94,8 +92,7 @@ export default function FileManager({ className }: FileManagerProps = {}) {
       // Remove from local state
       setFiles((prev) => prev.filter((file) => file.name !== filename));
       toast.success("File deleted successfully");
-    } catch (error) {
-      console.error("Error deleting file:", error);
+    } catch (error) {      // Error deleting file
       toast.error("Failed to delete file");
     }
   };

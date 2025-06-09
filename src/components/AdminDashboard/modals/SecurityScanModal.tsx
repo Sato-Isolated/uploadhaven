@@ -117,13 +117,14 @@ export default function SecurityScanModal({
     if (isOpen) {
       fetch('/api/security/scan')
         .then(res => res.json())
-        .then((data) => {
-          setVirusTotalConfigured(data.virusTotalConfigured);
+        .then((data) => {        setVirusTotalConfigured(data.virusTotalConfigured);
           if (data.quotaStatus) {
             setQuotaStatus(data.quotaStatus);
           }
         })
-        .catch(console.error);
+        .catch(() => {
+          // Failed to fetch scanner status - ignore
+        });
     }
   }, [isOpen]);
 
@@ -173,16 +174,14 @@ export default function SecurityScanModal({
         setScanProgress((i / scanSteps.length) * 100);
         
         // Simulate scan delay
-        await new Promise(resolve => setTimeout(resolve, selectedScanType === 'quick' ? 1000 : 2000));
-
-        // Perform actual security checks
+        await new Promise(resolve => setTimeout(resolve, selectedScanType === 'quick' ? 1000 : 2000));        // Perform actual security checks
         if (scanSteps[i].includes('suspicious')) {
-          const suspiciousEvents = detectSuspiciousActivity();
-          if (suspiciousEvents.length > 0) {
+          const isSuspicious = detectSuspiciousActivity('0.0.0.0');
+          if (isSuspicious) {
             results.push({
               type: 'Suspicious Activity',
               status: 'warning',
-              message: `Detected ${suspiciousEvents.length} suspicious activities`,
+              message: 'Detected suspicious activity patterns',
               details: 'Multiple failed upload attempts from specific IPs detected',
               timestamp: new Date()
             });
@@ -308,9 +307,8 @@ export default function SecurityScanModal({
                           : f
                       ));
                     }
-                    
-                  } catch (error) {
-                    console.error(`Failed to scan file ${file.name}:`, error);
+                      } catch (error) {
+                    // File scan failed - update status
                     setScannedFiles(prev => prev.map((f, idx) => 
                       idx === fileIndex 
                         ? { ...f, status: 'error', details: 'Erreur technique' }
@@ -331,9 +329,8 @@ export default function SecurityScanModal({
                   timestamp: new Date()
                 });
               }
-              
-            } catch (error) {
-              console.error('Malware scan failed:', error);
+                } catch (error) {
+              // Malware scan failed
               results.push({
                 type: 'Analyse Malware',
                 status: 'warning',
@@ -395,9 +392,8 @@ export default function SecurityScanModal({
 
       toast.success(`${selectedScanType.charAt(0).toUpperCase() + selectedScanType.slice(1)} scan completed`);
       
-    } catch (error) {
-      toast.error('Scan failed. Please try again.');
-      console.error('Scan error:', error);
+    } catch (error) {      toast.error('Scan failed. Please try again.');
+      // Scan error occurred
     } finally {
       setIsScanning(false);
       setCurrentScanStep('');
@@ -443,9 +439,8 @@ export default function SecurityScanModal({
       } else {
         toast.success(`File ${file.name} is clean`);
       }
-      
-    } catch (error) {
-      console.error('File scan failed:', error);
+        } catch (error) {
+      // File scan failed
       toast.error('File scan failed. Please try again.');
     } finally {
       setIsFileScanning(false);

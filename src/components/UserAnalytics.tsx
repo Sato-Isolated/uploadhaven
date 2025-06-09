@@ -37,11 +37,9 @@ export default function UserAnalytics({
 
       if (!response.ok) {
         throw new Error(data.error || "Failed to fetch analytics");
-      }
-
-      setAnalytics(data.analytics);
+      }      setAnalytics(data.analytics);
     } catch (error) {
-      console.error("Error fetching user analytics:", error);
+      // Error fetching user analytics
       setError(error instanceof Error ? error.message : "Unknown error");
     } finally {
       setIsLoading(false);

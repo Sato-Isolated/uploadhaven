@@ -27,14 +27,12 @@ export default function DeleteFileButton({ filename, fileName }: DeleteFileButto
 
       const data = await response.json()
 
-      if (data.success) {
-        toast.success('File deleted successfully')
+      if (data.success) {      toast.success('File deleted successfully')
         router.refresh()
       } else {
         toast.error(data.error || 'Failed to delete file')
-      }
-    } catch (error) {
-      console.error('Error deleting file:', error)
+      }    } catch {
+      // Error deleting file
       toast.error('Failed to delete file')
     } finally {
       setIsDeleting(false)
