@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useCallback } from "react";
 import { motion } from "motion/react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Activity } from "lucide-react";
@@ -32,8 +32,8 @@ export default function RecentActivity() {
 
     return `/api/admin/activities?${params}`;
   }, [currentPage, typeFilter, severityFilter]);
-
   // Use useApi hook for fetching activities
+  // The API will automatically refetch when the URL changes due to filter/pagination changes
   const {
     data: activityData,
     loading,
@@ -44,10 +44,6 @@ export default function RecentActivity() {
       // Error handling is managed by the hook
     },
   });
-  // Refetch when dependencies change
-  useEffect(() => {
-    fetchActivities();
-  }, [fetchActivities, currentPage, typeFilter, severityFilter]);
   const handlePageChange = (newPage: number) => {
     goToPage(newPage);
   };

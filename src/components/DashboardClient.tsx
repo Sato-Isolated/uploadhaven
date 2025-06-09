@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { useMemo, useEffect } from "react";
 import { motion } from "motion/react";
 import { useApi } from "@/hooks";
 import ClientUserStats from "@/components/ClientUserStats";
@@ -30,7 +30,7 @@ export default function DashboardClient({ session }: DashboardClientProps) {
     method: "POST", // Use POST method for activity tracking
   });
 
-  // Log activity when dashboard loads - only depend on stable userId
+  // Log activity when dashboard loads - useEffect is appropriate for side effects
   useEffect(() => {
     if (userId) {
       logUserActivity();
@@ -46,7 +46,7 @@ export default function DashboardClient({ session }: DashboardClientProps) {
         <DashboardHeader userName={userName} />
         {/* Quick Action Cards */}
         <QuickActionCards /> {/* Enhanced Upload Area */}
-        <DashboardUploadArea />        {/* Enhanced Quick Stats */}
+        <DashboardUploadArea /> {/* Enhanced Quick Stats */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}

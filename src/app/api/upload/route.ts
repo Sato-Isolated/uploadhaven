@@ -52,22 +52,26 @@ export async function POST(request: NextRequest) {
     await connectDB();
 
     // Get session for authenticated uploads
-    let session = null;    try {      session = await auth.api.getSession({
+    let session = null;
+    try {
+      session = await auth.api.getSession({
         headers: await headers(),
       });
       // Session retrieved successfully
     } catch {
       // Session error, continuing without session
       session = null;
-    }// Get client IP and user agent
+    } // Get client IP and user agent
     const clientIP =
       request.headers.get("x-forwarded-for") ||
       request.headers.get("x-real-ip") ||
-      "127.0.0.1";    const userAgent = request.headers.get("user-agent") || "";
-    
+      "127.0.0.1";
+    const userAgent = request.headers.get("user-agent") || "";
+
     // Apply rate limiting
     let rateLimitCheck;
-    try {      rateLimitCheck = rateLimit(rateLimitConfigs.upload)(request);
+    try {
+      rateLimitCheck = rateLimit(rateLimitConfigs.upload)(request);
       // Rate limit check completed
     } catch {
       // Rate limit error, continue without rate limiting
@@ -107,16 +111,18 @@ export async function POST(request: NextRequest) {
           },
         }
       );
-    }    let formData;
+    }
+    let formData;
     try {
-      formData = await request.formData();      // FormData parsed successfully
+      formData = await request.formData(); // FormData parsed successfully
     } catch {
       // FormData parsing failed
       return NextResponse.json(
         { success: false, error: "Invalid form data" },
         { status: 400 }
       );
-    }const file = formData.get("file") as File;
+    }
+    const file = formData.get("file") as File;
     const expiration = (formData.get("expiration") as string) || "24h";
     // Visibility removed - all files use security by obscurity
     const userId = formData.get("userId") as string;
@@ -124,11 +130,12 @@ export async function POST(request: NextRequest) {
     const autoGenerateKey = formData.get("autoGenerateKey") === "true";
 
     // Form fields extracted successfully
-    
+
     // Handle password protection or auto-generate key
     let hashedPassword: string | undefined = undefined;
     let isPasswordProtected = false;
-    let generatedKey: string | undefined = undefined;    if (autoGenerateKey) {
+    let generatedKey: string | undefined = undefined;
+    if (autoGenerateKey) {
       // Generate a secure random key
       generatedKey = nanoid(16); // Generate 16-character secure key
       hashedPassword = await hashPassword(generatedKey);
@@ -147,7 +154,8 @@ export async function POST(request: NextRequest) {
             { status: 400 }
           );
         }
-        hashedPassword = await hashPassword(password.trim());        isPasswordProtected = true;
+        hashedPassword = await hashPassword(password.trim());
+        isPasswordProtected = true;
         // Password hashed successfully
       } catch {
         // Error processing password
@@ -172,7 +180,7 @@ export async function POST(request: NextRequest) {
         { success: false, error: "No file provided" },
         { status: 400 }
       );
-    }    // File details extracted successfully
+    } // File details extracted successfully
 
     // Visibility validation removed - all files use security by obscurity
 
@@ -248,14 +256,14 @@ export async function POST(request: NextRequest) {
     const expiresAt =
       expirationHours > 0
         ? new Date(Date.now() + expirationHours * 60 * 60 * 1000)
-        : new Date(Date.now() + 365 * 24 * 60 * 60 * 1000); // 1 year for "never"
+        : new Date(Date.now() + 365 * 24 * 60 * 60 * 1000); // 1 year for "never"    // Generate unique short URL
+    const shortId = await generateShortUrl();
+    const shareableUrl = buildShortUrl(shortId);
 
-    // Generate unique short URL
-    const shortUrl = await generateShortUrl();
-    const shareableUrl = buildShortUrl(shortUrl); // Save file metadata to MongoDB
+    // Save file metadata to MongoDB
     const savedFile = await saveFileMetadata({
       filename: fileName,
-      shortUrl,
+      shortUrl: shortId,
       originalName: file.name,
       mimeType: file.type,
       size: file.size,

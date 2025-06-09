@@ -12,7 +12,6 @@ export default function FileDetails({ file }: FileDetailsProps) {
   return (
     <div className="flex items-center space-x-2 text-xs text-muted-foreground mb-2">
       <span className="font-medium">{formatFileSize(file.file.size)}</span>
-
       {/* Scanning status */}
       {file.status === "scanning" && (
         <>
@@ -26,13 +25,12 @@ export default function FileDetails({ file }: FileDetailsProps) {
           </motion.span>
         </>
       )}
-
       {/* Upload progress */}
       {file.status === "uploading" && (
         <>
           <span>•</span>
           <motion.span
-            key={file.progress}
+            key={`${file.id}-progress-${file.progress}`}
             initial={{ scale: 1.1 }}
             animate={{ scale: 1 }}
             className="font-semibold text-blue-600 dark:text-blue-400"
@@ -41,7 +39,6 @@ export default function FileDetails({ file }: FileDetailsProps) {
           </motion.span>
         </>
       )}
-
       {/* Threat detected */}
       {file.status === "threat_detected" && (
         <>
@@ -55,7 +52,6 @@ export default function FileDetails({ file }: FileDetailsProps) {
           </motion.span>
         </>
       )}
-
       {/* Error status */}
       {file.error && file.status === "error" && (
         <>
@@ -63,7 +59,6 @@ export default function FileDetails({ file }: FileDetailsProps) {
           <span className="text-red-600 dark:text-red-400">{file.error}</span>
         </>
       )}
-
       {/* Security scan complete */}
       {file.scanResult?.safe && file.status === "completed" && (
         <>

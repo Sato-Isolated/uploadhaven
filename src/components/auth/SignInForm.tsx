@@ -37,7 +37,7 @@ export default function SignInForm() {
   const { loading: isLoading, execute: executeSignIn } = useAsyncOperation({
     onSuccess: () => {
       toast.success("Signed in successfully!");
-      // Let useEffect handle the redirection when session is established
+      // Navigation will be handled by the redirect logic below
     },
     onError: (errorMessage: string) => {
       setError(errorMessage);
@@ -45,12 +45,12 @@ export default function SignInForm() {
     },
   });
 
-  // Redirect if already authenticated
+  // Handle authentication redirect - useEffect is appropriate for side effects like navigation
   useEffect(() => {
     if (session?.user) {
-      router.push("/dashboard");
+      router.replace("/dashboard");
     }
-  }, [session, router]);
+  }, [session?.user, router]);
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(""); // Clear previous errors

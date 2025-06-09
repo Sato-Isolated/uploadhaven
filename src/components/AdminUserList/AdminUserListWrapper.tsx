@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import AdminUserList from "./index";
 import type { User } from "./types";
 import { toast } from "sonner";
@@ -12,12 +12,21 @@ interface AdminUserListWrapperProps {
 export default function AdminUserListWrapper({
   users,
 }: AdminUserListWrapperProps) {
-  const [usersList, setUsersList] = useState<User[]>(users);
+  // Use derived state instead of syncing with useEffect
+  const [localUsers, setLocalUsers] = useState<User[]>([]);
 
-  // Sync with parent state changes
-  useEffect(() => {
-    setUsersList(users);
-  }, [users]);
+  // Merge prop users with local changes, prioritizing local state
+  const usersList = users
+    .filter(
+      (propUser) =>
+        !localUsers.some(
+          (local) => local.id === propUser.id && (local as any).deleted
+        )
+    )
+    .map((propUser) => {
+      const localUser = localUsers.find((u) => u.id === propUser.id);
+      return localUser || propUser;
+    });
   const handleUserAction = async (
     userId: string,
     action: "delete" | "toggleRole" | "resendVerification"
@@ -30,7 +39,8 @@ export default function AdminUserListWrapper({
 
       switch (action) {
         case "delete":
-          endpoint = `/api/admin/users/${userId}/delete`;          method = "DELETE";
+          endpoint = `/api/admin/users/${userId}/delete`;
+          method = "DELETE";
           break;
         case "toggleRole":
           // Find the current user to toggle their role
@@ -61,27 +71,35 @@ export default function AdminUserListWrapper({
       const result = await response.json();
 
       if (result.success) {
-        toast.success(result.message);
-
-        // Update the local state based on the action
+        toast.success(result.message); // Update the local state based on the action
         if (action === "delete") {
-          setUsersList((prev) => prev.filter((u) => u.id !== userId));        } else if (action === "toggleRole" && newRole) {
+          setLocalUsers((prev) => [
+            ...prev,
+            { ...users.find((u) => u.id === userId)!, deleted: true } as any,
+          ]);
+        } else if (action === "toggleRole" && newRole) {
           // Use the newRole we calculated earlier to ensure consistency
-          setUsersList((prev) =>
-            prev.map((u) =>
-              u.id === userId
-                ? { ...u, role: newRole as "admin" | "user" }
-                : u
-            )
-          );
+          setLocalUsers((prev) => {
+            const existingUser = prev.find((u) => u.id === userId);
+            const baseUser =
+              existingUser || users.find((u) => u.id === userId)!;
+            const updatedUser = {
+              ...baseUser,
+              role: newRole as "admin" | "user",
+            };
+            return prev.some((u) => u.id === userId)
+              ? prev.map((u) => (u.id === userId ? updatedUser : u))
+              : [...prev, updatedUser];
+          });
         }
         // For resendVerification, no local state update needed
       } else {
-        toast.error(result.error || "Action failed");    }
-  } catch (error) {
-    // User action error
-    toast.error("An error occurred while performing the action");
-  }
+        toast.error(result.error || "Action failed");
+      }
+    } catch (error) {
+      // User action error
+      toast.error("An error occurred while performing the action");
+    }
   };
   const handleBulkAction = async (
     userIds: string[],
@@ -97,7 +115,8 @@ export default function AdminUserListWrapper({
         `Successfully performed ${action} on ${userIds.length} user${
           userIds.length > 1 ? "s" : ""
         }`
-      );    } catch (error) {
+      );
+    } catch (error) {
       // Bulk action error
       toast.error(
         "Some actions may have failed. Please check individual results."

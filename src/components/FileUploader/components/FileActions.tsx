@@ -22,11 +22,15 @@ export default function FileActions({
     <div className="flex items-center space-x-2">
       <AnimatePresence mode="wait">
         {/* Status Badge */}
-        <FileStatusBadge status={file.status} threatDetails={file.error} />
-
+        <FileStatusBadge
+          key={`status-${file.id}`}
+          status={file.status}
+          threatDetails={file.error}
+        />
         {/* Completed state action buttons */}
         {file.status === "completed" && file.shortUrl && (
           <motion.div
+            key={`short-url-${file.id}`}
             initial={{ opacity: 0, x: 10 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.3 }}
@@ -42,9 +46,9 @@ export default function FileActions({
             </Button>
           </motion.div>
         )}
-
         {file.status === "completed" && file.url && (
           <motion.div
+            key={`direct-url-${file.id}`}
             initial={{ opacity: 0, x: 10 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.4 }}

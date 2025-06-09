@@ -32,7 +32,7 @@ export default function FileListContainer({
           <AnimatePresence mode="popLayout">
             {files.map((file, index) => (
               <FileCard
-                key={file.name}
+                key={file.id}
                 file={file}
                 index={index}
                 onPreview={onPreview}

@@ -125,7 +125,7 @@ export default function SecurityEventsList({
               <Select value={typeFilter} onValueChange={setTypeFilter}>
                 <SelectTrigger className="w-full sm:w-40">
                   <SelectValue placeholder="Event Type" />
-                </SelectTrigger>{" "}
+                </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Types</SelectItem>
                   <SelectItem value="rate_limit">Rate Limit</SelectItem>
