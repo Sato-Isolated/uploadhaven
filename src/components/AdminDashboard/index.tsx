@@ -8,11 +8,11 @@ import DataExport from "./DataExport";
 import { SecurityScanModal } from "./modals";
 import type {
   AdminDashboardProps,
-  ActivityEvent,
   SecurityStats,
 } from "./types";
+import { ActivityEvent } from "@/components/types/common";
 import { defaultSecurityStats } from "./utils";
-import { useApi, useModal } from "@/hooks";
+import { useActivitiesQuery, useSecurityData, useModal } from "@/hooks";
 
 export default function AdminDashboard({ stats }: AdminDashboardProps) {
   // Use useModal hook for modal management
@@ -21,15 +21,12 @@ export default function AdminDashboard({ stats }: AdminDashboardProps) {
     openModal: openSecurityModal,
     closeModal: closeSecurityModal,
   } = useModal();
+  // Use TanStack Query hooks for better performance and caching
+  const { data: activitiesResponse, isLoading: activitiesLoading } = useActivitiesQuery({
+    limit: 3, // Only fetch 3 recent activities for dashboard overview
+  });
 
-  // Replace manual API calls with useApi hooks
-  const { data: activitiesResponse, loading: activitiesLoading } = useApi<{
-    activities: ActivityEvent[];
-  }>("/api/admin/activities?limit=3");
-
-  const { data: securityResponse, loading: securityLoading } = useApi<{
-    stats: SecurityStats;
-  }>("/api/security");
+  const { data: securityResponse, isLoading: securityLoading } = useSecurityData();
 
   // Extract data from responses
   const recentActivities = activitiesResponse?.activities || [];

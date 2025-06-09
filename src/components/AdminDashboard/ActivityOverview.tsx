@@ -19,7 +19,7 @@ import {
 import RecentActivity from "@/components/RecentActivity";
 import { Activity } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
-import type { ActivityEvent } from "./types";
+import type { ActivityEvent } from "@/components/types/common";
 import { getActivityColor, formatActivityType } from "./utils";
 
 interface ActivityOverviewProps {
@@ -94,9 +94,8 @@ export default function ActivityOverview({
               <DialogContent className="!max-w-6xl max-h-[85vh] overflow-hidden">
                 <DialogHeader>
                   <DialogTitle>Recent Activity</DialogTitle>
-                </DialogHeader>
-                <div className="overflow-y-auto max-h-[75vh] pr-2">
-                  <RecentActivity />
+                </DialogHeader>                <div className="overflow-y-auto max-h-[75vh] pr-2">
+                  <RecentActivity enableInfiniteScroll={true} />
                 </div>
               </DialogContent>
             </Dialog>

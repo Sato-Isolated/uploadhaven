@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { motion } from "motion/react";
 import { toast } from "sonner";
-import { useApi } from "@/hooks";
+import { useDeleteFile, useDeleteFiles } from "@/hooks";
 import type { AdminFileManagerProps, FileData } from "./types";
 import StatisticsGrid from "./components/StatisticsGrid";
 import SearchAndFilters from "./components/SearchAndFilters";
@@ -16,28 +16,11 @@ export default function AdminFileManager({ files }: AdminFileManagerProps) {
   const [fileToDelete, setFileToDelete] = useState<string | null>(null);
   const [showFileDetails, setShowFileDetails] = useState<FileData | null>(null);
   const [localFiles, setLocalFiles] = useState<FileData[]>(files);
+  // Use TanStack Query mutations for delete operations
+  const deleteFileMutation = useDeleteFile();
+  const deleteFilesMutation = useDeleteFiles();
 
-  // Use useApi hook for delete operations
-  const { loading: isLoading, refetch: performDelete } = useApi<any>(
-    "/api/bulk-delete",
-    {
-      immediate: false,
-      onSuccess: (result) => {
-        if (result.success) {
-          // Remove deleted file from local state
-          setLocalFiles((prev) =>
-            prev.filter((file) => file.name !== fileToDelete)
-          );
-          toast.success("File deleted successfully");
-        } else {
-          throw new Error(result.error || "Failed to delete file");
-        }
-      },
-      onError: () => {
-        toast.error("Failed to delete file. Please try again.");
-      },
-    }
-  );
+  const isLoading = deleteFileMutation.isPending || deleteFilesMutation.isPending;
 
   const filteredFiles = localFiles.filter(
     (file) =>
@@ -61,35 +44,19 @@ export default function AdminFileManager({ files }: AdminFileManagerProps) {
     } else {
       setSelectedFiles([]);
     }
-  };
-  const handleBulkDelete = async () => {
+  };  const handleBulkDelete = async () => {
     if (selectedFiles.length === 0) return;
 
     try {
-      const response = await fetch("/api/bulk-delete", {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          filenames: selectedFiles,
-        }),
-      });
-
-      const result = await response.json();
-
-      if (result.success) {
-        // Remove deleted files from local state
-        setLocalFiles((prev) =>
-          prev.filter((file) => !selectedFiles.includes(file.id))
-        );
-        setSelectedFiles([]);
-        toast.success(`Successfully deleted ${result.deletedCount} files`);
-      } else {
-        throw new Error(result.error || "Failed to delete files");
-      }
-    } catch {
-      toast.error("Failed to delete files. Please try again.");
+      await deleteFilesMutation.mutateAsync(selectedFiles);
+      // Remove deleted files from local state
+      setLocalFiles((prev) =>
+        prev.filter((file) => !selectedFiles.includes(file.id))
+      );
+      setSelectedFiles([]);
+    } catch (error) {
+      // Error handling is done in the mutation hook
+      console.error('Bulk delete failed:', error);
     }
   };
 
@@ -117,34 +84,18 @@ export default function AdminFileManager({ files }: AdminFileManagerProps) {
 
   const handleDeleteFile = async (filename: string) => {
     setFileToDelete(filename);
-  };
-  const confirmDeleteFile = async () => {
+  };  const confirmDeleteFile = async () => {
     if (!fileToDelete) return;
 
     try {
-      const response = await fetch("/api/bulk-delete", {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          filenames: [fileToDelete],
-        }),
-      });
-
-      const result = await response.json();
-
-      if (result.success) {
-        // Remove deleted file from local state
-        setLocalFiles((prev) =>
-          prev.filter((file) => file.name !== fileToDelete)
-        );
-        toast.success("File deleted successfully");
-      } else {
-        throw new Error(result.error || "Failed to delete file");
-      }
-    } catch {
-      toast.error("Failed to delete file. Please try again.");
+      await deleteFileMutation.mutateAsync(fileToDelete);
+      // Remove deleted file from local state
+      setLocalFiles((prev) =>
+        prev.filter((file) => file.name !== fileToDelete)
+      );
+    } catch (error) {
+      // Error handling is done in the mutation hook
+      console.error('File delete failed:', error);
     } finally {
       setFileToDelete(null);
     }

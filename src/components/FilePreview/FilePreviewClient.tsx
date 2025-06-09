@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useParams } from "next/navigation";
-import { useApi } from "@/hooks";
+import { useFilePreview } from "@/hooks/useFilePreview";
 import {
   Card,
   CardContent,
@@ -40,24 +40,24 @@ export default function FilePreviewClient() {
   const [passwordRequired, setPasswordRequired] = useState(false);
   const [password, setPassword] = useState("");
   const [passwordLoading, setPasswordLoading] = useState(false);
-  const [downloading, setDownloading] = useState(false);
-
-  // Replace manual API state management with useApi hook
+  const [downloading, setDownloading] = useState(false);  // Use TanStack Query for better caching and error handling
   const {
-    loading,
+    data: response,
+    isLoading: loading,
     error,
     refetch: fetchFileInfo,
-  } = useApi<any>(`/api/preview/${shortUrl}`, {
-    onSuccess: (data) => {
-      if (data.success) {
-        if (data.passwordRequired) {
-          setPasswordRequired(true);
-        } else {
-          setFileInfo(data.fileInfo);
-        }
+  } = useFilePreview(shortUrl);
+
+  // Handle the response data
+  useEffect(() => {
+    if (response?.success) {
+      if (response.passwordRequired) {
+        setPasswordRequired(true);
+      } else {
+        setFileInfo(response.fileInfo);
       }
-    },
-  });
+    }
+  }, [response]);
 
   const handlePasswordSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -181,11 +181,10 @@ export default function FilePreviewClient() {
               <AlertCircle className="h-6 w-6 text-red-600" />
               <CardTitle className="text-red-900">Error</CardTitle>
             </div>
-          </CardHeader>
-          <CardContent>
-            <p className="text-red-700 mb-4">{error}</p>
+          </CardHeader>          <CardContent>
+            <p className="text-red-700 mb-4">{error?.message || 'An error occurred'}</p>
             <Button
-              onClick={fetchFileInfo}
+              onClick={() => fetchFileInfo()}
               variant="outline"
               className="w-full"
             >

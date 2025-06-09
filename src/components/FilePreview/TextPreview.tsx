@@ -1,24 +1,18 @@
 "use client";
 
 import { motion } from "motion/react";
-import { useApi } from "@/hooks";
+import { useTextPreview } from "@/hooks/useFilePreview";
 import type { FilePreviewProps } from "@/components/types/common";
 
 interface TextPreviewProps extends FilePreviewProps {}
 
 export default function TextPreview({ file }: TextPreviewProps) {
-  // Use useApi to fetch text content directly
+  // Use TanStack Query for better caching and error handling
   const {
     data: textContent,
-    loading: isLoadingText,
+    isLoading: isLoadingText,
     error,
-  } = useApi<string>(file.url, {
-    immediate: true,
-    method: "GET",
-    onError: (errorMessage: string) => {
-      // Error handling managed by the hook
-    },
-  });
+  } = useTextPreview(file.url);
 
   return (
     <motion.div
@@ -26,8 +20,7 @@ export default function TextPreview({ file }: TextPreviewProps) {
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: 10 }}
-      transition={{ duration: 0.3 }}
-    >
+      transition={{ duration: 0.3 }}    >
       {isLoadingText ? (
         <motion.div
           className="flex items-center justify-center h-full"
@@ -43,6 +36,15 @@ export default function TextPreview({ file }: TextPreviewProps) {
             Loading content...
           </motion.div>
         </motion.div>
+      ) : error ? (
+        <motion.div
+          className="flex items-center justify-center h-full text-red-500"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.3 }}
+        >
+          Error loading content: {error.message}
+        </motion.div>
       ) : (
         <motion.pre
           className="text-sm font-mono whitespace-pre-wrap break-words"
@@ -50,7 +52,7 @@ export default function TextPreview({ file }: TextPreviewProps) {
           animate={{ opacity: 1 }}
           transition={{ delay: 0.2, duration: 0.3 }}
         >
-          {textContent}
+          {textContent || 'No content available'}
         </motion.pre>
       )}
     </motion.div>

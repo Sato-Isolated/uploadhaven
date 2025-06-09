@@ -1,12 +1,12 @@
 "use client";
 
-import { useCallback, useMemo } from "react";
+import { useMemo } from "react";
 import { motion } from "motion/react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatFileSize } from "@/lib/utils";
 import { Database, HardDrive, Upload, Clock, Activity } from "lucide-react";
-import { useApi } from "@/hooks";
-import { UserStats, BaseComponentProps } from "@/components/types/common";
+import { useUserStats } from "@/hooks/useUserStats";
+import { BaseComponentProps } from "@/components/types/common";
 
 interface UserStatsProps extends BaseComponentProps {
   userId: string;
@@ -17,21 +17,13 @@ export default function ClientUserStats({ userId, session }: UserStatsProps) {
   // Stabilize the authentication check to prevent unnecessary re-renders
   const isAuthenticated = useMemo(() => Boolean(session?.user), [session?.user]);
 
-  // Use useCallback to stabilize the error handler
-  const handleError = useCallback((err: string) => {
-    console.error("Error fetching user stats:", err);
-  }, []);
-
-  // Replace manual API logic with useApi hook
+  // Use TanStack Query for better performance and caching
   const {
-    data: apiResponse,
-    loading,
+    data: stats,
+    isLoading: loading,
     error,
-  } = useApi<{ stats: UserStats }>("/api/user/stats", {
-    immediate: isAuthenticated, // Only fetch if authenticated
-    onError: handleError,
-  });  // Extract stats from response
-  const stats = apiResponse?.stats;
+    refetch: fetchStats,
+  } = useUserStats(isAuthenticated ? userId : undefined);
 
   // Don't render anything if not authenticated
   if (!isAuthenticated) {
@@ -94,9 +86,8 @@ export default function ClientUserStats({ userId, session }: UserStatsProps) {
               <div>
                 <p className="text-red-700 dark:text-red-300 font-medium">
                   Unable to load statistics
-                </p>
-                <p className="text-red-600 dark:text-red-400 text-sm">
-                  {error}
+                </p>                <p className="text-red-600 dark:text-red-400 text-sm">
+                  {error?.message || "An unexpected error occurred"}
                 </p>
               </div>
             </div>

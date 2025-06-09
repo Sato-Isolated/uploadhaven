@@ -11,6 +11,7 @@ import { headers } from "next/headers";
 import { generateShortUrl } from "@/lib/server-utils";
 import { buildShortUrl, hashPassword, validatePassword } from "@/lib/utils";
 
+
 const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100MB
 const ALLOWED_TYPES = [
   "image/jpeg",
@@ -290,9 +291,7 @@ export async function POST(request: NextRequest) {
       } catch (error) {
         console.error("Failed to update user lastActivity:", error);
       }
-    }
-
-    // Log successful upload
+    }    // Log successful upload
     await saveSecurityEvent({
       type: "file_upload",
       ip: clientIP,
@@ -303,7 +302,7 @@ export async function POST(request: NextRequest) {
       fileSize: file.size,
       fileType: file.type,
       userId: session?.user?.id || undefined,
-    });
+    });    // File saved successfully
 
     return NextResponse.json({
       success: true,

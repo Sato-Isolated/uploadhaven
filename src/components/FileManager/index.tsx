@@ -4,7 +4,7 @@
 
 import { useState } from "react";
 import { toast } from "sonner";
-import { useApi, usePolling } from "@/hooks";
+import { useFiles, useDeleteFile } from "@/hooks";
 import {
   FileText,
   Image as ImageIcon,
@@ -24,26 +24,19 @@ import type {
 } from "./types";
 
 export default function FileManager({ className }: FileManagerProps = {}) {
-  const [files, setFiles] = useState<FileInfo[]>([]);
   const [previewFile, setPreviewFile] = useState<FilePreviewData | null>(null);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 
-  // Use useApi hook for loading files
+  // Use TanStack Query for better performance and caching
   const {
-    data: filesResponse,
-    loading,
+    data: files = [],
+    isLoading: loading,
+    error,
     refetch: loadFiles,
-  } = useApi<{ files: FileInfo[] }>("/api/files", {
-    onSuccess: (data) => {
-      setFiles(data.files || []);
-    },
-    onError: () => {
-      toast.error("Failed to load files");
-    },
-  });
+  } = useFiles();
 
-  // Auto-refresh files every 30 seconds using usePolling hook
-  usePolling(loadFiles, { interval: 30000 });
+  // Use TanStack Query mutation for deleting files
+  const deleteFileMutation = useDeleteFile();
 
   const getFileIcon = (type: FileInfo["type"]) => {
     switch (type) {
@@ -72,24 +65,8 @@ export default function FileManager({ className }: FileManagerProps = {}) {
     const url = `${window.location.origin}/api/files/${filename}`;
     window.open(url, "_blank");
   };
-
   const deleteFile = async (filename: string) => {
-    try {
-      const response = await fetch(`/api/files/${filename}/delete`, {
-        method: "DELETE",
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to delete file");
-      }
-
-      // Remove from local state
-      setFiles((prev) => prev.filter((file) => file.name !== filename));
-      toast.success("File deleted successfully");
-    } catch (error) {
-      // Error deleting file
-      toast.error("Failed to delete file");
-    }
+    deleteFileMutation.mutate(filename);
   };
 
   const getExpirationStatus = (expiresAt?: string | null): ExpirationStatus => {

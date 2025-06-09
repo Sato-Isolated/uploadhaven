@@ -35,7 +35,7 @@ import {
 import { motion, AnimatePresence } from "motion/react";
 import { toast } from "sonner";
 import { detectSuspiciousActivity, logSecurityEvent } from "@/lib/security";
-import { useApi } from "@/hooks";
+import { useSecurityScan } from "@/hooks";
 
 interface MalwareScanResult {
   isClean: boolean;
@@ -126,28 +126,24 @@ export default function SecurityScanModal({
   >([]);
   const [totalFilesToScan, setTotalFilesToScan] = useState(0);
   const [currentFileIndex, setCurrentFileIndex] = useState(0);
-
-  // Use useApi hook for security status (GET request)
+  // Use TanStack Query for security scan status
   const {
     data: securityData,
-    loading: securityLoading,
+    isLoading: securityLoading,
     refetch: refetchSecurity,
-  } = useApi("/api/security/scan", {
-    immediate: false,
-    onSuccess: (data) => {
-      setVirusTotalConfigured(data.virusTotalConfigured);
-      if (data.quotaStatus) {
-        setQuotaStatus(data.quotaStatus);
-      }
-    },
+  } = useSecurityScan({
+    enabled: isOpen, // Only fetch when modal is open
   });
 
-  // Load VirusTotal quota status when modal opens
+  // Handle security data when available
   useEffect(() => {
-    if (isOpen) {
-      refetchSecurity();
+    if (securityData) {
+      setVirusTotalConfigured(securityData.virusTotalConfigured);
+      if (securityData.quotaStatus) {
+        setQuotaStatus(securityData.quotaStatus);
+      }
     }
-  }, [isOpen, refetchSecurity]);
+  }, [securityData]);
 
   // Helper functions for API operations
   const fetchFilesList = async () => {

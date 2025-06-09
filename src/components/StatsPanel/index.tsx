@@ -6,7 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 import { Stats } from "./types";
-import { useApi, usePolling } from "@/hooks";
+import { useStatsQuery } from "@/hooks";
 
 // Component imports
 import StatsHeader from "./components/StatsHeader";
@@ -19,29 +19,13 @@ import SystemInformation from "./components/SystemInformation";
 
 export default function StatsPanel() {
   const [bulkDeleting, setBulkDeleting] = useState(false);
-
-  // Replace manual fetch logic with useApi hook
+  // Use TanStack Query for better performance and caching
   const {
-    data: statsResponse,
-    loading,
+    data: stats,
+    isLoading: loading,
     error,
     refetch: fetchStats,
-  } = useApi<{ success: boolean; stats: Stats }>("/api/stats", {
-    onSuccess: (data) => {
-      if (!data.success) {
-        toast.error("Failed to load statistics");
-      }
-    },
-    onError: (error) => {
-      toast.error("Error loading statistics");
-    },
-  });
-
-  // Auto-refresh stats every 30 seconds using usePolling hook
-  usePolling(fetchStats, { interval: 30000 });
-
-  // Extract stats from response
-  const stats = statsResponse?.stats;
+  } = useStatsQuery();
 
   const runCleanup = async () => {
     try {

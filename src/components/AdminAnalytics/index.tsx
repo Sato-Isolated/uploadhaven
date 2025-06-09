@@ -33,7 +33,7 @@ import {
   formatDate,
   formatDateTime,
 } from "./utils";
-import { useApi } from "@/hooks";
+import { useAdminAnalytics } from "./hooks";
 
 interface AdminAnalyticsProps {
   className?: string;
@@ -43,21 +43,13 @@ export default function AdminAnalytics({
   className = "",
 }: AdminAnalyticsProps) {
   const [timeRange, setTimeRange] = useState("30d");
-
-  // Replace manual API logic with useApi hook
+  // Use TanStack Query for better performance and caching
   const {
     data: analytics,
-    loading: isLoading,
+    isLoading,
     error,
     refetch: fetchAnalytics,
-  } = useApi<AdminAnalyticsType>(
-    `/api/analytics/admin?timeRange=${timeRange}`,
-    {
-      onError: (err) => {
-        console.error("Error fetching admin analytics:", err);
-      },
-    }
-  );
+  } = useAdminAnalytics(timeRange);
 
   if (isLoading) {
     return (
@@ -66,13 +58,12 @@ export default function AdminAnalytics({
       </div>
     );
   }
-
   if (error) {
     return (
       <Card className="border-red-200 bg-red-50">
         <CardContent className="pt-6">
-          <p className="text-red-600">Error: {error}</p>
-          <Button onClick={fetchAnalytics} className="mt-4" variant="outline">
+          <p className="text-red-600">Error: {error.message}</p>
+          <Button onClick={() => fetchAnalytics()} className="mt-4" variant="outline">
             Retry
           </Button>
         </CardContent>

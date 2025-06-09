@@ -13,35 +13,26 @@ import {
   DownloadAnalytics as DownloadAnalyticsType,
   calculateTrend,
 } from "./DownloadAnalytics/";
-import { useApi } from "@/hooks";
+import { useUserAnalytics } from "@/hooks";
 import { BaseComponentProps, UserStats } from "@/components/types/common";
 
 interface UserAnalyticsProps extends BaseComponentProps {}
 
-export default function UserAnalytics({ className = "" }: UserAnalyticsProps) {
-  // Replace manual API logic with useApi hook
+export default function UserAnalytics({ className = "" }: UserAnalyticsProps) {  // Use TanStack Query for better performance and caching
   const {
-    data: apiResponse,
-    loading: isLoading,
+    data: analytics,
+    isLoading,
     error,
     refetch: fetchAnalytics,
-  } = useApi<{ analytics: DownloadAnalyticsType }>("/api/analytics/user", {
-    onError: (err) => {
-      console.error("Error fetching user analytics:", err);
-    },
-  });
-
-  // Extract analytics from response
-  const analytics = apiResponse?.analytics;
+  } = useUserAnalytics();
 
   if (isLoading) {
     return <AnalyticsLoader className={className} />;
   }
-
   if (error) {
     return (
       <AnalyticsError
-        error={error}
+        error={error?.message || "An unexpected error occurred"}
         onRetry={fetchAnalytics}
         className={className}
       />
