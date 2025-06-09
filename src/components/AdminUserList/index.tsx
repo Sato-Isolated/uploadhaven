@@ -14,8 +14,17 @@ export default function AdminUserList({
   const [statusFilter, setStatusFilter] = useState("all");
   const [selectedUsers, setSelectedUsers] = useState<Set<string>>(new Set());
 
+  // Filter out any invalid user objects
+  const validUsers = users.filter((user): user is User => {
+    if (!user || !user.id || !user.email || !user.name) {
+      console.warn("Invalid user object filtered out:", user);
+      return false;
+    }
+    return true;
+  });
+
   const filteredUsers = useMemo(() => {
-    return users.filter((user: User) => {
+    return validUsers.filter((user: User) => {
       // Search filter
       const matchesSearch =
         searchQuery === "" ||
@@ -35,11 +44,9 @@ export default function AdminUserList({
         matchesStatus = user.isActive !== false;
       } else if (statusFilter === "inactive") {
         matchesStatus = user.isActive === false;
-      }
-
-      return matchesSearch && matchesRole && matchesStatus;
+      }      return matchesSearch && matchesRole && matchesStatus;
     });
-  }, [users, searchQuery, roleFilter, statusFilter]);
+  }, [validUsers, searchQuery, roleFilter, statusFilter]);
 
   const handleSelectionChange = (userId: string, selected: boolean) => {
     const newSelection = new Set(selectedUsers);

@@ -67,15 +67,8 @@ export interface AdminDashboardProps {
 
 export interface AdminDashboardState {
   recentActivities: ActivityEvent[];
-  activitiesLoading: boolean;
-  securityStats: SecurityStats;
+  activitiesLoading: boolean;  securityStats: SecurityStats;
   securityLoading: boolean;
-  users: User[];
-  files: FileData[];
-  usersLoading: boolean;
-  filesLoading: boolean;
-  showUsersModal: boolean;
-  showFilesModal: boolean;
   showSecurityModal: boolean;
   showLogsModal: boolean;
 }

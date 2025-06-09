@@ -2,7 +2,6 @@
 
 import { motion } from "motion/react";
 import { Badge } from "@/components/ui/badge";
-import { generateUuid } from "@/lib/utils";
 import { SystemStatusProps } from "../types";
 
 export default function SystemStatus({ stats }: SystemStatusProps) {
@@ -43,7 +42,7 @@ export default function SystemStatus({ stats }: SystemStatusProps) {
       <h3 className="text-lg font-medium">System Status</h3>      <div className="flex flex-wrap gap-2">
         {statusBadges.map((badge, index) => (
           <motion.div
-            key={generateUuid()}
+            key={`status-badge-${index}`}
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 1.6 + index * 0.1, duration: 0.3 }}

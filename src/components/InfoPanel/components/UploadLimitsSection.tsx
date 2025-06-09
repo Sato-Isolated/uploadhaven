@@ -10,7 +10,6 @@ import {
   createExpirationOptions,
   createSupportedTypes,
 } from "../utils";
-import { generateUuid } from "@/lib/utils";
 
 export default function UploadLimitsSection() {
   const supportedFormats = createSupportedFormats();
@@ -62,8 +61,8 @@ export default function UploadLimitsSection() {
               <span className="text-sm font-medium text-emerald-900 dark:text-emerald-100">
                 Supported formats
               </span>              <div className="flex gap-1">
-                {supportedFormats.map((format) => (
-                  <Badge key={generateUuid()} variant="outline" className={format.color}>
+                {supportedFormats.map((format, index) => (
+                  <Badge key={`format-${format.name}-${index}`} variant="outline" className={format.color}>
                     {format.name}
                   </Badge>
                 ))}
@@ -80,8 +79,8 @@ export default function UploadLimitsSection() {
               <span className="text-sm font-medium text-emerald-900 dark:text-emerald-100">
                 Expiration options
               </span>              <div className="flex gap-1">
-                {expirationOptions.map((option) => (
-                  <Badge key={generateUuid()} variant="outline" className={option.color}>
+                {expirationOptions.map((option, index) => (
+                  <Badge key={`expiration-${option.label}-${index}`} variant="outline" className={option.color}>
                     {option.label}
                   </Badge>
                 ))}
@@ -98,8 +97,8 @@ export default function UploadLimitsSection() {
               transition={{ duration: 0.3, delay: 0.45 }}
             >
               <p className="font-semibold">Supported file types:</p>              <ul className="mt-2 space-y-1 text-xs">
-                {supportedTypes.map((type) => (
-                  <li key={generateUuid()}>
+                {supportedTypes.map((type, index) => (
+                  <li key={`type-${type.name}-${index}`}>
                     • <strong>{type.name}:</strong> {type.extensions}
                   </li>
                 ))}

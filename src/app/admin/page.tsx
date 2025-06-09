@@ -78,8 +78,7 @@ export default async function AdminPage() {
         uploadDate: string;
         downloadCount: number;
         userId?: string;
-        userName?: string;
-      }) => ({
+        userName?: string;      }) => ({
         id: file.id,
         name: file.name,
         originalName: file.originalName,
@@ -92,6 +91,11 @@ export default async function AdminPage() {
         isAnonymous: !file.userId,
       })
     ) || [];
+
+  // Ensure users data is valid and filter out any invalid entries
+  const validUsersData = Array.isArray(usersData?.users) 
+    ? usersData.users.filter((user: any) => user && user.id && user.email && user.name)
+    : [];
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-800">
       <div className="container mx-auto px-4 py-8">
@@ -166,9 +170,8 @@ export default async function AdminPage() {
             </TabsContent>
             <TabsContent value="files" className="space-y-6">
               <AdminFileManager files={adminFiles} />
-            </TabsContent>
-            <TabsContent value="users" className="space-y-6">
-              <AdminUserListWrapper users={usersData?.users || []} />
+            </TabsContent>            <TabsContent value="users" className="space-y-6">
+              <AdminUserListWrapper users={validUsersData} />
             </TabsContent>{" "}
             <TabsContent value="analytics" className="space-y-6">
               <AdminAnalytics />

@@ -10,7 +10,6 @@ import {
 } from "@/components/ui/card";
 import { Shield } from "lucide-react";
 import { ApiInfoProps } from "../types";
-import { generateUuid } from "@/lib/utils";
 
 export default function ApiInfoSection({
   endpoints,
@@ -34,10 +33,9 @@ export default function ApiInfoSection({
             Programmatic access to UploadHaven
           </CardDescription>
         </CardHeader>
-        <CardContent>
-          <div className="space-y-6">            {endpoints.map((endpoint) => (
+        <CardContent>          <div className="space-y-6">            {endpoints.map((endpoint, index) => (
               <motion.div
-                key={generateUuid()}
+                key={`endpoint-${endpoint.title}-${index}`}
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.3, delay: endpoint.delay }}

@@ -4,7 +4,6 @@ import { motion } from "motion/react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Clock } from "lucide-react";
-import { generateUuid } from "@/lib/utils";
 import { FaqProps } from "../types";
 
 export default function FaqSection({ faqs }: FaqProps) {
@@ -25,7 +24,7 @@ export default function FaqSection({ faqs }: FaqProps) {
         </CardHeader>
         <CardContent>          <div className="space-y-6">
             {faqs.map((faq, index) => (
-              <div key={generateUuid()}>
+              <div key={`faq-${index}-${faq.question.slice(0, 20)}`}>
                 <motion.div
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}

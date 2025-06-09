@@ -7,36 +7,22 @@ import SecurityStatus from "./SecurityStatus";
 import QuickActions from "./QuickActions";
 import DataExport from "./DataExport";
 import {
-  ManageUsersModal,
-  FileCleanupModal,
   SecurityScanModal,
-  SystemLogsModal,
 } from "./modals";
 import type {
   AdminDashboardProps,
   ActivityEvent,
   SecurityStats,
-  User,
-  FileData,
 } from "./types";
 import { defaultSecurityStats } from "./utils";
 
 export default function AdminDashboard({ stats }: AdminDashboardProps) {
   const [recentActivities, setRecentActivities] = useState<ActivityEvent[]>([]);
-  const [activitiesLoading, setActivitiesLoading] = useState(true);
-  const [securityStats, setSecurityStats] =
+  const [activitiesLoading, setActivitiesLoading] = useState(true);  const [securityStats, setSecurityStats] =
     useState<SecurityStats>(defaultSecurityStats);
   const [securityLoading, setSecurityLoading] = useState(true);
-  const [users, setUsers] = useState<User[]>([]);
-  const [files, setFiles] = useState<FileData[]>([]);
-  const [usersLoading, setUsersLoading] = useState(false);
-  const [filesLoading, setFilesLoading] = useState(false);
-
   // Modal states
-  const [showUsersModal, setShowUsersModal] = useState(false);
-  const [showFilesModal, setShowFilesModal] = useState(false);
   const [showSecurityModal, setShowSecurityModal] = useState(false);
-  const [showLogsModal, setShowLogsModal] = useState(false);
 
   useEffect(() => {
     const fetchRecentActivities = async () => {
@@ -65,60 +51,11 @@ export default function AdminDashboard({ stats }: AdminDashboardProps) {
       } finally {
         setSecurityLoading(false);
       }
-    };
-
-    fetchRecentActivities();
+    };    fetchRecentActivities();
     fetchSecurityStats();
   }, []);
-
-  const fetchUsers = async () => {
-    setUsersLoading(true);
-    try {
-      const response = await fetch("/api/admin/users");
-      if (response.ok) {
-        const data = await response.json();
-        setUsers(data.users || []);
-      }
-    } catch (error) {
-      console.error("Failed to fetch users:", error);
-    } finally {
-      setUsersLoading(false);
-    }
-  };
-
-  const fetchFiles = async () => {
-    setFilesLoading(true);
-    try {
-      const response = await fetch("/api/files");
-      if (response.ok) {
-        const data = await response.json();
-        setFiles(data.files || []);
-      }
-    } catch (error) {
-      console.error("Failed to fetch files:", error);
-    } finally {
-      setFilesLoading(false);
-    }
-  };
-  const handleManageUsers = () => {
-    setShowUsersModal(true);
-    // Always refetch users to ensure we have the latest data
-    fetchUsers();
-  };
-
-  const handleFileCleanup = () => {
-    setShowFilesModal(true);
-    if (files.length === 0) {
-      fetchFiles();
-    }
-  };
-
   const handleSecurityScan = () => {
     setShowSecurityModal(true);
-  };
-
-  const handleSystemLogs = () => {
-    setShowLogsModal(true);
   };
 
   return (
@@ -135,34 +72,15 @@ export default function AdminDashboard({ stats }: AdminDashboardProps) {
           securityStats={securityStats}
           loading={securityLoading}
         />
-      </div>
-      {/* Quick Actions */}
-      <QuickActions
-        onManageUsers={handleManageUsers}
-        onFileCleanup={handleFileCleanup}
-        onSecurityScan={handleSecurityScan}
-        onSystemLogs={handleSystemLogs}
-      />
+      </div>      {/* Quick Actions */}          <QuickActions
+            onSecurityScan={handleSecurityScan}
+          />
       {/* Data Export */}
-      <DataExport />
-      {/* Modals */}
-      <ManageUsersModal
-        isOpen={showUsersModal}
-        onOpenChange={setShowUsersModal}
-        users={users}
-        loading={usersLoading}
-      />
-      <FileCleanupModal
-        isOpen={showFilesModal}
-        onOpenChange={setShowFilesModal}
-        files={files}
-        loading={filesLoading}
-      />
+      <DataExport />      {/* Modals */}
       <SecurityScanModal
         isOpen={showSecurityModal}
         onOpenChange={setShowSecurityModal}
       />
-      <SystemLogsModal isOpen={showLogsModal} onOpenChange={setShowLogsModal} />
     </div>
   );
 }

@@ -9,7 +9,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { ZapIcon } from "lucide-react";
-import { generateUuid } from "@/lib/utils";
 import { FeaturesProps } from "../types";
 
 export default function FeaturesSection({ features }: FeaturesProps) {
@@ -30,11 +29,10 @@ export default function FeaturesSection({ features }: FeaturesProps) {
           <CardDescription className="text-blue-600 dark:text-blue-400">
             What makes UploadHaven special
           </CardDescription>
-        </CardHeader>
-        <CardContent>          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {features.map((feature) => (
+        </CardHeader>        <CardContent>          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {features.map((feature, index) => (
               <motion.div
-                key={generateUuid()}
+                key={`${feature.title}-${index}`}
                 className="flex items-start space-x-3"
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
