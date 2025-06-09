@@ -2,10 +2,10 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { AlertTriangle, Shield, X, Clock, Globe, File } from "lucide-react";
-import { SecurityEvent } from "../types";
+import { SecurityEvent, BaseComponentProps } from "@/components/types/common";
 import { formatTimestamp } from "../utils";
 
-interface SecurityAlertProps {
+interface SecurityAlertProps extends BaseComponentProps {
   event: SecurityEvent;
   onDismiss: () => void;
 }
@@ -52,7 +52,8 @@ function getEventTypeDisplay(type: string): { label: string; color: string } {
     },
     system_maintenance: {
       label: "System Maintenance",
-      color: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300",
+      color:
+        "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300",
     },
   };
   return (
@@ -113,7 +114,9 @@ export default function SecurityAlert({
 
             <AlertDescription className="text-sm space-y-2">
               <div className="mb-3">
-                <strong className="text-base">{event.message}</strong>
+                <strong className="text-base">
+                  {event.details?.reason || "Security event detected"}
+                </strong>
               </div>
 
               {/* Informations de base */}
@@ -179,13 +182,13 @@ export default function SecurityAlert({
               {/* Reason */}
               {event.details.reason && (
                 <div className="text-xs text-gray-600 dark:text-gray-400 mt-2 p-2 bg-gray-50 dark:bg-gray-800 rounded">
-                  <span className="font-medium">Reason:</span>{" "}
+                  <span className="font-medium">Reason:</span>
                   {event.details.reason}
                 </div>
               )}
             </AlertDescription>
           </div>
-        </div>{" "}
+        </div>
         <Button
           variant="ghost"
           size="sm"

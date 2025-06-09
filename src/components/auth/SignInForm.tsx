@@ -25,15 +25,25 @@ import {
   Upload,
   Sparkles,
 } from "lucide-react";
+import { useAsyncOperation } from "@/hooks";
 
 export default function SignInForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const router = useRouter();
   const { data: session } = useSession();
+  const { loading: isLoading, execute: executeSignIn } = useAsyncOperation({
+    onSuccess: () => {
+      toast.success("Signed in successfully!");
+      // Let useEffect handle the redirection when session is established
+    },
+    onError: (errorMessage: string) => {
+      setError(errorMessage);
+      toast.error(errorMessage);
+    },
+  });
 
   // Redirect if already authenticated
   useEffect(() => {
@@ -41,13 +51,11 @@ export default function SignInForm() {
       router.push("/dashboard");
     }
   }, [session, router]);
-
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
     setError(""); // Clear previous errors
 
-    try {
+    executeSignIn(async () => {
       const result = await signIn.email({
         email,
         password,
@@ -56,23 +64,7 @@ export default function SignInForm() {
       if (result?.error) {
         throw new Error(result.error.message || "Sign in failed");
       }
-
-      toast.success("Signed in successfully!");
-
-      // Let useEffect handle the redirection when session is established
-      // No manual redirection needed here
-    } catch (error: unknown) {
-      const errorMessage =
-        error instanceof Error
-          ? error.message
-          : "Failed to sign in. Please check your credentials.";
-
-      // Show error in both toast and form
-      setError(errorMessage);
-      toast.error(errorMessage);
-    } finally {
-      setIsLoading(false);
-    }
+    });
   };
 
   return (

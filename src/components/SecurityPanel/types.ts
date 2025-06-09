@@ -1,79 +1,79 @@
-// Raw API response types
-export interface SecurityEventAPI {
-  id: string;
-  type: string;
-  details?: string;
-  severity: "low" | "medium" | "high" | "critical";
-  timestamp: string;
-  ip?: string;
+// Import types for local use
+import type {
+  SecurityEvent,
+  SecurityStats,
+  SecuritySeverity,
+  SecurityEventType,
+  ApiResponse,
+  PaginationData,
+  BaseComponentProps,
+  DataComponentProps,
+  ActionComponentProps,
+} from "@/components/types/common";
+
+// Re-export centralized security types for backward compatibility
+export type {
+  SecurityEvent,
+  SecurityStats,
+  SecuritySeverity,
+  SecurityEventType,
+  ApiResponse,
+  PaginationData,
+  BaseComponentProps,
+  DataComponentProps,
+  ActionComponentProps,
+} from "@/components/types/common";
+
+// SecurityPanel-specific types that don't exist in common
+export interface SecurityEventAPI extends SecurityEvent {
+  // API-specific fields
   filename?: string;
   fileSize?: number;
-  userAgent?: string;
   endpoint?: string;
   reason?: string;
+  message?: string;
 }
 
-export interface SecurityEvent {
-  id: string;
-  type:
-    | "rate_limit"
-    | "invalid_file"
-    | "blocked_ip"
-    | "malware_detected"
-    | "large_file"
-    | "access_denied"
-    | "suspicious_activity"
-    | "system_maintenance";
-  message: string;
-  severity: "low" | "medium" | "high" | "critical";
-  timestamp: Date | string;
-  details: {
-    ip?: string;
-    filename?: string;
-    fileSize?: number;
-    userAgent?: string;
-    endpoint?: string;
-    reason?: string;
-  };
-}
-
-export interface SecurityStats {
-  totalEvents: number;
-  rateLimitHits: number;
-  invalidFiles: number;
-  blockedIPs: number;
-  last24h: number;
-  malwareDetected: number;
-  largeSizeBlocked: number;
-}
-
-export interface SecurityHeaderProps {
-  title: string;
-  description: string;
-}
-
-export interface SecurityActionsProps {
-  onRefresh: () => void;
-  onExport: () => void;
-  onClear: () => void;
-  isLoading: boolean;
-}
-
-export interface SecurityStatsGridProps {
+export interface SecurityApiResponse {
   stats: SecurityStats;
-  isLoading: boolean;
+  events: SecurityEventAPI[];
 }
 
-export interface SecurityEventsListProps {
+// Component props interfaces using centralized base types
+export interface SecurityHeaderProps extends BaseComponentProps {
+  stats?: SecurityStats;
+  title?: string;
+  description?: string;
+}
+
+export interface SecurityActionsProps extends ActionComponentProps {
+  onRefresh?: () => void;
+  onExport?: () => void;
+  onClear?: () => void;
+  onClearLogs?: () => void;
+  isLoading?: boolean;
+}
+
+export interface SecurityStatsGridProps
+  extends DataComponentProps<SecurityStats> {
+  stats: SecurityStats;
+  isLoading?: boolean;
+}
+
+export interface SecurityEventsListProps extends BaseComponentProps {
   events: SecurityEvent[];
-  isLoading: boolean;
+  isLoading?: boolean;
 }
 
-export interface SecurityStatCardProps {
+export interface SecurityStatCardProps extends BaseComponentProps {
   title: string;
-  value: number;
-  icon: React.ReactNode;
-  color: string;
+  value: number | string;
+  icon: React.ReactNode; // Changed to ReactNode to accept JSX elements
+  color?: string;
+  trend?: {
+    value: number;
+    isPositive: boolean;
+  };
 }
 
 // Handler function types
@@ -82,10 +82,6 @@ export type SecurityExportHandler = () => Promise<void>;
 export type SecurityClearHandler = () => Promise<void>;
 
 // Utility function types
-export type GetSeverityColorFunction = (
-  severity: SecurityEvent["severity"]
-) => string;
-export type GetEventIconFunction = (
-  type: SecurityEvent["type"]
-) => React.ReactNode;
+export type GetSeverityColorFunction = (severity: SecuritySeverity) => string;
+export type GetEventIconFunction = (type: SecurityEventType) => React.ReactNode;
 export type FormatTimestampFunction = (timestamp: Date | string) => string;

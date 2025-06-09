@@ -18,20 +18,29 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Download, FileText, Users } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
+import { useAsyncOperation } from "@/hooks";
 
 type ExportType = "users" | "files";
 type ExportFormat = "json" | "csv";
 
 export default function DataExport() {
-  const [exporting, setExporting] = useState(false);
   const [exportType, setExportType] = useState<ExportType>("users");
   const [exportFormat, setExportFormat] = useState<ExportFormat>("json");
-  const { toast } = useToast();
 
-  const handleExport = async () => {
-    setExporting(true);
-    try {
+  const { loading: exporting, execute: executeExport } = useAsyncOperation({
+    onSuccess: () => {
+      toast.success(
+        `${exportType} data exported as ${exportFormat.toUpperCase()}`
+      );
+    },
+    onError: () => {
+      toast.error("Failed to export data. Please try again.");
+    },
+  });
+
+  const handleExport = () => {
+    executeExport(async () => {
       const response = await fetch("/api/admin/export", {
         method: "POST",
         headers: {
@@ -62,20 +71,8 @@ export default function DataExport() {
       document.body.appendChild(a);
       a.click();
       window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);      toast({
-        title: "Export successful",
-        description: `${exportType} data exported as ${exportFormat.toUpperCase()}`,
-      });
-    } catch {
-      // Export failed
-      toast({
-        title: "Export failed",
-        description: "Failed to export data. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setExporting(false);
-    }
+      document.body.removeChild(a);
+    });
   };
 
   return (

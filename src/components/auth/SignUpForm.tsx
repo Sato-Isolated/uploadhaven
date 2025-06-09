@@ -28,6 +28,7 @@ import {
   Shield,
   Check,
 } from "lucide-react";
+import { useAsyncOperation } from "@/hooks";
 
 export default function SignUpForm() {
   const [email, setEmail] = useState("");
@@ -36,9 +37,20 @@ export default function SignUpForm() {
   const [name, setName] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const router = useRouter();
+
+  const { loading: isLoading, execute: executeSignUp } = useAsyncOperation({
+    onSuccess: () => {
+      toast.success("Account created successfully!");
+      router.push("/dashboard");
+    },
+    onError: () => {
+      const errorMessage = "Failed to create account. Please try again.";
+      setError(errorMessage);
+      toast.error(errorMessage);
+    },
+  });
 
   // Password validation helpers
   const passwordValidations = [
@@ -51,7 +63,6 @@ export default function SignUpForm() {
   const isPasswordValid = passwordValidations.every((v) => v.valid);
   const doPasswordsMatch =
     password === confirmPassword && confirmPassword.length > 0;
-
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(""); // Clear previous errors
@@ -70,24 +81,13 @@ export default function SignUpForm() {
       return;
     }
 
-    setIsLoading(true);
-
-    try {
+    executeSignUp(async () => {
       await signUp.email({
         email,
         password,
         name,
       });
-
-      toast.success("Account created successfully!");
-      router.push("/dashboard");
-    } catch {
-      const errorMessage = "Failed to create account. Please try again.";
-      setError(errorMessage);
-      toast.error(errorMessage);
-    } finally {
-      setIsLoading(false);
-    }
+    });
   };
 
   return (

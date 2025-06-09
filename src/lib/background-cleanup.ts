@@ -2,12 +2,7 @@ import connectDB from "@/lib/mongodb";
 import { File, saveSecurityEvent } from "@/lib/models";
 import { unlink } from "fs/promises";
 import path from "path";
-
-interface CleanupStats {
-  deletedCount: number;
-  totalExpired: number;
-  errors: string[];
-}
+import type { CleanupStats } from "@/components/types/common";
 
 class BackgroundCleanupService {
   private intervalId: NodeJS.Timeout | null = null;
@@ -22,7 +17,7 @@ class BackgroundCleanupService {
 
   /**
    * Start the background cleanup service
-   */  async start(): Promise<void> {
+   */ async start(): Promise<void> {
     if (this.isRunning) {
       // Background cleanup service is already running
       return;
@@ -37,12 +32,12 @@ class BackgroundCleanupService {
     // Schedule regular cleanups
     this.intervalId = setInterval(async () => {
       await this.runCleanup();
-    }, this.intervalMs);    // Background cleanup service started (interval: ${this.intervalMs / 60000} minutes)
+    }, this.intervalMs); // Background cleanup service started (interval: ${this.intervalMs / 60000} minutes)
   }
 
   /**
    * Stop the background cleanup service
-   */  stop(): void {
+   */ stop(): void {
     if (this.intervalId) {
       clearInterval(this.intervalId);
       this.intervalId = null;
@@ -77,7 +72,8 @@ class BackgroundCleanupService {
         deletedCount: 0,
         totalExpired: expiredFiles.length,
         errors: [],
-      };      if (expiredFiles.length === 0) {
+      };
+      if (expiredFiles.length === 0) {
         // No expired files found during background cleanup
         return stats;
       }
@@ -92,20 +88,22 @@ class BackgroundCleanupService {
 
           // Try to delete physical file
           try {
-            const filePath = path.join(this.uploadsDir, file.filename);          await unlink(filePath);
-          // Background cleanup: Deleted ${file.filename}
-        } catch (fsError) {
-          // File might already be deleted from filesystem
-          // Background cleanup: Could not delete physical file ${file.filename}
-        }
+            const filePath = path.join(this.uploadsDir, file.filename);
+            await unlink(filePath);
+            // Background cleanup: Deleted ${file.filename}
+          } catch (fsError) {
+            // File might already be deleted from filesystem
+            // Background cleanup: Could not delete physical file ${file.filename}
+          }
 
           stats.deletedCount++;
         } catch (error) {
           const errorMsg = `Failed to process ${file.filename}: ${
-            (error as Error).message        }`;
-        stats.errors.push(errorMsg);
-        // Background cleanup error: ${errorMsg}
-      }
+            (error as Error).message
+          }`;
+          stats.errors.push(errorMsg);
+          // Background cleanup error: ${errorMsg}
+        }
       }
 
       // Log cleanup activity
@@ -121,7 +119,7 @@ class BackgroundCleanupService {
           errors: stats.errors.length,
           timestamp: new Date().toISOString(),
         },
-      });      // Background cleanup completed: ${stats.deletedCount}/${stats.totalExpired} files processed
+      }); // Background cleanup completed: ${stats.deletedCount}/${stats.totalExpired} files processed
 
       return stats;
     } catch (error) {
@@ -152,12 +150,13 @@ class BackgroundCleanupService {
         // File is expired, delete it immediately
         await File.findByIdAndUpdate(fileId, { isDeleted: true });
 
-        try {        const filePath = path.join(this.uploadsDir, file.filename);
-        await unlink(filePath);
-        // Instant deletion: Deleted expired file ${file.filename}
-      } catch (fsError) {
-        // Instant deletion: Could not delete physical file ${file.filename}
-      }
+        try {
+          const filePath = path.join(this.uploadsDir, file.filename);
+          await unlink(filePath);
+          // Instant deletion: Deleted expired file ${file.filename}
+        } catch (fsError) {
+          // Instant deletion: Could not delete physical file ${file.filename}
+        }
 
         // Log instant deletion
         await saveSecurityEvent({
@@ -177,7 +176,8 @@ class BackgroundCleanupService {
         return true;
       }
 
-      return false;    } catch (error) {
+      return false;
+    } catch (error) {
       // Error checking/deleting file ${fileId}
       return false;
     }
@@ -213,7 +213,8 @@ class BackgroundCleanupService {
         if (deleted) {
           stats.deletedCount++;
         }
-      }      return stats;
+      }
+      return stats;
     } catch (error) {
       // Error checking for instant expiration
       return {

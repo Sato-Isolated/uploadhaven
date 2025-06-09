@@ -1,11 +1,9 @@
 "use client";
 
 import { motion } from "motion/react";
-import { FileData } from "./utils";
+import type { FilePreviewProps } from "@/components/types/common";
 
-interface VideoPreviewProps {
-  file: FileData;
-}
+interface VideoPreviewProps extends FilePreviewProps {}
 
 export default function VideoPreview({ file }: VideoPreviewProps) {
   return (

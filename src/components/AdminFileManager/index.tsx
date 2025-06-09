@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { motion } from "motion/react";
 import { toast } from "sonner";
+import { useApi } from "@/hooks";
 import type { AdminFileManagerProps, FileData } from "./types";
 import StatisticsGrid from "./components/StatisticsGrid";
 import SearchAndFilters from "./components/SearchAndFilters";
@@ -15,7 +16,28 @@ export default function AdminFileManager({ files }: AdminFileManagerProps) {
   const [fileToDelete, setFileToDelete] = useState<string | null>(null);
   const [showFileDetails, setShowFileDetails] = useState<FileData | null>(null);
   const [localFiles, setLocalFiles] = useState<FileData[]>(files);
-  const [isLoading, setIsLoading] = useState(false);
+
+  // Use useApi hook for delete operations
+  const { loading: isLoading, refetch: performDelete } = useApi<any>(
+    "/api/bulk-delete",
+    {
+      immediate: false,
+      onSuccess: (result) => {
+        if (result.success) {
+          // Remove deleted file from local state
+          setLocalFiles((prev) =>
+            prev.filter((file) => file.name !== fileToDelete)
+          );
+          toast.success("File deleted successfully");
+        } else {
+          throw new Error(result.error || "Failed to delete file");
+        }
+      },
+      onError: () => {
+        toast.error("Failed to delete file. Please try again.");
+      },
+    }
+  );
 
   const filteredFiles = localFiles.filter(
     (file) =>
@@ -40,11 +62,9 @@ export default function AdminFileManager({ files }: AdminFileManagerProps) {
       setSelectedFiles([]);
     }
   };
-
   const handleBulkDelete = async () => {
     if (selectedFiles.length === 0) return;
 
-    setIsLoading(true);
     try {
       const response = await fetch("/api/bulk-delete", {
         method: "DELETE",
@@ -70,8 +90,6 @@ export default function AdminFileManager({ files }: AdminFileManagerProps) {
       }
     } catch {
       toast.error("Failed to delete files. Please try again.");
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -100,11 +118,9 @@ export default function AdminFileManager({ files }: AdminFileManagerProps) {
   const handleDeleteFile = async (filename: string) => {
     setFileToDelete(filename);
   };
-
   const confirmDeleteFile = async () => {
     if (!fileToDelete) return;
 
-    setIsLoading(true);
     try {
       const response = await fetch("/api/bulk-delete", {
         method: "DELETE",
@@ -131,7 +147,6 @@ export default function AdminFileManager({ files }: AdminFileManagerProps) {
       toast.error("Failed to delete file. Please try again.");
     } finally {
       setFileToDelete(null);
-      setIsLoading(false);
     }
   };
 

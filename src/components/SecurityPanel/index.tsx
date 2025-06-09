@@ -1,15 +1,32 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useCallback } from "react";
 import { toast } from "sonner";
 import SecurityHeader from "./components/SecurityHeader";
 import SecurityActions from "./components/SecurityActions";
 import SecurityStatsGrid from "./components/SecurityStatsGrid";
 import SecurityEventsList from "./components/SecurityEventsList";
 import SecurityAlert from "./components/SecurityAlert";
-import { SecurityEvent, SecurityStats, SecurityEventAPI } from "./types";
+import { SecurityEvent, SecurityStats, SecurityApiResponse } from "./types";
+import { useApi } from "@/hooks";
 
 export default function SecurityPanel() {
-  const [events, setEvents] = useState<SecurityEvent[]>([]);
-  const [stats, setStats] = useState<SecurityStats>({
+  const [dismissedAlerts, setDismissedAlerts] = useState<Set<string>>(
+    new Set()
+  );
+
+  // Replace manual API logic with useApi hook
+  const {
+    data: securityData,
+    loading: isLoading,
+    error,
+    refetch: loadSecurityData,
+  } = useApi<SecurityApiResponse>("/api/security?include_events=true", {
+    onError: (error) => {
+      toast.error(error);
+    },
+  });
+  // Extract events and stats from response
+  const rawEvents = securityData?.events || [];
+  const stats = securityData?.stats || {
     totalEvents: 0,
     rateLimitHits: 0,
     invalidFiles: 0,
@@ -17,11 +34,28 @@ export default function SecurityPanel() {
     last24h: 0,
     malwareDetected: 0,
     largeSizeBlocked: 0,
-  });
-  const [isLoading, setIsLoading] = useState(true);
-  const [dismissedAlerts, setDismissedAlerts] = useState<Set<string>>(
-    new Set()
-  );
+  }; // Transform API events to SecurityEvent format
+  const events: SecurityEvent[] = rawEvents.map((event) => ({
+    id: event.id,
+    type: event.type as SecurityEvent["type"],
+    message:
+      typeof event.details === "string"
+        ? event.details
+        : event.message || `${event.type} event`,
+    severity: event.severity,
+    timestamp:
+      typeof event.timestamp === "string"
+        ? new Date(parseInt(event.timestamp))
+        : new Date(event.timestamp || 0),
+    details: {
+      ip: event.ip,
+      filename: event.filename,
+      fileSize: event.fileSize,
+      userAgent: event.userAgent,
+      endpoint: event.endpoint,
+      reason: event.reason,
+    },
+  }));
 
   // Get critical/high severity events that haven't been dismissed
   const activeAlerts = events.filter(
@@ -29,53 +63,6 @@ export default function SecurityPanel() {
       (event.severity === "critical" || event.severity === "high") &&
       !dismissedAlerts.has(event.id)
   );
-  const loadSecurityData = useCallback(async () => {
-    setIsLoading(true);
-    try {
-      const response = await fetch("/api/security?include_events=true");
-      if (!response.ok) {
-        throw new Error(`Failed to load security data: ${response.status}`);
-      }
-
-      const data = await response.json(); // Transform API data to match SecurityEvent interface
-      const transformedEvents = (data.events || []).map(
-        (event: SecurityEventAPI) => ({
-          id: event.id,
-          type: event.type,
-          message: event.details || `${event.type} event`, // Use details as message
-          severity: event.severity,
-          timestamp: new Date(event.timestamp), // Convert timestamp
-          details: {
-            ip: event.ip,
-            filename: event.filename,
-            fileSize: event.fileSize,
-            userAgent: event.userAgent,
-            endpoint: event.endpoint,
-            reason: event.reason,
-          },
-        })
-      );
-
-      setEvents(transformedEvents);
-      setStats(
-        data.stats || {
-          totalEvents: 0,
-          rateLimitHits: 0,
-          invalidFiles: 0,
-          blockedIPs: 0,
-          last24h: 0,
-          malwareDetected: 0,
-          largeSizeBlocked: 0,
-        }
-      );
-    } catch (err) {
-      const errorMessage =
-        err instanceof Error ? err.message : "Failed to load security data";
-      toast.error(errorMessage);
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
   const exportSecurityLogs = async () => {
     try {
       const response = await fetch("/api/security/export");
@@ -100,6 +87,7 @@ export default function SecurityPanel() {
       toast.error(errorMessage);
     }
   };
+
   const clearSecurityLogs = async () => {
     if (
       !confirm(
@@ -114,16 +102,8 @@ export default function SecurityPanel() {
       if (!response.ok) {
         throw new Error(`Clear failed: ${response.status}`);
       }
-      setEvents([]);
-      setStats({
-        totalEvents: 0,
-        rateLimitHits: 0,
-        invalidFiles: 0,
-        blockedIPs: 0,
-        last24h: 0,
-        malwareDetected: 0,
-        largeSizeBlocked: 0,
-      });
+      // Refetch data after clearing
+      await loadSecurityData();
       toast.success("Security logs cleared successfully");
     } catch (err) {
       const errorMessage =
@@ -131,9 +111,7 @@ export default function SecurityPanel() {
       toast.error(errorMessage);
     }
   };
-  useEffect(() => {
-    loadSecurityData();
-  }, [loadSecurityData]);
+
   const dismissAlert = (alertId: string) => {
     setDismissedAlerts((prev) => new Set([...prev, alertId]));
   };

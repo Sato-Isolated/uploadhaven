@@ -23,7 +23,8 @@ export default function UserCard({
   isSelected = false,
   onUserAction,
   onSelectionChange,
-}: UserCardProps) {  // Guard against undefined user or user.id
+}: UserCardProps) {
+  // Guard against undefined user or user.id
   if (!user || !user.id) {
     // UserCard received invalid user data
     return null;
@@ -70,28 +71,28 @@ export default function UserCard({
                   }
                   className="mt-1"
                 />
-              )}              <Avatar className="h-12 w-12">
+              )}
+              <Avatar className="h-12 w-12">
                 <AvatarFallback className="bg-blue-100 text-blue-600 font-semibold">
-                  {user.name?.charAt(0)?.toUpperCase() || '?'}
+                  {user.name?.charAt(0)?.toUpperCase() || "?"}
                 </AvatarFallback>
               </Avatar>
-
               <div className="flex-1 min-w-0">
-                {" "}                <div className="flex items-center space-x-2 mb-2">
+                <div className="flex items-center space-x-2 mb-2">
                   <h3 className="text-lg font-semibold text-gray-900 dark:text-white truncate">
-                    {user.name || 'Unknown User'}
+                    {user.name || "Unknown User"}
                   </h3>
                   <Badge
                     variant={user.role === "admin" ? "default" : "secondary"}
                     className="flex items-center space-x-1"
                   >
                     <Shield className="h-3 w-3" />
-                    <span className="capitalize">{user.role || 'user'}</span>
+                    <span className="capitalize">{user.role || "user"}</span>
                   </Badge>
                 </div>
                 <div className="flex items-center space-x-2 mb-2">
                   <p className="text-gray-600 dark:text-gray-400 truncate">
-                    {user.email || 'No email'}
+                    {user.email || "No email"}
                   </p>
                   <p className="text-xs text-gray-500 dark:text-gray-400 font-mono">
                     ID: {user.id.slice(-8)}
@@ -111,15 +112,20 @@ export default function UserCard({
                       {user.isEmailVerified ? "Verified" : "Unverified"}
                     </span>
                   </Badge>
-                </div>                <div className="grid grid-cols-2 gap-4 text-sm text-gray-600 dark:text-gray-400">
+                </div>
+                <div className="grid grid-cols-2 gap-4 text-sm text-gray-600 dark:text-gray-400">
                   <div>
                     <span className="font-medium">Joined:</span>
-                    <span className="ml-1">{user.createdAt ? formatDate(user.createdAt) : 'Unknown'}</span>
+                    <span className="ml-1">
+                      {user.createdAt ? formatDate(user.createdAt) : "Unknown"}
+                    </span>
                   </div>
                   <div>
                     <span className="font-medium">Last Active:</span>
                     <span className="ml-1">
-                      {user.lastActiveAt ? formatDate(user.lastActiveAt) : 'Never'}
+                      {user.lastActiveAt
+                        ? formatDate(user.lastActiveAt)
+                        : "Never"}
                     </span>
                   </div>
                   <div>

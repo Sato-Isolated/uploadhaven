@@ -4,6 +4,7 @@
 
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
+import { useApi, usePolling } from "@/hooks";
 import {
   FileText,
   Image as ImageIcon,
@@ -24,32 +25,25 @@ import type {
 
 export default function FileManager({ className }: FileManagerProps = {}) {
   const [files, setFiles] = useState<FileInfo[]>([]);
-  const [loading, setLoading] = useState(true);
   const [previewFile, setPreviewFile] = useState<FilePreviewData | null>(null);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 
-  useEffect(() => {
-    loadFiles();
-    // Refresh files every 30 seconds
-    const interval = setInterval(loadFiles, 30000);
-    return () => clearInterval(interval);
-  }, []);
-
-  const loadFiles = async () => {
-    try {
-      setLoading(true);
-      const response = await fetch("/api/files");
-      if (!response.ok) {
-        throw new Error("Failed to fetch files");
-      }      const data = await response.json();
+  // Use useApi hook for loading files
+  const {
+    data: filesResponse,
+    loading,
+    refetch: loadFiles,
+  } = useApi<{ files: FileInfo[] }>("/api/files", {
+    onSuccess: (data) => {
       setFiles(data.files || []);
-    } catch {
-      // Error loading files
+    },
+    onError: () => {
       toast.error("Failed to load files");
-    } finally {
-      setLoading(false);
-    }
-  };
+    },
+  });
+
+  // Auto-refresh files every 30 seconds using usePolling hook
+  usePolling(loadFiles, { interval: 30000 });
 
   const getFileIcon = (type: FileInfo["type"]) => {
     switch (type) {
@@ -92,7 +86,8 @@ export default function FileManager({ className }: FileManagerProps = {}) {
       // Remove from local state
       setFiles((prev) => prev.filter((file) => file.name !== filename));
       toast.success("File deleted successfully");
-    } catch (error) {      // Error deleting file
+    } catch (error) {
+      // Error deleting file
       toast.error("Failed to delete file");
     }
   };

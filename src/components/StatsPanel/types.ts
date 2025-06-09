@@ -1,8 +1,22 @@
-// Types for StatsPanel components
-export interface Stats {
-  totalFiles: number;
-  totalSize: string;
-  totalSizeBytes: number;
+// Re-export centralized types
+export type {
+  BaseStats,
+  UserStats,
+  BaseComponentProps,
+  DataComponentProps,
+  ActionComponentProps,
+} from "@/components/types/common";
+import type {
+  BaseStats,
+  DataComponentProps,
+  ActionComponentProps,
+  BaseComponentProps,
+} from "@/components/types/common";
+
+// StatsPanel-specific types that extend centralized types
+export interface Stats extends Omit<BaseStats, "totalSize"> {
+  totalSize: string; // formatted size string
+  totalSizeBytes: number; // raw bytes from BaseStats
   last24hUploads: number;
   last7dUploads: number;
   totalDownloads: number;
@@ -13,25 +27,25 @@ export interface Stats {
   }>;
 }
 
-export interface StatsHeaderProps {
+export interface StatsHeaderProps extends BaseComponentProps {
   onRefresh: () => void;
 }
 
-export interface StatsGridProps {
+export interface StatsGridProps extends DataComponentProps<Stats> {
   stats: Stats;
 }
 
-export interface SystemStatusProps {
+export interface SystemStatusProps extends DataComponentProps<Stats> {
   stats: Stats;
 }
 
-export interface ManagementActionsProps {
+export interface ManagementActionsProps extends ActionComponentProps {
   stats: Stats;
   onRunCleanup: () => Promise<void>;
   onBulkDeleteAll: () => Promise<void>;
   bulkDeleting: boolean;
 }
 
-export interface SystemInformationProps {
+export interface SystemInformationProps extends DataComponentProps<Stats> {
   stats: Stats;
 }

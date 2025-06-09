@@ -78,7 +78,8 @@ export default async function AdminPage() {
         uploadDate: string;
         downloadCount: number;
         userId?: string;
-        userName?: string;      }) => ({
+        userName?: string;
+      }) => ({
         id: file.id,
         name: file.name,
         originalName: file.originalName,
@@ -93,8 +94,10 @@ export default async function AdminPage() {
     ) || [];
 
   // Ensure users data is valid and filter out any invalid entries
-  const validUsersData = Array.isArray(usersData?.users) 
-    ? usersData.users.filter((user: any) => user && user.id && user.email && user.name)
+  const validUsersData = Array.isArray(usersData?.users)
+    ? usersData.users.filter(
+        (user: any) => user && user.id && user.email && user.name
+      )
     : [];
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-800">
@@ -170,9 +173,10 @@ export default async function AdminPage() {
             </TabsContent>
             <TabsContent value="files" className="space-y-6">
               <AdminFileManager files={adminFiles} />
-            </TabsContent>            <TabsContent value="users" className="space-y-6">
+            </TabsContent>
+            <TabsContent value="users" className="space-y-6">
               <AdminUserListWrapper users={validUsersData} />
-            </TabsContent>{" "}
+            </TabsContent>
             <TabsContent value="analytics" className="space-y-6">
               <AdminAnalytics />
             </TabsContent>

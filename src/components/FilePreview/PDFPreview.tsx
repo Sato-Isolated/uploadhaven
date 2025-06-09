@@ -1,11 +1,9 @@
 "use client";
 
 import { motion } from "motion/react";
-import { FileData } from "./utils";
+import type { FilePreviewProps } from "@/components/types/common";
 
-interface PDFPreviewProps {
-  file: FileData;
-}
+interface PDFPreviewProps extends FilePreviewProps {}
 
 export default function PDFPreview({ file }: PDFPreviewProps) {
   return (

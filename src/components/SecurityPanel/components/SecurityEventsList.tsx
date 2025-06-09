@@ -27,7 +27,7 @@ export default function SecurityEventsList({
     return events.filter((event: SecurityEvent) => {
       const matchesSearch =
         searchTerm === "" ||
-        event.message.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        event.message?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         event.details.ip?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         event.details.filename
           ?.toLowerCase()
@@ -125,7 +125,8 @@ export default function SecurityEventsList({
               <Select value={typeFilter} onValueChange={setTypeFilter}>
                 <SelectTrigger className="w-full sm:w-40">
                   <SelectValue placeholder="Event Type" />
-                </SelectTrigger>                <SelectContent>
+                </SelectTrigger>{" "}
+                <SelectContent>
                   <SelectItem value="all">All Types</SelectItem>
                   <SelectItem value="rate_limit">Rate Limit</SelectItem>
                   <SelectItem value="invalid_file">Invalid File</SelectItem>

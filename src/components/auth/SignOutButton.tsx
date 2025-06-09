@@ -6,23 +6,26 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { motion } from "motion/react";
 import { LogOut, Loader2 } from "lucide-react";
-import { useState } from "react";
+import { useAsyncOperation } from "@/hooks";
 
 export default function SignOutButton() {
   const router = useRouter();
-  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSignOut = async () => {
-    setIsLoading(true);
-    try {
-      await signOut();
+  const { loading: isLoading, execute } = useAsyncOperation({
+    onSuccess: () => {
       toast.success("Signed out successfully");
       router.push("/");
       router.refresh();
-    } catch {
+    },
+    onError: () => {
       toast.error("Failed to sign out");
-      setIsLoading(false);
-    }
+    },
+  });
+
+  const handleSignOut = () => {
+    execute(async () => {
+      await signOut();
+    });
   };
 
   return (

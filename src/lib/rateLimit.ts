@@ -1,17 +1,7 @@
 // Rate limiting utility for API endpoints
 import { NextRequest } from "next/server";
 import { getClientIP } from "./utils";
-
-interface RateLimitConfig {
-  windowMs: number; // Time window in milliseconds
-  maxRequests: number; // Maximum requests per window
-  message?: string;
-}
-
-interface RateLimitData {
-  requests: number;
-  windowStart: number;
-}
+import type { RateLimitConfig, RateLimitData } from "@/components/types/common";
 
 // In-memory storage for rate limiting (consider Redis for production)
 const rateLimitStore = new Map<string, RateLimitData>();
@@ -61,7 +51,8 @@ export function rateLimit(config: RateLimitConfig) {
       remaining,
       reset,
       message: config.message || "Rate limit exceeded. Please try again later.",
-    };  };
+    };
+  };
 }
 
 // Predefined rate limit configurations

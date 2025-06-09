@@ -2,11 +2,9 @@
 
 import { motion } from "motion/react";
 import { Music } from "lucide-react";
-import { FileData } from "./utils";
+import type { FilePreviewProps } from "@/components/types/common";
 
-interface AudioPreviewProps {
-  file: FileData;
-}
+interface AudioPreviewProps extends FilePreviewProps {}
 
 export default function AudioPreview({ file }: AudioPreviewProps) {
   return (

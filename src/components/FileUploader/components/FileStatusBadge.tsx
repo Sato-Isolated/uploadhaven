@@ -3,12 +3,9 @@
 import { motion, AnimatePresence } from "motion/react";
 import { Badge } from "@/components/ui/badge";
 import { Shield, AlertTriangle, Check } from "lucide-react";
-import type { UploadedFile } from "../types";
+import type { FileStatusProps } from "@/components/types/common";
 
-interface FileStatusBadgeProps {
-  status: UploadedFile["status"];
-  threatDetails?: string;
-}
+interface FileStatusBadgeProps extends FileStatusProps {}
 
 export default function FileStatusBadge({
   status,

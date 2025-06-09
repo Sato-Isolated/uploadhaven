@@ -13,7 +13,7 @@ interface SecurityEventExport {
   filename?: string;
   fileSize?: number;
   fileType?: string;
-  metadata: Record<string, unknown>;
+  metadata?: Record<string, unknown>;
 }
 
 export async function GET() {

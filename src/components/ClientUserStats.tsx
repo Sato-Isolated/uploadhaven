@@ -1,46 +1,43 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useMemo } from "react";
 import { motion } from "motion/react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatFileSize } from "@/lib/utils";
 import { Database, HardDrive, Upload, Clock, Activity } from "lucide-react";
+import { useApi } from "@/hooks";
+import { UserStats, BaseComponentProps } from "@/components/types/common";
 
-interface UserStatsProps {
+interface UserStatsProps extends BaseComponentProps {
   userId: string;
+  session?: any; // Add session prop to check authentication
 }
 
-interface StatsData {
-  totalFiles: number;
-  totalSize: number;
-  recentUploads: number;
-  expiringSoon: number;
-  // Visibility stats removed - all files use security by obscurity
-}
+export default function ClientUserStats({ userId, session }: UserStatsProps) {
+  // Stabilize the authentication check to prevent unnecessary re-renders
+  const isAuthenticated = useMemo(() => Boolean(session?.user), [session?.user]);
 
-export default function ClientUserStats({ userId }: UserStatsProps) {
-  const [stats, setStats] = useState<StatsData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        const response = await fetch("/api/user/stats");
-        if (!response.ok) {
-          throw new Error("Failed to fetch stats");
-        }
-        const data = await response.json();
-        // Extract stats from the API response structure
-        setStats(data.stats);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "An error occurred");
-      } finally {
-        setLoading(false);
-      }
-    };
+  // Use useCallback to stabilize the error handler
+  const handleError = useCallback((err: string) => {
+    console.error("Error fetching user stats:", err);
+  }, []);
 
-    fetchStats();
-  }, [userId]);
+  // Replace manual API logic with useApi hook
+  const {
+    data: apiResponse,
+    loading,
+    error,
+  } = useApi<{ stats: UserStats }>("/api/user/stats", {
+    immediate: isAuthenticated, // Only fetch if authenticated
+    onError: handleError,
+  });  // Extract stats from response
+  const stats = apiResponse?.stats;
+
+  // Don't render anything if not authenticated
+  if (!isAuthenticated) {
+    return null;
+  }
+
   if (loading) {
     return (
       <motion.div

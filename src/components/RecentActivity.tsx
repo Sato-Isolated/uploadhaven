@@ -4,6 +4,8 @@ import { useState, useEffect, useCallback } from "react";
 import { motion } from "motion/react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Activity } from "lucide-react";
+import { useApi, usePagination } from "@/hooks";
+import { ActivityEvent, ActivityResponse } from "@/components/types/common";
 import ActivityLoader from "./RecentActivity/ActivityLoader";
 import ActivityError from "./RecentActivity/ActivityError";
 import ActivityFilters from "./RecentActivity/ActivityFilters";
@@ -11,84 +13,53 @@ import ActivityItem from "./RecentActivity/ActivityItem";
 import ActivityPagination from "./RecentActivity/ActivityPagination";
 import ActivityEmpty from "./RecentActivity/ActivityEmpty";
 
-interface ActivityEvent {
-  _id: string;
-  type: string;
-  timestamp: string;
-  ip: string;
-  details: string;
-  severity: "low" | "medium" | "high";
-  userAgent?: string;
-  filename?: string;
-  fileSize?: number;
-  fileType?: string;
-  userId?: string;
-}
-
-interface ActivityData {
-  activities: ActivityEvent[];
-  pagination: {
-    page: number;
-    limit: number;
-    totalCount: number;
-    totalPages: number;
-    hasNext: boolean;
-    hasPrev: boolean;
-  };
-}
-
 export default function RecentActivity() {
-  const [activityData, setActivityData] = useState<ActivityData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [currentPage, setCurrentPage] = useState(1);
   const [typeFilter, setTypeFilter] = useState<string>("");
   const [severityFilter, setSeverityFilter] = useState<string>("");
-  const fetchActivities = useCallback(
-    async (page: number = 1) => {
-      try {
-        setLoading(true);
-        const params = new URLSearchParams({
-          page: page.toString(),
-          limit: "10",
-        });
 
-        if (typeFilter) params.append("type", typeFilter);
-        if (severityFilter) params.append("severity", severityFilter);
+  // Use usePagination hook for pagination logic
+  const { currentPage, goToPage } = usePagination();
 
-        const response = await fetch(`/api/admin/activities?${params}`);
+  // Build API URL with filters and pagination
+  const buildApiUrl = useCallback(() => {
+    const params = new URLSearchParams({
+      page: currentPage.toString(),
+      limit: "10",
+    });
 
-        if (!response.ok) {
-          throw new Error("Failed to fetch activities");
-        }
+    if (typeFilter) params.append("type", typeFilter);
+    if (severityFilter) params.append("severity", severityFilter);
 
-        const data = await response.json();
-        setActivityData(data);
-        setError(null);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "An error occurred");
-      } finally {
-        setLoading(false);
-      }
+    return `/api/admin/activities?${params}`;
+  }, [currentPage, typeFilter, severityFilter]);
+
+  // Use useApi hook for fetching activities
+  const {
+    data: activityData,
+    loading,
+    error,
+    refetch: fetchActivities,
+  } = useApi<ActivityResponse>(buildApiUrl(), {
+    onError: (error) => {
+      // Error handling is managed by the hook
     },
-    [typeFilter, severityFilter]
-  );
+  });
+  // Refetch when dependencies change
   useEffect(() => {
-    fetchActivities(currentPage);
-  }, [currentPage, fetchActivities]);
-
+    fetchActivities();
+  }, [fetchActivities, currentPage, typeFilter, severityFilter]);
   const handlePageChange = (newPage: number) => {
-    setCurrentPage(newPage);
+    goToPage(newPage);
   };
 
   const handleTypeFilterChange = (value: string) => {
     setTypeFilter(value === "all" ? "" : value);
-    setCurrentPage(1);
+    goToPage(1);
   };
 
   const handleSeverityFilterChange = (value: string) => {
     setSeverityFilter(value === "all" ? "" : value);
-    setCurrentPage(1);
+    goToPage(1);
   };
   if (loading && !activityData) {
     return <ActivityLoader />;

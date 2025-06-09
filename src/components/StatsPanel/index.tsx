@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { motion } from "motion/react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 import { Stats } from "./types";
+import { useApi, usePolling } from "@/hooks";
 
 // Component imports
 import StatsHeader from "./components/StatsHeader";
@@ -17,27 +18,30 @@ import ManagementActions from "./components/ManagementActions";
 import SystemInformation from "./components/SystemInformation";
 
 export default function StatsPanel() {
-  const [stats, setStats] = useState<Stats | null>(null);
-  const [loading, setLoading] = useState(true);
   const [bulkDeleting, setBulkDeleting] = useState(false);
 
-  const fetchStats = async () => {
-    try {
-      setLoading(true);
-      const response = await fetch("/api/stats");
-      const result = await response.json();
+  // Replace manual fetch logic with useApi hook
+  const {
+    data: statsResponse,
+    loading,
+    error,
+    refetch: fetchStats,
+  } = useApi<{ success: boolean; stats: Stats }>("/api/stats", {
+    onSuccess: (data) => {
+      if (!data.success) {
+        toast.error("Failed to load statistics");
+      }
+    },
+    onError: (error) => {
+      toast.error("Error loading statistics");
+    },
+  });
 
-      if (result.success) {      setStats(result.stats);
-    } else {
-      toast.error("Failed to load statistics");
-    }
-  } catch {
-    // Failed to fetch stats
-    toast.error("Error loading statistics");
-  } finally {
-      setLoading(false);
-    }
-  };
+  // Auto-refresh stats every 30 seconds using usePolling hook
+  usePolling(fetchStats, { interval: 30000 });
+
+  // Extract stats from response
+  const stats = statsResponse?.stats;
 
   const runCleanup = async () => {
     try {
@@ -84,14 +88,6 @@ export default function StatsPanel() {
       setBulkDeleting(false);
     }
   };
-
-  useEffect(() => {
-    fetchStats();
-    // Refresh stats every 30 seconds
-    const interval = setInterval(fetchStats, 30000);
-    return () => clearInterval(interval);
-  }, []);
-
   if (loading) {
     return <StatsLoadingIndicator />;
   }

@@ -4,20 +4,7 @@ import { motion } from "motion/react";
 import { Badge } from "@/components/ui/badge";
 import { User, Download, Upload, Shield, AlertTriangle } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
-
-interface ActivityEvent {
-  _id: string;
-  type: string;
-  timestamp: string;
-  ip: string;
-  details: string;
-  severity: "low" | "medium" | "high";
-  userAgent?: string;
-  filename?: string;
-  fileSize?: number;
-  fileType?: string;
-  userId?: string;
-}
+import { ActivityEvent } from "@/components/types/common";
 
 interface ActivityItemProps {
   activity: ActivityEvent;
@@ -67,7 +54,7 @@ const formatActivityType = (type: string) => {
 export default function ActivityItem({ activity, index }: ActivityItemProps) {
   return (
     <motion.div
-      key={activity._id}
+      key={activity._id || activity.id}
       initial={{ opacity: 0, x: -20 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.3, delay: index * 0.05 }}
@@ -82,7 +69,11 @@ export default function ActivityItem({ activity, index }: ActivityItemProps) {
           <span className="font-semibold text-sm text-gray-900 dark:text-gray-100">
             {formatActivityType(activity.type)}
           </span>
-          <Badge className={`text-xs ${getSeverityColor(activity.severity)}`}>
+          <Badge
+            className={`text-xs ${getSeverityColor(
+              activity.severity || "low"
+            )}`}
+          >
             {activity.severity}
           </Badge>
         </div>
@@ -97,7 +88,7 @@ export default function ActivityItem({ activity, index }: ActivityItemProps) {
               addSuffix: true,
             })}
           </span>
-          <span>IP: {activity.ip}</span>
+          <span>IP: {activity.ip || "Unknown"}</span>
           {activity.filename && <span>File: {activity.filename}</span>}
           {activity.userId && <span>User: {activity.userId}</span>}
         </div>

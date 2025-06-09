@@ -1,57 +1,49 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import QuickStatsGrid from "./QuickStatsGrid";
 import ActivityOverview from "./ActivityOverview";
 import SecurityStatus from "./SecurityStatus";
 import QuickActions from "./QuickActions";
 import DataExport from "./DataExport";
-import {
-  SecurityScanModal,
-} from "./modals";
+import { SecurityScanModal } from "./modals";
 import type {
   AdminDashboardProps,
   ActivityEvent,
   SecurityStats,
 } from "./types";
 import { defaultSecurityStats } from "./utils";
+import { useApi, useModal } from "@/hooks";
 
 export default function AdminDashboard({ stats }: AdminDashboardProps) {
-  const [recentActivities, setRecentActivities] = useState<ActivityEvent[]>([]);
-  const [activitiesLoading, setActivitiesLoading] = useState(true);  const [securityStats, setSecurityStats] =
-    useState<SecurityStats>(defaultSecurityStats);
-  const [securityLoading, setSecurityLoading] = useState(true);
-  // Modal states
-  const [showSecurityModal, setShowSecurityModal] = useState(false);
+  // Use useModal hook for modal management
+  const {
+    isOpen: showSecurityModal,
+    openModal: openSecurityModal,
+    closeModal: closeSecurityModal,
+  } = useModal();
 
-  useEffect(() => {
-    const fetchRecentActivities = async () => {
-      try {
-        const response = await fetch("/api/admin/activities?limit=3");        if (response.ok) {        const data = await response.json();
-          setRecentActivities(data.activities || []);
-        }
-      } catch {
-        // Failed to fetch recent activities
-      } finally {
-        setActivitiesLoading(false);
-      }
-    };
+  // Replace manual API calls with useApi hooks
+  const { data: activitiesResponse, loading: activitiesLoading } = useApi<{
+    activities: ActivityEvent[];
+  }>("/api/admin/activities?limit=3");
 
-    const fetchSecurityStats = async () => {
-      try {
-        const response = await fetch("/api/security");        if (response.ok) {
-          const data = await response.json();        setSecurityStats(data.stats || defaultSecurityStats);
-      }
-    } catch {
-      // Failed to fetch security stats
-    } finally {
-        setSecurityLoading(false);
-      }
-    };    fetchRecentActivities();
-    fetchSecurityStats();
-  }, []);
+  const { data: securityResponse, loading: securityLoading } = useApi<{
+    stats: SecurityStats;
+  }>("/api/security");
+
+  // Extract data from responses
+  const recentActivities = activitiesResponse?.activities || [];
+  const securityStats = securityResponse?.stats || defaultSecurityStats;
   const handleSecurityScan = () => {
-    setShowSecurityModal(true);
+    openSecurityModal();
+  };
+
+  const handleSecurityModalChange = (open: boolean) => {
+    if (open) {
+      openSecurityModal();
+    } else {
+      closeSecurityModal();
+    }
   };
 
   return (
@@ -68,14 +60,15 @@ export default function AdminDashboard({ stats }: AdminDashboardProps) {
           securityStats={securityStats}
           loading={securityLoading}
         />
-      </div>      {/* Quick Actions */}          <QuickActions
-            onSecurityScan={handleSecurityScan}
-          />
+      </div>
+      {/* Quick Actions */} 
+      <QuickActions onSecurityScan={handleSecurityScan} />
       {/* Data Export */}
-      <DataExport />      {/* Modals */}
+      <DataExport /> 
+      {/* Modals */}
       <SecurityScanModal
         isOpen={showSecurityModal}
-        onOpenChange={setShowSecurityModal}
+        onOpenChange={handleSecurityModalChange}
       />
     </div>
   );

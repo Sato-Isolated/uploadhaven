@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "motion/react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -33,6 +33,7 @@ import {
   formatDate,
   formatDateTime,
 } from "./utils";
+import { useApi } from "@/hooks";
 
 interface AdminAnalyticsProps {
   className?: string;
@@ -41,33 +42,22 @@ interface AdminAnalyticsProps {
 export default function AdminAnalytics({
   className = "",
 }: AdminAnalyticsProps) {
-  const [analytics, setAnalytics] = useState<AdminAnalyticsType | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [timeRange, setTimeRange] = useState("30d");
-  const fetchAnalytics = useCallback(async () => {
-    try {
-      setIsLoading(true);
-      setError(null);
 
-      const response = await fetch(
-        `/api/analytics/admin?timeRange=${timeRange}`
-      );
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || "Failed to fetch analytics");
-      }      setAnalytics(data);
-    } catch (error) {
-      // Error fetching admin analytics
-      setError(error instanceof Error ? error.message : "Unknown error");
-    } finally {
-      setIsLoading(false);
+  // Replace manual API logic with useApi hook
+  const {
+    data: analytics,
+    loading: isLoading,
+    error,
+    refetch: fetchAnalytics,
+  } = useApi<AdminAnalyticsType>(
+    `/api/analytics/admin?timeRange=${timeRange}`,
+    {
+      onError: (err) => {
+        console.error("Error fetching admin analytics:", err);
+      },
     }
-  }, [timeRange]);
-  useEffect(() => {
-    fetchAnalytics();
-  }, [timeRange, fetchAnalytics]);
+  );
 
   if (isLoading) {
     return (
@@ -318,7 +308,6 @@ export default function AdminAnalytics({
               <CardTitle>Most Downloaded Files</CardTitle>
             </CardHeader>
             <CardContent>
-              {" "}
               <div className="space-y-4">
                 {fileAnalytics.topFiles.slice(0, 8).map((file) => (
                   <div
@@ -373,14 +362,13 @@ export default function AdminAnalytics({
                   </LineChart>
                 </ResponsiveContainer>
               </CardContent>
-            </Card>{" "}
+            </Card>
             {/* Storage by User */}
             <Card>
               <CardHeader>
                 <CardTitle>Top Users by Storage</CardTitle>
               </CardHeader>
               <CardContent>
-                {" "}
                 <div className="space-y-3">
                   {userAnalytics.storageByUser.slice(0, 8).map((user) => (
                     <div
@@ -431,7 +419,6 @@ export default function AdminAnalytics({
                 <CardTitle>Recent Security Events</CardTitle>
               </CardHeader>
               <CardContent>
-                {" "}
                 <div className="space-y-3">
                   {securityAnalytics.recentEvents
                     .slice(0, 8)

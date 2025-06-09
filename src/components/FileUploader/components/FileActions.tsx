@@ -6,10 +6,9 @@ import { motion, AnimatePresence } from "motion/react";
 import { Button } from "@/components/ui/button";
 import { Link2, Copy, X } from "lucide-react";
 import FileStatusBadge from "./FileStatusBadge";
-import type { UploadedFile } from "../types";
+import type { FileHandlerProps } from "@/components/types/common";
 
-interface FileActionsProps {
-  file: UploadedFile;
+interface FileActionsProps extends FileHandlerProps {
   onRemoveFile: (id: string) => void;
   onCopyToClipboard: (url: string, label?: string) => void;
 }

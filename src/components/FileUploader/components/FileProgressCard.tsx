@@ -8,10 +8,9 @@ import FileDetails from "./FileDetails";
 import FileActions from "./FileActions";
 import ProgressSection from "./ProgressSection";
 import FileLinks from "./FileLinks";
-import type { UploadedFile } from "../types";
+import type { FileHandlerProps } from "@/components/types/common";
 
-interface FileProgressCardProps {
-  file: UploadedFile;
+interface FileProgressCardProps extends FileHandlerProps {
   index: number;
   onRemoveFile: (id: string) => void;
   onCopyToClipboard: (url: string, label?: string) => void;

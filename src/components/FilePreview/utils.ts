@@ -1,21 +1,9 @@
 // File type detection and utility functions for FilePreview components
 
-export interface FileData {
-  filename: string;
-  originalName: string;
-  type: string;
-  size: number;
-  url: string;
-}
+// Import and re-export centralized types
+import type { FileData, FileTypeInfo } from "@/components/types/common";
 
-export interface FileTypeInfo {
-  isImage: boolean;
-  isVideo: boolean;
-  isAudio: boolean;
-  isText: boolean;
-  isPdf: boolean;
-  isCode: boolean;
-}
+export type { FileData, FileTypeInfo } from "@/components/types/common";
 
 // Get file type information
 export function getFileTypeInfo(file: FileData | null): FileTypeInfo {

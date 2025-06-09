@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useParams } from "next/navigation";
+import { useApi } from "@/hooks";
 import {
   Card,
   CardContent,
@@ -30,57 +31,33 @@ import {
   Share2,
 } from "lucide-react";
 import { toast } from "sonner";
-
-interface FileInfo {
-  filename: string;
-  originalName: string;
-  size: number;
-  mimeType: string;
-  uploadDate: string;
-  expiresAt?: string;
-  downloadCount: number;
-  isPasswordProtected: boolean;
-}
+import type { FileMetadata } from "@/components/types/common";
 
 export default function FilePreviewClient() {
   const params = useParams();
   const shortUrl = params.shortUrl as string;
-
-  const [fileInfo, setFileInfo] = useState<FileInfo | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [fileInfo, setFileInfo] = useState<FileMetadata | null>(null);
   const [passwordRequired, setPasswordRequired] = useState(false);
   const [password, setPassword] = useState("");
   const [passwordLoading, setPasswordLoading] = useState(false);
   const [downloading, setDownloading] = useState(false);
 
-  const fetchFileInfo = useCallback(async () => {
-    try {
-      setLoading(true);
-      setError(null);
-
-      const response = await fetch(`/api/preview/${shortUrl}`);
-      const data = await response.json();
-
+  // Replace manual API state management with useApi hook
+  const {
+    loading,
+    error,
+    refetch: fetchFileInfo,
+  } = useApi<any>(`/api/preview/${shortUrl}`, {
+    onSuccess: (data) => {
       if (data.success) {
         if (data.passwordRequired) {
           setPasswordRequired(true);
         } else {
           setFileInfo(data.fileInfo);
-        }    } else {
-      setError(data.error || "Failed to load file information");
-    }
-  } catch (err) {
-    setError("Network error. Please try again.");
-    // Error fetching file info
-  } finally {
-      setLoading(false);
-    }
-  }, [shortUrl]);
-
-  useEffect(() => {
-    fetchFileInfo();
-  }, [fetchFileInfo]);
+        }
+      }
+    },
+  });
 
   const handlePasswordSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -102,11 +79,12 @@ export default function FilePreviewClient() {
         setFileInfo(result.fileInfo);
         toast.success("Password verified successfully!");
       } else {
-        toast.error(result.error || "Invalid password");    }
-  } catch (err) {
-    toast.error("Failed to verify password");
-    // Password verification error
-  } finally {
+        toast.error(result.error || "Invalid password");
+      }
+    } catch (err) {
+      toast.error("Failed to verify password");
+      // Password verification error
+    } finally {
       setPasswordLoading(false);
     }
   };
@@ -126,7 +104,8 @@ export default function FilePreviewClient() {
       link.download = fileInfo?.originalName || "download";
       document.body.appendChild(link);
       link.click();
-      document.body.removeChild(link);      toast.success("Download started!");
+      document.body.removeChild(link);
+      toast.success("Download started!");
     } catch (err) {
       toast.error("Failed to start download");
       // Download error
@@ -147,7 +126,8 @@ export default function FilePreviewClient() {
     const sizes = ["Bytes", "KB", "MB", "GB"];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
-  };  const getFileIcon = (mimeType: string | undefined) => {
+  };
+  const getFileIcon = (mimeType: string | undefined) => {
     if (!mimeType) return <File className="h-8 w-8" />;
     // eslint-disable-next-line jsx-a11y/alt-text
     if (mimeType.startsWith("image/")) return <Image className="h-8 w-8" />;

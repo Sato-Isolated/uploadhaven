@@ -3,11 +3,9 @@
 import { useState } from "react";
 import Image from "next/image";
 import { motion } from "motion/react";
-import { FileData } from "./utils";
+import type { FilePreviewProps } from "@/components/types/common";
 
-interface ImagePreviewProps {
-  file: FileData;
-}
+interface ImagePreviewProps extends FilePreviewProps {}
 
 export default function ImagePreview({ file }: ImagePreviewProps) {
   const [imageError, setImageError] = useState(false);

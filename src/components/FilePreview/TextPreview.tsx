@@ -2,26 +2,39 @@
 
 import { useState, useEffect } from "react";
 import { motion } from "motion/react";
-import { FileData } from "./utils";
+import { useAsyncOperation } from "@/hooks";
+import type { FilePreviewProps } from "@/components/types/common";
 
-interface TextPreviewProps {
-  file: FileData;
-}
+interface TextPreviewProps extends FilePreviewProps {}
 
 export default function TextPreview({ file }: TextPreviewProps) {
   const [textContent, setTextContent] = useState<string>("");
-  const [isLoadingText, setIsLoadingText] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const { loading: isLoadingText, execute: loadTextContent } =
+    useAsyncOperation({
+      onSuccess: () => {
+        // Success handled in the async function itself
+      },
+      onError: (errorMessage: string) => {
+        setError(errorMessage);
+        setTextContent(errorMessage);
+      },
+    });
 
   useEffect(() => {
     if (!textContent) {
-      setIsLoadingText(true);
-      fetch(file.url)
-        .then((response) => response.text())
-        .then((text) => setTextContent(text))
-        .catch(() => setTextContent("Error loading file content"))
-        .finally(() => setIsLoadingText(false));
+      loadTextContent(async () => {
+        const response = await fetch(file.url);
+        if (!response.ok) {
+          throw new Error(`Failed to load: ${response.status}`);
+        }
+        const text = await response.text();
+        setTextContent(text);
+        setError(null);
+      });
     }
-  }, [file.url, textContent]);
+  }, [file.url, textContent, loadTextContent]);
 
   return (
     <motion.div

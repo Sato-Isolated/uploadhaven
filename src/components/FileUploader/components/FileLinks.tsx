@@ -5,10 +5,9 @@
 import { motion } from "motion/react";
 import { Button } from "@/components/ui/button";
 import { Link2, Copy, ExternalLink, Shield, File } from "lucide-react";
-import type { UploadedFile } from "../types";
+import type { FileHandlerProps } from "@/components/types/common";
 
-interface FileLinksProps {
-  file: UploadedFile;
+interface FileLinksProps extends FileHandlerProps {
   onCopyToClipboard: (url: string, label?: string) => void;
 }
 

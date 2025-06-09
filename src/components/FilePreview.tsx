@@ -20,8 +20,9 @@ import {
   FileData,
   getFileTypeInfo,
 } from "./FilePreview/index";
+import { BaseComponentProps } from "@/components/types/common";
 
-interface FilePreviewProps {
+interface FilePreviewProps extends BaseComponentProps {
   isOpen: boolean;
   onClose: () => void;
   file: FileData | null;

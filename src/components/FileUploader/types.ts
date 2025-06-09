@@ -1,16 +1,23 @@
 // types.ts - Type definitions and constants for FileUploader
 
-export interface UploadedFile {
-  id: string;
-  file: File;
-  progress: number;
-  status: "scanning" | "uploading" | "completed" | "error" | "threat_detected";
-  url?: string;
-  shortUrl?: string;
-  error?: string;
-  scanResult?: { safe: boolean; threat?: string };
-  generatedKey?: string;
-}
+// Import and re-export centralized types
+import type {
+  UploadedFile,
+  FileUploaderSettings,
+  FileProgressProps,
+  UploadSettingsProps,
+  DropzoneProps,
+  FileUploadStatus,
+} from "@/components/types/common";
+
+export type {
+  UploadedFile,
+  FileUploaderSettings,
+  FileProgressProps,
+  UploadSettingsProps,
+  DropzoneProps,
+  FileUploadStatus,
+} from "@/components/types/common";
 
 export const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100MB
 
@@ -33,27 +40,3 @@ export const EXPIRATION_OPTIONS = [
   { value: "30d", label: "30 Days" },
   { value: "never", label: "Never" },
 ];
-
-export interface FileUploaderSettings {
-  expiration: string;
-  isPasswordProtected: boolean;
-}
-
-export interface FileProgressProps {
-  files: UploadedFile[];
-  onRemoveFile: (id: string) => void;
-  onCopyToClipboard: (url: string, label?: string) => void;
-}
-
-export interface UploadSettingsProps {
-  expiration: string;
-  isPasswordProtected: boolean;
-  onExpirationChange: (value: string) => void;
-  onPasswordProtectionChange: (value: boolean) => void;
-}
-
-export interface DropzoneProps {
-  isDragActive: boolean;
-  getRootProps: () => Record<string, unknown>;
-  getInputProps: () => Record<string, unknown>;
-}

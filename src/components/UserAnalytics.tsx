@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { motion } from "motion/react";
 import {
   AnalyticsLoader,
@@ -11,44 +11,28 @@ import {
   TopFilesSection,
   TrendsChart,
   DownloadAnalytics as DownloadAnalyticsType,
-  calculateTrend
+  calculateTrend,
 } from "./DownloadAnalytics/";
+import { useApi } from "@/hooks";
+import { BaseComponentProps, UserStats } from "@/components/types/common";
 
-interface UserAnalyticsProps {
-  className?: string;
-}
+interface UserAnalyticsProps extends BaseComponentProps {}
 
-export default function UserAnalytics({
-  className = "",
-}: UserAnalyticsProps) {
-  const [analytics, setAnalytics] = useState<DownloadAnalyticsType | null>(
-    null
-  );
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+export default function UserAnalytics({ className = "" }: UserAnalyticsProps) {
+  // Replace manual API logic with useApi hook
+  const {
+    data: apiResponse,
+    loading: isLoading,
+    error,
+    refetch: fetchAnalytics,
+  } = useApi<{ analytics: DownloadAnalyticsType }>("/api/analytics/user", {
+    onError: (err) => {
+      console.error("Error fetching user analytics:", err);
+    },
+  });
 
-  const fetchAnalytics = async () => {
-    try {
-      setIsLoading(true);
-      setError(null);
-
-      const response = await fetch("/api/analytics/user");
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || "Failed to fetch analytics");
-      }      setAnalytics(data.analytics);
-    } catch (error) {
-      // Error fetching user analytics
-      setError(error instanceof Error ? error.message : "Unknown error");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchAnalytics();
-  }, []);
+  // Extract analytics from response
+  const analytics = apiResponse?.analytics;
 
   if (isLoading) {
     return <AnalyticsLoader className={className} />;

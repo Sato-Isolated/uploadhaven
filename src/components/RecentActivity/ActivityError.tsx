@@ -3,8 +3,9 @@
 import { motion } from "motion/react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Activity, AlertTriangle } from "lucide-react";
+import { BaseComponentProps } from "@/components/types/common";
 
-interface ActivityErrorProps {
+interface ActivityErrorProps extends BaseComponentProps {
   error: string;
 }
 

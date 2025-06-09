@@ -2,11 +2,10 @@
 
 import { Button } from "@/components/ui/button";
 import { Download, ExternalLink } from "lucide-react";
-import { FileData, handleFileDownload, handleFileOpenInNewTab } from "./utils";
+import { handleFileDownload, handleFileOpenInNewTab } from "./utils";
+import type { FileActionProps } from "@/components/types/common";
 
-interface FileActionsProps {
-  file: FileData;
-}
+interface FileActionsProps extends FileActionProps {}
 
 export default function FileActions({ file }: FileActionsProps) {
   return (

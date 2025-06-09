@@ -4,10 +4,15 @@ import { motion } from "motion/react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { X } from "lucide-react";
-import { FileData, FileTypeInfo, getFileTypeDisplay } from "./utils";
+import { getFileTypeDisplay } from "./utils";
 import { FileIcon } from "./FileIcon";
+import type {
+  FileTypeInfo,
+  BaseComponentProps,
+} from "@/components/types/common";
+import type { FileData } from "@/components/types/common";
 
-interface FileHeaderProps {
+interface FileHeaderProps extends BaseComponentProps {
   file: FileData;
   typeInfo: FileTypeInfo;
   onClose: () => void;
@@ -26,7 +31,6 @@ export default function FileHeader({
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.3 }}
       >
-        {" "}
         <motion.div
           whileHover={{ scale: 1.1, rotate: 5 }}
           transition={{ type: "spring", stiffness: 300 }}

@@ -8,27 +8,34 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { 
-  Shield, 
-  Play, 
-  Square, 
-  RefreshCw, 
-  AlertTriangle, 
-  CheckCircle, 
-  Clock, 
+import {
+  Shield,
+  Play,
+  Square,
+  RefreshCw,
+  AlertTriangle,
+  CheckCircle,
+  Clock,
   FileText,
   Zap,
   Search,
   Globe,
   Database,
-  ChevronDown
+  ChevronDown,
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { toast } from "sonner";
 import { detectSuspiciousActivity, logSecurityEvent } from "@/lib/security";
+import { useApi } from "@/hooks";
 
 interface MalwareScanResult {
   isClean: boolean;
@@ -40,7 +47,7 @@ interface MalwareScanResult {
     result: string;
     category: string;
   }>;
-  source: 'local' | 'virustotal' | 'cache';
+  source: "local" | "virustotal" | "cache";
   scannedAt: Date;
 }
 
@@ -51,7 +58,7 @@ interface SecurityScanModalProps {
 
 interface ScanResult {
   type: string;
-  status: 'clean' | 'threat' | 'warning';
+  status: "clean" | "threat" | "warning";
   message: string;
   details?: string;
   timestamp: Date;
@@ -75,12 +82,12 @@ interface UploadedFile {
 
 interface ScannedFile {
   fileName: string;
-  status: 'scanning' | 'clean' | 'suspicious' | 'threat' | 'error';
+  status: "scanning" | "clean" | "suspicious" | "threat" | "error";
   details?: string;
   scanResult?: MalwareScanResult;
 }
 
-type ScanType = 'quick' | 'full' | 'custom';
+type ScanType = "quick" | "full" | "custom";
 
 export default function SecurityScanModal({
   isOpen,
@@ -88,83 +95,152 @@ export default function SecurityScanModal({
 }: SecurityScanModalProps) {
   const [isScanning, setIsScanning] = useState(false);
   const [scanProgress, setScanProgress] = useState(0);
-  const [selectedScanType, setSelectedScanType] = useState<ScanType>('quick');
+  const [selectedScanType, setSelectedScanType] = useState<ScanType>("quick");
   const [scanResults, setScanResults] = useState<ScanResult[]>([]);
-  const [currentScanStep, setCurrentScanStep] = useState('');
-  const [scanHistory, setScanHistory] = useState<{date: Date, type: string, results: number, threats: number}[]>([]);
+  const [currentScanStep, setCurrentScanStep] = useState("");
+  const [scanHistory, setScanHistory] = useState<
+    { date: Date; type: string; results: number; threats: number }[]
+  >([]);
   const [quotaStatus, setQuotaStatus] = useState<QuotaStatus | null>(null);
-  const [virusTotalConfigured, setVirusTotalConfigured] = useState<boolean>(false);
-  const [fileScanResults, setFileScanResults] = useState<Array<{
-    fileName: string;
-    fileSize: number;
-    scanResult: MalwareScanResult;
-    scannedAt: string;
-  }>>([]);
+  const [virusTotalConfigured, setVirusTotalConfigured] =
+    useState<boolean>(false);
+  const [fileScanResults, setFileScanResults] = useState<
+    Array<{
+      fileName: string;
+      fileSize: number;
+      scanResult: MalwareScanResult;
+      scannedAt: string;
+    }>
+  >([]);
   const [isFileScanning, setIsFileScanning] = useState(false);
-  
+
   // New states for enhanced scanning
   const [virusTotalRequestsUsed, setVirusTotalRequestsUsed] = useState(0);
-  const [scannedFiles, setScannedFiles] = useState<Array<{
-    fileName: string;
-    status: 'scanning' | 'clean' | 'suspicious' | 'threat' | 'error';
-    details?: string;
-    scanResult?: MalwareScanResult;
-  }>>([]);
+  const [scannedFiles, setScannedFiles] = useState<
+    Array<{
+      fileName: string;
+      status: "scanning" | "clean" | "suspicious" | "threat" | "error";
+      details?: string;
+      scanResult?: MalwareScanResult;
+    }>
+  >([]);
   const [totalFilesToScan, setTotalFilesToScan] = useState(0);
   const [currentFileIndex, setCurrentFileIndex] = useState(0);
+
+  // Use useApi hook for security status (GET request)
+  const {
+    data: securityData,
+    loading: securityLoading,
+    refetch: refetchSecurity,
+  } = useApi("/api/security/scan", {
+    immediate: false,
+    onSuccess: (data) => {
+      setVirusTotalConfigured(data.virusTotalConfigured);
+      if (data.quotaStatus) {
+        setQuotaStatus(data.quotaStatus);
+      }
+    },
+  });
+
   // Load VirusTotal quota status when modal opens
   useEffect(() => {
     if (isOpen) {
-      fetch('/api/security/scan')
-        .then(res => res.json())
-        .then((data) => {        setVirusTotalConfigured(data.virusTotalConfigured);
-          if (data.quotaStatus) {
-            setQuotaStatus(data.quotaStatus);
-          }
-        })
-        .catch(() => {
-          // Failed to fetch scanner status - ignore
-        });
+      refetchSecurity();
     }
-  }, [isOpen]);
+  }, [isOpen, refetchSecurity]);
+
+  // Helper functions for API operations
+  const fetchFilesList = async () => {
+    const response = await fetch("/api/security/files");
+    if (!response.ok) {
+      throw new Error("Failed to fetch files list");
+    }
+    return response.json();
+  };
+
+  const scanSingleFile = async (fileName: string) => {
+    const response = await fetch("/api/security/scan/file", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ fileName }),
+    });
+    if (!response.ok) {
+      throw new Error("Failed to scan file");
+    }
+    return response.json();
+  };
+
+  const scanUploadedFile = async (file: File) => {
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const response = await fetch("/api/security/scan", {
+      method: "POST",
+      body: formData,
+    });
+    if (!response.ok) {
+      throw new Error("File scan failed");
+    }
+    return response.json();
+  };
 
   const scanTypes = [
     {
-      id: 'quick',
-      name: 'Quick Scan',
-      description: 'Basic security checks and threat detection',
-      duration: '~30 seconds',
+      id: "quick",
+      name: "Quick Scan",
+      description: "Basic security checks and threat detection",
+      duration: "~30 seconds",
       icon: <Zap className="w-5 h-5" />,
-      color: 'bg-blue-500'
+      color: "bg-blue-500",
     },
     {
-      id: 'full',
-      name: 'Full System Scan',
-      description: 'Comprehensive scan of all files and system integrity',
-      duration: '~2-5 minutes',
+      id: "full",
+      name: "Full System Scan",
+      description: "Comprehensive scan of all files and system integrity",
+      duration: "~2-5 minutes",
       icon: <Search className="w-5 h-5" />,
-      color: 'bg-orange-500'
+      color: "bg-orange-500",
     },
     {
-      id: 'custom',
-      name: 'Custom Scan',
-      description: 'Advanced scanning with custom parameters',
-      duration: 'Variable',
+      id: "custom",
+      name: "Custom Scan",
+      description: "Advanced scanning with custom parameters",
+      duration: "Variable",
       icon: <Shield className="w-5 h-5" />,
-      color: 'bg-purple-500'
-    }
+      color: "bg-purple-500",
+    },
   ];
 
   const startScan = async () => {
     setIsScanning(true);
     setScanProgress(0);
     setScanResults([]);
-    
-    const scanSteps = selectedScanType === 'quick' 
-      ? ['Checking for suspicious activities', 'Analyzing recent uploads', 'Validating system integrity']
-      : selectedScanType === 'full'
-      ? ['Initializing full scan', 'Checking file system', 'Analyzing suspicious activities', 'Scanning for malware', 'Validating system integrity', 'Checking upload history', 'Analyzing security logs']
-      : ['Initializing custom scan', 'Running advanced threat detection', 'Deep system analysis', 'Custom security checks'];
+
+    const scanSteps =
+      selectedScanType === "quick"
+        ? [
+            "Checking for suspicious activities",
+            "Analyzing recent uploads",
+            "Validating system integrity",
+          ]
+        : selectedScanType === "full"
+        ? [
+            "Initializing full scan",
+            "Checking file system",
+            "Analyzing suspicious activities",
+            "Scanning for malware",
+            "Validating system integrity",
+            "Checking upload history",
+            "Analyzing security logs",
+          ]
+        : [
+            "Initializing custom scan",
+            "Running advanced threat detection",
+            "Deep system analysis",
+            "Custom security checks",
+          ];
 
     const results: ScanResult[] = [];
 
@@ -172,300 +248,337 @@ export default function SecurityScanModal({
       for (let i = 0; i < scanSteps.length; i++) {
         setCurrentScanStep(scanSteps[i]);
         setScanProgress((i / scanSteps.length) * 100);
-        
+
         // Simulate scan delay
-        await new Promise(resolve => setTimeout(resolve, selectedScanType === 'quick' ? 1000 : 2000));        // Perform actual security checks
-        if (scanSteps[i].includes('suspicious')) {
-          const isSuspicious = detectSuspiciousActivity('0.0.0.0');
+        await new Promise((resolve) =>
+          setTimeout(resolve, selectedScanType === "quick" ? 1000 : 2000)
+        ); // Perform actual security checks
+        if (scanSteps[i].includes("suspicious")) {
+          const isSuspicious = detectSuspiciousActivity("0.0.0.0");
           if (isSuspicious) {
             results.push({
-              type: 'Suspicious Activity',
-              status: 'warning',
-              message: 'Detected suspicious activity patterns',
-              details: 'Multiple failed upload attempts from specific IPs detected',
-              timestamp: new Date()
+              type: "Suspicious Activity",
+              status: "warning",
+              message: "Detected suspicious activity patterns",
+              details:
+                "Multiple failed upload attempts from specific IPs detected",
+              timestamp: new Date(),
             });
           } else {
             results.push({
-              type: 'Suspicious Activity',
-              status: 'clean',
-              message: 'No suspicious activities detected',
-              timestamp: new Date()
+              type: "Suspicious Activity",
+              status: "clean",
+              message: "No suspicious activities detected",
+              timestamp: new Date(),
             });
           }
         }
 
-        if (scanSteps[i].includes('system integrity')) {
+        if (scanSteps[i].includes("system integrity")) {
           const hasIntegrityIssues = Math.random() < 0.1;
           results.push({
-            type: 'System Integrity',
-            status: hasIntegrityIssues ? 'warning' : 'clean',
-            message: hasIntegrityIssues ? 'Minor system integrity issues detected' : 'System integrity check passed',
-            details: hasIntegrityIssues ? 'Some configuration files have unexpected permissions' : undefined,
-            timestamp: new Date()
+            type: "System Integrity",
+            status: hasIntegrityIssues ? "warning" : "clean",
+            message: hasIntegrityIssues
+              ? "Minor system integrity issues detected"
+              : "System integrity check passed",
+            details: hasIntegrityIssues
+              ? "Some configuration files have unexpected permissions"
+              : undefined,
+            timestamp: new Date(),
           });
-        }        if (scanSteps[i].includes('malware')) {
+        }
+        if (scanSteps[i].includes("malware")) {
           if (virusTotalConfigured) {
             try {
-              setCurrentScanStep('Récupération de la liste des fichiers...');
-              
-              // Get list of uploaded files
-              const filesResponse = await fetch('/api/security/files');
-              const filesData = await filesResponse.json();
+              setCurrentScanStep("Récupération de la liste des fichiers...");
+
+              // Get list of uploaded files using helper function
+              const filesData = await fetchFilesList();
               const filesToScan = filesData.files || [];
-              
+
               setTotalFilesToScan(filesToScan.length);
               setCurrentFileIndex(0);
               setVirusTotalRequestsUsed(0);
-              
+
               if (filesToScan.length === 0) {
                 results.push({
-                  type: 'Analyse Malware (VirusTotal)',
-                  status: 'clean',
-                  message: 'Aucun fichier à analyser',
-                  details: 'Aucun fichier uploadé trouvé dans le répertoire',
-                  timestamp: new Date()
+                  type: "Analyse Malware (VirusTotal)",
+                  status: "clean",
+                  message: "Aucun fichier à analyser",
+                  details: "Aucun fichier uploadé trouvé dans le répertoire",
+                  timestamp: new Date(),
                 });
               } else {
                 // Initialize scanned files tracking
-                const initialScannedFiles = filesToScan.map((file: UploadedFile) => ({
-                  fileName: file.name,
-                  status: 'scanning' as const,
-                  details: 'En attente...'
-                }));
+                const initialScannedFiles = filesToScan.map(
+                  (file: UploadedFile) => ({
+                    fileName: file.name,
+                    status: "scanning" as const,
+                    details: "En attente...",
+                  })
+                );
                 setScannedFiles(initialScannedFiles);
-                
+
                 let threatsFound = 0;
                 let suspiciousFound = 0;
                 let totalRequests = 0;
                 let successfulScans = 0;
-                  // Scan files one by one for real-time updates
-                for (let fileIndex = 0; fileIndex < filesToScan.length; fileIndex++) {
+                // Scan files one by one for real-time updates
+                for (
+                  let fileIndex = 0;
+                  fileIndex < filesToScan.length;
+                  fileIndex++
+                ) {
                   const file = filesToScan[fileIndex];
                   setCurrentFileIndex(fileIndex + 1);
-                  setCurrentScanStep(`Analyse du fichier ${fileIndex + 1}/${filesToScan.length}: ${file.name}`);
-                  
+                  setCurrentScanStep(
+                    `Analyse du fichier ${fileIndex + 1}/${
+                      filesToScan.length
+                    }: ${file.name}`
+                  );
+
                   // Update current file status to scanning
-                  setScannedFiles(prev => prev.map((f, idx) => 
-                    idx === fileIndex 
-                      ? { ...f, status: 'scanning', details: 'Analyse en cours...' }
-                      : f
-                  ));
-                  
+                  setScannedFiles((prev) =>
+                    prev.map((f, idx) =>
+                      idx === fileIndex
+                        ? {
+                            ...f,
+                            status: "scanning",
+                            details: "Analyse en cours...",
+                          }
+                        : f
+                    )
+                  );
+
                   try {
-                    // Use the new file scan API that accepts fileName
-                    const scanResponse = await fetch('/api/security/scan/file', {
-                      method: 'POST',
-                      headers: {
-                        'Content-Type': 'application/json',
-                      },
-                      body: JSON.stringify({
-                        fileName: file.name
-                      })
-                    });
-                    
-                    const scanData = await scanResponse.json();
-                    
+                    // Use helper function for file scanning
+                    const scanData = await scanSingleFile(file.name);
+
                     if (scanData.scanResult) {
                       const scanResult = scanData.scanResult;
                       successfulScans++;
-                      
+
                       // Update VirusTotal request counter if this was a VirusTotal scan
-                      if (scanResult.source === 'virustotal') {
+                      if (scanResult.source === "virustotal") {
                         totalRequests++;
                         setVirusTotalRequestsUsed(totalRequests);
                       }
-                      
+
                       // Count threats and suspicious files
                       if (scanResult.isMalicious) threatsFound++;
                       if (scanResult.isSuspicious) suspiciousFound++;
-                      
+
                       // Update file status
-                      const fileStatus = scanResult.isMalicious ? 'threat' : 
-                                        scanResult.isSuspicious ? 'suspicious' : 'clean';
-                      
-                      const details = scanResult.threatName || 
-                                     `Source: ${scanResult.source}` + 
-                                     (scanResult.engineResults ? ` (${scanResult.engineResults.length} moteurs)` : '');
-                      
-                      setScannedFiles(prev => prev.map((f, idx) => 
-                        idx === fileIndex 
-                          ? { ...f, status: fileStatus, details, scanResult }
-                          : f
-                      ));
-                      
+                      const fileStatus = scanResult.isMalicious
+                        ? "threat"
+                        : scanResult.isSuspicious
+                        ? "suspicious"
+                        : "clean";
+
+                      const details =
+                        scanResult.threatName ||
+                        `Source: ${scanResult.source}` +
+                          (scanResult.engineResults
+                            ? ` (${scanResult.engineResults.length} moteurs)`
+                            : "");
+
+                      setScannedFiles((prev) =>
+                        prev.map((f, idx) =>
+                          idx === fileIndex
+                            ? { ...f, status: fileStatus, details, scanResult }
+                            : f
+                        )
+                      );
+
                       // Update quota status if provided
                       if (scanData.quotaStatus) {
                         setQuotaStatus(scanData.quotaStatus);
                       }
-                      
                     } else {
                       // Handle scan error
-                      setScannedFiles(prev => prev.map((f, idx) => 
-                        idx === fileIndex 
-                          ? { ...f, status: 'error', details: scanData.error || 'Erreur de scan' }
-                          : f
-                      ));
+                      setScannedFiles((prev) =>
+                        prev.map((f, idx) =>
+                          idx === fileIndex
+                            ? {
+                                ...f,
+                                status: "error",
+                                details: scanData.error || "Erreur de scan",
+                              }
+                            : f
+                        )
+                      );
                     }
-                      } catch (error) {
+                  } catch (error) {
                     // File scan failed - update status
-                    setScannedFiles(prev => prev.map((f, idx) => 
-                      idx === fileIndex 
-                        ? { ...f, status: 'error', details: 'Erreur technique' }
-                        : f
-                    ));
+                    setScannedFiles((prev) =>
+                      prev.map((f, idx) =>
+                        idx === fileIndex
+                          ? {
+                              ...f,
+                              status: "error",
+                              details: "Erreur technique",
+                            }
+                          : f
+                      )
+                    );
                   }
-                  
+
                   // Small delay to make the real-time updates visible
-                  await new Promise(resolve => setTimeout(resolve, 800));
+                  await new Promise((resolve) => setTimeout(resolve, 800));
                 }
-                
+
                 // Final result summary
                 results.push({
-                  type: 'Analyse Malware (VirusTotal)',
-                  status: threatsFound > 0 ? 'threat' : suspiciousFound > 0 ? 'warning' : 'clean',
+                  type: "Analyse Malware (VirusTotal)",
+                  status:
+                    threatsFound > 0
+                      ? "threat"
+                      : suspiciousFound > 0
+                      ? "warning"
+                      : "clean",
                   message: `${successfulScans} fichiers analysés - ${threatsFound} menaces détectées`,
-                  details: `Requêtes VirusTotal utilisées: ${totalRequests}/${quotaStatus?.total || 500}`,
-                  timestamp: new Date()
+                  details: `Requêtes VirusTotal utilisées: ${totalRequests}/${
+                    quotaStatus?.total || 500
+                  }`,
+                  timestamp: new Date(),
                 });
               }
-                } catch (error) {
+            } catch (error) {
               // Malware scan failed
               results.push({
-                type: 'Analyse Malware',
-                status: 'warning',
-                message: 'Échec de l\'analyse malware',
-                details: 'Problème technique lors de l\'analyse des fichiers',
-                timestamp: new Date()
+                type: "Analyse Malware",
+                status: "warning",
+                message: "Échec de l'analyse malware",
+                details: "Problème technique lors de l'analyse des fichiers",
+                timestamp: new Date(),
               });
             }
           } else {
             results.push({
-              type: 'Analyse Malware (Local)',
-              status: 'clean',
-              message: 'Analyse heuristique locale terminée',
-              details: 'API VirusTotal non configurée - analyse locale uniquement',
-              timestamp: new Date()
+              type: "Analyse Malware (Local)",
+              status: "clean",
+              message: "Analyse heuristique locale terminée",
+              details:
+                "API VirusTotal non configurée - analyse locale uniquement",
+              timestamp: new Date(),
             });
           }
         }
 
-        if (scanSteps[i].includes('file system')) {
+        if (scanSteps[i].includes("file system")) {
           results.push({
-            type: 'File System',
-            status: 'clean',
-            message: 'File system structure validated',
-            timestamp: new Date()
+            type: "File System",
+            status: "clean",
+            message: "File system structure validated",
+            timestamp: new Date(),
           });
         }
 
-        if (scanSteps[i].includes('uploads')) {
+        if (scanSteps[i].includes("uploads")) {
           const uploadsIssue = Math.random() < 0.15;
           results.push({
-            type: 'Upload Analysis',
-            status: uploadsIssue ? 'warning' : 'clean',
-            message: uploadsIssue ? 'Unusual upload patterns detected' : 'Upload patterns normal',
-            details: uploadsIssue ? 'Higher than normal file upload rate detected' : undefined,
-            timestamp: new Date()
+            type: "Upload Analysis",
+            status: uploadsIssue ? "warning" : "clean",
+            message: uploadsIssue
+              ? "Unusual upload patterns detected"
+              : "Upload patterns normal",
+            details: uploadsIssue
+              ? "Higher than normal file upload rate detected"
+              : undefined,
+            timestamp: new Date(),
           });
         }
       }
 
       setScanProgress(100);
-      setCurrentScanStep('Scan completed');
+      setCurrentScanStep("Scan completed");
       setScanResults(results);
 
-      const threatsFound = results.filter(r => r.status === 'threat').length;
+      const threatsFound = results.filter((r) => r.status === "threat").length;
       const newScanEntry = {
         date: new Date(),
         type: selectedScanType,
         results: results.length,
-        threats: threatsFound
+        threats: threatsFound,
       };
-      setScanHistory(prev => [newScanEntry, ...prev.slice(0, 4)]);
+      setScanHistory((prev) => [newScanEntry, ...prev.slice(0, 4)]);
 
       logSecurityEvent(
-        'file_scan',
+        "file_scan",
         `Security scan completed: ${selectedScanType} scan found ${threatsFound} threats`,
-        threatsFound > 0 ? 'high' : 'low'
+        threatsFound > 0 ? "high" : "low"
       );
 
-      toast.success(`${selectedScanType.charAt(0).toUpperCase() + selectedScanType.slice(1)} scan completed`);
-      
-    } catch (error) {      toast.error('Scan failed. Please try again.');
+      toast.success(
+        `${
+          selectedScanType.charAt(0).toUpperCase() + selectedScanType.slice(1)
+        } scan completed`
+      );
+    } catch (error) {
+      toast.error("Scan failed. Please try again.");
       // Scan error occurred
     } finally {
       setIsScanning(false);
-      setCurrentScanStep('');
+      setCurrentScanStep("");
     }
   };
 
   const stopScan = () => {
     setIsScanning(false);
     setScanProgress(0);
-    setCurrentScanStep('');
-    toast.info('Scan stopped');
+    setCurrentScanStep("");
+    toast.info("Scan stopped");
   };
-
   const handleFileScan = async (file: File) => {
     setIsFileScanning(true);
-    
+
     try {
-      const formData = new FormData();
-      formData.append('file', file);
-      
-      const response = await fetch('/api/security/scan', {
-        method: 'POST',
-        body: formData
-      });
-      
-      if (!response.ok) {
-        throw new Error('File scan failed');
-      }
-      
-      const result = await response.json();
-      
-      setFileScanResults(prev => [result, ...prev.slice(0, 9)]);
-      
+      const result = await scanUploadedFile(file);
+
+      setFileScanResults((prev) => [result, ...prev.slice(0, 9)]);
+
       if (result.quotaStatus) {
         setQuotaStatus(result.quotaStatus);
       }
-      
+
       const scanResult = result.scanResult;
       if (scanResult.isMalicious) {
-        toast.error(`Threat detected in ${file.name}: ${scanResult.threatName}`);
+        toast.error(
+          `Threat detected in ${file.name}: ${scanResult.threatName}`
+        );
       } else if (scanResult.isSuspicious) {
         toast.warning(`Suspicious file detected: ${file.name}`);
       } else {
         toast.success(`File ${file.name} is clean`);
       }
-        } catch (error) {
+    } catch (error) {
       // File scan failed
-      toast.error('File scan failed. Please try again.');
+      toast.error("File scan failed. Please try again.");
     } finally {
       setIsFileScanning(false);
     }
   };
 
-  const getStatusIcon = (status: ScanResult['status']) => {
+  const getStatusIcon = (status: ScanResult["status"]) => {
     switch (status) {
-      case 'clean':
+      case "clean":
         return <CheckCircle className="w-4 h-4 text-green-500" />;
-      case 'warning':
+      case "warning":
         return <AlertTriangle className="w-4 h-4 text-yellow-500" />;
-      case 'threat':
+      case "threat":
         return <AlertTriangle className="w-4 h-4 text-red-500" />;
     }
   };
 
-  const getStatusColor = (status: ScanResult['status']) => {
+  const getStatusColor = (status: ScanResult["status"]) => {
     switch (status) {
-      case 'clean':
-        return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300';
-      case 'warning':
-        return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300';
-      case 'threat':
-        return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300';
+      case "clean":
+        return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300";
+      case "warning":
+        return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300";
+      case "threat":
+        return "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300";
     }
   };
 
@@ -478,14 +591,15 @@ export default function SecurityScanModal({
             Security Scanner
           </DialogTitle>
         </DialogHeader>
-        
+
         <div className="overflow-y-auto max-h-[75vh] pr-2 space-y-6">
-          
           {/* Scan Type Selection */}
           <Card>
             <CardHeader>
               <CardTitle className="text-lg">Select Scan Type</CardTitle>
-              <CardDescription>Choose the type of security scan to perform</CardDescription>
+              <CardDescription>
+                Choose the type of security scan to perform
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -496,18 +610,22 @@ export default function SecurityScanModal({
                     whileTap={{ scale: 0.98 }}
                   >
                     <Button
-                      variant={selectedScanType === type.id ? "default" : "outline"}
+                      variant={
+                        selectedScanType === type.id ? "default" : "outline"
+                      }
                       onClick={() => setSelectedScanType(type.id as ScanType)}
                       disabled={isScanning}
                       className={`h-auto p-4 flex flex-col items-start gap-2 w-full ${
-                        selectedScanType === type.id ? type.color : ''
+                        selectedScanType === type.id ? type.color : ""
                       }`}
                     >
                       <div className="flex items-center gap-2 w-full">
                         {type.icon}
                         <span className="font-medium">{type.name}</span>
                       </div>
-                      <p className="text-xs text-left opacity-80">{type.description}</p>
+                      <p className="text-xs text-left opacity-80">
+                        {type.description}
+                      </p>
                       <Badge variant="secondary" className="text-xs">
                         {type.duration}
                       </Badge>
@@ -516,7 +634,8 @@ export default function SecurityScanModal({
                 ))}
               </div>
             </CardContent>
-          </Card>          {/* VirusTotal Quota Status */}
+          </Card>
+          {/* VirusTotal Quota Status */}
           {virusTotalConfigured && quotaStatus && (
             <Card>
               <CardHeader>
@@ -524,7 +643,9 @@ export default function SecurityScanModal({
                   <Globe className="w-5 h-5" />
                   VirusTotal API Status
                 </CardTitle>
-                <CardDescription>Daily API quota usage for malware scanning</CardDescription>
+                <CardDescription>
+                  Daily API quota usage for malware scanning
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
@@ -537,22 +658,26 @@ export default function SecurityScanModal({
                       {quotaStatus.used} / {quotaStatus.total} requests
                     </span>
                   </div>
-                  
-                  <Progress 
-                    value={(quotaStatus.used / quotaStatus.total) * 100} 
+
+                  <Progress
+                    value={(quotaStatus.used / quotaStatus.total) * 100}
                     className="h-2"
                   />
-                  
+
                   <div className="flex items-center justify-between text-xs text-gray-500">
                     <span>{quotaStatus.remaining} requests remaining</span>
-                    <span>Resets: {new Date(quotaStatus.resetsAt).toLocaleTimeString()}</span>
+                    <span>
+                      Resets:
+                      {new Date(quotaStatus.resetsAt).toLocaleTimeString()}
+                    </span>
                   </div>
-                  
+
                   {quotaStatus.remaining < 50 && (
                     <div className="flex items-center gap-2 p-2 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-md">
                       <AlertTriangle className="w-4 h-4 text-yellow-600" />
                       <span className="text-sm text-yellow-700 dark:text-yellow-400">
-                        Low quota remaining. Malware scanning may use local detection only.
+                        Low quota remaining. Malware scanning may use local
+                        detection only.
                       </span>
                     </div>
                   )}
@@ -560,7 +685,6 @@ export default function SecurityScanModal({
               </CardContent>
             </Card>
           )}
-
           {!virusTotalConfigured && (
             <Card>
               <CardHeader>
@@ -578,14 +702,14 @@ export default function SecurityScanModal({
                       VirusTotal API configured successfully
                     </p>
                     <p className="text-green-600 dark:text-green-500 text-xs mt-1">
-                      Enhanced malware detection with {quotaStatus?.remaining || 500} requests remaining today
+                      Enhanced malware detection with
+                      {quotaStatus?.remaining || 500} requests remaining today
                     </p>
                   </div>
                 </div>
               </CardContent>
             </Card>
           )}
-
           {/* File Scanner */}
           <Card>
             <CardHeader>
@@ -593,7 +717,9 @@ export default function SecurityScanModal({
                 <FileText className="w-5 h-5" />
                 File Scanner
               </CardTitle>
-              <CardDescription>Upload and scan files for malware and threats</CardDescription>
+              <CardDescription>
+                Upload and scan files for malware and threats
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
@@ -612,12 +738,16 @@ export default function SecurityScanModal({
                   />
                   <label
                     htmlFor="file-scan-input"
-                    className={`cursor-pointer ${isFileScanning ? 'cursor-not-allowed opacity-50' : ''}`}
+                    className={`cursor-pointer ${
+                      isFileScanning ? "cursor-not-allowed opacity-50" : ""
+                    }`}
                   >
                     <div className="space-y-2">
                       <FileText className="w-8 h-8 mx-auto text-gray-400" />
                       <p className="text-sm text-gray-600 dark:text-gray-400">
-                        {isFileScanning ? 'Scanning file...' : 'Click to select a file to scan'}
+                        {isFileScanning
+                          ? "Scanning file..."
+                          : "Click to select a file to scan"}
                       </p>
                       <p className="text-xs text-gray-500">
                         Supports all file types • Max 10MB
@@ -644,26 +774,29 @@ export default function SecurityScanModal({
                               <CheckCircle className="w-4 h-4 text-green-500" />
                             )}
                             <div>
-                              <p className="text-sm font-medium">{result.fileName}</p>
+                              <p className="text-sm font-medium">
+                                {result.fileName}
+                              </p>
                               <p className="text-xs text-gray-500">
-                                {(result.fileSize / 1024).toFixed(1)} KB • {result.scanResult.source}
+                                {(result.fileSize / 1024).toFixed(1)} KB •
+                                {result.scanResult.source}
                               </p>
                             </div>
                           </div>
                           <Badge
                             className={
                               result.scanResult.isMalicious
-                                ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300'
+                                ? "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300"
                                 : result.scanResult.isSuspicious
-                                ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300'
-                                : 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300'
+                                ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300"
+                                : "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300"
                             }
                           >
                             {result.scanResult.isMalicious
-                              ? 'Threat'
+                              ? "Threat"
                               : result.scanResult.isSuspicious
-                              ? 'Suspicious'
-                              : 'Clean'}
+                              ? "Suspicious"
+                              : "Clean"}
                           </Badge>
                         </div>
                       ))}
@@ -673,7 +806,6 @@ export default function SecurityScanModal({
               </div>
             </CardContent>
           </Card>
-
           {/* Scan Control */}
           <Card>
             <CardHeader>
@@ -688,9 +820,12 @@ export default function SecurityScanModal({
                   className="flex items-center gap-2"
                 >
                   <Play className="w-4 h-4" />
-                  Start {selectedScanType.charAt(0).toUpperCase() + selectedScanType.slice(1)} Scan
+                  Start
+                  {selectedScanType.charAt(0).toUpperCase() +
+                    selectedScanType.slice(1)}
+                  Scan
                 </Button>
-                
+
                 {isScanning && (
                   <Button
                     variant="outline"
@@ -701,8 +836,9 @@ export default function SecurityScanModal({
                     Stop Scan
                   </Button>
                 )}
-              </div>              {isScanning && (
-                <motion.div 
+              </div>
+              {isScanning && (
+                <motion.div
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   className="space-y-4"
@@ -712,8 +848,9 @@ export default function SecurityScanModal({
                     {currentScanStep}
                   </div>
                   <Progress value={scanProgress} className="h-2" />
-                  <p className="text-xs text-gray-500">{Math.round(scanProgress)}% complete</p>
-                  
+                  <p className="text-xs text-gray-500">
+                    {Math.round(scanProgress)}% complete
+                  </p>
                   {/* VirusTotal Request Counter */}
                   {virusTotalConfigured && virusTotalRequestsUsed > 0 && (
                     <div className="flex items-center justify-between p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-md">
@@ -727,12 +864,18 @@ export default function SecurityScanModal({
                         {virusTotalRequestsUsed}/{quotaStatus?.total || 500}
                       </span>
                     </div>
-                  )}                  {/* Scanned Files Progress */}
+                  )}
+                  {/* Scanned Files Progress */}
                   {scannedFiles.length > 0 && (
                     <div className="space-y-3">
                       <div className="flex items-center justify-between">
                         <h4 className="text-sm font-medium">
-                          Fichiers analysés ({scannedFiles.filter(f => f.status !== 'scanning').length}/{scannedFiles.length})
+                          Fichiers analysés (
+                          {
+                            scannedFiles.filter((f) => f.status !== "scanning")
+                              .length
+                          }
+                          /{scannedFiles.length})
                         </h4>
                         {totalFilesToScan > 0 && (
                           <span className="text-xs text-gray-500">
@@ -741,10 +884,8 @@ export default function SecurityScanModal({
                         )}
                       </div>
                       <div className="max-h-40 overflow-y-auto space-y-2">
-                        {scannedFiles.map((file, index) => (                          <ScannedFileItem 
-                            key={index}
-                            file={file}
-                          />
+                        {scannedFiles.map((file, index) => (
+                          <ScannedFileItem key={index} file={file} />
                         ))}
                       </div>
                     </div>
@@ -753,14 +894,17 @@ export default function SecurityScanModal({
               )}
             </CardContent>
           </Card>
-
           {/* Scan Results */}
           {scanResults.length > 0 && (
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg">Scan Results</CardTitle>
                 <CardDescription>
-                  Found {scanResults.length} items ({scanResults.filter(r => r.status === 'threat').length} threats, {scanResults.filter(r => r.status === 'warning').length} warnings)
+                  Found {scanResults.length} items (
+                  {scanResults.filter((r) => r.status === "threat").length}
+                  threats,
+                  {scanResults.filter((r) => r.status === "warning").length}
+                  warnings)
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -777,7 +921,9 @@ export default function SecurityScanModal({
                         {getStatusIcon(result.status)}
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 mb-1">
-                            <span className="text-sm font-medium">{result.type}</span>
+                            <span className="text-sm font-medium">
+                              {result.type}
+                            </span>
                             <Badge className={getStatusColor(result.status)}>
                               {result.status}
                             </Badge>
@@ -802,13 +948,14 @@ export default function SecurityScanModal({
               </CardContent>
             </Card>
           )}
-
           {/* Scan History */}
           {scanHistory.length > 0 && (
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg">Scan History</CardTitle>
-                <CardDescription>Previous security scans performed</CardDescription>
+                <CardDescription>
+                  Previous security scans performed
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
@@ -820,7 +967,8 @@ export default function SecurityScanModal({
                       <div className="flex items-center gap-2">
                         <Badge variant="outline">{scan.type}</Badge>
                         <span className="text-sm">
-                          {scan.date.toLocaleDateString()} {scan.date.toLocaleTimeString()}
+                          {scan.date.toLocaleDateString()}
+                          {scan.date.toLocaleTimeString()}
                         </span>
                       </div>
                       <div className="flex items-center gap-4 text-sm">
@@ -839,7 +987,6 @@ export default function SecurityScanModal({
               </CardContent>
             </Card>
           )}
-
         </div>
       </DialogContent>
     </Dialog>
@@ -848,65 +995,76 @@ export default function SecurityScanModal({
 
 const ScannedFileItem = ({ file }: { file: ScannedFile }) => {
   const [isExpanded, setIsExpanded] = useState(false);
-  
-  const hasEngineResults = file.scanResult?.engineResults && file.scanResult.engineResults.length > 0;
-  
+
+  const hasEngineResults =
+    file.scanResult?.engineResults && file.scanResult.engineResults.length > 0;
+
   return (
     <motion.div
       className="bg-gray-50 dark:bg-gray-800 rounded border"
       initial={{ opacity: 0.5 }}
-      animate={{ 
-        opacity: file.status === 'scanning' ? [1, 0.5, 1] : 1,
-        scale: file.status === 'scanning' ? [1, 1.02, 1] : 1
+      animate={{
+        opacity: file.status === "scanning" ? [1, 0.5, 1] : 1,
+        scale: file.status === "scanning" ? [1, 1.02, 1] : 1,
       }}
-      transition={{ 
-        duration: file.status === 'scanning' ? 1.5 : 0.3,
-        repeat: file.status === 'scanning' ? Infinity : 0
+      transition={{
+        duration: file.status === "scanning" ? 1.5 : 0.3,
+        repeat: file.status === "scanning" ? Infinity : 0,
       }}
     >
       {/* Main file info row */}
-      <div 
-        className={`flex items-center justify-between p-2 text-xs ${hasEngineResults ? 'cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700' : ''}`}
+      <div
+        className={`flex items-center justify-between p-2 text-xs ${
+          hasEngineResults
+            ? "cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700"
+            : ""
+        }`}
         onClick={() => hasEngineResults && setIsExpanded(!isExpanded)}
       >
         <div className="flex items-center gap-2 flex-1 min-w-0">
-          {file.status === 'scanning' ? (
+          {file.status === "scanning" ? (
             <RefreshCw className="w-3 h-3 animate-spin text-blue-500" />
-          ) : file.status === 'threat' ? (
+          ) : file.status === "threat" ? (
             <AlertTriangle className="w-3 h-3 text-red-500" />
-          ) : file.status === 'suspicious' ? (
+          ) : file.status === "suspicious" ? (
             <AlertTriangle className="w-3 h-3 text-yellow-500" />
-          ) : file.status === 'error' ? (
+          ) : file.status === "error" ? (
             <AlertTriangle className="w-3 h-3 text-gray-500" />
           ) : (
             <CheckCircle className="w-3 h-3 text-green-500" />
           )}
           <span className="truncate font-mono">{file.fileName}</span>
-          {file.details && file.status !== 'scanning' && (
-            <span className="text-xs text-gray-400 ml-1">
-              - {file.details}
-            </span>
+          {file.details && file.status !== "scanning" && (
+            <span className="text-xs text-gray-400 ml-1">- {file.details}</span>
           )}
         </div>
-        
+
         <div className="flex items-center gap-2">
           <Badge
             variant="outline"
             className={`text-xs ${
-              file.status === 'threat' ? 'border-red-500 text-red-600' :
-              file.status === 'suspicious' ? 'border-yellow-500 text-yellow-600' :
-              file.status === 'error' ? 'border-gray-500 text-gray-600' :
-              file.status === 'scanning' ? 'border-blue-500 text-blue-600' :
-              'border-green-500 text-green-600'
+              file.status === "threat"
+                ? "border-red-500 text-red-600"
+                : file.status === "suspicious"
+                ? "border-yellow-500 text-yellow-600"
+                : file.status === "error"
+                ? "border-gray-500 text-gray-600"
+                : file.status === "scanning"
+                ? "border-blue-500 text-blue-600"
+                : "border-green-500 text-green-600"
             }`}
           >
-            {file.status === 'threat' ? 'Menace' :
-             file.status === 'suspicious' ? 'Suspect' :
-             file.status === 'error' ? 'Erreur' :
-             file.status === 'scanning' ? 'Scan...' :
-             'Propre'}
+            {file.status === "threat"
+              ? "Menace"
+              : file.status === "suspicious"
+              ? "Suspect"
+              : file.status === "error"
+              ? "Erreur"
+              : file.status === "scanning"
+              ? "Scan..."
+              : "Propre"}
           </Badge>
-          
+
           {hasEngineResults && (
             <motion.div
               animate={{ rotate: isExpanded ? 180 : 0 }}
@@ -917,13 +1075,13 @@ const ScannedFileItem = ({ file }: { file: ScannedFile }) => {
           )}
         </div>
       </div>
-      
+
       {/* Collapsible detailed results */}
       <AnimatePresence>
         {isExpanded && hasEngineResults && (
           <motion.div
             initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
+            animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.3 }}
             className="overflow-hidden"
@@ -935,77 +1093,107 @@ const ScannedFileItem = ({ file }: { file: ScannedFile }) => {
                     Résultats des moteurs antivirus
                   </span>
                   <span className="text-gray-500">
-                    {file.scanResult?.engineResults?.length || 0} moteurs analysés
+                    {file.scanResult?.engineResults?.length || 0} moteurs
+                    analysés
                   </span>
                 </div>
-                
+
                 {file.scanResult?.threatName && (
                   <div className="mt-1 text-xs">
-                    <span className="font-medium text-red-600">Menace détectée: </span>
-                    <span className="text-red-500">{file.scanResult.threatName}</span>
+                    <span className="font-medium text-red-600">
+                      Menace détectée:
+                    </span>
+                    <span className="text-red-500">
+                      {file.scanResult.threatName}
+                    </span>
                   </div>
                 )}
-                
+
                 <div className="mt-1 text-xs text-gray-500">
-                  Source: {file.scanResult?.source} • Scanné: {file.scanResult?.scannedAt ? new Date(file.scanResult.scannedAt).toLocaleString() : 'N/A'}
+                  Source: {file.scanResult?.source} • Scanné:
+                  {file.scanResult?.scannedAt
+                    ? new Date(file.scanResult.scannedAt).toLocaleString()
+                    : "N/A"}
                 </div>
               </div>
-              
+
               {/* Engine results grid */}
               <div className="max-h-32 overflow-y-auto">
                 <div className="grid grid-cols-1 gap-1">
-                  {file.scanResult?.engineResults?.map((engine, engineIndex) => (
-                    <div
-                      key={engineIndex}
-                      className={`flex items-center justify-between p-2 rounded text-xs ${
-                        engine.result && engine.result !== 'clean' && engine.result !== 'undetected' 
-                          ? 'bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800'
-                          : 'bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800'
-                      }`}
-                    >
-                      <span className="font-medium truncate max-w-[120px]">
-                        {engine.engine}
-                      </span>
-                      <div className="flex items-center gap-2">
-                        <span className={`font-mono text-xs ${
-                          engine.result && engine.result !== 'clean' && engine.result !== 'undetected'
-                            ? 'text-red-600 dark:text-red-400'
-                            : 'text-green-600 dark:text-green-400'
-                        }`}>
-                          {engine.result || 'clean'}
+                  {file.scanResult?.engineResults?.map(
+                    (engine, engineIndex) => (
+                      <div
+                        key={engineIndex}
+                        className={`flex items-center justify-between p-2 rounded text-xs ${
+                          engine.result &&
+                          engine.result !== "clean" &&
+                          engine.result !== "undetected"
+                            ? "bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800"
+                            : "bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800"
+                        }`}
+                      >
+                        <span className="font-medium truncate max-w-[120px]">
+                          {engine.engine}
                         </span>
-                        {engine.category && (
-                          <Badge 
-                            variant="outline" 
-                            className="text-xs h-4 px-1"
+                        <div className="flex items-center gap-2">
+                          <span
+                            className={`font-mono text-xs ${
+                              engine.result &&
+                              engine.result !== "clean" &&
+                              engine.result !== "undetected"
+                                ? "text-red-600 dark:text-red-400"
+                                : "text-green-600 dark:text-green-400"
+                            }`}
                           >
-                            {engine.category}
-                          </Badge>
-                        )}
+                            {engine.result || "clean"}
+                          </span>
+                          {engine.category && (
+                            <Badge
+                              variant="outline"
+                              className="text-xs h-4 px-1"
+                            >
+                              {engine.category}
+                            </Badge>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    )
+                  )}
                 </div>
               </div>
-              
+
               {/* Summary statistics */}
               {file.scanResult?.engineResults && (
                 <div className="mt-2 pt-2 border-t border-gray-200 dark:border-gray-600">
                   <div className="grid grid-cols-2 gap-4 text-xs">
                     <div>
-                      <span className="font-medium text-green-600">Propres: </span>
+                      <span className="font-medium text-green-600">
+                        Propres:
+                      </span>
                       <span>
-                        {file.scanResult.engineResults.filter(e => 
-                          !e.result || e.result === 'clean' || e.result === 'undetected'
-                        ).length}
+                        {
+                          file.scanResult.engineResults.filter(
+                            (e) =>
+                              !e.result ||
+                              e.result === "clean" ||
+                              e.result === "undetected"
+                          ).length
+                        }
                       </span>
                     </div>
                     <div>
-                      <span className="font-medium text-red-600">Détections: </span>
+                      <span className="font-medium text-red-600">
+                        Détections:
+                      </span>
                       <span>
-                        {file.scanResult.engineResults.filter(e => 
-                          e.result && e.result !== 'clean' && e.result !== 'undetected'
-                        ).length}
+                        {
+                          file.scanResult.engineResults.filter(
+                            (e) =>
+                              e.result &&
+                              e.result !== "clean" &&
+                              e.result !== "undetected"
+                          ).length
+                        }
                       </span>
                     </div>
                   </div>

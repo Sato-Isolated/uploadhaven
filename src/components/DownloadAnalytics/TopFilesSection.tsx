@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
-import { motion } from 'motion/react';
-import { Eye, RefreshCw, FileText, Download } from 'lucide-react';
-import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { DownloadAnalytics, getFileTypeIcon } from './utils';
+import { motion } from "motion/react";
+import { Eye, RefreshCw, FileText, Download } from "lucide-react";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { DownloadAnalytics, getFileTypeIcon } from "./utils";
 
 interface TopFilesSectionProps {
   analytics: DownloadAnalytics;
@@ -13,14 +13,17 @@ interface TopFilesSectionProps {
 }
 
 const formatFileSize = (bytes: number): string => {
-  if (bytes === 0) return '0 Bytes';
+  if (bytes === 0) return "0 Bytes";
   const k = 1024;
-  const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+  const sizes = ["Bytes", "KB", "MB", "GB"];
   const i = Math.floor(Math.log(bytes) / Math.log(k));
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
 };
 
-export function TopFilesSection({ analytics, onRefresh }: TopFilesSectionProps) {
+export function TopFilesSection({
+  analytics,
+  onRefresh,
+}: TopFilesSectionProps) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -77,7 +80,7 @@ export function TopFilesSection({ analytics, onRefresh }: TopFilesSectionProps) 
                       </p>
                     </div>
                     <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                      {formatFileSize(file.size)} • Uploaded{" "}
+                      {formatFileSize(file.size)} • Uploaded
                       {new Date(file.uploadDate).toLocaleDateString()}
                     </p>
                   </div>

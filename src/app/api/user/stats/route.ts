@@ -18,19 +18,7 @@ export async function GET(_request: NextRequest) {
         { status: 401 }
       )
     }    // Connect to MongoDB
-    await connectDB()  // Update lastActivity for navigation tracking
-  try {
-    console.log('🔍 STATS ROUTE: Attempting to update lastActivity for user:', session.user.id)
-    const updateResult = await User.findByIdAndUpdate(session.user.id, {
-      lastActivity: new Date()
-    }, { new: true })
-    console.log('🔍 STATS ROUTE: Update result:', updateResult ? 'Success' : 'Failed')
-    if (updateResult) {
-      console.log('🔍 STATS ROUTE: New lastActivity:', updateResult.lastActivity)
-    }
-  } catch (error) {
-    console.error('❌ STATS ROUTE: Failed to update lastActivity:', error)
-  }
+    await connectDB()
 
     const userId = session.user.id
 

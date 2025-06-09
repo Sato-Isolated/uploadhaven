@@ -3,16 +3,10 @@
 import { motion } from "motion/react";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { PaginationData } from "@/components/types/common";
 
 interface ActivityPaginationProps {
-  pagination: {
-    page: number;
-    limit: number;
-    totalCount: number;
-    totalPages: number;
-    hasNext: boolean;
-    hasPrev: boolean;
-  };
+  pagination: PaginationData;
   currentPage: number;
   loading: boolean;
   onPageChange: (newPage: number) => void;
@@ -36,8 +30,8 @@ export default function ActivityPagination({
       transition={{ duration: 0.3, delay: 0.2 }}
     >
       <div className="text-sm text-gray-500 dark:text-gray-400">
-        Showing {(pagination.page - 1) * pagination.limit + 1} to{" "}
-        {Math.min(pagination.page * pagination.limit, pagination.totalCount)} of{" "}
+        Showing {(pagination.page - 1) * pagination.limit + 1} to
+        {Math.min(pagination.page * pagination.limit, pagination.totalCount)} of
         {pagination.totalCount} activities
       </div>
 

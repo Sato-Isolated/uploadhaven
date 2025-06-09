@@ -1,34 +1,20 @@
-export interface ActivityEvent {
-  _id: string;
-  type:
-    | "upload"
-    | "download"
-    | "user_registered"
-    | "user_login"
-    | "file_deleted"
-    | "security_event";
-  timestamp: string;
-  userId?: string;
-  userName?: string;
-  fileId?: string;
-  fileName?: string;
-  details?: string;
-  ip?: string;
-  userAgent?: string;
+// Import centralized types for admin dashboard
+import type {
+  ActivityEvent as BaseActivityEvent,
+  SecurityStats,
+  BaseComponentProps,
+} from "@/components/types/common";
+
+// Admin-specific ActivityEvent with additional fields
+export interface ActivityEvent extends BaseActivityEvent {
   severity?: "low" | "medium" | "high";
   metadata?: Record<string, unknown>;
 }
 
-export interface SecurityStats {
-  totalEvents: number;
-  rateLimitHits: number;
-  invalidFiles: number;
-  blockedIPs: number;
-  last24h: number;
-  malwareDetected: number;
-  largeSizeBlocked: number;
-}
+// Re-export centralized SecurityStats
+export type { SecurityStats } from "@/components/types/common";
 
+// Admin-specific User interface
 export interface User {
   _id: string;
   name?: string;
@@ -39,6 +25,7 @@ export interface User {
   isActive?: boolean;
 }
 
+// Admin-specific FileData interface
 export interface FileData {
   id: string;
   name: string;
@@ -48,7 +35,7 @@ export interface FileData {
   uploadDate: string;
   expiresAt: string | null;
   downloadCount: number;
-  type: 'image' | 'video' | 'audio' | 'document' | 'archive' | 'other';
+  type: "image" | "video" | "audio" | "document" | "archive" | "other";
   userId?: string;
   userName?: string;
   isAnonymous: boolean;
@@ -67,7 +54,8 @@ export interface AdminDashboardProps {
 
 export interface AdminDashboardState {
   recentActivities: ActivityEvent[];
-  activitiesLoading: boolean;  securityStats: SecurityStats;
+  activitiesLoading: boolean;
+  securityStats: SecurityStats;
   securityLoading: boolean;
   showSecurityModal: boolean;
   showLogsModal: boolean;

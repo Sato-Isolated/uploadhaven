@@ -2,14 +2,15 @@
 
 import { motion } from "motion/react";
 import { File } from "lucide-react";
-import type { UploadedFile } from "../types";
+import type {
+  FileStatusProps,
+  FileUploadStatus,
+} from "@/components/types/common";
 
-interface FileIconProps {
-  status: UploadedFile["status"];
-}
+interface FileIconProps extends Pick<FileStatusProps, "status"> {}
 
 export default function FileIcon({ status }: FileIconProps) {
-  const getIconStyles = (status: UploadedFile["status"]) => {
+  const getIconStyles = (status: FileUploadStatus) => {
     if (status === "completed") {
       return {
         containerClass: "bg-green-100 dark:bg-green-900",

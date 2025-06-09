@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { motion } from "motion/react";
+import { useApi } from "@/hooks";
 import ClientUserStats from "@/components/ClientUserStats";
 import {
   DashboardHeader,
@@ -20,21 +21,21 @@ interface DashboardClientProps {
 }
 
 export default function DashboardClient({ session }: DashboardClientProps) {
-  // Log activity when dashboard loads
+  // Stabilize the user ID to prevent unnecessary re-renders
+  const userId = useMemo(() => session?.user?.id, [session?.user?.id]);
+
+  // Replace manual fetch with useApi hook for user activity logging
+  const { refetch: logUserActivity } = useApi("/api/user/activity", {
+    immediate: false, // Don't fetch immediately, only when triggered
+    method: "POST", // Use POST method for activity tracking
+  });
+
+  // Log activity when dashboard loads - only depend on stable userId
   useEffect(() => {
-    if (session?.user) {
+    if (userId) {
       logUserActivity();
     }
-  }, [session]);
-
-  const logUserActivity = async () => {    try {
-      // Update user's lastActivity
-      await fetch("/api/user/stats", {
-        method: "GET",
-      });    } catch {
-      // Failed to log user activity
-    }
-  };
+  }, [userId, logUserActivity]);
 
   const userName = session.user.name || session.user.email;
 
@@ -43,18 +44,15 @@ export default function DashboardClient({ session }: DashboardClientProps) {
       <div className="container mx-auto px-4 py-8">
         {/* Enhanced Header */}
         <DashboardHeader userName={userName} />
-
         {/* Quick Action Cards */}
-        <QuickActionCards />        {/* Enhanced Upload Area */}
-        <DashboardUploadArea />
-
-        {/* Enhanced Quick Stats */}
+        <QuickActionCards /> {/* Enhanced Upload Area */}
+        <DashboardUploadArea />        {/* Enhanced Quick Stats */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 1, duration: 0.6 }}
         >
-          <ClientUserStats userId={session.user.id} />
+          <ClientUserStats userId={session.user.id} session={session} />
         </motion.div>
       </div>
     </div>

@@ -7,8 +7,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { BaseComponentProps } from "@/components/types/common";
 
-interface ActivityFiltersProps {
+interface ActivityFiltersProps extends BaseComponentProps {
   typeFilter: string;
   severityFilter: string;
   onTypeFilterChange: (value: string) => void;
