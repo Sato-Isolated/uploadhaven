@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { toast } from "sonner";
 import { useSecurityScan } from "@/hooks";
 import { useSecurityScanning } from "@/hooks/useSecurityScanning";
-import type { QuotaStatus, MalwareScanResult } from "@/types/security";
+import type { QuotaStatus, MalwareScanResult, ScanResult, ScannedFile } from "@/types/security";
 
 interface FileScanResult {
   fileName: string;
@@ -23,11 +23,10 @@ interface ScanHistoryEntry {
 export interface UseSecurityScanModalReturn {
   // Security scanning state and actions
   isScanning: boolean;
-  scanProgress: number;
-  selectedScanType: string;
-  scanResults: any[];
+  scanProgress: number;  selectedScanType: string;
+  scanResults: ScanResult[];
   currentScanStep: string;
-  scannedFiles: any[];
+  scannedFiles: ScannedFile[];
   totalFilesToScan: number;
   currentFileIndex: number;
   virusTotalRequestsUsed: number;

@@ -8,9 +8,7 @@ import DataExport from "./DataExport";
 import { SecurityScanModal } from "./modals";
 import type {
   AdminDashboardProps,
-  SecurityStats,
 } from "./types";
-import { ActivityEvent } from "@/types";
 import { defaultSecurityStats } from "./utils";
 import { useActivitiesQuery, useSecurityData, useModal } from "@/hooks";
 

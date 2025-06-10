@@ -98,12 +98,11 @@ export class PrefetchManager {
       staleTime: 30 * 1000, // 30 seconds
     });
   }
-
   /**
    * Warm up cache with essential data on app initialization
    */
   async warmUpCache(userId?: string, isAdmin?: boolean) {
-    const promises: Promise<any>[] = [];
+    const promises: Promise<unknown>[] = [];
 
     if (userId) {
       // Always prefetch user stats

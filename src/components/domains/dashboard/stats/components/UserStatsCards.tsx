@@ -2,6 +2,7 @@ import { motion } from "motion/react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatFileSize } from "@/lib/utils";
 import { Database, HardDrive, Upload, Clock, type LucideIcon } from "lucide-react";
+import type { UserStats } from "@/types";
 
 interface StatCard {
   title: string;
@@ -13,7 +14,7 @@ interface StatCard {
 }
 
 interface UserStatsCardsProps {
-  stats: any;
+  stats: UserStats;
 }
 
 export function UserStatsCards({ stats }: UserStatsCardsProps) {

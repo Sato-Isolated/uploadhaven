@@ -70,17 +70,19 @@ export const queryKeys = {
   realtimeActivities: () => [...queryKeys.realtime(), 'activities'] as const,
 } as const;
 
+import type { QueryClient } from '@tanstack/react-query';
+
 // Helper functions for query key management
 export const invalidateQueries = {
   // Invalidate all file-related queries
-  files: (queryClient: any) => {
+  files: (queryClient: QueryClient) => {
     queryClient.invalidateQueries({ queryKey: queryKeys.files() });
     queryClient.invalidateQueries({ queryKey: queryKeys.stats() });
     queryClient.invalidateQueries({ queryKey: queryKeys.analytics() });
   },
   
   // Invalidate all user-related queries
-  users: (queryClient: any, userId?: string) => {
+  users: (queryClient: QueryClient, userId?: string) => {
     if (userId) {
       queryClient.invalidateQueries({ queryKey: queryKeys.user(userId) });
       queryClient.invalidateQueries({ queryKey: queryKeys.userStats(userId) });
@@ -90,22 +92,22 @@ export const invalidateQueries = {
   },
   
   // Invalidate all analytics queries
-  analytics: (queryClient: any) => {
+  analytics: (queryClient: QueryClient) => {
     queryClient.invalidateQueries({ queryKey: queryKeys.analytics() });
   },
   
   // Invalidate all security queries
-  security: (queryClient: any) => {
+  security: (queryClient: QueryClient) => {
     queryClient.invalidateQueries({ queryKey: queryKeys.security() });
   },
   
   // Invalidate all stats queries
-  stats: (queryClient: any) => {
+  stats: (queryClient: QueryClient) => {
     queryClient.invalidateQueries({ queryKey: queryKeys.stats() });
   },
   
   // Invalidate everything (use sparingly)
-  all: (queryClient: any) => {
+  all: (queryClient: QueryClient) => {
     queryClient.invalidateQueries({ queryKey: queryKeys.all });
   },
 };

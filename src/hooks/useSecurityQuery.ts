@@ -9,7 +9,7 @@ interface SecurityApiResponse {
     id: string;
     type: string;
     message?: string;
-    details?: string | any;
+    details?: string | Record<string, unknown>;
     severity: string;
     timestamp: string | number;
     ip?: string;

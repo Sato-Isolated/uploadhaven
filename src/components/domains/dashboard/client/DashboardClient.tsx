@@ -24,13 +24,12 @@ interface DashboardClientProps {
 export default function DashboardClient({ session }: DashboardClientProps) {
   // Stabilize the user ID to prevent unnecessary re-renders
   const userId = useMemo(() => session?.user?.id, [session?.user?.id]);  // Use TanStack Query mutation for user activity logging
-  const { mutate: logUserActivity } = useLogUserActivity();
-  // Enable real-time updates for activities using polling
+  const { mutate: logUserActivity } = useLogUserActivity();  // Enable real-time updates for activities using polling
   const { 
-    isConnected: realtimeConnected, 
-    latestActivity, 
-    activityCount, 
-    resetActivityCount 
+    // isConnected: realtimeConnected, 
+    // latestActivity, 
+    // activityCount, 
+    // resetActivityCount 
   } = useRealTimeActivities();
 
   // Log activity when dashboard loads - useEffect is appropriate for side effects

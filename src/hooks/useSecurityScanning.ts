@@ -4,11 +4,9 @@ import { useState, useCallback } from "react";
 import { toast } from "sonner";
 import { detectSuspiciousActivity, logSecurityEvent } from "@/lib/security";
 import type { 
-  SecurityEvent, 
-  ScanType, 
-  ScanResult, 
-  ScannedFile
+  ScanResult
 } from "@/types";
+import type { ScanType, ScannedFile } from "@/types/security";
 
 export interface SecurityScanningState {
   isScanning: boolean;
@@ -26,9 +24,9 @@ export interface SecurityScanningActions {
   setSelectedScanType: (type: ScanType) => void;
   startScan: () => Promise<void>;
   stopScan: () => void;
-  scanSingleFile: (fileName: string) => Promise<any>;
-  scanUploadedFile: (file: File) => Promise<any>;
-  fetchFilesList: () => Promise<any>;
+  scanSingleFile: (fileName: string) => Promise<{ scanResult?: unknown }>;
+  scanUploadedFile: (file: File) => Promise<{ scanResult?: unknown; quotaStatus?: unknown }>;
+  fetchFilesList: () => Promise<{ files?: Array<{ name: string }> }>;
   resetScan: () => void;
 }
 
@@ -187,15 +185,7 @@ export function useSecurityScanning(): UseSecurityScanningReturn {
 
                 try {
                   const scanData = await scanSingleFile(file.name);
-                  const scanResult = scanData.scanResult;
-
-                  if (scanResult) {
-                    let threatsFound = 0;
-                    let suspiciousFound = 0;
-
-                    if (scanResult.isMalicious) threatsFound++;
-                    if (scanResult.isSuspicious) suspiciousFound++;
-
+                  const scanResult = scanData.scanResult;                  if (scanResult) {
                     // Update file status
                     const fileStatus = scanResult.isMalicious
                       ? "threat"
@@ -230,8 +220,7 @@ export function useSecurityScanning(): UseSecurityScanningReturn {
                           : f
                       )
                     );
-                  }
-                } catch (error) {
+                  }                } catch {
                   // Error scanning individual file
                   setScannedFiles((prev) =>
                     prev.map((f, idx) =>
@@ -275,18 +264,15 @@ export function useSecurityScanning(): UseSecurityScanningReturn {
 
       setScanResults(results);
       setScanProgress(100);
-      setCurrentScanStep("Scan completed");
-
-      // Log security event
-      await logSecurityEvent({
-        type: "security_scan",
-        severity: "low",
-        details: {
-          scanType: selectedScanType,
-          resultsCount: results.length,
-          threatsFound: results.filter(r => r.status === "threat").length,
-        },
-      } as SecurityEvent);
+      setCurrentScanStep("Scan completed");      // Log security event
+      logSecurityEvent(
+        "file_scan",
+        `Security scan completed: ${selectedScanType} scan with ${results.length} results`,
+        "low",
+        {
+          fileSize: results.filter(r => r.status === "threat").length,
+        }
+      );
 
       toast.success("Security scan completed successfully");
     } catch (error) {

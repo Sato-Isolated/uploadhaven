@@ -48,11 +48,10 @@ export class ApiClient {
   static get<T>(endpoint: string): Promise<T> {
     return this.request<T>(endpoint, { method: 'GET' });
   }
-
   /**
    * POST request helper
    */
-  static post<T>(endpoint: string, data?: any): Promise<T> {
+  static post<T>(endpoint: string, data?: Record<string, unknown>): Promise<T> {
     return this.request<T>(endpoint, {
       method: 'POST',
       body: data ? JSON.stringify(data) : undefined,
@@ -65,11 +64,10 @@ export class ApiClient {
   static delete<T>(endpoint: string): Promise<T> {
     return this.request<T>(endpoint, { method: 'DELETE' });
   }
-
   /**
    * PUT request helper
    */
-  static put<T>(endpoint: string, data?: any): Promise<T> {
+  static put<T>(endpoint: string, data?: Record<string, unknown>): Promise<T> {
     return this.request<T>(endpoint, {
       method: 'PUT',
       body: data ? JSON.stringify(data) : undefined,
@@ -108,16 +106,15 @@ export class ApiClient {
   static getBaseURL(): string {
     return this.baseURL;
   }
-
   /**
    * Utility method to create FormData from object
    * Helpful for file uploads with metadata
    */
-  static createFormData(data: Record<string, any>): FormData {
+  static createFormData(data: Record<string, unknown>): FormData {
     const formData = new FormData();
     Object.entries(data).forEach(([key, value]) => {
       if (value !== null && value !== undefined) {
-        formData.append(key, value);
+        formData.append(key, value as string | Blob);
       }
     });
     return formData;

@@ -1,23 +1,18 @@
-import { useState, useCallback } from "react";
-import { toast } from "sonner";
+import { useState } from "react";
 import SecurityHeader from "./components/SecurityHeader";
 import SecurityActions from "./components/SecurityActions";
 import SecurityStatsGrid from "./components/SecurityStatsGrid";
 import SecurityEventsList from "./components/SecurityEventsList";
 import SecurityAlert from "./components/SecurityAlert";
-import type { SecurityEvent, SecurityStats } from "@/types";
 import { useSecurityData, useExportSecurityLogs, useClearSecurityLogs } from "@/hooks";
 
 export default function SecurityPanel() {
-  const [dismissedAlerts, setDismissedAlerts] = useState<Set<string>>(
-    new Set()
+  const [dismissedAlerts, setDismissedAlerts] = useState<Set<string>>(    new Set()
   );
-
   // Use TanStack Query for security data
   const {
     data: securityData,
     isLoading,
-    error,
     refetch: loadSecurityData,
   } = useSecurityData();
 

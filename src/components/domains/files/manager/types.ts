@@ -1,13 +1,10 @@
 // types.ts - Type definitions and interfaces for FileManager
 
 // Import centralized types
-import type { ClientFileData, FilePreviewData } from '@/types';
+import type { ClientFileData } from '@/types';
 
 // Use centralized types for consistency
 export type FileInfo = ClientFileData;
-
-// Re-export FilePreviewData from centralized types
-export type { FilePreviewData } from '@/types';
 
 export interface ExpirationStatus {
   text: string;

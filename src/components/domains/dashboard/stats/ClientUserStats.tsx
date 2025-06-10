@@ -9,7 +9,7 @@ import { UserStatsCards } from "./components/UserStatsCards";
 
 interface UserStatsProps extends BaseComponentProps {
   userId: string;
-  session?: any; // Add session prop to check authentication
+  session?: { user?: unknown }; // Add session prop to check authentication
 }
 
 export default function ClientUserStats({ userId, session }: UserStatsProps) {

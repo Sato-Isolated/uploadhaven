@@ -155,15 +155,15 @@ export interface IFile {
 /**
  * Type guard to check if object is ClientFileData
  */
-export function isClientFileData(obj: any): obj is ClientFileData {
-  return obj && typeof obj.id === 'string' && typeof obj.name === 'string';
+export function isClientFileData(obj: unknown): obj is ClientFileData {
+  return typeof obj === 'object' && obj !== null && 'id' in obj && typeof (obj as Record<string, unknown>).id === 'string' && 'name' in obj && typeof (obj as Record<string, unknown>).name === 'string';
 }
 
 /**
  * Type guard to check if object is AdminFileData
  */
-export function isAdminFileData(obj: any): obj is AdminFileData {
-  return obj && typeof obj.id === 'string' && 'isAnonymous' in obj;
+export function isAdminFileData(obj: unknown): obj is AdminFileData {
+  return typeof obj === 'object' && obj !== null && 'id' in obj && typeof (obj as Record<string, unknown>).id === 'string' && 'isAnonymous' in obj;
 }
 
 /**

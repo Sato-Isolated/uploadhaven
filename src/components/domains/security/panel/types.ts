@@ -4,8 +4,6 @@ import type {
   SecurityStats,
   SecuritySeverity,
   SecurityEventType,
-  ApiResponse,
-  PaginationData,
   BaseComponentProps,
   DataComponentProps,
   ActionComponentProps,

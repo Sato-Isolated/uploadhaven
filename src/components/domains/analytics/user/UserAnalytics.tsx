@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { motion } from "motion/react";
 import {
   AnalyticsLoader,
@@ -10,13 +9,11 @@ import {
   AnalyticsOverview,
   TopFilesSection,
   TrendsChart,
-  DownloadAnalytics as DownloadAnalyticsType,
-  calculateTrend,
 } from "@/components/domains/analytics/download";
 import { useUserAnalytics } from "@/hooks";
-import { BaseComponentProps, UserStats } from "@/types";
+import { BaseComponentProps } from "@/types";
 
-interface UserAnalyticsProps extends BaseComponentProps {}
+type UserAnalyticsProps = BaseComponentProps;
 
 export default function UserAnalytics({ className = "" }: UserAnalyticsProps) {  // Use TanStack Query for better performance and caching
   const {

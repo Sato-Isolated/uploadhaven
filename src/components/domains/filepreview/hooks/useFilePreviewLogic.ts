@@ -82,8 +82,7 @@ export function useFilePreviewLogic(): UseFilePreviewLogicReturn {
         toast.success("Password verified successfully!");
       } else {
         toast.error(result.error || "Invalid password");
-      }
-    } catch (err) {
+      }    } catch {
       toast.error("Failed to verify password");
     } finally {
       setPasswordLoading(false);
@@ -107,8 +106,7 @@ export function useFilePreviewLogic(): UseFilePreviewLogicReturn {
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      toast.success("Download started!");
-    } catch (err) {
+      toast.success("Download started!");    } catch {
       toast.error("Failed to start download");
     } finally {
       setDownloading(false);

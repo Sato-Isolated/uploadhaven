@@ -6,7 +6,7 @@ import { motion } from "motion/react";
 import { Progress } from "@/components/ui/progress";
 import type { FileHandlerProps } from "@/types";
 
-interface ProgressSectionProps extends Pick<FileHandlerProps, "file"> {}
+type ProgressSectionProps = Pick<FileHandlerProps, "file">;
 
 export default function ProgressSection({ file }: ProgressSectionProps) {
   // Only show progress for uploading and scanning states

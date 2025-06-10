@@ -15,16 +15,14 @@ export function useModal(initialState: boolean = false): UseModalReturn {
     isOpen: initialState,
     data: undefined,
   });
-
-  const openModal = useCallback((data?: any) => {
+  const openModal = useCallback((data?: unknown) => {
     setModal({ isOpen: true, data });
   }, []);
 
   const closeModal = useCallback(() => {
     setModal({ isOpen: false, data: undefined });
   }, []);
-
-  const toggleModal = useCallback((data?: any) => {
+  const toggleModal = useCallback((data?: unknown) => {
     setModal((prev) => ({
       isOpen: !prev.isOpen,
       data: prev.isOpen ? undefined : data,
@@ -45,8 +43,7 @@ export function useModal(initialState: boolean = false): UseModalReturn {
  */
 export function useModals() {
   const [modals, setModals] = useState<Record<string, ModalState>>({});
-
-  const openModal = useCallback((key: string, data?: any) => {
+  const openModal = useCallback((key: string, data?: unknown) => {
     setModals((prev) => ({
       ...prev,
       [key]: { isOpen: true, data },
@@ -59,8 +56,7 @@ export function useModals() {
       [key]: { isOpen: false, data: undefined },
     }));
   }, []);
-
-  const toggleModal = useCallback((key: string, data?: any) => {
+  const toggleModal = useCallback((key: string, data?: unknown) => {
     setModals((prev) => {
       const current = prev[key] || { isOpen: false, data: undefined };
       return {
@@ -86,9 +82,8 @@ export function useModals() {
     },
     [modals]
   );
-
   const getModalData = useCallback(
-    (key: string): any => {
+    (key: string): unknown => {
       return modals[key]?.data;
     },
     [modals]

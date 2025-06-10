@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Shield, AlertTriangle, Check } from "lucide-react";
 import type { FileStatusProps } from "@/types";
 
-interface FileStatusBadgeProps extends FileStatusProps {}
+type FileStatusBadgeProps = FileStatusProps;
 
 export default function FileStatusBadge({
   status,

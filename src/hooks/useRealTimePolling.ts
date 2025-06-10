@@ -5,6 +5,7 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { queryKeys } from '@/lib/queryKeys';
+import type { ActivityEvent } from '@/types';
 
 /**
  * Real-time stats with smart polling
@@ -32,7 +33,7 @@ export function useRealTimeStats() {
  */
 export function useRealTimeActivities() {
   const [activityCount, setActivityCount] = useState(0);
-  const [latestActivity, setLatestActivity] = useState<any>(null);
+  const [latestActivity, setLatestActivity] = useState<ActivityEvent | null>(null);
 
   const query = useQuery({
     queryKey: queryKeys.activities({ page: 1, limit: 20 }),

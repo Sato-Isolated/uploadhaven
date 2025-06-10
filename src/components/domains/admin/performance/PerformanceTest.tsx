@@ -70,18 +70,13 @@ export function PerformanceTest() {
     const interval = setInterval(() => {
       const cache = queryClient.getQueryCache();
       const queries = cache.getAll();
-      
-      let hits = 0;
+        let hits = 0;
       let misses = 0;
-      let totalTime = 0;
-      let validQueries = 0;
-
-      queries.forEach(query => {
+      let validQueries = 0;      queries.forEach(query => {
         const state = query.state;
         if (state.dataUpdateCount > 0) {
           validQueries++;
-          // Use available timing data
-          totalTime += state.dataUpdatedAt - state.dataUpdatedAt;
+          // Skip timing calculation since dataUpdatedAt - dataUpdatedAt = 0
         }
         
         // Estimate cache hits/misses based on data freshness

@@ -7,7 +7,7 @@ import type {
   FileUploadStatus,
 } from "@/types";
 
-interface FileIconProps extends Pick<FileStatusProps, "status"> {}
+type FileIconProps = Pick<FileStatusProps, "status">;
 
 export default function FileIcon({ status }: FileIconProps) {
   const getIconStyles = (status: FileUploadStatus) => {

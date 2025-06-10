@@ -26,10 +26,8 @@ export async function GET(request: NextRequest) {
         timestamp: new Date().toISOString(),
       };
       
-      controller.enqueue(`data: ${JSON.stringify(welcome)}\n\n`);
-
-      // Simulate real-time events for demo
-      const sendEvent = (type: string, data: any) => {
+      controller.enqueue(`data: ${JSON.stringify(welcome)}\n\n`);      // Simulate real-time events for demo
+      const sendEvent = (type: string, data: Record<string, unknown>) => {
         const event = {
           type,
           data,

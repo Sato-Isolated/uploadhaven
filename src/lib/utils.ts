@@ -2,7 +2,6 @@ import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import bcrypt from "bcryptjs";
 import { NextRequest } from "next/server";
-import { UPLOAD_CONFIG, SECURITY_CONFIG } from "./constants";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -218,7 +217,7 @@ export function safeJsonParse<T>(jsonString: string, fallback: T): T {
  * @param wait - Wait time in milliseconds
  * @returns Function - Debounced function
  */
-export function debounce<T extends (...args: any[]) => any>(
+export function debounce<T extends (...args: unknown[]) => unknown>(
   func: T,
   wait: number
 ): (...args: Parameters<T>) => void {

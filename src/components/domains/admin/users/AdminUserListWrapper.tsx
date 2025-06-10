@@ -5,6 +5,10 @@ import AdminUserList from "./index";
 import type { User } from "./types";
 import { toast } from "sonner";
 
+interface LocalUser extends User {
+  deleted?: boolean;
+}
+
 interface AdminUserListWrapperProps {
   users: User[];
 }
@@ -13,14 +17,13 @@ export default function AdminUserListWrapper({
   users,
 }: AdminUserListWrapperProps) {
   // Use derived state instead of syncing with useEffect
-  const [localUsers, setLocalUsers] = useState<User[]>([]);
+  const [localUsers, setLocalUsers] = useState<LocalUser[]>([]);
 
   // Merge prop users with local changes, prioritizing local state
-  const usersList = users
-    .filter(
+  const usersList = users    .filter(
       (propUser) =>
         !localUsers.some(
-          (local) => local.id === propUser.id && (local as any).deleted
+          (local) => local.id === propUser.id && local.deleted
         )
     )
     .map((propUser) => {
@@ -68,14 +71,14 @@ export default function AdminUserListWrapper({
         body,
       });
 
-      const result = await response.json();
-
-      if (result.success) {
-        toast.success(result.message); // Update the local state based on the action
+      const result = await response.json();      if (result.success) {
+        toast.success(result.message); 
+        
+        // Update the local state based on the action        
         if (action === "delete") {
           setLocalUsers((prev) => [
             ...prev,
-            { ...users.find((u) => u.id === userId)!, deleted: true } as any,
+            { ...users.find((u) => u.id === userId)!, deleted: true },
           ]);
         } else if (action === "toggleRole" && newRole) {
           // Use the newRole we calculated earlier to ensure consistency
@@ -96,7 +99,7 @@ export default function AdminUserListWrapper({
       } else {
         toast.error(result.error || "Action failed");
       }
-    } catch (error) {
+    } catch {
       // User action error
       toast.error("An error occurred while performing the action");
     }
@@ -109,14 +112,12 @@ export default function AdminUserListWrapper({
       const promises = userIds.map((userId) =>
         handleUserAction(userId, action)
       );
-      await Promise.all(promises);
-
-      toast.success(
+      await Promise.all(promises);      toast.success(
         `Successfully performed ${action} on ${userIds.length} user${
           userIds.length > 1 ? "s" : ""
         }`
       );
-    } catch (error) {
+    } catch {
       // Bulk action error
       toast.error(
         "Some actions may have failed. Please check individual results."

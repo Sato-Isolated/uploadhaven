@@ -20,10 +20,9 @@ export interface UseFileUploaderReturn {
   expiration: string;
   isPasswordProtected: boolean;
   isDragActive: boolean;
-  
-  // Dropzone props
-  getRootProps: () => any;
-  getInputProps: () => any;
+    // Dropzone props
+  getRootProps: () => Record<string, unknown>;
+  getInputProps: () => Record<string, unknown>;
   
   // Handlers
   setExpiration: (expiration: string) => void;

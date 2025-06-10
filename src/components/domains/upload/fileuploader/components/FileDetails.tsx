@@ -6,7 +6,7 @@ import { motion } from "motion/react";
 import { formatFileSize } from "@/lib/utils";
 import type { FileHandlerProps } from "@/types";
 
-interface FileDetailsProps extends Pick<FileHandlerProps, "file"> {}
+type FileDetailsProps = Pick<FileHandlerProps, "file">;
 
 export default function FileDetails({ file }: FileDetailsProps) {
   return (

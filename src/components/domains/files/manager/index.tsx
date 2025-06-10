@@ -23,16 +23,13 @@ import type {
   FileManagerProps,
 } from "./types";
 
-export default function FileManager({ className }: FileManagerProps = {}) {
+export default function FileManager({ className = "" }: FileManagerProps) {
   const [previewFile, setPreviewFile] = useState<FilePreviewData | null>(null);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
-
   // Use TanStack Query for better performance and caching
   const {
     data: files = [],
     isLoading: loading,
-    error,
-    refetch: loadFiles,
   } = useFiles();
 
   // Use TanStack Query mutation for deleting files

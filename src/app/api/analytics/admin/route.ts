@@ -198,10 +198,8 @@ export async function GET(request: NextRequest) {
       const sizes = ["Bytes", "KB", "MB", "GB", "TB"];
       const i = Math.floor(Math.log(bytes) / Math.log(k));
       return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
-    };
-
-    // Fill in missing dates for trends
-    const fillTrendGaps = (trends: any[], startDate: Date, endDate: Date) => {
+    };    // Fill in missing dates for trends
+    const fillTrendGaps = (trends: { _id: string; count?: number; totalSize?: number }[], startDate: Date, endDate: Date) => {
       const filledTrends = [];
       const currentDate = new Date(startDate);
 

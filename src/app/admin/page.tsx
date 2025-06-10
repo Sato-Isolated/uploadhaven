@@ -92,11 +92,10 @@ export default async function AdminPage() {
         isAnonymous: !file.userId,
       })
     ) || [];
-
   // Ensure users data is valid and filter out any invalid entries
   const validUsersData = Array.isArray(usersData?.users)
     ? usersData.users.filter(
-        (user: any) => user && user.id && user.email && user.name
+        (user: { id?: string; email?: string; name?: string }) => user && user.id && user.email && user.name
       )
     : [];
   return (

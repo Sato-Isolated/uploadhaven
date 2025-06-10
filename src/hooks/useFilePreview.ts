@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { queryKeys } from "@/lib/queryKeys";
+import type { FileData } from "@/types";
 
 interface UseTextPreviewOptions {
   enabled?: boolean;
@@ -8,7 +9,7 @@ interface UseTextPreviewOptions {
 interface FilePreviewResponse {
   success: boolean;
   passwordRequired?: boolean;
-  fileInfo?: any;
+  fileInfo?: FileData;
   error?: string;
 }
 

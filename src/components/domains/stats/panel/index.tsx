@@ -5,7 +5,6 @@ import { motion } from "motion/react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
-import { Stats } from "./types";
 import { useStatsQuery } from "@/hooks";
 
 // Component imports
@@ -17,13 +16,12 @@ import SystemStatus from "./components/SystemStatus";
 import ManagementActions from "./components/ManagementActions";
 import SystemInformation from "./components/SystemInformation";
 
-export default function StatsPanel() {
-  const [bulkDeleting, setBulkDeleting] = useState(false);
+export default function StatsPanel() {  const [bulkDeleting, setBulkDeleting] = useState(false);
+  
   // Use TanStack Query for better performance and caching
   const {
     data: stats,
     isLoading: loading,
-    error,
     refetch: fetchStats,
   } = useStatsQuery();
 

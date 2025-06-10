@@ -2,7 +2,6 @@
 import type {
   ActivityEvent,
   SecurityStats,
-  BaseComponentProps,
 } from "@/types";
 
 // Re-export for component usage

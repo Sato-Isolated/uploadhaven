@@ -3,7 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Activity } from "lucide-react";
 
 interface UserStatsErrorStateProps {
-  error?: any;
+  error?: Error | null;
 }
 
 export function UserStatsErrorState({ error }: UserStatsErrorStateProps) {

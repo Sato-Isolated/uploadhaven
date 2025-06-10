@@ -84,14 +84,12 @@ class BackgroundCleanupService {
       for (const file of expiredFiles) {
         try {
           // Mark as deleted in database
-          await File.findByIdAndUpdate(file._id, { isDeleted: true });
-
-          // Try to delete physical file
+          await File.findByIdAndUpdate(file._id, { isDeleted: true });          // Try to delete physical file
           try {
             const filePath = path.join(this.uploadsDir, file.filename);
             await unlink(filePath);
             // Background cleanup: Deleted ${file.filename}
-          } catch (fsError) {
+          } catch {
             // File might already be deleted from filesystem
             // Background cleanup: Could not delete physical file ${file.filename}
           }
@@ -154,7 +152,7 @@ class BackgroundCleanupService {
           const filePath = path.join(this.uploadsDir, file.filename);
           await unlink(filePath);
           // Instant deletion: Deleted expired file ${file.filename}
-        } catch (fsError) {
+        } catch {
           // Instant deletion: Could not delete physical file ${file.filename}
         }
 
@@ -176,8 +174,7 @@ class BackgroundCleanupService {
         return true;
       }
 
-      return false;
-    } catch (error) {
+      return false;    } catch {
       // Error checking/deleting file ${fileId}
       return false;
     }
