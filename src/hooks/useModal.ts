@@ -4,7 +4,7 @@ import { useState, useCallback } from "react";
 import type {
   HookModalState as ModalState,
   UseModalReturn,
-} from "@/components/types/common";
+} from "@/types";
 
 /**
  * Custom hook for modal state management used across admin components

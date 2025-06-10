@@ -1,4 +1,4 @@
-import FileUploader from "@/components/FileUploader";
+import FileUploader from "@/components/domains/upload/fileuploader";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { auth } from "@/lib/auth";

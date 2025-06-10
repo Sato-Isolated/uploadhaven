@@ -1,0 +1,89 @@
+"use client";
+
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import {
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+} from "recharts";
+
+interface SecurityAnalyticsData {
+  eventsByType: Array<{
+    _id: string;
+    count: number;
+  }>;
+  recentEvents: Array<{
+    type: string;
+    timestamp: string;
+  }>;
+}
+
+interface SecurityAnalyticsTabProps {
+  securityAnalytics: SecurityAnalyticsData;
+  formatDateTime: (date: string) => string;
+}
+
+export function SecurityAnalyticsTab({ 
+  securityAnalytics, 
+  formatDateTime 
+}: SecurityAnalyticsTabProps) {
+  return (
+    <div className="space-y-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Security Events Chart */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Security Events</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={securityAnalytics.eventsByType}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="_id" />
+                <YAxis />
+                <Tooltip />
+                <Bar dataKey="count" fill="#EF4444" />
+              </BarChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+
+        {/* Recent Security Events */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Recent Security Events</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {securityAnalytics.recentEvents
+                .slice(0, 8)
+                .map((event, index) => (
+                  <div
+                    key={`${event.type}-${index}`}
+                    className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg"
+                  >
+                    <div>
+                      <p className="font-medium text-sm">
+                        {event.type.replace(/_/g, " ")}
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        {formatDateTime(event.timestamp)}
+                      </p>
+                    </div>
+                    <Badge variant="outline" className="text-xs">
+                      {event.type}
+                    </Badge>
+                  </div>
+                ))}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+}

@@ -4,7 +4,7 @@ import { useState, useCallback } from "react";
 import type {
   AsyncOperationState,
   AsyncOperationOptions,
-} from "@/components/types/common";
+} from "@/types";
 
 /**
  * Custom hook for managing async operations with loading states and error handling.

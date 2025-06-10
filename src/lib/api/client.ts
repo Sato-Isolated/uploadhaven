@@ -1,28 +1,42 @@
 /**
- * API Client for UploadHaven
- * Centralizes all HTTP requests with error handling
+ * Unified API Client for UploadHaven
+ * Combines the best features from both previous implementations
+ * Optimized for TanStack Query with proper error handling
  */
 
 export class ApiClient {
-  private static baseURL = process.env.NEXT_PUBLIC_API_URL || '';
+  // Enhanced base URL handling with fallbacks (from query client)
+  private static baseURL = process.env.NEXT_PUBLIC_API_URL || 
+    process.env.NEXT_PUBLIC_BASE_URL || 
+    (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000');
 
   /**
-   * Generic request method with unified error handling
+   * Enhanced generic request method with unified error handling
+   * Supports both relative and absolute URLs like the query client
    */
   static async request<T>(endpoint: string, options?: RequestInit): Promise<T> {
-    const url = `${this.baseURL}${endpoint}`;
+    // Smart URL construction - handle both relative and absolute URLs
+    const url = endpoint.startsWith('http') 
+      ? endpoint 
+      : `${this.baseURL}${endpoint}`;
     
     const response = await fetch(url, {
       headers: {
         'Content-Type': 'application/json',
         ...options?.headers,
       },
+      // Add cache control optimization for TanStack Query
+      cache: options?.cache || 'no-store',
       ...options,
     });
 
     if (!response.ok) {
+      // Enhanced error handling - try to parse error details
       const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.error || `HTTP ${response.status}: ${response.statusText}`);
+      const errorMessage = errorData.error || 
+        errorData.message || 
+        `HTTP ${response.status}: ${response.statusText}`;
+      throw new Error(errorMessage);
     }
 
     return response.json();
@@ -61,20 +75,51 @@ export class ApiClient {
       body: data ? JSON.stringify(data) : undefined,
     });
   }
-
   /**
-   * File upload helper (FormData)
+   * File upload helper (FormData) - Enhanced version
+   * Now uses the unified request method for consistency
    */
-  static uploadFile<T>(endpoint: string, formData: FormData): Promise<T> {
-    return fetch(endpoint, {
+  static async uploadFile<T>(endpoint: string, formData: FormData): Promise<T> {
+    // Smart URL construction
+    const url = endpoint.startsWith('http') 
+      ? endpoint 
+      : `${this.baseURL}${endpoint}`;
+
+    const response = await fetch(url, {
       method: 'POST',
       body: formData,
-    }).then(async (response) => {
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error || `Upload failed: ${response.status}`);
-      }
-      return response.json();
+      // Note: Don't set Content-Type for FormData - browser handles it
     });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      const errorMessage = errorData.error || 
+        errorData.message || 
+        `Upload failed: ${response.status}`;
+      throw new Error(errorMessage);
+    }
+
+    return response.json();
+  }
+
+  /**
+   * Utility method to check if client is properly configured
+   */
+  static getBaseURL(): string {
+    return this.baseURL;
+  }
+
+  /**
+   * Utility method to create FormData from object
+   * Helpful for file uploads with metadata
+   */
+  static createFormData(data: Record<string, any>): FormData {
+    const formData = new FormData();
+    Object.entries(data).forEach(([key, value]) => {
+      if (value !== null && value !== undefined) {
+        formData.append(key, value);
+      }
+    });
+    return formData;
   }
 }

@@ -3,7 +3,7 @@ import type {
   IUser as BaseIUser,
   IFile as BaseIFile,
   ISecurityEvent as BaseISecurityEvent,
-} from "@/components/types/common";
+} from "@/types";
 
 // Re-export centralized interfaces
 export type IUser = BaseIUser;

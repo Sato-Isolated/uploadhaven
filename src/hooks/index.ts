@@ -6,15 +6,22 @@ export { useAsyncOperation } from "./useAsyncOperation";
 export { useStatsQuery } from "./useStatsQuery";
 export { useUserAnalytics } from "./useUserAnalytics";
 export { useActivitiesQuery, useInfiniteActivitiesQuery } from "./useActivitiesQuery";
+export { useActivityManagement } from "./useActivityManagement";
 export { useSecurityData, useExportSecurityLogs, useClearSecurityLogs, useSecurityScan } from "./useSecurityQuery";
 export { useFiles, useFile, useDeleteFile, useDeleteFiles, useUploadFile } from "./useFilesQuery";
 export { useLogUserActivity } from "./useUserActivity";
 export { useTextPreview, useFilePreview } from "./useFilePreview";
+export { useDashboardUpload } from "../components/domains/dashboard/upload/hooks/useDashboardUpload";
+export { useSignUpForm } from "../components/domains/auth/signup/hooks/useSignUpForm";
+export { useSignInForm } from "../components/domains/auth/signin/hooks/useSignInForm";
+export { useFilePreviewLogic } from "../components/domains/filepreview/hooks/useFilePreviewLogic";
+export { useFilesTableLogic } from "../components/domains/admin/filestable/hooks/useFilesTableLogic";
+export { useFileUploader } from "../components/domains/upload/fileuploader/hooks/useFileUploader";
+export { useSecurityEventsFilter } from "../components/domains/security/events/hooks/useSecurityEventsFilter";
+export { useClientUserStats } from "../components/domains/dashboard/stats/hooks/useClientUserStats";
+export { useSecurityScanModal } from "../components/domains/security/hooks/useSecurityScanModal";
 // Real-time hooks using polling (preferred approach)
 export { useRealTimeActivities, useRealTimeStats, useRealTimeFiles, useRealTimeData } from "./useRealTimePolling";
-
-
-export { useToast } from "./useToast";
 
 export type {
   ApiState,
@@ -28,4 +35,4 @@ export type {
   UseModalReturn,
   AsyncOperationState,
   AsyncOperationOptions,
-} from "@/components/types/common";
+} from "@/types";

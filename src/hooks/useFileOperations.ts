@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import type {
   FileUploadOptions,
   FileDeleteOptions,
-} from "@/components/types/common";
+} from "@/types";
 
 /**
  * Custom hook for file operations including upload, delete, and management.

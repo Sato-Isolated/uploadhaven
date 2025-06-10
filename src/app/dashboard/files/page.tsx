@@ -12,8 +12,8 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import connectDB from "@/lib/mongodb";
 import { File } from "@/lib/models";
-import DeleteFileButton from "@/components/DeleteFileButton";
-import CopyLinkButton from "@/components/CopyLinkButton";
+import DeleteFileButton from "@/components/domains/ui/buttons/DeleteFileButton";
+import CopyLinkButton from "@/components/domains/ui/buttons/CopyLinkButton";
 
 async function getUserFiles(userId: string) {
   await connectDB();
@@ -22,11 +22,10 @@ async function getUserFiles(userId: string) {
     isDeleted: false,
   })
     .sort({ uploadDate: -1 })
-    .limit(50)
-    .lean();
+    .limit(50)    .lean();
 }
 
-interface FileData {
+interface UserFileData {
   _id: string;
   filename: string;
   originalName: string;
@@ -47,7 +46,7 @@ export default async function UserFilesPage() {
     redirect("/auth/signin");
   }
 
-  const files = (await getUserFiles(session.user.id)) as unknown as FileData[];
+  const files = (await getUserFiles(session.user.id)) as unknown as UserFileData[];
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
@@ -106,7 +105,7 @@ export default async function UserFilesPage() {
           </Card>
         ) : (
           <div className="space-y-4">
-            {files.map((file: FileData) => (
+            {files.map((file: UserFileData) => (
               <Card key={file._id}>
                 <CardHeader className="pb-3">
                   <div className="flex items-center justify-between">

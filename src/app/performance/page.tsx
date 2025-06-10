@@ -1,4 +1,4 @@
-import { PerformanceTest } from '@/components/PerformanceTest';
+import { PerformanceTest } from '@/components/domains/admin/performance/PerformanceTest';
 
 export default function PerformanceTestPage() {
   return (

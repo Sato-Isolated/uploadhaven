@@ -2,24 +2,13 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ApiClient } from '@/lib/api/client';
 import { queryKeys } from '@/lib/queryKeys';
 import { toast } from 'sonner';
+import type { ClientFileData } from '@/types';
 
-export interface FileInfo {
-  id: string;
-  name: string;
-  originalName: string;
-  size: number;
-  uploadDate: string;
-  type: "image" | "video" | "audio" | "document" | "archive" | "other";
-  expiresAt?: string | null;
-  mimeType: string;
-  downloadCount: number;
-  userId?: string | null;
-  userName?: string | null;
-  isAnonymous?: boolean;
-}
+// Use centralized type instead of legacy interface
+import type { ClientFileData } from '@/types';
 
 interface FilesResponse {
-  files: FileInfo[];
+  files: ClientFileData[];
 }
 
 /**

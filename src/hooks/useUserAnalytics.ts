@@ -1,6 +1,5 @@
-// filepath: c:\Users\ismys\Documents\GitHub\uploadhaven\src\hooks\useUserAnalytics.ts
 import { useQuery } from "@tanstack/react-query";
-import { ApiClient } from "@/lib/query/apiClient";
+import { ApiClient } from "@/lib/api/client";
 import { queryKeys } from "@/lib/queryKeys";
 import { DownloadAnalytics } from "@/components/DownloadAnalytics/utils";
 
@@ -10,7 +9,7 @@ interface UserAnalyticsResponse {
 
 export function useUserAnalytics() {
   return useQuery({
-    queryKey: queryKeys.analyticsUsers("all"), // Using "all" as default timeRange
+    queryKey: queryKeys.analyticsUsers("7d"), // Using "7d" as default timeRange
     queryFn: async (): Promise<DownloadAnalytics> => {
       const response = await ApiClient.get<UserAnalyticsResponse>("/api/analytics/user");
       return response.analytics;

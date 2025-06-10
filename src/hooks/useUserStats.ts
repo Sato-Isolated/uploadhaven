@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { ApiClient } from '@/lib/api/client';
 import { queryKeys } from '@/lib/queryKeys';
-import type { UserStats } from '@/components/types/common';
+import type { UserStats } from '@/types';
 
 /**
  * Hook pour récupérer les statistiques utilisateur avec auto-refresh

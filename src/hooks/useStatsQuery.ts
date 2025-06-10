@@ -3,7 +3,7 @@
 // filepath: c:\Users\ismys\Documents\GitHub\uploadhaven\src\hooks\useStatsQuery.ts
 import { useQuery } from "@tanstack/react-query";
 import { queryKeys } from "@/lib/queryKeys";
-import { Stats } from "@/components/StatsPanel/types";
+import { Stats } from "@/components/domains/stats/panel/types";
 
 interface StatsResponse {
   success: boolean;

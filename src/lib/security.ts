@@ -3,7 +3,7 @@ import type {
   SecurityEventType,
   SecuritySeverity,
   SecurityStats as BaseSecurityStats,
-} from "@/components/types/common";
+} from "@/types";
 
 // Compatible SecurityEvent interface for lib usage
 export interface SecurityEvent {

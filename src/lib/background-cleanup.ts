@@ -2,7 +2,7 @@ import connectDB from "@/lib/mongodb";
 import { File, saveSecurityEvent } from "@/lib/models";
 import { unlink } from "fs/promises";
 import path from "path";
-import type { CleanupStats } from "@/components/types/common";
+import type { CleanupStats } from "@/types";
 
 class BackgroundCleanupService {
   private intervalId: NodeJS.Timeout | null = null;

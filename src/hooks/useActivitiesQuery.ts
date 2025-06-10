@@ -3,7 +3,7 @@
 // filepath: c:\Users\ismys\Documents\GitHub\uploadhaven\src\hooks\useActivitiesQuery.ts
 import { useQuery, useInfiniteQuery } from "@tanstack/react-query";
 import { queryKeys } from "@/lib/queryKeys";
-import { ActivityResponse } from "@/components/types/common";
+import { ActivityResponse } from "@/types";
 
 interface ActivitiesFilters {
   page?: number;

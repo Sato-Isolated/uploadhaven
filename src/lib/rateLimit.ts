@@ -1,7 +1,7 @@
 // Rate limiting utility for API endpoints
 import { NextRequest } from "next/server";
 import { getClientIP } from "./utils";
-import type { RateLimitConfig, RateLimitData } from "@/components/types/common";
+import type { RateLimitConfig, RateLimitData } from "@/types";
 
 // In-memory storage for rate limiting (consider Redis for production)
 const rateLimitStore = new Map<string, RateLimitData>();

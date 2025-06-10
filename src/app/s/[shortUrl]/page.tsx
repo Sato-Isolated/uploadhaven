@@ -1,5 +1,5 @@
 import { Metadata } from 'next'
-import FilePreviewClient from '@/components/FilePreview/FilePreviewClient'
+import FilePreviewClient from '@/components/domains/filepreview/FilePreviewClient'
 
 export const metadata: Metadata = {
   title: 'File Preview - UploadHaven',

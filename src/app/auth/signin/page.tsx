@@ -1,5 +1,5 @@
 import { Metadata } from "next";
-import SignInForm from "@/components/auth/SignInForm";
+import SignInForm from "@/components/domains/auth/signin";
 
 export const metadata: Metadata = {
   title: "Sign In - UploadHaven",

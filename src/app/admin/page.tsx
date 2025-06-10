@@ -3,10 +3,10 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import AdminDashboard from "@/components/AdminDashboard";
-import AdminFileManager from "@/components/AdminFileManager";
-import AdminUserListWrapper from "@/components/AdminUserList/AdminUserListWrapper";
-import AdminAnalytics from "@/components/AdminAnalytics";
+import AdminDashboard from "@/components/domains/admin/dashboard";
+import AdminFileManager from "@/components/domains/admin/filemanager";
+import AdminUserListWrapper from "@/components/domains/admin/users/AdminUserListWrapper";
+import AdminAnalytics from "@/components/domains/admin/analytics";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 // Helper function to fetch data with error handling

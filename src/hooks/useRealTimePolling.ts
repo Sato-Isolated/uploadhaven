@@ -79,7 +79,7 @@ export function useRealTimeActivities() {
  */
 export function useRealTimeFiles(userId?: string) {
   return useQuery({
-    queryKey: queryKeys.files(userId),
+    queryKey: queryKeys.files(),
     queryFn: async () => {
       const url = userId ? `/api/files?userId=${userId}` : '/api/files';
       const response = await fetch(url);
