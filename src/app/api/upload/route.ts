@@ -229,17 +229,16 @@ export async function POST(request: NextRequest) {
     }
     console.log("✓ File validation passed");
 
-    console.log("=== UPLOAD API DEBUG: VALIDATIONS COMPLETE ===");
-
-    // Get file extension
+    console.log("=== UPLOAD API DEBUG: VALIDATIONS COMPLETE ===");    // Get file extension
     const fileExtension = path.extname(file.name) || "";
 
     // Generate unique filename
     const uniqueId = nanoid(10);
     const fileName = `${uniqueId}${fileExtension}`;
 
-    // Ensure uploads directory exists
-    const uploadsDir = path.join(process.cwd(), "public", "uploads");
+    // Determine which subdirectory to use based on password protection
+    const subDir = isPasswordProtected ? "protected" : "public";
+    const uploadsDir = path.join(process.cwd(), "public", "uploads", subDir);
     await mkdir(uploadsDir, { recursive: true });
 
     // Convert file to buffer and save
@@ -247,11 +246,11 @@ export async function POST(request: NextRequest) {
     const buffer = Buffer.from(bytes);
 
     const filePath = path.join(uploadsDir, fileName);
-    await writeFile(filePath, buffer);
-
-    // Generate file URL
+    await writeFile(filePath, buffer);    // Generate file URL (include the subdirectory)
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
-    const fileUrl = `${baseUrl}/uploads/${fileName}`; // Calculate expiration date
+    const fileUrl = `${baseUrl}/uploads/${subDir}/${fileName}`;
+
+    // Calculate expiration date
     const expirationHours =
       EXPIRATION_OPTIONS[expiration as keyof typeof EXPIRATION_OPTIONS];
     const expiresAt =
@@ -259,11 +258,9 @@ export async function POST(request: NextRequest) {
         ? new Date(Date.now() + expirationHours * 60 * 60 * 1000)
         : new Date(Date.now() + 365 * 24 * 60 * 60 * 1000); // 1 year for "never"    // Generate unique short URL
     const shortId = await generateShortUrl();
-    const shareableUrl = buildShortUrl(shortId);
-
-    // Save file metadata to MongoDB
+    const shareableUrl = buildShortUrl(shortId);    // Save file metadata to MongoDB
     const savedFile = await saveFileMetadata({
-      filename: fileName,
+      filename: `${subDir}/${fileName}`, // Include subdirectory in filename for proper file location
       shortUrl: shortId,
       originalName: file.name,
       mimeType: file.type,

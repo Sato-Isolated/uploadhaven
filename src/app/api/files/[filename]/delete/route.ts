@@ -88,14 +88,14 @@ export async function DELETE(
         },
         { status: 403 }
       );
-    }
-
-    // Mark file as deleted in database (soft delete)
+    }    // Mark file as deleted in database (soft delete)
     await File.findOneAndUpdate({ filename }, { isDeleted: true });
 
     // Try to delete the actual file from filesystem
     try {
-      const uploadsDir = path.join(process.cwd(), "public", "uploads");
+      // Determine which subdirectory based on password protection
+      const subDir = fileRecord.isPasswordProtected ? "protected" : "public";
+      const uploadsDir = path.join(process.cwd(), "public", "uploads", subDir);
       const filePath = path.join(uploadsDir, filename);
       await unlink(filePath);
     } catch (fsError) {

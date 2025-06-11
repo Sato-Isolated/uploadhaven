@@ -109,9 +109,7 @@ export async function GET(
         severity: "low",
         userAgent,
         filename,
-      });
-
-      return NextResponse.json({ error: "File has expired" }, { status: 410 });
+      });      return NextResponse.json({ error: "File has expired" }, { status: 410 });
     }
 
     // Check if file is password protected
@@ -131,11 +129,12 @@ export async function GET(
           error:
             "Password required. Please use the shared link to access this file.",
         },
-        { status: 403 }
-      );
+        { status: 403 }      );
     }
 
-    const uploadsDir = path.join(process.cwd(), "public", "uploads");
+    // Determine which subdirectory to check based on password protection
+    const subDir = fileMetadata.isPasswordProtected ? "protected" : "public";
+    const uploadsDir = path.join(process.cwd(), "public", "uploads", subDir);
     const filePath = path.join(uploadsDir, filename);
 
     try {

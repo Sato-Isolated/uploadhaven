@@ -2,14 +2,28 @@ import { NextRequest, NextResponse } from "next/server";
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
-
-  // Block ALL direct access to uploaded files in /uploads/*
-  // Users should only access files through API routes which check permissions
+  
+  // Handle direct access to uploaded files
   if (pathname.startsWith("/uploads/")) {
+    // Allow direct access to public files (without password protection)
+    if (pathname.startsWith("/uploads/public/")) {
+      return NextResponse.next();
+    }
+    
+    // Block direct access to protected files (with password protection)
+    if (pathname.startsWith("/uploads/protected/")) {
+      return NextResponse.json(
+        {
+          error: "This file is password protected. Please use the provided download links.",
+        },
+        { status: 403 }
+      );
+    }
+    
+    // Block access to any other files in uploads (fallback security)
     return NextResponse.json(
       {
-        error:
-          "Direct file access not allowed. Please use the provided download links.",
+        error: "Direct file access not allowed. Please use the provided download links.",
       },
       { status: 403 }
     );
@@ -33,6 +47,7 @@ export function middleware(request: NextRequest) {
       return NextResponse.redirect(new URL("/auth/signin", request.url));
     }
   }
+  
   // Check for admin routes
   if (pathname.startsWith("/admin")) {
     // For now, just check if user is authenticated
@@ -54,6 +69,6 @@ export const config = {
   matcher: [
     "/dashboard/:path*",
     "/admin/:path*",
-    "/uploads/:path*", // Add protection for uploaded files
+    "/uploads/:path*", // Allow checking uploaded files but don't block them
   ],
 };

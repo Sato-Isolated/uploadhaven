@@ -101,14 +101,16 @@ export async function GET(
         return NextResponse.json(
           { success: false, error: "Password verification required" },
           { status: 403 }
-        );
-      }
+        );      }
     }
 
+    // Determine which subdirectory to check based on password protection
+    const subDir = fileDoc.isPasswordProtected ? "protected" : "public";
     const filePath = path.join(
       process.cwd(),
       "public",
       "uploads",
+      subDir,
       fileDoc.filename
     );
 

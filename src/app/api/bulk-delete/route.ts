@@ -41,15 +41,15 @@ export async function DELETE(request: NextRequest) {
     }
 
     // Mark files as deleted in database
-    const result = await File.updateMany(query, { isDeleted: true })
-
-    // Try to delete actual files from filesystem
+    const result = await File.updateMany(query, { isDeleted: true })    // Try to delete actual files from filesystem
     let physicalDeletedCount = 0
     const errors: string[] = []
     
     for (const file of filesToDelete) {
       try {
-        const uploadsDir = path.join(process.cwd(), 'public', 'uploads')
+        // Determine which subdirectory based on password protection
+        const subDir = file.isPasswordProtected ? "protected" : "public";
+        const uploadsDir = path.join(process.cwd(), 'public', 'uploads', subDir)
         const filePath = path.join(uploadsDir, file.filename)
         await unlink(filePath)
         physicalDeletedCount++

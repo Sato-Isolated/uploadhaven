@@ -14,11 +14,33 @@ export async function POST(request: NextRequest) {
       );
     }    const scanner = new MalwareScanner();
     const results = [];
-    let requestsUsed = 0;
-
-    for (const fileName of fileNames.slice(0, 10)) { // Limit to 10 files to prevent abuse
+    let requestsUsed = 0;    for (const fileName of fileNames.slice(0, 10)) { // Limit to 10 files to prevent abuse
       try {
-        const filePath = path.join(process.cwd(), 'public', 'uploads', fileName);
+        // We need to check both public and protected directories since we don't know which one this file is in
+        const publicFilePath = path.join(process.cwd(), 'public', 'uploads', 'public', fileName);
+        const protectedFilePath = path.join(process.cwd(), 'public', 'uploads', 'protected', fileName);
+        
+        let filePath: string;
+        try {
+          // Check if file exists in public directory first
+          const { readFile } = await import('fs/promises');
+          await readFile(publicFilePath);
+          filePath = publicFilePath;
+        } catch {
+          try {
+            // Check if file exists in protected directory
+            const { readFile } = await import('fs/promises');
+            await readFile(protectedFilePath);
+            filePath = protectedFilePath;
+          } catch {
+            results.push({
+              fileName,
+              error: 'File not found',
+              scannedAt: new Date().toISOString()
+            });
+            continue;
+          }
+        }
         
         // Perform scan
         const scanResult = await scanner.scanFile(filePath);

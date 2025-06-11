@@ -13,18 +13,27 @@ export async function POST(request: NextRequest) {
         { error: 'No file name provided' },
         { status: 400 }
       );
-    }
-
-    // Build path to the uploaded file
-    const filePath = path.join(process.cwd(), 'public', 'uploads', fileName);
-      try {
-      // Check if file exists and read it
-      await readFile(filePath);
+    }    // Build path to the uploaded file
+    // We need to check both public and protected directories since we don't know which one this file is in
+    const publicFilePath = path.join(process.cwd(), 'public', 'uploads', 'public', fileName);
+    const protectedFilePath = path.join(process.cwd(), 'public', 'uploads', 'protected', fileName);
+    
+    let filePath: string;
+    try {
+      // Check if file exists in public directory first
+      await readFile(publicFilePath);
+      filePath = publicFilePath;
     } catch {
-      return NextResponse.json(
-        { error: 'File not found' },
-        { status: 404 }
-      );
+      try {
+        // Check if file exists in protected directory
+        await readFile(protectedFilePath);
+        filePath = protectedFilePath;
+      } catch {
+        return NextResponse.json(
+          { error: 'File not found' },
+          { status: 404 }
+        );
+      }
     }
 
     // Initialize malware scanner
