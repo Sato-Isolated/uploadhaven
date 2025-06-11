@@ -137,11 +137,11 @@ const securityEventSchema = new mongoose.Schema(
         "suspicious_activity",
         "file_scan",
         "malware_detected",
-        "file_deletion",
-        "bulk_delete",
+        "file_deletion",        "bulk_delete",
         "file_upload",
         "user_registration",
         "file_download",
+        "file_preview", // New event type for file previews
         "user_login",
         "user_logout",
         "user_role_changed",

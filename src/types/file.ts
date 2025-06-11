@@ -51,6 +51,7 @@ export interface BaseFileData {
  */
 export interface ClientFileData extends BaseFileData {
   readonly expiresAt?: string | null;
+  readonly shortUrl: string; // Short URL for file sharing and thumbnails
 }
 
 /**
@@ -180,6 +181,7 @@ export function toClientFileData(dbFile: IFile): ClientFileData {
     downloadCount: dbFile.downloadCount,
     type: getFileTypeFromMimeType(dbFile.mimeType),
     expiresAt: dbFile.expiresAt?.toISOString() || null,
+    shortUrl: dbFile.shortUrl,
   };
 }
 

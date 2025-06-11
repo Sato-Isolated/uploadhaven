@@ -6,6 +6,7 @@ import { motion } from "motion/react";
 import { formatFileSize } from "@/lib/utils";
 import { formatDistanceToNow } from "date-fns";
 import FileActionButtons from "./FileActionButtons";
+import FileThumbnail from "./FileThumbnail";
 import type { FileCardProps } from "../types";
 
 export default function FileCard({
@@ -41,13 +42,17 @@ export default function FileCard({
         {/* Gradient overlay on hover */}
         <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 via-purple-500/5 to-indigo-500/5 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
 
-        <div className="relative flex items-center space-x-6">
-          <motion.div
-            className="flex-shrink-0 p-4 bg-gradient-to-br from-blue-500/10 to-purple-600/10 rounded-2xl backdrop-blur-sm border border-white/20"
-            whileHover={{ scale: 1.1, rotate: 5 }}
+        <div className="relative flex items-center space-x-6">          <motion.div
+            className="flex-shrink-0"
+            whileHover={{ scale: 1.1, rotate: 2 }}
             transition={{ type: "spring", stiffness: 300 }}
-          >
-            {getFileIcon(file.type)}
+          >            <FileThumbnail
+              shortUrl={file.shortUrl}
+              mimeType={file.mimeType}
+              originalName={file.originalName}
+              size={56}
+              className="rounded-2xl border border-white/20 bg-gradient-to-br from-blue-500/10 to-purple-600/10 backdrop-blur-sm p-2"
+            />
           </motion.div>
           <div className="min-w-0 flex-1">
             <motion.h3

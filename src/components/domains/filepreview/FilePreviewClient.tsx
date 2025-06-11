@@ -11,6 +11,9 @@ import { FilePreviewHeader } from "./components/FilePreviewHeader";
 import { FilePreviewDetails } from "./components/FilePreviewDetails";
 import { FilePreviewActions } from "./components/FilePreviewActions";
 import { FilePreviewSecurityNotice } from "./components/FilePreviewSecurityNotice";
+import { ImagePreview, VideoPreview, AudioPreview, PDFPreview, TextPreview, FallbackPreview } from "./index";
+import { getFileTypeInfo } from "./utils/filePreview";
+import type { FilePreviewData } from "@/types";
 
 export default function FilePreviewClient() {
   const {
@@ -27,6 +30,7 @@ export default function FilePreviewClient() {
     setPassword,
     refetch,
     isFileExpired,
+    shortUrl,
   } = useFilePreviewLogic();
 
   // Loading state
@@ -50,11 +54,30 @@ export default function FilePreviewClient() {
       />
     );
   }
-
   // No file state
   if (!fileInfo) {
     return <FilePreviewNoFileState />;
   }
+  // Function to render file preview based on type
+  const renderFilePreview = (file: typeof fileInfo) => {
+    // Convert fileInfo to FilePreviewData format
+    const filePreviewData: FilePreviewData = {
+      filename: file.name,
+      originalName: file.originalName,
+      type: file.mimeType,
+      size: file.size,
+      url: `/api/preview-file/${shortUrl}`, // Use preview API instead of download API
+    };
+
+    const typeInfo = getFileTypeInfo(filePreviewData);
+    
+    if (typeInfo.isImage) return <ImagePreview file={filePreviewData} />;
+    if (typeInfo.isVideo) return <VideoPreview file={filePreviewData} />;
+    if (typeInfo.isAudio) return <AudioPreview file={filePreviewData} />;
+    if (typeInfo.isPdf) return <PDFPreview file={filePreviewData} />;
+    if (typeInfo.isText) return <TextPreview file={filePreviewData} />;
+    return <FallbackPreview />;
+  };
 
   // Main content
   return (
@@ -72,6 +95,13 @@ export default function FilePreviewClient() {
           
           <CardContent className="space-y-6">
             <FilePreviewDetails fileInfo={fileInfo} isExpired={isFileExpired} />
+            
+            {/* File Content Preview */}
+            {!isFileExpired && (
+              <div className="bg-gray-50 rounded-lg p-4">
+                {renderFilePreview(fileInfo)}
+              </div>
+            )}
             
             <Separator />
             
