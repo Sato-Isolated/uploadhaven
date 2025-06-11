@@ -1,11 +1,11 @@
 import { CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Lock, AlertCircle } from "lucide-react";
+import { AlertCircle } from "lucide-react";
 import { getFileIcon, getFileTypeLabel } from "../utils/fileUtils";
-import type { FileMetadata } from "@/types";
+import type { ClientFileData } from "@/types";
 
 interface FilePreviewHeaderProps {
-  fileInfo: FileMetadata;
+  fileInfo: ClientFileData;
   isExpired: boolean;
 }
 
@@ -21,20 +21,10 @@ export function FilePreviewHeader({ fileInfo, isExpired }: FilePreviewHeaderProp
         <div className="flex-1 min-w-0">
           <CardTitle className="text-xl font-semibold truncate">
             {fileInfo.originalName}
-          </CardTitle>
-          <CardDescription className="flex items-center space-x-2 mt-2">
+          </CardTitle>          <CardDescription className="flex items-center space-x-2 mt-2">
             <Badge variant="secondary">
               {getFileTypeLabel(fileInfo.mimeType)}
             </Badge>
-            {fileInfo.isPasswordProtected && (
-              <Badge
-                variant="outline"
-                className="text-amber-600 border-amber-200"
-              >
-                <Lock className="h-3 w-3 mr-1" />
-                Protected
-              </Badge>
-            )}
             {isExpired && (
               <Badge variant="destructive">
                 <AlertCircle className="h-3 w-3 mr-1" />

@@ -1,11 +1,8 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ApiClient } from '@/lib/api/client';
-import { queryKeys } from '@/lib/queryKeys';
-import { toast } from 'sonner';
-import type { ClientFileData } from '@/types';
-
-// Use centralized type instead of legacy interface
-import type { ClientFileData } from '@/types';
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { ApiClient } from "@/lib/api/client";
+import { queryKeys } from "@/lib/queryKeys";
+import { toast } from "sonner";
+import type { ClientFileData } from "@/types";
 
 interface FilesResponse {
   files: ClientFileData[];
@@ -17,8 +14,8 @@ interface FilesResponse {
 export function useFiles() {
   return useQuery({
     queryKey: queryKeys.files(),
-    queryFn: async (): Promise<FileInfo[]> => {
-      const response = await ApiClient.get<FilesResponse>('/api/files');
+    queryFn: async (): Promise<ClientFileData[]> => {
+      const response = await ApiClient.get<FilesResponse>("/api/files");
       return response.files;
     },
     staleTime: 2 * 60 * 1000, // 2 minutes
@@ -33,7 +30,7 @@ export function useFiles() {
 export function useFile(id: string) {
   return useQuery({
     queryKey: queryKeys.file(id),
-    queryFn: () => ApiClient.get<FileInfo>(`/api/files/${id}`),
+    queryFn: () => ApiClient.get<ClientFileData>(`/api/files/${id}`),
     enabled: !!id,
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
@@ -44,21 +41,23 @@ export function useFile(id: string) {
  */
 export function useDeleteFile() {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
-    mutationFn: (filename: string) => 
+    mutationFn: (filename: string) =>
       ApiClient.delete(`/api/files/${filename}/delete`),
-    
     onMutate: async (filename) => {
       // Cancel any outgoing refetches
       await queryClient.cancelQueries({ queryKey: queryKeys.files() });
 
       // Snapshot the previous value
-      const previousFiles = queryClient.getQueryData<FileInfo[]>(queryKeys.files());
+      const previousFiles = queryClient.getQueryData<ClientFileData[]>(
+        queryKeys.files()
+      );
 
       // Optimistically update to the new value
-      queryClient.setQueryData<FileInfo[]>(queryKeys.files(), (old) =>
-        old?.filter(file => file.name !== filename) ?? []
+      queryClient.setQueryData<ClientFileData[]>(
+        queryKeys.files(),
+        (old) => old?.filter((file) => file.name !== filename) ?? []
       );
 
       return { previousFiles };
@@ -67,7 +66,7 @@ export function useDeleteFile() {
     onError: (err, variables, context) => {
       // If the mutation fails, roll back
       queryClient.setQueryData(queryKeys.files(), context?.previousFiles);
-      toast.error('Failed to delete file. Please try again.');
+      toast.error("Failed to delete file. Please try again.");
     },
 
     onSettled: () => {
@@ -78,7 +77,7 @@ export function useDeleteFile() {
     },
 
     onSuccess: () => {
-      toast.success('File deleted successfully');
+      toast.success("File deleted successfully");
     },
   });
 }
@@ -88,21 +87,23 @@ export function useDeleteFile() {
  */
 export function useDeleteFiles() {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
-    mutationFn: (filenames: string[]) => 
-      ApiClient.post('/api/bulk-delete', { filenames }),
-    
+    mutationFn: (filenames: string[]) =>
+      ApiClient.post("/api/bulk-delete", { filenames }),
     onMutate: async (filenames) => {
       // Cancel any outgoing refetches
       await queryClient.cancelQueries({ queryKey: queryKeys.files() });
 
       // Snapshot the previous value
-      const previousFiles = queryClient.getQueryData<FileInfo[]>(queryKeys.files());
+      const previousFiles = queryClient.getQueryData<ClientFileData[]>(
+        queryKeys.files()
+      );
 
       // Optimistically update to the new value
-      queryClient.setQueryData<FileInfo[]>(queryKeys.files(), (old) =>
-        old?.filter(file => !filenames.includes(file.name)) ?? []
+      queryClient.setQueryData<ClientFileData[]>(
+        queryKeys.files(),
+        (old) => old?.filter((file) => !filenames.includes(file.name)) ?? []
       );
 
       return { previousFiles };
@@ -111,7 +112,7 @@ export function useDeleteFiles() {
     onError: (err, variables, context) => {
       // If the mutation fails, roll back
       queryClient.setQueryData(queryKeys.files(), context?.previousFiles);
-      toast.error('Failed to delete files. Please try again.');
+      toast.error("Failed to delete files. Please try again.");
     },
 
     onSettled: () => {
@@ -132,29 +133,30 @@ export function useDeleteFiles() {
  */
 export function useUploadFile() {
   const queryClient = useQueryClient();
-  
-  return useMutation<FileInfo, Error, FormData>({
-    mutationFn: async (formData: FormData): Promise<FileInfo> => {
-      const response = await ApiClient.uploadFile('/api/upload', formData);
-      return response as FileInfo;
+
+  return useMutation<ClientFileData, Error, FormData>({
+    mutationFn: async (formData: FormData): Promise<ClientFileData> => {
+      const response = await ApiClient.uploadFile("/api/upload", formData);
+      return response as ClientFileData;
     },
 
-    onSuccess: (data: FileInfo) => {
+    onSuccess: (data: ClientFileData) => {
       // Add the new file to the cache
-      queryClient.setQueryData<FileInfo[]>(queryKeys.files(), (old) => 
-        [data, ...(old ?? [])]
-      );
-      
+      queryClient.setQueryData<ClientFileData[]>(queryKeys.files(), (old) => [
+        data,
+        ...(old ?? []),
+      ]);
+
       // Invalidate related queries
       queryClient.invalidateQueries({ queryKey: queryKeys.userStats() });
       queryClient.invalidateQueries({ queryKey: queryKeys.analytics() });
-      
-      toast.success('File uploaded successfully');
+
+      toast.success("File uploaded successfully");
     },
 
     onError: (error) => {
-      toast.error('Upload failed. Please try again.');
-      console.error('Upload error:', error);
+      toast.error("Upload failed. Please try again.");
+      console.error("Upload error:", error);
     },
   });
 }

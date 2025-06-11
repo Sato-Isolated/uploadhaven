@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Download, ExternalLink } from "lucide-react";
-import { handleFileDownload, handleFileOpenInNewTab } from "./utils";
+import { handleFileDownload, handleFileOpenInNewTab } from "../utils";
 import type { FilePreviewData, BaseComponentProps } from "@/types";
 
 interface FileActionsProps extends BaseComponentProps {

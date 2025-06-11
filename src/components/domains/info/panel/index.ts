@@ -1,2 +1,2 @@
 // Info Panel domain exports
-export { default } from "./index";
+export { default } from "./InfoPanel";

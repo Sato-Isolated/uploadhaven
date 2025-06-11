@@ -2,10 +2,16 @@
 
 import { motion } from "motion/react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Zap, Search, Shield } from "lucide-react";
-import type { ScanType } from "@/hooks/useSecurityScanning";
+import type { ScanType } from "@/types/security";
 import { BaseComponentProps } from "@/types";
 
 interface ScanTypeOption {
@@ -52,10 +58,10 @@ const scanTypeOptions: ScanTypeOption[] = [
 
 /**
  * ScanTypeSelector Component
- * 
+ *
  * Extracted from SecurityScanModal to handle scan type selection.
  * Provides a clean, reusable interface for choosing security scan types.
- * 
+ *
  * Features:
  * - Visual scan type cards with descriptions
  * - Animation and hover effects
@@ -85,9 +91,7 @@ export default function ScanTypeSelector({
               whileTap={{ scale: disabled ? 1 : 0.98 }}
             >
               <Button
-                variant={
-                  selectedScanType === type.id ? "default" : "outline"
-                }
+                variant={selectedScanType === type.id ? "default" : "outline"}
                 onClick={() => !disabled && onScanTypeChange(type.id)}
                 disabled={disabled}
                 className={`h-auto p-4 flex flex-col items-start gap-2 w-full ${
@@ -109,7 +113,8 @@ export default function ScanTypeSelector({
           ))}
         </div>
       </CardContent>
-    </Card>  );
+    </Card>
+  );
 }
 
 export { ScanTypeSelector };

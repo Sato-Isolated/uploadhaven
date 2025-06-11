@@ -34,12 +34,11 @@ export default function SecurityEventsList({
 
   return (
     <Card>
+      {" "}
       <SecurityEventsHeader
         eventCount={filteredEvents.length}
-        showFilters={showFilters}
         onToggleFilters={() => setShowFilters(!showFilters)}
       />
-
       {showFilters && (
         <SecurityEventsFilters
           searchTerm={searchTerm}
@@ -51,7 +50,6 @@ export default function SecurityEventsList({
           onClearFilters={clearFilters}
         />
       )}
-
       <CardContent>
         <div className="max-h-96 overflow-y-auto space-y-3">
           <SecurityEventsListContent

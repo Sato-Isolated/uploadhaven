@@ -13,7 +13,10 @@ interface ActivitiesFilters {
   userId?: string;
 }
 
-export function useActivitiesQuery(filters: ActivitiesFilters = {}) {
+export function useActivitiesQuery(
+  filters: ActivitiesFilters = {},
+  options?: { enabled?: boolean }
+) {
   const { page = 1, limit = 10, type, severity, userId } = filters;
 
   // Build query parameters
@@ -39,6 +42,7 @@ export function useActivitiesQuery(filters: ActivitiesFilters = {}) {
     staleTime: 30 * 1000, // Consider data stale after 30 seconds
     retry: 3,
     retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+    enabled: options?.enabled,
   });
 }
 
@@ -46,7 +50,10 @@ export function useActivitiesQuery(filters: ActivitiesFilters = {}) {
  * Infinite query hook for activities with pagination
  * Provides smooth infinite scrolling experience
  */
-export function useInfiniteActivitiesQuery(filters: Omit<ActivitiesFilters, 'page'> = {}) {
+export function useInfiniteActivitiesQuery(
+  filters: Omit<ActivitiesFilters, "page"> = {},
+  options?: { enabled?: boolean }
+) {
   const { limit = 20, type, severity, userId } = filters;
 
   return useInfiniteQuery({
@@ -59,7 +66,8 @@ export function useInfiniteActivitiesQuery(filters: Omit<ActivitiesFilters, 'pag
 
       if (type) params.append("type", type);
       if (severity) params.append("severity", severity);
-      if (userId) params.append("userId", userId);      const url = `/api/admin/activities?${params}`;
+      if (userId) params.append("userId", userId);
+      const url = `/api/admin/activities?${params}`;
       const response = await fetch(url);
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
@@ -83,7 +91,8 @@ export function useInfiniteActivitiesQuery(filters: Omit<ActivitiesFilters, 'pag
     },
     staleTime: 30 * 1000, // Consider data stale after 30 seconds
     retry: 3,
-    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),    // Enable real-time updates for recent activities
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+    // Enable real-time updates for recent activities
     refetchInterval: (query) => {
       // Only auto-refresh if we're on the first page and showing recent data
       const data = query.state.data;
@@ -91,5 +100,6 @@ export function useInfiniteActivitiesQuery(filters: Omit<ActivitiesFilters, 'pag
       return isFirstPage ? 60 * 1000 : false; // Refresh every minute for first page
     },
     refetchIntervalInBackground: false, // Don't refresh when tab is not active
+    enabled: options?.enabled,
   });
 }

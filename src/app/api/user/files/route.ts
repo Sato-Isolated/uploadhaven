@@ -86,10 +86,11 @@ export async function GET(request: NextRequest) {
       pagination: {
         page,
         limit,
+        total: totalCount,
         totalCount,
         totalPages,
-        hasNextPage,
-        hasPrevPage,
+        hasNext: hasNextPage,
+        hasPrev: hasPrevPage,
       },
     });
   } catch (error) {

@@ -28,7 +28,7 @@ export default function AdminAnalytics({
   className = "",
 }: AdminAnalyticsProps) {
   const [timeRange, setTimeRange] = useState("30d");
-  
+
   // Use TanStack Query for better performance and caching
   const {
     data: analytics,
@@ -51,9 +51,17 @@ export default function AdminAnalytics({
   if (!analytics) {
     return <AnalyticsEmptyState />;
   }
-
   const { systemOverview, fileAnalytics, userAnalytics, securityAnalytics } =
     analytics;
+
+  // Transform security analytics to match component expectations
+  const transformedSecurityAnalytics = {
+    ...securityAnalytics,
+    recentEvents: securityAnalytics.recentEvents.map((event) => ({
+      type: event.type,
+      timestamp: formatDateTime(event.timestamp),
+    })),
+  };
 
   // Colors for charts
   const COLORS = [
@@ -70,10 +78,7 @@ export default function AdminAnalytics({
   return (
     <div className={`space-y-6 ${className}`}>
       {/* Header with Time Range Selector */}
-      <AnalyticsHeader
-        timeRange={timeRange}
-        onTimeRangeChange={setTimeRange}
-      />
+      <AnalyticsHeader timeRange={timeRange} onTimeRangeChange={setTimeRange} />
 
       {/* System Overview Cards */}
       <SystemOverviewCards systemOverview={systemOverview} />
@@ -86,7 +91,6 @@ export default function AdminAnalytics({
           <TabsTrigger value="security">Security</TabsTrigger>
           <TabsTrigger value="performance">Performance</TabsTrigger>
         </TabsList>
-
         {/* File Analytics Tab */}
         <TabsContent value="files">
           <FileAnalyticsTab
@@ -96,23 +100,20 @@ export default function AdminAnalytics({
             colors={COLORS}
           />
         </TabsContent>
-
         {/* User Analytics Tab */}
         <TabsContent value="users">
           <UserAnalyticsTab
             userAnalytics={userAnalytics}
             formatDate={formatDate}
           />
-        </TabsContent>
-
+        </TabsContent>{" "}
         {/* Security Analytics Tab */}
         <TabsContent value="security">
           <SecurityAnalyticsTab
-            securityAnalytics={securityAnalytics}
-            formatDateTime={formatDateTime}
+            securityAnalytics={transformedSecurityAnalytics}
+            formatDateTime={(date: string) => date}
           />
         </TabsContent>
-
         {/* Performance Tab */}
         <TabsContent value="performance">
           <PerformanceTab />

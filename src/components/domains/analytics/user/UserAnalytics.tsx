@@ -9,13 +9,15 @@ import {
   AnalyticsOverview,
   TopFilesSection,
   TrendsChart,
+  calculateTrend,
 } from "@/components/domains/analytics/download";
 import { useUserAnalytics } from "@/hooks";
 import { BaseComponentProps } from "@/types";
 
 type UserAnalyticsProps = BaseComponentProps;
 
-export default function UserAnalytics({ className = "" }: UserAnalyticsProps) {  // Use TanStack Query for better performance and caching
+export default function UserAnalytics({ className = "" }: UserAnalyticsProps) {
+  // Use TanStack Query for better performance and caching
   const {
     data: analytics,
     isLoading,

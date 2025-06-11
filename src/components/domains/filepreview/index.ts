@@ -1,5 +1,5 @@
 // Main components
-export { FilePreviewClient } from "./FilePreviewClient";
+export { default as FilePreviewClient } from "./FilePreviewClient";
 export { default as FilePreview } from "./FilePreview";
 
 // Preview components
@@ -7,7 +7,7 @@ export { default as AudioPreview } from "./components/AudioPreview";
 export { default as FallbackPreview } from "./components/FallbackPreview";
 export { default as FileActions } from "./components/FileActions";
 export { default as FileHeader } from "./components/FileHeader";
-export { default as FileIcon } from "./components/FileIcon";
+export { FileIcon } from "./components/FileIcon";
 export { default as FileInfo } from "./components/FileInfo";
 export { default as ImagePreview } from "./components/ImagePreview";
 export { default as PDFPreview } from "./components/PDFPreview";
@@ -25,7 +25,7 @@ export { FilePreviewPasswordForm } from "./components/FilePreviewPasswordForm";
 export { FilePreviewSecurityNotice } from "./components/FilePreviewSecurityNotice";
 
 // Hooks
-export { useFilePreview } from "./hooks";
+export { useFilePreviewLogic } from "./hooks";
 
 // Utils
 export * from "./utils";

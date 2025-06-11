@@ -16,6 +16,7 @@ interface ActivityContentProps {
   pagination?: {
     page: number;
     limit: number;
+    total: number;
     totalCount: number;
     totalPages: number;
     hasNext: boolean;
@@ -35,7 +36,7 @@ export default function ActivityContent({
   pagination,
   currentPage,
   onLoadMore,
-  onPageChange
+  onPageChange,
 }: ActivityContentProps) {
   if (!activities.length) {
     return <ActivityEmpty />;
@@ -45,49 +46,43 @@ export default function ActivityContent({
     <>
       <div className="space-y-4">
         {activities.map((activity, index) => (
-          <ActivityItem
-            key={activity._id}
-            activity={activity}
-            index={index}
-          />
+          <ActivityItem key={activity._id} activity={activity} index={index} />
         ))}
       </div>
 
-      {useInfinite ? (
-        // Infinite scroll mode - Load More button
-        hasMore && (
-          <div className="text-center mt-6">
-            <Button
-              onClick={onLoadMore}
-              disabled={isFetchingNextPage}
-              variant="outline"
-              className="bg-white/80 dark:bg-gray-700/80 backdrop-blur-sm"
-            >
-              {isFetchingNextPage ? (
-                <>
-                  <MoreHorizontal className="h-4 w-4 mr-2 animate-pulse" />
-                  Loading more...
-                </>
-              ) : (
-                <>
-                  <MoreHorizontal className="h-4 w-4 mr-2" />
-                  Load More Activities
-                </>
-              )}
-            </Button>
-          </div>
-        )
-      ) : (
-        // Pagination mode
-        pagination && (
-          <ActivityPagination
-            pagination={pagination}
-            currentPage={currentPage}
-            loading={loading}
-            onPageChange={onPageChange}
-          />
-        )
-      )}
+      {useInfinite
+        ? // Infinite scroll mode - Load More button
+          hasMore && (
+            <div className="text-center mt-6">
+              <Button
+                onClick={onLoadMore}
+                disabled={isFetchingNextPage}
+                variant="outline"
+                className="bg-white/80 dark:bg-gray-700/80 backdrop-blur-sm"
+              >
+                {isFetchingNextPage ? (
+                  <>
+                    <MoreHorizontal className="h-4 w-4 mr-2 animate-pulse" />
+                    Loading more...
+                  </>
+                ) : (
+                  <>
+                    <MoreHorizontal className="h-4 w-4 mr-2" />
+                    Load More Activities
+                  </>
+                )}
+              </Button>
+            </div>
+          )
+        : // Pagination mode
+          pagination && (
+            <ActivityPagination
+              pagination={pagination}
+              currentPage={currentPage}
+              loading={loading}
+              onPageChange={onPageChange}
+            />
+          )}
     </>
   );
 }

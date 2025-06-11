@@ -4,28 +4,28 @@ import { useState, useCallback, useEffect } from "react";
 import { useParams } from "next/navigation";
 import { useFilePreview } from "@/hooks/useFilePreview";
 import { toast } from "sonner";
-import type { FileMetadata } from "@/types";
+import type { ClientFileData } from "@/types";
 
 export interface UseFilePreviewLogicReturn {
   // State
-  fileInfo: FileMetadata | null;
+  fileInfo: ClientFileData | null;
   passwordRequired: boolean;
   password: string;
   passwordLoading: boolean;
   downloading: boolean;
   shortUrl: string;
-  
+
   // TanStack Query states
   loading: boolean;
   error: Error | null;
-  
+
   // Handlers
   handlePasswordSubmit: (e: React.FormEvent) => Promise<void>;
   handleDownload: () => Promise<void>;
   copyShareLink: () => void;
   setPassword: (password: string) => void;
   refetch: () => void;
-  
+
   // Derived states
   isFileExpired: boolean;
 }
@@ -33,9 +33,8 @@ export interface UseFilePreviewLogicReturn {
 export function useFilePreviewLogic(): UseFilePreviewLogicReturn {
   const params = useParams();
   const shortUrl = params.shortUrl as string;
-  
   // Local state
-  const [fileInfo, setFileInfo] = useState<FileMetadata | null>(null);
+  const [fileInfo, setFileInfo] = useState<ClientFileData | null>(null);
   const [passwordRequired, setPasswordRequired] = useState(false);
   const [password, setPassword] = useState("");
   const [passwordLoading, setPasswordLoading] = useState(false);
@@ -55,39 +54,43 @@ export function useFilePreviewLogic(): UseFilePreviewLogicReturn {
       if (response.passwordRequired) {
         setPasswordRequired(true);
       } else {
-        setFileInfo(response.fileInfo);
+        setFileInfo((response.fileInfo as unknown as ClientFileData) || null);
       }
     }
   }, [response]);
 
   // Password verification handler
-  const handlePasswordSubmit = useCallback(async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!password.trim()) return;
+  const handlePasswordSubmit = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
+      if (!password.trim()) return;
 
-    try {
-      setPasswordLoading(true);
+      try {
+        setPasswordLoading(true);
 
-      const response = await fetch(`/s/${shortUrl}/verify`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ password }),
-      });
+        const response = await fetch(`/s/${shortUrl}/verify`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ password }),
+        });
 
-      const result = await response.json();
+        const result = await response.json();
 
-      if (result.success) {
-        setPasswordRequired(false);
-        setFileInfo(result.fileInfo);
-        toast.success("Password verified successfully!");
-      } else {
-        toast.error(result.error || "Invalid password");
-      }    } catch {
-      toast.error("Failed to verify password");
-    } finally {
-      setPasswordLoading(false);
-    }
-  }, [password, shortUrl]);
+        if (result.success) {
+          setPasswordRequired(false);
+          setFileInfo(result.fileInfo);
+          toast.success("Password verified successfully!");
+        } else {
+          toast.error(result.error || "Invalid password");
+        }
+      } catch {
+        toast.error("Failed to verify password");
+      } finally {
+        setPasswordLoading(false);
+      }
+    },
+    [password, shortUrl]
+  );
 
   // File download handler
   const handleDownload = useCallback(async () => {
@@ -106,7 +109,8 @@ export function useFilePreviewLogic(): UseFilePreviewLogicReturn {
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      toast.success("Download started!");    } catch {
+      toast.success("Download started!");
+    } catch {
       toast.error("Failed to start download");
     } finally {
       setDownloading(false);
@@ -121,7 +125,9 @@ export function useFilePreviewLogic(): UseFilePreviewLogicReturn {
   }, [shortUrl]);
 
   // Derived state for file expiration
-  const isFileExpired = fileInfo?.expiresAt ? new Date() > new Date(fileInfo.expiresAt) : false;
+  const isFileExpired = fileInfo?.expiresAt
+    ? new Date() > new Date(fileInfo.expiresAt)
+    : false;
 
   return {
     // State
@@ -131,18 +137,18 @@ export function useFilePreviewLogic(): UseFilePreviewLogicReturn {
     passwordLoading,
     downloading,
     shortUrl,
-    
+
     // TanStack Query states
     loading,
     error,
-    
+
     // Handlers
     handlePasswordSubmit,
     handleDownload,
     copyShareLink,
     setPassword,
     refetch: fetchFileInfo,
-    
+
     // Derived states
     isFileExpired,
   };

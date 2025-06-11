@@ -8,7 +8,11 @@ import { nanoid } from "nanoid";
 
 // Internal imports
 import type { UploadedFile } from "@/components/domains/upload/fileuploader/types";
-import { getFileType, copyToClipboard, saveFileToLocalStorage } from "@/components/domains/upload/fileuploader/utils";
+import {
+  getFileType,
+  copyToClipboard,
+  saveFileToLocalStorage,
+} from "@/components/domains/upload/fileuploader/utils";
 
 // External imports
 import { scanFile, logSecurityEvent } from "@/lib/security";
@@ -20,13 +24,12 @@ export interface UseFileUploaderReturn {
   expiration: string;
   isPasswordProtected: boolean;
   isDragActive: boolean;
-    // Dropzone props
+  // Dropzone props
   getRootProps: () => Record<string, unknown>;
   getInputProps: () => Record<string, unknown>;
-  
   // Handlers
   setExpiration: (expiration: string) => void;
-  setIsPasswordProtected: (protected: boolean) => void;
+  setIsPasswordProtected: (isProtected: boolean) => void;
   handleCopyToClipboard: (url: string, label?: string) => Promise<void>;
   removeFile: (id: string) => void;
 }
@@ -253,14 +256,17 @@ export function useFileUploader(): UseFileUploaderReturn {
     [uploadFile]
   );
 
-  const handleCopyToClipboard = useCallback(async (url: string, label: string = "URL") => {
-    const result = await copyToClipboard(url, label);
-    if (result.success) {
-      toast.success(result.message);
-    } else {
-      toast.error(result.message);
-    }
-  }, []);
+  const handleCopyToClipboard = useCallback(
+    async (url: string, label: string = "URL") => {
+      const result = await copyToClipboard(url, label);
+      if (result.success) {
+        toast.success(result.message);
+      } else {
+        toast.error(result.message);
+      }
+    },
+    []
+  );
 
   const removeFile = useCallback((id: string) => {
     setFiles((prev) => prev.filter((f) => f.id !== id));
@@ -285,11 +291,11 @@ export function useFileUploader(): UseFileUploaderReturn {
     expiration,
     isPasswordProtected,
     isDragActive,
-    
+
     // Dropzone props
     getRootProps,
     getInputProps,
-    
+
     // Handlers
     setExpiration,
     setIsPasswordProtected,

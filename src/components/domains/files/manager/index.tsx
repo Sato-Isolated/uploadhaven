@@ -12,25 +12,18 @@ import {
   Music,
   Archive,
 } from "lucide-react";
-import FilePreview from "../FilePreview";
+import { FilePreview } from "../../filepreview";
 import LoadingIndicator from "./components/LoadingIndicator";
 import EmptyState from "./components/EmptyState";
 import FileListContainer from "./components/FileListContainer";
-import type {
-  FileInfo,
-  FilePreviewData,
-  ExpirationStatus,
-  FileManagerProps,
-} from "./types";
+import type { FilePreviewData } from "@/types";
+import type { FileInfo, ExpirationStatus, FileManagerProps } from "./types";
 
 export default function FileManager({ className = "" }: FileManagerProps) {
   const [previewFile, setPreviewFile] = useState<FilePreviewData | null>(null);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   // Use TanStack Query for better performance and caching
-  const {
-    data: files = [],
-    isLoading: loading,
-  } = useFiles();
+  const { data: files = [], isLoading: loading } = useFiles();
 
   // Use TanStack Query mutation for deleting files
   const deleteFileMutation = useDeleteFile();

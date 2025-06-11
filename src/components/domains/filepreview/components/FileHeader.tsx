@@ -4,7 +4,7 @@ import { motion } from "motion/react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { X } from "lucide-react";
-import { getFileTypeDisplay } from "./utils";
+import { getFileTypeDisplay } from "../utils";
 import { FileIcon } from "./FileIcon";
 import type {
   FileTypeInfo,

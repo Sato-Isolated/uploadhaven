@@ -1,7 +1,7 @@
 /**
  * Centralized Type Exports for UploadHaven
  * Single source of truth for all type definitions
- * 
+ *
  * Import pattern: import { FileData, ApiResponse } from '@/types'
  */
 
@@ -15,7 +15,7 @@ export type {
   FilePreviewData,
   AdminFileData,
   ExportFileData,
-} from './file';
+} from "./file";
 
 export {
   isClientFileData,
@@ -24,7 +24,7 @@ export {
   toAdminFileData,
   getFileTypeFromMimeType,
   getFileTypeFromFilename,
-} from './file';
+} from "./file";
 
 // =============================================================================
 // API and Response types
@@ -37,7 +37,7 @@ export type {
   BaseFilters,
   ApiState,
   ApiOptions,
-} from './api';
+} from "./api";
 
 // =============================================================================
 // Component Props and UI State
@@ -52,7 +52,7 @@ export type {
   LoadingState,
   AsyncOperationState,
   AsyncOperationOptions,
-} from './components';
+} from "./components";
 
 // =============================================================================
 // Events and Activities
@@ -64,46 +64,35 @@ export type {
   SecuritySeverity,
   SecurityEventType,
   SecurityEvent,
-} from './events';
+} from "./events";
 
 // =============================================================================
 // Authentication and Users
 // =============================================================================
-export type {
-  BaseUser,
-  ExtendedUser,
-  User,
-} from './auth';
+export type { BaseUser, ExtendedUser, User } from "./auth";
 
 // =============================================================================
 // Database Models
 // =============================================================================
-export type {
-  IUser,
-  IFile,
-  ISecurityEvent,
-} from './database';
+export type { IUser, IFile, ISecurityEvent } from "./database";
 
 // =============================================================================
 // Security and Scanning
 // =============================================================================
 export type {
   ScanResult,
+  MalwareScanResult,
   VirusTotalResponse,
   RateLimitConfig,
   RateLimitData,
   CleanupStats,
   DailyQuota,
-} from './security';
+} from "./security";
 
 // =============================================================================
 // Statistics and Analytics
 // =============================================================================
-export type {
-  BaseStats,
-  UserStats,
-  SecurityStats,
-} from './stats';
+export type { BaseStats, UserStats, SecurityStats } from "./stats";
 
 // =============================================================================
 // File Upload and Management
@@ -128,14 +117,12 @@ export type {
   FilePreviewProps,
   FileActionProps,
   FileInfoProps,
-} from './upload';
+} from "./upload";
 
 // =============================================================================
 // Hook Configuration
 // =============================================================================
-export type {
-  PollingOptions,
-} from './hooks';
+export type { PollingOptions } from "./hooks";
 
 // =============================================================================
 // Utility Types
@@ -145,13 +132,13 @@ export type {
   AsyncCallbackFunction,
   TimeRange,
   ExportDataType,
-} from './utils';
+} from "./utils";
 
 // =============================================================================
 // Legacy Type Aliases (for backward compatibility during migration)
 // =============================================================================
 
-import type { ClientFileData } from './file';
+import type { ClientFileData } from "./file";
 
 /**
  * @deprecated Use ClientFileData instead
