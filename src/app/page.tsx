@@ -1,5 +1,6 @@
 import FileUploader from "@/components/domains/upload/fileuploader";
 import { Button } from "@/components/ui/button";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 import Link from "next/link";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
@@ -37,8 +38,8 @@ export default async function Home() {
                 Secure file sharing made simple
               </p>
             </div>
-          </div>
-          <div className="flex items-center gap-4">
+          </div>          <div className="flex items-center gap-4">
+            <ThemeToggle />
             {session ? (
               <>
                 <span className="text-sm text-muted-foreground">

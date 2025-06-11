@@ -2,6 +2,7 @@ import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 import Link from "next/link";
 import AdminDashboard from "@/components/domains/admin/dashboard";
 import AdminFileManager from "@/components/domains/admin/filemanager";
@@ -117,8 +118,8 @@ export default async function AdminPage() {
             <p className="text-gray-600 dark:text-gray-400 mt-2 text-lg">
               Manage users, files, and system settings
             </p>
-          </div>
-          <div className="flex items-center gap-4">
+          </div>          <div className="flex items-center gap-4">
+            <ThemeToggle />
             <Link href="/dashboard">
               <Button
                 variant="outline"

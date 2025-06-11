@@ -4,6 +4,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { QueryProvider } from "@/components/providers/QueryProvider";
 import { PrefetchProvider } from "@/components/providers/PrefetchProvider";
 import { QueryErrorBoundary } from "@/components/domains/ui/QueryErrorBoundary";
+import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -25,19 +26,22 @@ export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
-}>) {  return (
-    <html lang="en">
+}>) {
+  return (
+    <html lang="en" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <QueryProvider>
-          <PrefetchProvider>
-            <QueryErrorBoundary>
-              {children}
-            </QueryErrorBoundary>
-          </PrefetchProvider>
-          <Toaster />
-        </QueryProvider>
+        <ThemeProvider>
+          <QueryProvider>
+            <PrefetchProvider>
+              <QueryErrorBoundary>
+                {children}
+              </QueryErrorBoundary>
+            </PrefetchProvider>
+            <Toaster />
+          </QueryProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
