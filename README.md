@@ -103,7 +103,6 @@ Unlike complex file sharing platforms, UploadHaven focuses on **simplicity**:
 - ✅ No user accounts required
 - ✅ No complex folder structures
 - ✅ No permanent file storage
-- ✅ No tracking or analytics
 - ✅ No premium features - always free
 
 **Just upload, share, and let files expire naturally.**
