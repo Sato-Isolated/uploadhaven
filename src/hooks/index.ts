@@ -20,6 +20,7 @@ export { useFileUploader } from "../components/domains/upload/fileuploader/hooks
 export { useSecurityEventsFilter } from "../components/domains/security/events/hooks/useSecurityEventsFilter";
 export { useClientUserStats } from "../components/domains/dashboard/stats/hooks/useClientUserStats";
 export { useSecurityScanModal } from "../components/domains/security/hooks/useSecurityScanModal";
+export { useNotifications } from "./useNotifications";
 // Real-time hooks using polling (preferred approach)
 export { useRealTimeActivities, useRealTimeStats, useRealTimeFiles, useRealTimeData } from "./useRealTimePolling";
 

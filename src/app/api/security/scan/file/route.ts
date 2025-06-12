@@ -3,9 +3,14 @@ import MalwareScanner from '@/lib/server/malware-scanner';
 import path from 'path';
 import { readFile } from 'fs/promises';
 import { logSecurityEvent } from '@/lib/security';
+import connectDB from '@/lib/mongodb';
+import { saveNotification, File } from '@/lib/models';
 
 export async function POST(request: NextRequest) {
   try {
+    // Connect to MongoDB for potential notification creation
+    await connectDB();
+
     const { fileName } = await request.json();
     
     if (!fileName) {
@@ -53,6 +58,51 @@ export async function POST(request: NextRequest) {
       `File scan completed: ${fileName} - ${scanResult.isMalicious ? 'THREAT' : scanResult.isSuspicious ? 'SUSPICIOUS' : 'CLEAN'}`,
       scanResult.isMalicious ? 'high' : scanResult.isSuspicious ? 'medium' : 'low'
     );
+
+    // Create critical security notifications for malware/suspicious files
+    if (scanResult.isMalicious || scanResult.isSuspicious) {
+      try {
+        // Find the file in database to get the owner
+        const fileDoc = await File.findOne({ 
+          $or: [
+            { filename: `public/${fileName}` },
+            { filename: `protected/${fileName}` }
+          ]
+        });
+
+        if (fileDoc && fileDoc.userId) {
+          const notificationType = scanResult.isMalicious ? 'malware_detected' : 'security_alert';
+          const priority = scanResult.isMalicious ? 'urgent' : 'high';
+          const title = scanResult.isMalicious ? 'Malware Detected' : 'Suspicious File Detected';
+          const message = scanResult.isMalicious 
+            ? `Malware detected in your file "${fileDoc.originalName}". The file has been flagged for security review.`
+            : `Suspicious activity detected in your file "${fileDoc.originalName}". Please review the file content.`;
+
+          await saveNotification({
+            userId: fileDoc.userId,
+            type: notificationType,
+            title,
+            message,
+            priority,
+            relatedFileId: fileDoc._id.toString(),
+            metadata: {
+              fileName: fileDoc.originalName,
+              scanResult: {
+                isMalicious: scanResult.isMalicious,
+                isSuspicious: scanResult.isSuspicious,
+                threatName: scanResult.threatName,
+                source: scanResult.source,
+                scannedAt: scanResult.scannedAt.toISOString(),
+              },
+              severity: scanResult.isMalicious ? 'critical' : 'high',
+            },
+          });
+        }
+      } catch (notificationError) {
+        console.error('Failed to create security notification:', notificationError);
+        // Don't fail the scan if notification creation fails
+      }
+    }
 
     return NextResponse.json({
       fileName,

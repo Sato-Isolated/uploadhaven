@@ -90,6 +90,71 @@ export interface SecurityEvent {
     endpoint?: string;
     reason?: string;
     userId?: string;
-  } | string;
-  message?: string; // Optional message field for compatibility
+  } | string;  message?: string; // Optional message field for compatibility
+}
+
+// =============================================================================
+// Notification System
+// =============================================================================
+
+/**
+ * Notification types
+ */
+export type NotificationType = 
+  | 'file_downloaded'
+  | 'file_expired_soon'
+  | 'file_shared'
+  | 'security_alert'
+  | 'system_announcement'
+  | 'file_upload_complete'
+  | 'malware_detected'
+  | 'bulk_action_complete';
+
+/**
+ * Notification priority levels
+ */
+export type NotificationPriority = 'low' | 'normal' | 'high' | 'urgent';
+
+/**
+ * Notification structure
+ */
+export interface Notification {
+  id: string;
+  userId: string;
+  type: NotificationType;
+  title: string;
+  message: string;
+  isRead: boolean;
+  priority: NotificationPriority;
+  relatedFileId?: string;
+  relatedSecurityEventId?: string;
+  actionUrl?: string;
+  actionLabel?: string;
+  expiresAt?: Date;
+  metadata?: Record<string, unknown>;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+/**
+ * Real-time notification event for SSE
+ */
+export interface NotificationEvent {
+  type: 'notification';
+  data: Notification;
+}
+
+/**
+ * Notification statistics
+ */
+export interface NotificationStats {
+  total: number;
+  unread: number;
+  byPriority: {
+    low: number;
+    normal: number;
+    high: number;
+    urgent: number;
+  };
+  byType: Record<NotificationType, number>;
 }

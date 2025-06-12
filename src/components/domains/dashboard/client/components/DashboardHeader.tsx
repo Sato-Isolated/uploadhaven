@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import SignOutButton from "@/components/domains/auth/SignOutButton";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
+import { NotificationDropdown } from "@/components/domains/notifications/NotificationDropdown";
 import { Upload, User, ArrowRight } from "lucide-react";
 
 interface DashboardHeaderProps {
@@ -76,9 +77,9 @@ export default function DashboardHeader({ userName }: DashboardHeaderProps) {
         className="flex items-center gap-4"
         initial={{ opacity: 0, x: 20 }}
         animate={{ opacity: 1, x: 0 }}
-        transition={{ delay: 0.4, duration: 0.6 }}
-      >
+        transition={{ delay: 0.4, duration: 0.6 }}      >
         <ThemeToggle />
+        <NotificationDropdown />
         <Link href="/">
           <motion.div
             whileHover={{ scale: 1.05, y: -2 }}

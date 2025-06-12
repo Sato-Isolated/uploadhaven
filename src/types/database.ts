@@ -64,7 +64,27 @@ export interface ISecurityEvent {
   userAgent?: string;
   filename?: string;
   fileSize?: number;
-  fileType?: string;
-  userId?: string;
+  fileType?: string;  userId?: string;
   metadata?: Record<string, unknown>;
+}
+
+/**
+ * Database notification model
+ */
+export interface INotification {
+  _id: string;
+  userId: string;
+  type: string;
+  title: string;
+  message: string;
+  isRead: boolean;
+  priority: "low" | "normal" | "high" | "urgent";
+  relatedFileId?: string;
+  relatedSecurityEventId?: string;
+  actionUrl?: string;
+  actionLabel?: string;
+  expiresAt?: Date;
+  metadata?: Record<string, unknown>;
+  createdAt: Date;
+  updatedAt: Date;
 }

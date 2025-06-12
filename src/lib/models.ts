@@ -4,11 +4,13 @@ import type {
   IFile as BaseIFile,
   ISecurityEvent as BaseISecurityEvent,
 } from "@/types";
+import type { INotification as BaseINotification } from "@/types/database";
 
 // Re-export centralized interfaces
 export type IUser = BaseIUser;
 export type IFile = BaseIFile;
 export type ISecurityEvent = BaseISecurityEvent;
+export type INotification = BaseINotification;
 
 // User model schema (matches better-auth user schema)
 const userSchema = new mongoose.Schema(
@@ -198,6 +200,81 @@ securityEventSchema.index({ type: 1 });
 securityEventSchema.index({ ip: 1 });
 securityEventSchema.index({ severity: 1 });
 
+// Notification model schema
+const notificationSchema = new mongoose.Schema(
+  {
+    userId: {
+      type: String,
+      required: true, // Target user for the notification
+    },
+    type: {
+      type: String,
+      enum: [
+        "file_downloaded",
+        "file_expired_soon", 
+        "file_shared",
+        "security_alert",
+        "system_announcement",
+        "file_upload_complete",
+        "malware_detected",
+        "bulk_action_complete",
+      ],
+      required: true,
+    },
+    title: {
+      type: String,
+      required: true,
+    },
+    message: {
+      type: String,
+      required: true,
+    },
+    isRead: {
+      type: Boolean,
+      default: false,
+    },
+    priority: {
+      type: String,
+      enum: ["low", "normal", "high", "urgent"],
+      default: "normal",
+    },
+    relatedFileId: {
+      type: String,
+      required: false, // Optional reference to a file
+    },
+    relatedSecurityEventId: {
+      type: String,
+      required: false, // Optional reference to security event
+    },
+    actionUrl: {
+      type: String,
+      required: false, // Optional URL for action button
+    },
+    actionLabel: {
+      type: String,
+      required: false, // Optional label for action button
+    },
+    expiresAt: {
+      type: Date,
+      required: false, // Optional expiration for notifications
+    },
+    metadata: {
+      type: mongoose.Schema.Types.Mixed,
+      default: {},
+    },
+  },
+  {
+    timestamps: true,
+  }
+);
+
+// Add indexes for notifications
+notificationSchema.index({ userId: 1, createdAt: -1 });
+notificationSchema.index({ type: 1 });
+notificationSchema.index({ isRead: 1 });
+notificationSchema.index({ priority: 1 });
+notificationSchema.index({ expiresAt: 1 });
+
 // Export models with better NextJS compatibility and proper typing
 function getOrCreateModel<T>(
   name: string,
@@ -217,6 +294,10 @@ export const File = getOrCreateModel<IFile>("File", fileSchema);
 export const SecurityEvent = getOrCreateModel<ISecurityEvent>(
   "SecurityEvent",
   securityEventSchema
+);
+export const Notification = getOrCreateModel<INotification>(
+  "Notification", 
+  notificationSchema
 );
 
 // Helper functions
@@ -342,6 +423,207 @@ export const getRecentSecurityEvents = async (limit = 50) => {
       .lean();
   } catch (error) {
     // Error getting recent security events
+    throw error;
+  }
+};
+
+// Notification helper functions
+export const saveNotification = async (notificationData: {
+  userId: string;
+  type: string;
+  title: string;
+  message: string;
+  priority?: string;
+  relatedFileId?: string;
+  relatedSecurityEventId?: string;
+  actionUrl?: string;
+  actionLabel?: string;
+  expiresAt?: Date;
+  metadata?: Record<string, unknown>;
+}) => {
+  try {
+    const notification = new Notification(notificationData);
+    await notification.save();
+    return notification;
+  } catch (error) {
+    // Error saving notification
+    throw error;
+  }
+};
+
+export const getNotificationsForUser = async (
+  userId: string, 
+  options: {
+    limit?: number;
+    includeRead?: boolean;
+    type?: string;
+  } = {}
+) => {  try {
+    const { limit = 50, includeRead = true, type } = options;
+    
+    const filter: Record<string, unknown> = { userId };
+    
+    if (!includeRead) {
+      filter.isRead = false;
+    }
+    
+    if (type) {
+      filter.type = type;
+    }
+    
+    // Only include non-expired notifications
+    filter.$or = [
+      { expiresAt: { $exists: false } },
+      { expiresAt: { $gt: new Date() } }
+    ];
+    
+    return await Notification.find(filter)
+      .sort({ createdAt: -1 })
+      .limit(limit)
+      .lean();
+  } catch (error) {
+    // Error getting notifications
+    throw error;
+  }
+};
+
+export const markNotificationAsRead = async (notificationId: string, userId: string) => {
+  try {
+    return await Notification.findOneAndUpdate(
+      { _id: notificationId, userId },
+      { isRead: true },
+      { new: true }
+    );
+  } catch (error) {
+    // Error marking notification as read
+    throw error;
+  }
+};
+
+export const markAllNotificationsAsRead = async (userId: string) => {
+  try {
+    return await Notification.updateMany(
+      { userId, isRead: false },
+      { isRead: true }
+    );
+  } catch (error) {
+    // Error marking all notifications as read
+    throw error;
+  }
+};
+
+export const deleteNotification = async (notificationId: string, userId: string) => {
+  try {
+    return await Notification.findOneAndDelete({ _id: notificationId, userId });
+  } catch (error) {
+    // Error deleting notification
+    throw error;
+  }
+};
+
+export const getNotificationStats = async (userId: string) => {
+  try {
+    const now = new Date();
+    
+    const [total, unread, byPriority, byType] = await Promise.all([
+      // Total notifications (non-expired)
+      Notification.countDocuments({
+        userId,
+        $or: [
+          { expiresAt: { $exists: false } },
+          { expiresAt: { $gt: now } }
+        ]
+      }),
+      
+      // Unread notifications
+      Notification.countDocuments({
+        userId,
+        isRead: false,
+        $or: [
+          { expiresAt: { $exists: false } },
+          { expiresAt: { $gt: now } }
+        ]
+      }),
+      
+      // By priority
+      Notification.aggregate([
+        {
+          $match: {
+            userId,
+            $or: [
+              { expiresAt: { $exists: false } },
+              { expiresAt: { $gt: now } }
+            ]
+          }
+        },
+        {
+          $group: {
+            _id: "$priority",
+            count: { $sum: 1 }
+          }
+        }
+      ]),
+      
+      // By type
+      Notification.aggregate([
+        {
+          $match: {
+            userId,
+            $or: [
+              { expiresAt: { $exists: false } },
+              { expiresAt: { $gt: now } }
+            ]
+          }
+        },
+        {
+          $group: {
+            _id: "$type",
+            count: { $sum: 1 }
+          }
+        }
+      ])
+    ]);
+    
+    // Process aggregation results
+    const priorityStats = {
+      low: 0,
+      normal: 0,
+      high: 0,
+      urgent: 0
+    };
+      byPriority.forEach((item: { _id: string; count: number }) => {
+      if (item._id && priorityStats.hasOwnProperty(item._id)) {
+        priorityStats[item._id as keyof typeof priorityStats] = item.count;
+      }
+    });
+      const typeStats: Record<string, number> = {};
+    byType.forEach((item: { _id: string; count: number }) => {
+      if (item._id) {
+        typeStats[item._id] = item.count;
+      }
+    });
+    
+    return {
+      total,
+      unread,
+      byPriority: priorityStats,
+      byType: typeStats
+    };
+  } catch (error) {
+    // Error getting notification stats
+    throw error;
+  }
+};
+
+export const cleanupExpiredNotifications = async () => {
+  try {
+    const now = new Date();
+    const result = await Notification.deleteMany({
+      expiresAt: { $lt: now }
+    });
+    return result.deletedCount;
+  } catch (error) {
+    // Error cleaning up expired notifications
     throw error;
   }
 };

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { readFile } from "fs/promises";
 import path from "path";
 import connectDB from "@/lib/mongodb";
-import { File, incrementDownloadCount, saveSecurityEvent } from "@/lib/models";
+import { File, incrementDownloadCount, saveSecurityEvent, saveNotification } from "@/lib/models";
 import { checkFileExpiration } from "@/lib/startup";
 
 export async function GET(
@@ -115,9 +115,7 @@ export async function GET(
       const fileBuffer = await readFile(filePath);
 
       // Increment download count
-      await incrementDownloadCount(fileDoc.filename);
-
-      // Log successful download
+      await incrementDownloadCount(fileDoc.filename);      // Log successful download
       await saveSecurityEvent({
         type: "file_download",
         ip: clientIP,
@@ -128,6 +126,29 @@ export async function GET(
         fileSize: fileDoc.size,
         fileType: fileDoc.mimeType,
       });
+
+      // Create notification for file owner (if not anonymous)
+      if (!fileDoc.isAnonymous && fileDoc.userId) {
+        try {
+          await saveNotification({
+            userId: fileDoc.userId,
+            type: "file_downloaded",
+            title: "File Downloaded",
+            message: `Your file "${fileDoc.originalName}" was downloaded`,
+            priority: "normal",
+            relatedFileId: fileDoc._id.toString(),
+            metadata: {
+              downloaderIP: clientIP,
+              downloadTime: new Date(),
+              fileSize: fileDoc.size,
+              mimeType: fileDoc.mimeType
+            }
+          });
+        } catch (notificationError) {
+          // Don't fail download if notification fails
+          console.error("Failed to create download notification:", notificationError);
+        }
+      }
 
       // Return file with appropriate headers
       return new NextResponse(fileBuffer, {

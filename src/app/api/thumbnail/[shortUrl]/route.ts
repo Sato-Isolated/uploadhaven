@@ -62,10 +62,8 @@ export async function GET(
         { success: false, error: "Thumbnail not supported for this file type" },
         { status: 400 }
       );
-    }
-
-    // Password protection check - thumbnails require same access as preview
-    if (fileDoc.isPasswordProtected) {
+    }    // Password protection check - thumbnails require same access as preview
+    if (fileDoc.isPasswordProtected && fileDoc.password) {
       const password = request.nextUrl.searchParams.get('password');
       if (!password) {
         return NextResponse.json(
@@ -74,7 +72,7 @@ export async function GET(
         );
       }
       
-      const bcrypt = require('bcryptjs');
+      const bcrypt = await import('bcryptjs');
       const isValidPassword = await bcrypt.compare(password, fileDoc.password);
       if (!isValidPassword) {
         return NextResponse.json(
@@ -137,7 +135,7 @@ function isThumbnailSupported(mimeType: string): boolean {
 }
 
 // Generate thumbnail based on file type
-async function generateThumbnail(fileDoc: any, mimeType: string): Promise<Buffer> {
+async function generateThumbnail(fileDoc: { filename: string }, mimeType: string): Promise<Buffer> {
   const uploadsDir = process.env.NODE_ENV === 'production' 
     ? '/var/data/uploads' 
     : 'public/uploads';

@@ -3,6 +3,8 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
 import { QueryProvider } from "@/components/providers/QueryProvider";
 import { PrefetchProvider } from "@/components/providers/PrefetchProvider";
+import { NotificationProvider } from "@/components/providers/NotificationProvider";
+import { NavigationSSEManager } from "@/components/domains/notifications/NavigationSSEManager";
 import { QueryErrorBoundary } from "@/components/domains/ui/QueryErrorBoundary";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import "./globals.css";
@@ -31,14 +33,16 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        <ThemeProvider>
+      >        <ThemeProvider>
           <QueryProvider>
-            <PrefetchProvider>
-              <QueryErrorBoundary>
-                {children}
-              </QueryErrorBoundary>
-            </PrefetchProvider>
+            <NotificationProvider>
+              <NavigationSSEManager />
+              <PrefetchProvider>
+                <QueryErrorBoundary>
+                  {children}
+                </QueryErrorBoundary>
+              </PrefetchProvider>
+            </NotificationProvider>
             <Toaster />
           </QueryProvider>
         </ThemeProvider>

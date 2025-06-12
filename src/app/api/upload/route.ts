@@ -5,7 +5,7 @@ import { nanoid } from "nanoid";
 import { z } from "zod";
 import { rateLimit, rateLimitConfigs } from "@/lib/rateLimit";
 import connectDB from "@/lib/mongodb";
-import { saveFileMetadata, saveSecurityEvent, User } from "@/lib/models";
+import { saveFileMetadata, saveSecurityEvent, saveNotification, User } from "@/lib/models";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { generateShortUrl } from "@/lib/server-utils";
@@ -299,7 +299,33 @@ export async function POST(request: NextRequest) {
       fileSize: file.size,
       fileType: file.type,
       userId: session?.user?.id || undefined,
-    });    // File saved successfully
+    });
+
+    // Create notification for authenticated users
+    if (session?.user?.id) {
+      try {
+        await saveNotification({
+          userId: session.user.id,
+          type: "file_upload_complete",
+          title: "File Upload Complete",
+          message: `Your file "${file.name}" has been uploaded successfully and is ready to share`,
+          priority: "normal",
+          relatedFileId: savedFile._id.toString(),
+          actionUrl: shareableUrl,
+          metadata: {
+            filename: file.name,
+            fileSize: file.size,
+            fileType: file.type,
+            shareableUrl,
+            isPasswordProtected,
+            expiresAt: expiresAt.toISOString(),
+          },
+        });
+      } catch (notificationError) {
+        console.error("Failed to create upload notification:", notificationError);
+        // Don't fail the upload if notification creation fails
+      }
+    }// File saved successfully
 
     return NextResponse.json({
       success: true,

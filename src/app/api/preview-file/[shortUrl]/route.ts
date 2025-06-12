@@ -58,10 +58,8 @@ export async function GET(
         { success: false, error: "File has expired" },
         { status: 410 }
       );
-    }
-
-    // Password protection check
-    if (fileDoc.isPasswordProtected) {
+    }    // Password protection check
+    if (fileDoc.isPasswordProtected && fileDoc.password) {
       const password = request.nextUrl.searchParams.get('password');
       if (!password) {
         return NextResponse.json(
@@ -70,7 +68,7 @@ export async function GET(
         );
       }
       
-      const bcrypt = require('bcryptjs');
+      const bcrypt = await import('bcryptjs');
       const isValidPassword = await bcrypt.compare(password, fileDoc.password);
       if (!isValidPassword) {
         // Log failed password attempt

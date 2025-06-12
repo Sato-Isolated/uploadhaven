@@ -12,12 +12,10 @@ import type { FileCardProps } from "../types";
 export default function FileCard({
   file,
   index,
-  onPreview,
-  onCopyLink,
+  onPreview,  onCopyLink,
   onDownload,
   onDelete,
   getExpirationStatus,
-  getFileIcon,
 }: FileCardProps) {
   const expirationStatus = getExpirationStatus(file.expiresAt);
 
