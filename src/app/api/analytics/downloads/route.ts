@@ -1,30 +1,30 @@
-import { NextRequest, NextResponse } from "next/server";
-import connectDB from "@/lib/mongodb";
-import { File, SecurityEvent } from "@/lib/models";
+import { NextRequest, NextResponse } from 'next/server';
+import connectDB from '@/lib/mongodb';
+import { File, SecurityEvent } from '@/lib/models';
 
 export async function GET(request: NextRequest) {
   try {
     await connectDB();
 
     const url = new URL(request.url);
-    const timeRange = url.searchParams.get("timeRange") || "7d";
-    const limit = parseInt(url.searchParams.get("limit") || "10");
+    const timeRange = url.searchParams.get('timeRange') || '7d';
+    const limit = parseInt(url.searchParams.get('limit') || '10');
 
     // Calculate date range
     const now = new Date();
     const startDate = new Date();
 
     switch (timeRange) {
-      case "24h":
+      case '24h':
         startDate.setHours(now.getHours() - 24);
         break;
-      case "7d":
+      case '7d':
         startDate.setDate(now.getDate() - 7);
         break;
-      case "30d":
+      case '30d':
         startDate.setDate(now.getDate() - 30);
         break;
-      case "90d":
+      case '90d':
         startDate.setDate(now.getDate() - 90);
         break;
       default:
@@ -33,7 +33,7 @@ export async function GET(request: NextRequest) {
 
     // Get total downloads in time range
     const downloadEvents = await SecurityEvent.find({
-      type: "file_download",
+      type: 'file_download',
       timestamp: { $gte: startDate },
       details: { $regex: /File downloaded:/ },
     }).sort({ timestamp: -1 });
@@ -71,7 +71,7 @@ export async function GET(request: NextRequest) {
     const downloadTrends = await SecurityEvent.aggregate([
       {
         $match: {
-          type: "file_download",
+          type: 'file_download',
           timestamp: { $gte: startDate },
           details: { $regex: /File downloaded:/ },
         },
@@ -80,8 +80,8 @@ export async function GET(request: NextRequest) {
         $group: {
           _id: {
             $dateToString: {
-              format: "%Y-%m-%d",
-              date: "$timestamp",
+              format: '%Y-%m-%d',
+              date: '$timestamp',
             },
           },
           count: { $sum: 1 },
@@ -96,7 +96,7 @@ export async function GET(request: NextRequest) {
     const trends = [];
     const currentDate = new Date(startDate);
     while (currentDate <= now) {
-      const dateStr = currentDate.toISOString().split("T")[0];
+      const dateStr = currentDate.toISOString().split('T')[0];
       const existing = downloadTrends.find((trend) => trend._id === dateStr);
       trends.push({
         date: dateStr,
@@ -117,37 +117,37 @@ export async function GET(request: NextRequest) {
         $group: {
           _id: {
             $cond: {
-              if: { $regexMatch: { input: "$mimeType", regex: "^image/" } },
-              then: "Image",
+              if: { $regexMatch: { input: '$mimeType', regex: '^image/' } },
+              then: 'Image',
               else: {
                 $cond: {
-                  if: { $regexMatch: { input: "$mimeType", regex: "^video/" } },
-                  then: "Video",
+                  if: { $regexMatch: { input: '$mimeType', regex: '^video/' } },
+                  then: 'Video',
                   else: {
                     $cond: {
                       if: {
-                        $regexMatch: { input: "$mimeType", regex: "^audio/" },
+                        $regexMatch: { input: '$mimeType', regex: '^audio/' },
                       },
-                      then: "Audio",
+                      then: 'Audio',
                       else: {
                         $cond: {
                           if: {
                             $regexMatch: {
-                              input: "$mimeType",
-                              regex: "^text/",
+                              input: '$mimeType',
+                              regex: '^text/',
                             },
                           },
-                          then: "Text",
+                          then: 'Text',
                           else: {
                             $cond: {
                               if: {
                                 $regexMatch: {
-                                  input: "$mimeType",
-                                  regex: "pdf",
+                                  input: '$mimeType',
+                                  regex: 'pdf',
                                 },
                               },
-                              then: "PDF",
-                              else: "Other",
+                              then: 'PDF',
+                              else: 'Other',
                             },
                           },
                         },
@@ -159,7 +159,7 @@ export async function GET(request: NextRequest) {
             },
           },
           count: { $sum: 1 },
-          totalDownloads: { $sum: "$downloadCount" },
+          totalDownloads: { $sum: '$downloadCount' },
         },
       },
       {
@@ -171,7 +171,7 @@ export async function GET(request: NextRequest) {
     const recentDownloads = await SecurityEvent.aggregate([
       {
         $match: {
-          type: "file_download",
+          type: 'file_download',
           timestamp: { $gte: startDate },
           details: { $regex: /File downloaded:/ },
         },
@@ -184,14 +184,14 @@ export async function GET(request: NextRequest) {
       },
       {
         $lookup: {
-          from: "files",
-          localField: "filename",
-          foreignField: "filename",
-          as: "fileInfo",
+          from: 'files',
+          localField: 'filename',
+          foreignField: 'filename',
+          as: 'fileInfo',
         },
       },
       {
-        $unwind: { path: "$fileInfo", preserveNullAndEmptyArrays: true },
+        $unwind: { path: '$fileInfo', preserveNullAndEmptyArrays: true },
       },
       {
         $project: {
@@ -200,8 +200,8 @@ export async function GET(request: NextRequest) {
           filename: 1,
           fileSize: 1,
           fileType: 1,
-          originalName: { $ifNull: ["$fileInfo.originalName", "Unknown"] },
-          shortUrl: { $ifNull: ["$fileInfo.shortUrl", null] },
+          originalName: { $ifNull: ['$fileInfo.originalName', 'Unknown'] },
+          shortUrl: { $ifNull: ['$fileInfo.shortUrl', null] },
         },
       },
     ]);
@@ -214,8 +214,8 @@ export async function GET(request: NextRequest) {
     const avgDownloadsPerDay = Math.round(totalDownloads / daysDiff);
 
     // Get unique downloaders (by IP)
-    const uniqueDownloaders = await SecurityEvent.distinct("ip", {
-      type: "file_download",
+    const uniqueDownloaders = await SecurityEvent.distinct('ip', {
+      type: 'file_download',
       timestamp: { $gte: startDate },
       details: { $regex: /File downloaded:/ },
     });
@@ -236,9 +236,9 @@ export async function GET(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error("Analytics API error:", error);
+    console.error('Analytics API error:', error);
     return NextResponse.json(
-      { success: false, error: "Failed to fetch analytics data" },
+      { success: false, error: 'Failed to fetch analytics data' },
       { status: 500 }
     );
   }

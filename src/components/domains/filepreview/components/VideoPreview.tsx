@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import { motion } from "motion/react";
-import type { FilePreviewData, BaseComponentProps } from "@/types";
+import { motion } from 'motion/react';
+import type { FilePreviewData, BaseComponentProps } from '@/types';
 
 interface VideoPreviewProps extends BaseComponentProps {
   file: FilePreviewData;
@@ -12,7 +12,7 @@ export default function VideoPreview({ file }: VideoPreviewProps) {
     <motion.video
       src={file.url}
       controls
-      className="max-w-full max-h-[500px] rounded shadow-lg"
+      className="max-h-[500px] max-w-full rounded shadow-lg"
       preload="metadata"
       initial={{ opacity: 0, scale: 0.9 }}
       animate={{ opacity: 1, scale: 1 }}

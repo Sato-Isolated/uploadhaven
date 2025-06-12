@@ -1,13 +1,13 @@
-import { NextRequest, NextResponse } from "next/server";
-import connectDB from "@/lib/mongodb";
-import { File, User, SecurityEvent } from "@/lib/models";
+import { NextRequest, NextResponse } from 'next/server';
+import connectDB from '@/lib/mongodb';
+import { File, User, SecurityEvent } from '@/lib/models';
 
 export async function GET(request: NextRequest) {
   try {
     await connectDB();
 
     const url = new URL(request.url);
-    const timeRange = url.searchParams.get("timeRange") || "30d";
+    const timeRange = url.searchParams.get('timeRange') || '30d';
 
     // Calculate date ranges
     const now = new Date();
@@ -17,13 +17,13 @@ export async function GET(request: NextRequest) {
     const last30d = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
 
     switch (timeRange) {
-      case "7d":
+      case '7d':
         startDate.setTime(last7d.getTime());
         break;
-      case "30d":
+      case '30d':
         startDate.setTime(last30d.getTime());
         break;
-      case "90d":
+      case '90d':
         startDate.setDate(now.getDate() - 90);
         break;
       default:
@@ -46,11 +46,11 @@ export async function GET(request: NextRequest) {
       User.countDocuments(),
       File.aggregate([
         { $match: { isDeleted: false } },
-        { $group: { _id: null, totalSize: { $sum: "$size" } } },
+        { $group: { _id: null, totalSize: { $sum: '$size' } } },
       ]).then((result) => result[0]?.totalSize || 0),
       File.aggregate([
         { $match: { isDeleted: false } },
-        { $group: { _id: null, totalDownloads: { $sum: "$downloadCount" } } },
+        { $group: { _id: null, totalDownloads: { $sum: '$downloadCount' } } },
       ]).then((result) => result[0]?.totalDownloads || 0),
       File.countDocuments({ uploadDate: { $gte: last24h }, isDeleted: false }),
       File.countDocuments({ uploadDate: { $gte: last7d }, isDeleted: false }),
@@ -71,12 +71,12 @@ export async function GET(request: NextRequest) {
         $group: {
           _id: {
             $dateToString: {
-              format: "%Y-%m-%d",
-              date: "$uploadDate",
+              format: '%Y-%m-%d',
+              date: '$uploadDate',
             },
           },
           count: { $sum: 1 },
-          totalSize: { $sum: "$size" },
+          totalSize: { $sum: '$size' },
         },
       },
       {
@@ -89,9 +89,9 @@ export async function GET(request: NextRequest) {
       { $match: { isDeleted: false } },
       {
         $group: {
-          _id: "$mimeType",
+          _id: '$mimeType',
           count: { $sum: 1 },
-          totalSize: { $sum: "$size" },
+          totalSize: { $sum: '$size' },
         },
       },
       { $sort: { count: -1 } },
@@ -109,8 +109,8 @@ export async function GET(request: NextRequest) {
         $group: {
           _id: {
             $dateToString: {
-              format: "%Y-%m-%d",
-              date: "$createdAt",
+              format: '%Y-%m-%d',
+              date: '$createdAt',
             },
           },
           count: { $sum: 1 },
@@ -130,7 +130,7 @@ export async function GET(request: NextRequest) {
       },
       {
         $group: {
-          _id: "$type",
+          _id: '$type',
           count: { $sum: 1 },
         },
       },
@@ -144,7 +144,7 @@ export async function GET(request: NextRequest) {
     })
       .sort({ timestamp: -1 })
       .limit(10)
-      .select("type timestamp details userAgent ipAddress");
+      .select('type timestamp details userAgent ipAddress');
 
     // Top Files by Downloads
     const topFiles = await File.find({
@@ -153,15 +153,15 @@ export async function GET(request: NextRequest) {
     })
       .sort({ downloadCount: -1 })
       .limit(10)
-      .select("filename originalName downloadCount size mimeType uploadDate"); // Storage Analytics with user names
+      .select('filename originalName downloadCount size mimeType uploadDate'); // Storage Analytics with user names
     const storageByUser = await File.aggregate([
       {
         $match: { isDeleted: false, userId: { $exists: true } },
       },
       {
         $group: {
-          _id: "$userId",
-          totalSize: { $sum: "$size" },
+          _id: '$userId',
+          totalSize: { $sum: '$size' },
           fileCount: { $sum: 1 },
         },
       },
@@ -173,18 +173,18 @@ export async function GET(request: NextRequest) {
       },
       {
         $lookup: {
-          from: "users",
-          localField: "_id",
-          foreignField: "_id",
-          as: "userInfo",
+          from: 'users',
+          localField: '_id',
+          foreignField: '_id',
+          as: 'userInfo',
         },
       },
       {
         $addFields: {
           userName: {
             $ifNull: [
-              { $arrayElemAt: ["$userInfo.name", 0] },
-              { $arrayElemAt: ["$userInfo.email", 0] },
+              { $arrayElemAt: ['$userInfo.name', 0] },
+              { $arrayElemAt: ['$userInfo.email', 0] },
             ],
           },
         },
@@ -193,18 +193,22 @@ export async function GET(request: NextRequest) {
 
     // Format size utility
     const formatSize = (bytes: number) => {
-      if (bytes === 0) return "0 Bytes";
+      if (bytes === 0) return '0 Bytes';
       const k = 1024;
-      const sizes = ["Bytes", "KB", "MB", "GB", "TB"];
+      const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
       const i = Math.floor(Math.log(bytes) / Math.log(k));
-      return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
-    };    // Fill in missing dates for trends
-    const fillTrendGaps = (trends: { _id: string; count?: number; totalSize?: number }[], startDate: Date, endDate: Date) => {
+      return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }; // Fill in missing dates for trends
+    const fillTrendGaps = (
+      trends: { _id: string; count?: number; totalSize?: number }[],
+      startDate: Date,
+      endDate: Date
+    ) => {
       const filledTrends = [];
       const currentDate = new Date(startDate);
 
       while (currentDate <= endDate) {
-        const dateStr = currentDate.toISOString().split("T")[0];
+        const dateStr = currentDate.toISOString().split('T')[0];
         const existing = trends.find((trend) => trend._id === dateStr);
         filledTrends.push({
           date: dateStr,
@@ -281,9 +285,9 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(analytics);
   } catch (error) {
-    console.error("Admin analytics API error:", error);
+    console.error('Admin analytics API error:', error);
     return NextResponse.json(
-      { success: false, error: "Failed to fetch admin analytics" },
+      { success: false, error: 'Failed to fetch admin analytics' },
       { status: 500 }
     );
   }

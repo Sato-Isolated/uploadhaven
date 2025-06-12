@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import { motion } from "motion/react";
-import { formatFileSize } from "@/lib/utils";
-import type { FilePreviewData, BaseComponentProps } from "@/types";
+import { motion } from 'motion/react';
+import { formatFileSize } from '@/lib/utils';
+import type { FilePreviewData, BaseComponentProps } from '@/types';
 
 interface FileInfoProps extends BaseComponentProps {
   file: FilePreviewData;
@@ -10,14 +10,14 @@ interface FileInfoProps extends BaseComponentProps {
 
 export default function FileInfo({ file }: FileInfoProps) {
   const infoItems = [
-    { label: "Type:", value: file.type || "Unknown" },
-    { label: "Size:", value: formatFileSize(file.size) },
-    { label: "Filename:", value: file.filename },
+    { label: 'Type:', value: file.type || 'Unknown' },
+    { label: 'Size:', value: formatFileSize(file.size) },
+    { label: 'Filename:', value: file.filename },
   ];
 
   return (
     <motion.div
-      className="grid grid-cols-3 gap-4 text-sm border-b pb-4"
+      className="grid grid-cols-3 gap-4 border-b pb-4 text-sm"
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.2, duration: 0.3 }}

@@ -1,4 +1,4 @@
-import { backgroundCleanupService } from "./background-cleanup";
+import { backgroundCleanupService } from './background-cleanup';
 
 /**
  * Initialize all background services when the server starts
@@ -18,9 +18,9 @@ export async function initializeBackgroundServices(): Promise<void> {
     };
 
     // Listen for termination signals
-    process.on("SIGTERM", gracefulShutdown);
-    process.on("SIGINT", gracefulShutdown);
-    process.on("SIGUSR2", gracefulShutdown); // nodemon restart
+    process.on('SIGTERM', gracefulShutdown);
+    process.on('SIGINT', gracefulShutdown);
+    process.on('SIGUSR2', gracefulShutdown); // nodemon restart
 
     // Background services initialized successfully
   } catch (error) {

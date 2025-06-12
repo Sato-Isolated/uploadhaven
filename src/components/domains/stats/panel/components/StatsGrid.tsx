@@ -1,40 +1,40 @@
-"use client";
+'use client';
 
-import { motion } from "motion/react";
-import { Files, HardDrive, Database, Clock } from "lucide-react";
-import { StatsGridProps } from "../types";
+import { motion } from 'motion/react';
+import { Files, HardDrive, Database, Clock } from 'lucide-react';
+import { StatsGridProps } from '../types';
 
 export default function StatsGrid({ stats }: StatsGridProps) {
   const statItems = [
     {
       icon: Files,
-      label: "Total Files",
+      label: 'Total Files',
       value: stats.totalFiles,
-      color: "text-blue-500",
+      color: 'text-blue-500',
     },
     {
       icon: HardDrive,
-      label: "Storage Used",
+      label: 'Storage Used',
       value: stats.totalSize,
-      color: "text-green-500",
+      color: 'text-green-500',
     },
     {
       icon: Database,
-      label: "24h Uploads",
+      label: '24h Uploads',
       value: stats.last24hUploads,
-      color: "text-purple-500",
+      color: 'text-purple-500',
     },
     {
       icon: Clock,
-      label: "Total Downloads",
+      label: 'Total Downloads',
       value: stats.totalDownloads,
-      color: "text-orange-500",
+      color: 'text-orange-500',
     },
   ];
 
   return (
     <motion.div
-      className="grid grid-cols-2 md:grid-cols-4 gap-4"
+      className="grid grid-cols-2 gap-4 md:grid-cols-4"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ delay: 0.6, duration: 0.5 }}
@@ -42,14 +42,14 @@ export default function StatsGrid({ stats }: StatsGridProps) {
       {statItems.map((stat, index) => (
         <motion.div
           key={stat.label}
-          className="space-y-2 p-4 bg-gradient-to-br from-gray-50/50 to-white dark:from-gray-800/50 dark:to-gray-900/50 rounded-lg border border-gray-100 dark:border-gray-800"
+          className="space-y-2 rounded-lg border border-gray-100 bg-gradient-to-br from-gray-50/50 to-white p-4 dark:border-gray-800 dark:from-gray-800/50 dark:to-gray-900/50"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.8 + index * 0.1, duration: 0.5 }}
           whileHover={{
             scale: 1.02,
             boxShadow:
-              "0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
+              '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
           }}
         >
           <div className="flex items-center space-x-2">
@@ -61,12 +61,12 @@ export default function StatsGrid({ stats }: StatsGridProps) {
                 duration: 2,
                 repeat: Infinity,
                 delay: index * 0.2,
-                ease: "easeInOut",
+                ease: 'easeInOut',
               }}
             >
               <stat.icon className={`h-4 w-4 ${stat.color}`} />
             </motion.div>
-            <span className="text-sm text-muted-foreground">{stat.label}</span>
+            <span className="text-muted-foreground text-sm">{stat.label}</span>
           </div>
           <motion.div
             className="text-2xl font-bold"
@@ -74,7 +74,7 @@ export default function StatsGrid({ stats }: StatsGridProps) {
             animate={{ scale: 1 }}
             transition={{
               delay: 1 + index * 0.1,
-              type: "spring",
+              type: 'spring',
               stiffness: 200,
               damping: 10,
             }}

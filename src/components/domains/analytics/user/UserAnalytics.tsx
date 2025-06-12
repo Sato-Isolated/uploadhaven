@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import { motion } from "motion/react";
+import { motion } from 'motion/react';
 import {
   AnalyticsLoader,
   AnalyticsError,
@@ -10,13 +10,13 @@ import {
   TopFilesSection,
   TrendsChart,
   calculateTrend,
-} from "@/components/domains/analytics/download";
-import { useUserAnalytics } from "@/hooks";
-import { BaseComponentProps } from "@/types";
+} from '@/components/domains/analytics/download';
+import { useUserAnalytics } from '@/hooks';
+import { BaseComponentProps } from '@/types';
 
 type UserAnalyticsProps = BaseComponentProps;
 
-export default function UserAnalytics({ className = "" }: UserAnalyticsProps) {
+export default function UserAnalytics({ className = '' }: UserAnalyticsProps) {
   // Use TanStack Query for better performance and caching
   const {
     data: analytics,
@@ -31,7 +31,7 @@ export default function UserAnalytics({ className = "" }: UserAnalyticsProps) {
   if (error) {
     return (
       <AnalyticsError
-        error={error?.message || "An unexpected error occurred"}
+        error={error?.message || 'An unexpected error occurred'}
         onRetry={fetchAnalytics}
         className={className}
       />

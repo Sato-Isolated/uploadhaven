@@ -1,18 +1,18 @@
-import React from "react";
-import { motion } from "motion/react";
-import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
+import React from 'react';
+import { motion } from 'motion/react';
+import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Search, Filter, UserPlus } from "lucide-react";
-import type { User } from "../types";
+} from '@/components/ui/select';
+import { Search, Filter, UserPlus } from 'lucide-react';
+import type { User } from '../types';
 
 interface UserListHeaderProps {
   users: User[];
@@ -51,7 +51,7 @@ export default function UserListHeader({
           <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
             User Management
           </h2>
-          <p className="text-gray-600 dark:text-gray-400 mt-2">
+          <p className="mt-2 text-gray-600 dark:text-gray-400">
             Manage user accounts, roles, and permissions
           </p>
         </div>
@@ -65,19 +65,19 @@ export default function UserListHeader({
             </div>
           )}
           <Badge variant="secondary" className="text-sm">
-            {users.length} {users.length === 1 ? "User" : "Users"}
+            {users.length} {users.length === 1 ? 'User' : 'Users'}
           </Badge>
           <Button variant="outline" size="sm">
-            <UserPlus className="h-4 w-4 mr-2" />
+            <UserPlus className="mr-2 h-4 w-4" />
             Add User
           </Button>
         </div>
       </div>
 
       {/* Search and Filters */}
-      <div className="flex flex-col sm:flex-row gap-4">
+      <div className="flex flex-col gap-4 sm:flex-row">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+          <Search className="absolute top-3 left-3 h-4 w-4 text-gray-400" />
           <Input
             placeholder="Search users by name or email..."
             value={searchQuery}
@@ -89,7 +89,7 @@ export default function UserListHeader({
         <div className="flex gap-2">
           <Select value={roleFilter} onValueChange={onRoleFilterChange}>
             <SelectTrigger className="w-32">
-              <Filter className="h-4 w-4 mr-2" />
+              <Filter className="mr-2 h-4 w-4" />
               <SelectValue placeholder="Role" />
             </SelectTrigger>
             <SelectContent>

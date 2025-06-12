@@ -1,18 +1,19 @@
 // FileCard.tsx - Individual file card component with details and actions
 
-"use client";
+'use client';
 
-import { motion } from "motion/react";
-import { formatFileSize } from "@/lib/utils";
-import { formatDistanceToNow } from "date-fns";
-import FileActionButtons from "./FileActionButtons";
-import FileThumbnail from "./FileThumbnail";
-import type { FileCardProps } from "../types";
+import { motion } from 'motion/react';
+import { formatFileSize } from '@/lib/utils';
+import { formatDistanceToNow } from 'date-fns';
+import FileActionButtons from './FileActionButtons';
+import FileThumbnail from './FileThumbnail';
+import type { FileCardProps } from '../types';
 
 export default function FileCard({
   file,
   index,
-  onPreview,  onCopyLink,
+  onPreview,
+  onCopyLink,
   onDownload,
   onDelete,
   getExpirationStatus,
@@ -33,35 +34,39 @@ export default function FileCard({
       className="group relative"
     >
       <motion.div
-        className="relative p-6 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl border border-white/30 dark:border-gray-700/30 shadow-sm hover:shadow-lg transition-all duration-300"
+        className="relative rounded-2xl border border-white/30 bg-white/80 p-6 shadow-sm backdrop-blur-sm transition-all duration-300 hover:shadow-lg dark:border-gray-700/30 dark:bg-gray-800/80"
         whileHover={{ scale: 1.02, y: -2 }}
         whileTap={{ scale: 0.98 }}
       >
         {/* Gradient overlay on hover */}
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 via-purple-500/5 to-indigo-500/5 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
+        <div className="pointer-events-none absolute inset-0 rounded-2xl bg-gradient-to-r from-blue-500/5 via-purple-500/5 to-indigo-500/5 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
 
-        <div className="relative flex items-center space-x-6">          <motion.div
+        <div className="relative flex items-center space-x-6">
+          {' '}
+          <motion.div
             className="flex-shrink-0"
             whileHover={{ scale: 1.1, rotate: 2 }}
-            transition={{ type: "spring", stiffness: 300 }}
-          >            <FileThumbnail
+            transition={{ type: 'spring', stiffness: 300 }}
+          >
+            {' '}
+            <FileThumbnail
               shortUrl={file.shortUrl}
               mimeType={file.mimeType}
               originalName={file.originalName}
               size={56}
-              className="rounded-2xl border border-white/20 bg-gradient-to-br from-blue-500/10 to-purple-600/10 backdrop-blur-sm p-2"
+              className="rounded-2xl border border-white/20 bg-gradient-to-br from-blue-500/10 to-purple-600/10 p-2 backdrop-blur-sm"
             />
           </motion.div>
           <div className="min-w-0 flex-1">
             <motion.h3
-              className="text-lg font-semibold text-gray-900 dark:text-white truncate mb-1"
+              className="mb-1 truncate text-lg font-semibold text-gray-900 dark:text-white"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.1 }}
             >
               {file.originalName}
             </motion.h3>
-            <div className="flex items-center space-x-4 text-sm text-muted-foreground mb-3">
+            <div className="text-muted-foreground mb-3 flex items-center space-x-4 text-sm">
               <span className="font-medium">{formatFileSize(file.size)}</span>
               <span>•</span>
               <span>
@@ -73,9 +78,9 @@ export default function FileCard({
               {file.downloadCount > 0 && (
                 <>
                   <span>•</span>
-                  <span className="text-blue-600 dark:text-blue-400 font-medium">
+                  <span className="font-medium text-blue-600 dark:text-blue-400">
                     {file.downloadCount} download
-                    {file.downloadCount !== 1 ? "s" : ""}
+                    {file.downloadCount !== 1 ? 's' : ''}
                   </span>
                 </>
               )}
@@ -87,7 +92,7 @@ export default function FileCard({
                 <motion.div
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
-                  className="px-3 py-1 bg-red-100 text-red-800 dark:bg-red-950 dark:text-red-200 rounded-full text-xs font-medium"
+                  className="rounded-full bg-red-100 px-3 py-1 text-xs font-medium text-red-800 dark:bg-red-950 dark:text-red-200"
                 >
                   Expired
                 </motion.div>
@@ -95,7 +100,7 @@ export default function FileCard({
                 <motion.div
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
-                  className="px-3 py-1 bg-yellow-100 text-yellow-800 dark:bg-yellow-950 dark:text-yellow-200 rounded-full text-xs font-medium"
+                  className="rounded-full bg-yellow-100 px-3 py-1 text-xs font-medium text-yellow-800 dark:bg-yellow-950 dark:text-yellow-200"
                 >
                   Expires in {expirationStatus.timeLeft}
                 </motion.div>
@@ -103,7 +108,7 @@ export default function FileCard({
                 <motion.div
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
-                  className="px-3 py-1 bg-green-100 text-green-800 dark:bg-green-950 dark:text-green-200 rounded-full text-xs font-medium"
+                  className="rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-800 dark:bg-green-950 dark:text-green-200"
                 >
                   Active
                 </motion.div>

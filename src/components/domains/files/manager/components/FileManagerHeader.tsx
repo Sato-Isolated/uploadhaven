@@ -1,12 +1,12 @@
 // FileManagerHeader.tsx - Header component for FileManager with title and statistics
 
-"use client";
+'use client';
 
-import { motion } from "motion/react";
-import { CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { FileText } from "lucide-react";
-import { formatFileSize } from "@/lib/utils";
-import type { FileManagerHeaderProps } from "../types";
+import { motion } from 'motion/react';
+import { CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { FileText } from 'lucide-react';
+import { formatFileSize } from '@/lib/utils';
+import type { FileManagerHeaderProps } from '../types';
 
 export default function FileManagerHeader({
   filesCount,
@@ -21,14 +21,14 @@ export default function FileManagerHeader({
       >
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            <div className="p-3 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl shadow-lg">
+            <div className="rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 p-3 shadow-lg">
               <FileText className="h-6 w-6 text-white" />
             </div>
             <div>
               <CardTitle className="text-xl">File Manager</CardTitle>
               <CardDescription className="text-base">
                 Manage your uploaded files ({filesCount} file
-                {filesCount !== 1 ? "s" : ""})
+                {filesCount !== 1 ? 's' : ''})
               </CardDescription>
             </div>
           </div>
@@ -38,7 +38,7 @@ export default function FileManagerHeader({
             transition={{ delay: 0.4, duration: 0.5 }}
             className="text-right"
           >
-            <div className="text-sm text-muted-foreground">
+            <div className="text-muted-foreground text-sm">
               Total Size: {formatFileSize(totalSize)}
             </div>
           </motion.div>

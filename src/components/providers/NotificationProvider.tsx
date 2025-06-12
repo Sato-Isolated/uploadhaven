@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { createContext, useContext, useEffect, useState } from 'react';
 
@@ -26,7 +26,7 @@ export function NotificationProvider({ children }: NotificationProviderProps) {
   const handleRouteChange = () => {
     // Temporarily disable SSE during route changes
     setShouldEnableSSE(false);
-    
+
     // Re-enable after a short delay to allow navigation to complete
     setTimeout(() => {
       setShouldEnableSSE(true);
@@ -53,7 +53,9 @@ export function NotificationProvider({ children }: NotificationProviderProps) {
   }, []);
 
   return (
-    <NotificationContext.Provider value={{ shouldEnableSSE, handleRouteChange }}>
+    <NotificationContext.Provider
+      value={{ shouldEnableSSE, handleRouteChange }}
+    >
       {children}
     </NotificationContext.Provider>
   );

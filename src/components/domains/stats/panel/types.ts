@@ -6,13 +6,13 @@ import type {
   BaseComponentProps,
   DataComponentProps,
   ActionComponentProps,
-} from "@/types";
+} from '@/types';
 
 // Re-export centralized types for component usage
 export type { BaseStats, UserStats };
 
 // StatsPanel-specific types that extend centralized types
-export interface Stats extends Omit<BaseStats, "totalSize"> {
+export interface Stats extends Omit<BaseStats, 'totalSize'> {
   totalSize: string; // formatted size string
   totalSizeBytes: number; // raw bytes from BaseStats
   last24hUploads: number;

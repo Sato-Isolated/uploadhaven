@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import { motion } from "motion/react";
-import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight } from "lucide-react";
-import { PaginationData } from "@/types";
+import { motion } from 'motion/react';
+import { Button } from '@/components/ui/button';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { PaginationData } from '@/types';
 
 interface ActivityPaginationProps {
   pagination: PaginationData;
@@ -24,7 +24,7 @@ export default function ActivityPagination({
 
   return (
     <motion.div
-      className="flex items-center justify-between mt-6 pt-4 border-t border-gray-200 dark:border-gray-700"
+      className="mt-6 flex items-center justify-between border-t border-gray-200 pt-4 dark:border-gray-700"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, delay: 0.2 }}
@@ -41,13 +41,13 @@ export default function ActivityPagination({
           size="sm"
           onClick={() => onPageChange(currentPage - 1)}
           disabled={!pagination.hasPrev || loading}
-          className="bg-white/80 dark:bg-gray-700/80 backdrop-blur-sm"
+          className="bg-white/80 backdrop-blur-sm dark:bg-gray-700/80"
         >
           <ChevronLeft className="h-4 w-4" />
           Previous
         </Button>
 
-        <span className="text-sm font-medium px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-md">
+        <span className="rounded-md bg-blue-100 px-3 py-1 text-sm font-medium text-blue-800 dark:bg-blue-900 dark:text-blue-200">
           Page {pagination.page} of {pagination.totalPages}
         </span>
 
@@ -56,7 +56,7 @@ export default function ActivityPagination({
           size="sm"
           onClick={() => onPageChange(currentPage + 1)}
           disabled={!pagination.hasNext || loading}
-          className="bg-white/80 dark:bg-gray-700/80 backdrop-blur-sm"
+          className="bg-white/80 backdrop-blur-sm dark:bg-gray-700/80"
         >
           Next
           <ChevronRight className="h-4 w-4" />

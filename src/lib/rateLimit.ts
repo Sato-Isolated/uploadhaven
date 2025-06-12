@@ -1,7 +1,7 @@
 // Rate limiting utility for API endpoints
-import { NextRequest } from "next/server";
-import { getClientIP } from "./utils";
-import type { RateLimitConfig, RateLimitData } from "@/types";
+import { NextRequest } from 'next/server';
+import { getClientIP } from './utils';
+import type { RateLimitConfig, RateLimitData } from '@/types';
 
 // In-memory storage for rate limiting (consider Redis for production)
 const rateLimitStore = new Map<string, RateLimitData>();
@@ -50,7 +50,7 @@ export function rateLimit(config: RateLimitConfig) {
       limit: config.maxRequests,
       remaining,
       reset,
-      message: config.message || "Rate limit exceeded. Please try again later.",
+      message: config.message || 'Rate limit exceeded. Please try again later.',
     };
   };
 }
@@ -60,21 +60,21 @@ export const rateLimitConfigs = {
   upload: {
     windowMs: 15 * 60 * 1000, // 15 minutes
     maxRequests: 10, // 10 uploads per 15 minutes
-    message: "Too many uploads. Please wait before uploading more files.",
+    message: 'Too many uploads. Please wait before uploading more files.',
   },
   download: {
     windowMs: 5 * 60 * 1000, // 5 minutes
     maxRequests: 100, // 100 downloads per 5 minutes
-    message: "Too many download requests. Please wait a moment.",
+    message: 'Too many download requests. Please wait a moment.',
   },
   password: {
     windowMs: 15 * 60 * 1000, // 15 minutes
     maxRequests: 5, // 5 password attempts per 15 minutes per IP
-    message: "Too many password attempts. Please wait before trying again.",
+    message: 'Too many password attempts. Please wait before trying again.',
   },
   api: {
     windowMs: 15 * 60 * 1000, // 15 minutes
     maxRequests: 100, // 100 API calls per 15 minutes
-    message: "Too many API requests. Please wait before making more requests.",
+    message: 'Too many API requests. Please wait before making more requests.',
   },
 };

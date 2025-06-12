@@ -1,17 +1,17 @@
-import React, { useState, useMemo } from "react";
-import UserListHeader from "./components/UserListHeader";
-import UserCard from "./components/UserCard";
-import BulkActionsBar from "./components/BulkActionsBar";
-import type { AdminUserListProps, User } from "./types";
+import React, { useState, useMemo } from 'react';
+import UserListHeader from './components/UserListHeader';
+import UserCard from './components/UserCard';
+import BulkActionsBar from './components/BulkActionsBar';
+import type { AdminUserListProps, User } from './types';
 
 export default function AdminUserList({
   users,
   onUserAction,
   onBulkAction,
 }: AdminUserListProps) {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [roleFilter, setRoleFilter] = useState("all");
-  const [statusFilter, setStatusFilter] = useState("all");
+  const [searchQuery, setSearchQuery] = useState('');
+  const [roleFilter, setRoleFilter] = useState('all');
+  const [statusFilter, setStatusFilter] = useState('all');
   const [selectedUsers, setSelectedUsers] = useState<Set<string>>(new Set());
 
   // Filter out any invalid user objects
@@ -27,24 +27,25 @@ export default function AdminUserList({
     return validUsers.filter((user: User) => {
       // Search filter
       const matchesSearch =
-        searchQuery === "" ||
+        searchQuery === '' ||
         user.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
         user.email.toLowerCase().includes(searchQuery.toLowerCase());
 
       // Role filter
-      const matchesRole = roleFilter === "all" || user.role === roleFilter;
+      const matchesRole = roleFilter === 'all' || user.role === roleFilter;
 
       // Status filter
       let matchesStatus = true;
-      if (statusFilter === "verified") {
+      if (statusFilter === 'verified') {
         matchesStatus = user.isEmailVerified === true;
-      } else if (statusFilter === "unverified") {
+      } else if (statusFilter === 'unverified') {
         matchesStatus = user.isEmailVerified === false;
-      } else if (statusFilter === "active") {
+      } else if (statusFilter === 'active') {
         matchesStatus = user.isActive !== false;
-      } else if (statusFilter === "inactive") {
+      } else if (statusFilter === 'inactive') {
         matchesStatus = user.isActive === false;
-      }      return matchesSearch && matchesRole && matchesStatus;
+      }
+      return matchesSearch && matchesRole && matchesStatus;
     });
   }, [validUsers, searchQuery, roleFilter, statusFilter]);
 
@@ -67,7 +68,7 @@ export default function AdminUserList({
   };
 
   const handleBulkAction = (
-    action: "delete" | "toggleRole" | "resendVerification"
+    action: 'delete' | 'toggleRole' | 'resendVerification'
   ) => {
     if (onBulkAction && selectedUsers.size > 0) {
       onBulkAction(Array.from(selectedUsers), action);
@@ -108,11 +109,11 @@ export default function AdminUserList({
             />
           ))
         ) : (
-          <div className="text-center py-12">
+          <div className="py-12 text-center">
             <p className="text-gray-500 dark:text-gray-400">
-              {searchQuery || roleFilter !== "all" || statusFilter !== "all"
-                ? "No users match your current filters."
-                : "No users found."}
+              {searchQuery || roleFilter !== 'all' || statusFilter !== 'all'
+                ? 'No users match your current filters.'
+                : 'No users found.'}
             </p>
           </div>
         )}
@@ -128,4 +129,4 @@ export default function AdminUserList({
 }
 
 // Also export the types for convenience
-export type { User, AdminUserListProps } from "./types";
+export type { User, AdminUserListProps } from './types';

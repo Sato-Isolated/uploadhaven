@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import {
   ResponsiveContainer,
   LineChart,
@@ -10,7 +10,7 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
-} from "recharts";
+} from 'recharts';
 
 interface UserAnalyticsData {
   growthTrends: Array<{
@@ -30,13 +30,13 @@ interface UserAnalyticsTabProps {
   formatDate: (date: string) => string;
 }
 
-export function UserAnalyticsTab({ 
-  userAnalytics, 
-  formatDate 
+export function UserAnalyticsTab({
+  userAnalytics,
+  formatDate,
 }: UserAnalyticsTabProps) {
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         {/* User Growth Chart */}
         <Card>
           <CardHeader>
@@ -76,8 +76,8 @@ export function UserAnalyticsTab({
                   className="flex items-center justify-between"
                 >
                   <div>
-                    <p className="font-medium text-sm">
-                      {user.userName || "Unknown User"}
+                    <p className="text-sm font-medium">
+                      {user.userName || 'Unknown User'}
                     </p>
                     <p className="text-xs text-gray-500">
                       {user.fileCount} files

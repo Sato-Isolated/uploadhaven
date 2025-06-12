@@ -8,7 +8,7 @@ export type FileInfo = ClientFileData;
 
 export interface ExpirationStatus {
   text: string;
-  variant: "secondary" | "destructive";
+  variant: 'secondary' | 'destructive';
   expired: boolean;
   isExpiringSoon: boolean;
   timeLeft: string;
@@ -26,7 +26,7 @@ export interface FileCardProps {
   onDownload: (filename: string) => void;
   onDelete: (filename: string) => void;
   getExpirationStatus: (expiresAt?: string | null) => ExpirationStatus;
-  getFileIcon: (type: FileInfo["type"]) => React.ReactNode;
+  getFileIcon: (type: FileInfo['type']) => React.ReactNode;
 }
 
 export interface FileManagerHeaderProps {
@@ -41,7 +41,7 @@ export interface FileListContainerProps {
   onDownload: (filename: string) => void;
   onDelete: (filename: string) => void;
   getExpirationStatus: (expiresAt?: string | null) => ExpirationStatus;
-  getFileIcon: (type: FileInfo["type"]) => React.ReactNode;
+  getFileIcon: (type: FileInfo['type']) => React.ReactNode;
 }
 
 export interface FileActionButtonsProps {

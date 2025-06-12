@@ -41,11 +41,11 @@ export interface FileOperationOptions {
  * File upload status
  */
 export type FileUploadStatus =
-  | "scanning"
-  | "uploading"
-  | "completed"
-  | "error"
-  | "threat_detected";
+  | 'scanning'
+  | 'uploading'
+  | 'completed'
+  | 'error'
+  | 'threat_detected';
 
 /**
  * Uploaded file with metadata

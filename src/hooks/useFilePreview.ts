@@ -1,6 +1,6 @@
-import { useQuery } from "@tanstack/react-query";
-import { queryKeys } from "@/lib/queryKeys";
-import type { FileData } from "@/types";
+import { useQuery } from '@tanstack/react-query';
+import { queryKeys } from '@/lib/queryKeys';
+import type { FileData } from '@/types';
 
 interface UseTextPreviewOptions {
   enabled?: boolean;
@@ -17,7 +17,10 @@ interface FilePreviewResponse {
  * Hook for fetching text content from a URL
  * Used for text file previews
  */
-export function useTextPreview(url: string, options: UseTextPreviewOptions = {}) {
+export function useTextPreview(
+  url: string,
+  options: UseTextPreviewOptions = {}
+) {
   const { enabled = true } = options;
 
   return useQuery({
@@ -26,7 +29,7 @@ export function useTextPreview(url: string, options: UseTextPreviewOptions = {})
       const response = await fetch(url, {
         method: 'GET',
         headers: {
-          'Accept': 'text/plain, text/html, text/markdown, text/*, */*',
+          Accept: 'text/plain, text/html, text/markdown, text/*, */*',
         },
       });
 
@@ -36,7 +39,8 @@ export function useTextPreview(url: string, options: UseTextPreviewOptions = {})
 
       const text = await response.text();
       return text;
-    },    enabled: enabled && !!url,
+    },
+    enabled: enabled && !!url,
     staleTime: 5 * 60 * 1000, // 5 minutes - text content rarely changes
     gcTime: 30 * 60 * 1000, // 30 minutes (previously cacheTime)
     retry: 2,
@@ -47,7 +51,10 @@ export function useTextPreview(url: string, options: UseTextPreviewOptions = {})
 /**
  * Hook for fetching file metadata for previews
  */
-export function useFilePreview(shortUrl: string, options: UseTextPreviewOptions = {}) {
+export function useFilePreview(
+  shortUrl: string,
+  options: UseTextPreviewOptions = {}
+) {
   const { enabled = true } = options;
 
   return useQuery({
@@ -56,16 +63,19 @@ export function useFilePreview(shortUrl: string, options: UseTextPreviewOptions 
       const response = await fetch(`/api/preview/${shortUrl}`, {
         method: 'GET',
         headers: {
-          'Accept': 'application/json',
+          Accept: 'application/json',
         },
       });
 
       if (!response.ok) {
-        throw new Error(`Failed to fetch file metadata: ${response.statusText}`);
+        throw new Error(
+          `Failed to fetch file metadata: ${response.statusText}`
+        );
       }
 
       return response.json();
-    },    enabled: enabled && !!shortUrl,
+    },
+    enabled: enabled && !!shortUrl,
     staleTime: 2 * 60 * 1000, // 2 minutes
     gcTime: 10 * 60 * 1000, // 10 minutes (previously cacheTime)
     retry: 3,

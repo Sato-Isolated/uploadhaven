@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import { motion } from "motion/react";
-import { Card, CardContent } from "@/components/ui/card";
+import { motion } from 'motion/react';
+import { Card, CardContent } from '@/components/ui/card';
 
 interface SystemOverviewData {
   totalFiles: number;
@@ -16,40 +16,42 @@ interface SystemOverviewCardsProps {
   systemOverview: SystemOverviewData;
 }
 
-export function SystemOverviewCards({ systemOverview }: SystemOverviewCardsProps) {
+export function SystemOverviewCards({
+  systemOverview,
+}: SystemOverviewCardsProps) {
   const cards = [
     {
-      title: "Total Files",
+      title: 'Total Files',
       value: systemOverview.totalFiles.toLocaleString(),
       subtitle: `+${systemOverview.filesLast24h} today`,
-      icon: "📁",
-      delay: 0.1
+      icon: '📁',
+      delay: 0.1,
     },
     {
-      title: "Total Users", 
+      title: 'Total Users',
       value: systemOverview.totalUsers.toLocaleString(),
       subtitle: `${systemOverview.activeUsers} active this week`,
-      icon: "👥",
-      delay: 0.2
+      icon: '👥',
+      delay: 0.2,
     },
     {
-      title: "Storage Used",
+      title: 'Storage Used',
       value: systemOverview.totalStorage,
-      subtitle: "Across all files",
-      icon: "💾",
-      delay: 0.3
+      subtitle: 'Across all files',
+      icon: '💾',
+      delay: 0.3,
     },
     {
-      title: "Total Downloads",
+      title: 'Total Downloads',
       value: systemOverview.totalDownloads.toLocaleString(),
-      subtitle: "All time downloads",
-      icon: "⬇️",
-      delay: 0.4
-    }
+      subtitle: 'All time downloads',
+      icon: '⬇️',
+      delay: 0.4,
+    },
   ];
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+    <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
       {cards.map((card) => (
         <motion.div
           key={card.title}
@@ -67,9 +69,7 @@ export function SystemOverviewCards({ systemOverview }: SystemOverviewCardsProps
                   <p className="text-2xl font-bold text-gray-900 dark:text-white">
                     {card.value}
                   </p>
-                  <p className="text-xs text-gray-500">
-                    {card.subtitle}
-                  </p>
+                  <p className="text-xs text-gray-500">{card.subtitle}</p>
                 </div>
                 <div className="text-3xl">{card.icon}</div>
               </div>

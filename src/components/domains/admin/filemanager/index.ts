@@ -1,2 +1,2 @@
 // Admin FileManager domain exports
-export { default } from "./AdminFileManager";
+export { default } from './AdminFileManager';

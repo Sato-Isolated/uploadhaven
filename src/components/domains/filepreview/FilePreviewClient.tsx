@@ -1,19 +1,26 @@
-"use client";
+'use client';
 
-import { Card, CardContent } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
-import { useFilePreviewLogic } from "./hooks/useFilePreviewLogic";
-import { FilePreviewLoadingState } from "./components/FilePreviewLoadingState";
-import { FilePreviewErrorState } from "./components/FilePreviewErrorState";
-import { FilePreviewPasswordForm } from "./components/FilePreviewPasswordForm";
-import { FilePreviewNoFileState } from "./components/FilePreviewNoFileState";
-import { FilePreviewHeader } from "./components/FilePreviewHeader";
-import { FilePreviewDetails } from "./components/FilePreviewDetails";
-import { FilePreviewActions } from "./components/FilePreviewActions";
-import { FilePreviewSecurityNotice } from "./components/FilePreviewSecurityNotice";
-import { ImagePreview, VideoPreview, AudioPreview, PDFPreview, TextPreview, FallbackPreview } from "./index";
-import { getFileTypeInfo } from "./utils/filePreview";
-import type { FilePreviewData } from "@/types";
+import { Card, CardContent } from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
+import { useFilePreviewLogic } from './hooks/useFilePreviewLogic';
+import { FilePreviewLoadingState } from './components/FilePreviewLoadingState';
+import { FilePreviewErrorState } from './components/FilePreviewErrorState';
+import { FilePreviewPasswordForm } from './components/FilePreviewPasswordForm';
+import { FilePreviewNoFileState } from './components/FilePreviewNoFileState';
+import { FilePreviewHeader } from './components/FilePreviewHeader';
+import { FilePreviewDetails } from './components/FilePreviewDetails';
+import { FilePreviewActions } from './components/FilePreviewActions';
+import { FilePreviewSecurityNotice } from './components/FilePreviewSecurityNotice';
+import {
+  ImagePreview,
+  VideoPreview,
+  AudioPreview,
+  PDFPreview,
+  TextPreview,
+  FallbackPreview,
+} from './index';
+import { getFileTypeInfo } from './utils/filePreview';
+import type { FilePreviewData } from '@/types';
 
 export default function FilePreviewClient() {
   const {
@@ -70,7 +77,7 @@ export default function FilePreviewClient() {
     };
 
     const typeInfo = getFileTypeInfo(filePreviewData);
-    
+
     if (typeInfo.isImage) return <ImagePreview file={filePreviewData} />;
     if (typeInfo.isVideo) return <VideoPreview file={filePreviewData} />;
     if (typeInfo.isAudio) return <AudioPreview file={filePreviewData} />;
@@ -82,42 +89,42 @@ export default function FilePreviewClient() {
   // Main content
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
-      <div className="max-w-2xl mx-auto pt-8">
+      <div className="mx-auto max-w-2xl pt-8">
         {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">UploadHaven</h1>
+        <div className="mb-8 text-center">
+          <h1 className="mb-2 text-3xl font-bold text-gray-900">UploadHaven</h1>
           <p className="text-gray-600">File Preview & Download</p>
         </div>
 
         {/* Main Card */}
         <Card className="shadow-xl">
           <FilePreviewHeader fileInfo={fileInfo} isExpired={isFileExpired} />
-          
+
           <CardContent className="space-y-6">
             <FilePreviewDetails fileInfo={fileInfo} isExpired={isFileExpired} />
-            
+
             {/* File Content Preview */}
             {!isFileExpired && (
-              <div className="bg-gray-50 rounded-lg p-4">
+              <div className="rounded-lg bg-gray-50 p-4">
                 {renderFilePreview(fileInfo)}
               </div>
             )}
-            
+
             <Separator />
-            
+
             <FilePreviewActions
               isExpired={isFileExpired}
               downloading={downloading}
               onDownload={handleDownload}
               onCopyShareLink={copyShareLink}
             />
-            
+
             <FilePreviewSecurityNotice />
           </CardContent>
         </Card>
 
         {/* Footer */}
-        <div className="text-center mt-8 text-gray-500 text-sm">
+        <div className="mt-8 text-center text-sm text-gray-500">
           <p>Powered by UploadHaven - Secure File Sharing</p>
         </div>
       </div>

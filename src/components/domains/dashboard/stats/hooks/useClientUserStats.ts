@@ -1,6 +1,6 @@
-import { useMemo } from "react";
-import { useUserStats } from "@/hooks/useUserStats";
-import type { UserStats } from "@/types";
+import { useMemo } from 'react';
+import { useUserStats } from '@/hooks/useUserStats';
+import type { UserStats } from '@/types';
 
 export interface UseClientUserStatsReturn {
   isAuthenticated: boolean;
@@ -10,9 +10,15 @@ export interface UseClientUserStatsReturn {
   fetchStats: () => void;
 }
 
-export function useClientUserStats(userId: string, session?: { user?: unknown }): UseClientUserStatsReturn {
+export function useClientUserStats(
+  userId: string,
+  session?: { user?: unknown }
+): UseClientUserStatsReturn {
   // Stabilize the authentication check to prevent unnecessary re-renders
-  const isAuthenticated = useMemo(() => Boolean(session?.user), [session?.user]);
+  const isAuthenticated = useMemo(
+    () => Boolean(session?.user),
+    [session?.user]
+  );
 
   // Use TanStack Query for better performance and caching
   const {

@@ -33,7 +33,9 @@ export function useRealTimeStats() {
  */
 export function useRealTimeActivities() {
   const [activityCount, setActivityCount] = useState(0);
-  const [latestActivity, setLatestActivity] = useState<ActivityEvent | null>(null);
+  const [latestActivity, setLatestActivity] = useState<ActivityEvent | null>(
+    null
+  );
 
   const query = useQuery({
     queryKey: queryKeys.activities({ page: 1, limit: 20 }),
@@ -41,7 +43,7 @@ export function useRealTimeActivities() {
       const response = await fetch('/api/admin/activities?page=1&limit=20');
       if (!response.ok) throw new Error('Failed to fetch activities');
       const data = await response.json();
-      
+
       // Update latest activity if we have new data
       if (data.activities && data.activities.length > 0) {
         const newest = data.activities[0];
@@ -50,7 +52,7 @@ export function useRealTimeActivities() {
           setActivityCount((prev: number) => prev + 1);
         }
       }
-      
+
       return data;
     },
     // Poll every 15 seconds for activities (more frequent)
@@ -68,7 +70,11 @@ export function useRealTimeActivities() {
     ...query,
     // WebSocket-compatible interface
     isConnected: !query.isError,
-    connectionStatus: query.isError ? 'error' : query.isLoading ? 'connecting' : 'connected',
+    connectionStatus: query.isError
+      ? 'error'
+      : query.isLoading
+        ? 'connecting'
+        : 'connected',
     latestActivity,
     activityCount,
     resetActivityCount,

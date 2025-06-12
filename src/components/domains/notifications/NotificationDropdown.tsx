@@ -1,19 +1,28 @@
-"use client";
+'use client';
 
-import { motion, AnimatePresence } from "motion/react";
-import { Bell, BellRing, Check, X, Clock, AlertTriangle, Info, CheckCircle } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { 
-  DropdownMenu, 
-  DropdownMenuContent, 
-  DropdownMenuTrigger, 
+import { motion, AnimatePresence } from 'motion/react';
+import {
+  Bell,
+  BellRing,
+  Check,
+  X,
+  Clock,
+  AlertTriangle,
+  Info,
+  CheckCircle,
+} from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
   DropdownMenuSeparator,
-  DropdownMenuItem
-} from "@/components/ui/dropdown-menu";
-import { useNotifications } from "@/hooks/useNotifications";
-import { formatDistanceToNow } from "date-fns";
-import type { Notification } from "@/types/events";
+  DropdownMenuItem,
+} from '@/components/ui/dropdown-menu';
+import { useNotifications } from '@/hooks/useNotifications';
+import { formatDistanceToNow } from 'date-fns';
+import type { Notification } from '@/types/events';
 
 interface NotificationDropdownProps {
   className?: string;
@@ -29,11 +38,11 @@ export function NotificationDropdown({ className }: NotificationDropdownProps) {
     markAllAsRead,
     deleteNotification,
     isMarkingAsRead,
-    isMarkingAllAsRead
+    isMarkingAllAsRead,
   } = useNotifications({
     limit: 10,
     includeRead: false, // Only unread for dropdown
-    realtime: true
+    realtime: true,
   });
 
   const unreadCount = stats?.unread || 0;
@@ -57,12 +66,18 @@ export function NotificationDropdown({ className }: NotificationDropdownProps) {
     switch (type) {
       case 'security_alert':
       case 'malware_detected':
-        return <AlertTriangle className="h-4 w-4 text-red-600 dark:text-red-400" />;
+        return (
+          <AlertTriangle className="h-4 w-4 text-red-600 dark:text-red-400" />
+        );
       case 'file_downloaded':
       case 'file_shared':
-        return <CheckCircle className="h-4 w-4 text-green-600 dark:text-green-400" />;
+        return (
+          <CheckCircle className="h-4 w-4 text-green-600 dark:text-green-400" />
+        );
       case 'file_expired_soon':
-        return <Clock className="h-4 w-4 text-orange-600 dark:text-orange-400" />;
+        return (
+          <Clock className="h-4 w-4 text-orange-600 dark:text-orange-400" />
+        );
       case 'system_announcement':
         return <Info className="h-4 w-4 text-blue-600 dark:text-blue-400" />;
       default:
@@ -73,20 +88,20 @@ export function NotificationDropdown({ className }: NotificationDropdownProps) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button 
-          variant="ghost" 
-          size="sm" 
+        <Button
+          variant="ghost"
+          size="sm"
           className={`relative h-9 w-9 p-0 ${className}`}
         >
           <motion.div
-            animate={{ 
+            animate={{
               scale: unreadCount > 0 ? [1, 1.1, 1] : 1,
-              rotate: isConnected ? 0 : [0, -10, 10, 0]
+              rotate: isConnected ? 0 : [0, -10, 10, 0],
             }}
-            transition={{ 
+            transition={{
               duration: unreadCount > 0 ? 0.5 : 2,
               repeat: unreadCount > 0 ? Infinity : 0,
-              repeatDelay: 3
+              repeatDelay: 3,
             }}
           >
             {unreadCount > 0 ? (
@@ -95,7 +110,7 @@ export function NotificationDropdown({ className }: NotificationDropdownProps) {
               <Bell className="h-5 w-5 text-gray-600 dark:text-gray-400" />
             )}
           </motion.div>
-          
+
           <AnimatePresence>
             {unreadCount > 0 && (
               <motion.div
@@ -104,30 +119,32 @@ export function NotificationDropdown({ className }: NotificationDropdownProps) {
                 exit={{ opacity: 0, scale: 0 }}
                 className="absolute -top-1 -right-1"
               >
-                <Badge 
-                  variant="destructive" 
-                  className="h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs"
+                <Badge
+                  variant="destructive"
+                  className="flex h-5 w-5 items-center justify-center rounded-full p-0 text-xs"
                 >
                   {unreadCount > 99 ? '99+' : unreadCount}
                 </Badge>
               </motion.div>
             )}
           </AnimatePresence>
-          
+
           {/* Connection status indicator */}
-          <div className={`absolute bottom-0 right-0 h-2 w-2 rounded-full ${
-            isConnected ? 'bg-green-500' : 'bg-red-500'
-          }`} />
+          <div
+            className={`absolute right-0 bottom-0 h-2 w-2 rounded-full ${
+              isConnected ? 'bg-green-500' : 'bg-red-500'
+            }`}
+          />
         </Button>
       </DropdownMenuTrigger>
-      
-      <DropdownMenuContent 
-        align="end" 
-        className="w-80 max-h-96 overflow-hidden"
+
+      <DropdownMenuContent
+        align="end"
+        className="max-h-96 w-80 overflow-hidden"
         sideOffset={8}
       >
-        <div className="flex items-center justify-between p-3 border-b">
-          <h3 className="font-semibold text-sm">Notifications</h3>
+        <div className="flex items-center justify-between border-b p-3">
+          <h3 className="text-sm font-semibold">Notifications</h3>
           <div className="flex items-center gap-2">
             {unreadCount > 0 && (
               <Button
@@ -137,7 +154,7 @@ export function NotificationDropdown({ className }: NotificationDropdownProps) {
                 disabled={isMarkingAllAsRead}
                 className="h-7 px-2 text-xs"
               >
-                <Check className="h-3 w-3 mr-1" />
+                <Check className="mr-1 h-3 w-3" />
                 Mark all read
               </Button>
             )}
@@ -151,14 +168,16 @@ export function NotificationDropdown({ className }: NotificationDropdownProps) {
             </div>
           ) : notifications.length === 0 ? (
             <div className="p-4 text-center">
-              <Bell className="h-8 w-8 mx-auto text-gray-400 mb-2" />
+              <Bell className="mx-auto mb-2 h-8 w-8 text-gray-400" />
               <p className="text-sm text-gray-500 dark:text-gray-400">
                 No notifications yet
               </p>
             </div>
           ) : (
             <div className="divide-y">
-              <AnimatePresence>                {notifications.map((notification: Notification) => (
+              <AnimatePresence>
+                {' '}
+                {notifications.map((notification: Notification) => (
                   <NotificationItem
                     key={notification.id}
                     notification={notification}
@@ -204,7 +223,7 @@ function NotificationItem({
   onDelete,
   isMarkingAsRead,
   getPriorityColor,
-  getTypeIcon
+  getTypeIcon,
 }: NotificationItemProps) {
   const handleAction = () => {
     if (notification.actionUrl) {
@@ -217,37 +236,39 @@ function NotificationItem({
       initial={{ opacity: 0, x: -20 }}
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: 20 }}
-      className={`p-3 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer ${
+      className={`cursor-pointer p-3 hover:bg-gray-50 dark:hover:bg-gray-800 ${
         !notification.isRead ? 'bg-blue-50 dark:bg-blue-950/20' : ''
       }`}
     >
       <div className="flex items-start gap-3">
-        <div className="flex-shrink-0 mt-1">
+        <div className="mt-1 flex-shrink-0">
           {getTypeIcon(notification.type)}
         </div>
-        
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-1">
-            <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
+
+        <div className="min-w-0 flex-1">
+          <div className="mb-1 flex items-center gap-2">
+            <p className="truncate text-sm font-medium text-gray-900 dark:text-gray-100">
               {notification.title}
             </p>
-            <Badge 
-              variant="outline" 
+            <Badge
+              variant="outline"
               className={`text-xs ${getPriorityColor(notification.priority)}`}
             >
               {notification.priority}
             </Badge>
           </div>
-          
-          <p className="text-xs text-gray-600 dark:text-gray-400 line-clamp-2 mb-2">
+
+          <p className="mb-2 line-clamp-2 text-xs text-gray-600 dark:text-gray-400">
             {notification.message}
           </p>
-          
+
           <div className="flex items-center justify-between">
             <span className="text-xs text-gray-500 dark:text-gray-500">
-              {formatDistanceToNow(new Date(notification.createdAt), { addSuffix: true })}
+              {formatDistanceToNow(new Date(notification.createdAt), {
+                addSuffix: true,
+              })}
             </span>
-            
+
             <div className="flex items-center gap-1">
               {!notification.isRead && (
                 <Button
@@ -263,7 +284,7 @@ function NotificationItem({
                   <Check className="h-3 w-3" />
                 </Button>
               )}
-              
+
               {notification.actionUrl && (
                 <Button
                   variant="ghost"
@@ -277,7 +298,7 @@ function NotificationItem({
                   {notification.actionLabel || 'View'}
                 </Button>
               )}
-              
+
               <Button
                 variant="ghost"
                 size="sm"

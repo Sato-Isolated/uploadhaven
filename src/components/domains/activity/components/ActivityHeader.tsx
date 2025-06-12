@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import { motion } from "motion/react";
-import { Activity, Wifi, WifiOff } from "lucide-react";
-import { CardHeader, CardTitle } from "@/components/ui/card";
-import ActivityFilters from "../recent/ActivityFilters";
+import { motion } from 'motion/react';
+import { Activity, Wifi, WifiOff } from 'lucide-react';
+import { CardHeader, CardTitle } from '@/components/ui/card';
+import ActivityFilters from '../recent/ActivityFilters';
 
 interface ActivityHeaderProps {
   realtimeConnected: boolean;
@@ -20,23 +20,23 @@ export default function ActivityHeader({
   typeFilter,
   severityFilter,
   onTypeFilterChange,
-  onSeverityFilterChange
+  onSeverityFilterChange,
 }: ActivityHeaderProps) {
   return (
     <CardHeader>
       <CardTitle className="flex items-center gap-2">
         <Activity className="h-6 w-6 text-blue-600 dark:text-blue-400" />
-        <span className="bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">
+        <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent dark:from-blue-400 dark:to-purple-400">
           Recent Activity
         </span>
-        
+
         {/* Real-time connection indicator */}
-        <div className="flex items-center gap-2 ml-auto">
+        <div className="ml-auto flex items-center gap-2">
           {activityCount > 0 && (
             <motion.div
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
-              className="bg-red-500 text-white text-xs px-2 py-1 rounded-full"
+              className="rounded-full bg-red-500 px-2 py-1 text-xs text-white"
             >
               {activityCount} new
             </motion.div>

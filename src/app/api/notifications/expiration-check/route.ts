@@ -11,19 +11,16 @@ export async function POST(request: NextRequest) {
     // Verify this is an internal request (could use API key or internal header)
     const authHeader = request.headers.get('authorization');
     const internalKey = process.env.INTERNAL_API_KEY;
-    
+
     if (!internalKey || authHeader !== `Bearer ${internalKey}`) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     await connectDB();
-    
+
     // Create expiration notifications
     await createFileExpirationNotifications();
-    
+
     return NextResponse.json({
       success: true,
       message: 'File expiration notifications created successfully',
@@ -32,7 +29,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Failed to create file expiration notifications:', error);
     return NextResponse.json(
-      { 
+      {
         error: 'Failed to create notifications',
         timestamp: new Date().toISOString(),
       },
@@ -44,7 +41,10 @@ export async function POST(request: NextRequest) {
 // Handle unsupported methods
 export async function GET() {
   return NextResponse.json(
-    { error: 'Method not allowed. Use POST to trigger expiration notifications.' },
+    {
+      error:
+        'Method not allowed. Use POST to trigger expiration notifications.',
+    },
     { status: 405 }
   );
 }

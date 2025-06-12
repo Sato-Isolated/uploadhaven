@@ -1,16 +1,14 @@
-"use client";
+'use client';
 
-import QuickStatsGrid from "./QuickStatsGrid";
-import ActivityOverview from "./ActivityOverview";
-import SecurityStatus from "./SecurityStatus";
-import QuickActions from "./QuickActions";
-import DataExport from "./DataExport";
-import { SecurityScanModal } from "./modals";
-import type {
-  AdminDashboardProps,
-} from "./types";
-import { defaultSecurityStats } from "./utils";
-import { useActivitiesQuery, useSecurityData, useModal } from "@/hooks";
+import QuickStatsGrid from './QuickStatsGrid';
+import ActivityOverview from './ActivityOverview';
+import SecurityStatus from './SecurityStatus';
+import QuickActions from './QuickActions';
+import DataExport from './DataExport';
+import { SecurityScanModal } from './modals';
+import type { AdminDashboardProps } from './types';
+import { defaultSecurityStats } from './utils';
+import { useActivitiesQuery, useSecurityData, useModal } from '@/hooks';
 
 export default function AdminDashboard({ stats }: AdminDashboardProps) {
   // Use useModal hook for modal management
@@ -20,11 +18,13 @@ export default function AdminDashboard({ stats }: AdminDashboardProps) {
     closeModal: closeSecurityModal,
   } = useModal();
   // Use TanStack Query hooks for better performance and caching
-  const { data: activitiesResponse, isLoading: activitiesLoading } = useActivitiesQuery({
-    limit: 3, // Only fetch 3 recent activities for dashboard overview
-  });
+  const { data: activitiesResponse, isLoading: activitiesLoading } =
+    useActivitiesQuery({
+      limit: 3, // Only fetch 3 recent activities for dashboard overview
+    });
 
-  const { data: securityResponse, isLoading: securityLoading } = useSecurityData();
+  const { data: securityResponse, isLoading: securityLoading } =
+    useSecurityData();
 
   // Extract data from responses
   const recentActivities = activitiesResponse?.activities || [];
@@ -46,7 +46,7 @@ export default function AdminDashboard({ stats }: AdminDashboardProps) {
       {/* Quick Stats Grid */}
       <QuickStatsGrid stats={stats} />
       {/* Activity Overview */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <ActivityOverview
           activities={recentActivities}
           loading={activitiesLoading}
@@ -56,10 +56,10 @@ export default function AdminDashboard({ stats }: AdminDashboardProps) {
           loading={securityLoading}
         />
       </div>
-      {/* Quick Actions */} 
+      {/* Quick Actions */}
       <QuickActions onSecurityScan={handleSecurityScan} />
       {/* Data Export */}
-      <DataExport /> 
+      <DataExport />
       {/* Modals */}
       <SecurityScanModal
         isOpen={showSecurityModal}

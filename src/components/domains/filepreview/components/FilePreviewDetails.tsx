@@ -1,6 +1,6 @@
-import { HardDrive, Eye, Calendar } from "lucide-react";
-import { formatFileSize } from "../utils/fileUtils";
-import type { ClientFileData } from "@/types";
+import { HardDrive, Eye, Calendar } from 'lucide-react';
+import { formatFileSize } from '../utils/fileUtils';
+import type { ClientFileData } from '@/types';
 
 interface FilePreviewDetailsProps {
   fileInfo: ClientFileData;
@@ -37,7 +37,7 @@ export function FilePreviewDetails({
           <div className="flex items-center space-x-2 text-sm">
             <Calendar className="h-4 w-4 text-gray-500" />
             <span className="text-gray-600">Expires:</span>
-            <span className={`font-medium ${isExpired ? "text-red-600" : ""}`}>
+            <span className={`font-medium ${isExpired ? 'text-red-600' : ''}`}>
               {new Date(fileInfo.expiresAt).toLocaleDateString()}
             </span>
           </div>

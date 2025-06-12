@@ -1,26 +1,26 @@
-"use client";
+'use client';
 
-import { motion } from "motion/react";
+import { motion } from 'motion/react';
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+} from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
-import RecentActivity from "@/components/domains/activity/recent";
-import { Activity } from "lucide-react";
-import { formatDistanceToNow } from "date-fns";
-import type { ActivityEvent } from "@/types";
-import { getActivityColor, formatActivityType } from "./utils";
+} from '@/components/ui/dialog';
+import RecentActivity from '@/components/domains/activity/recent';
+import { Activity } from 'lucide-react';
+import { formatDistanceToNow } from 'date-fns';
+import type { ActivityEvent } from '@/types';
+import { getActivityColor, formatActivityType } from './utils';
 
 interface ActivityOverviewProps {
   activities: ActivityEvent[];
@@ -37,7 +37,7 @@ export default function ActivityOverview({
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.5, delay: 0.4 }}
     >
-      <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-gray-200 dark:border-gray-700">
+      <Card className="border-gray-200 bg-white/80 backdrop-blur-sm dark:border-gray-700 dark:bg-gray-800/80">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Activity className="h-5 w-5 text-blue-600 dark:text-blue-400" />
@@ -49,7 +49,7 @@ export default function ActivityOverview({
           <div className="space-y-4">
             {loading ? (
               <div className="flex items-center justify-center py-8">
-                <div className="text-sm text-muted-foreground">
+                <div className="text-muted-foreground text-sm">
                   Loading activities...
                 </div>
               </div>
@@ -57,10 +57,10 @@ export default function ActivityOverview({
               activities.map((activity) => (
                 <div
                   key={activity._id}
-                  className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg"
+                  className="bg-muted/50 flex items-center gap-3 rounded-lg p-3"
                 >
                   <div
-                    className={`w-2 h-2 rounded-full ${getActivityColor(
+                    className={`h-2 w-2 rounded-full ${getActivityColor(
                       activity.type
                     )}`}
                   ></div>
@@ -68,7 +68,7 @@ export default function ActivityOverview({
                     <p className="text-sm font-medium">
                       {formatActivityType(activity.type)}
                     </p>
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-muted-foreground text-xs">
                       {formatDistanceToNow(new Date(activity.timestamp), {
                         addSuffix: true,
                       })}
@@ -78,23 +78,24 @@ export default function ActivityOverview({
               ))
             ) : (
               <div className="flex items-center justify-center py-8">
-                <div className="text-sm text-muted-foreground">
+                <div className="text-muted-foreground text-sm">
                   No recent activities
                 </div>
               </div>
             )}
           </div>
-          <div className="mt-4 pt-4 border-t">
+          <div className="mt-4 border-t pt-4">
             <Dialog>
               <DialogTrigger asChild>
                 <Button variant="outline" size="sm" className="w-full">
                   View All Activity
                 </Button>
               </DialogTrigger>
-              <DialogContent className="!max-w-6xl max-h-[85vh] overflow-hidden">
+              <DialogContent className="max-h-[85vh] !max-w-6xl overflow-hidden">
                 <DialogHeader>
                   <DialogTitle>Recent Activity</DialogTitle>
-                </DialogHeader>                <div className="overflow-y-auto max-h-[75vh] pr-2">
+                </DialogHeader>{' '}
+                <div className="max-h-[75vh] overflow-y-auto pr-2">
                   <RecentActivity enableInfiniteScroll={true} />
                 </div>
               </DialogContent>

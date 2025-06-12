@@ -1,18 +1,18 @@
-"use client";
+'use client';
 
-import { motion } from "motion/react";
-import { Button } from "@/components/ui/button";
+import { motion } from 'motion/react';
+import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Zap, Search, Shield } from "lucide-react";
-import type { ScanType } from "@/types/security";
-import { BaseComponentProps } from "@/types";
+} from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Zap, Search, Shield } from 'lucide-react';
+import type { ScanType } from '@/types/security';
+import { BaseComponentProps } from '@/types';
 
 interface ScanTypeOption {
   id: ScanType;
@@ -31,28 +31,28 @@ interface ScanTypeSelectorProps extends BaseComponentProps {
 
 const scanTypeOptions: ScanTypeOption[] = [
   {
-    id: "quick",
-    name: "Quick Scan",
-    description: "Basic security checks and threat detection",
-    duration: "~30 seconds",
-    icon: <Zap className="w-5 h-5" />,
-    color: "bg-blue-500",
+    id: 'quick',
+    name: 'Quick Scan',
+    description: 'Basic security checks and threat detection',
+    duration: '~30 seconds',
+    icon: <Zap className="h-5 w-5" />,
+    color: 'bg-blue-500',
   },
   {
-    id: "full",
-    name: "Full System Scan",
-    description: "Comprehensive scan of all files and system integrity",
-    duration: "~2-5 minutes",
-    icon: <Search className="w-5 h-5" />,
-    color: "bg-orange-500",
+    id: 'full',
+    name: 'Full System Scan',
+    description: 'Comprehensive scan of all files and system integrity',
+    duration: '~2-5 minutes',
+    icon: <Search className="h-5 w-5" />,
+    color: 'bg-orange-500',
   },
   {
-    id: "custom",
-    name: "Custom Scan",
-    description: "Advanced scanning with custom security checks",
-    duration: "~1-3 minutes",
-    icon: <Shield className="w-5 h-5" />,
-    color: "bg-purple-500",
+    id: 'custom',
+    name: 'Custom Scan',
+    description: 'Advanced scanning with custom security checks',
+    duration: '~1-3 minutes',
+    icon: <Shield className="h-5 w-5" />,
+    color: 'bg-purple-500',
   },
 ];
 
@@ -72,7 +72,7 @@ export default function ScanTypeSelector({
   selectedScanType,
   onScanTypeChange,
   disabled = false,
-  className = "",
+  className = '',
 }: ScanTypeSelectorProps) {
   return (
     <Card className={className}>
@@ -83,7 +83,7 @@ export default function ScanTypeSelector({
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           {scanTypeOptions.map((type) => (
             <motion.div
               key={type.id}
@@ -91,18 +91,18 @@ export default function ScanTypeSelector({
               whileTap={{ scale: disabled ? 1 : 0.98 }}
             >
               <Button
-                variant={selectedScanType === type.id ? "default" : "outline"}
+                variant={selectedScanType === type.id ? 'default' : 'outline'}
                 onClick={() => !disabled && onScanTypeChange(type.id)}
                 disabled={disabled}
-                className={`h-auto p-4 flex flex-col items-start gap-2 w-full ${
-                  selectedScanType === type.id ? type.color : ""
+                className={`flex h-auto w-full flex-col items-start gap-2 p-4 ${
+                  selectedScanType === type.id ? type.color : ''
                 }`}
               >
-                <div className="flex items-center gap-2 w-full">
+                <div className="flex w-full items-center gap-2">
                   {type.icon}
                   <span className="font-medium">{type.name}</span>
                 </div>
-                <p className="text-xs text-left opacity-80">
+                <p className="text-left text-xs opacity-80">
                   {type.description}
                 </p>
                 <Badge variant="secondary" className="text-xs">

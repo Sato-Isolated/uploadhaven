@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import { motion, AnimatePresence } from "motion/react";
-import { Badge } from "@/components/ui/badge";
-import { Shield, AlertTriangle, Check } from "lucide-react";
-import type { FileStatusProps } from "@/types";
+import { motion, AnimatePresence } from 'motion/react';
+import { Badge } from '@/components/ui/badge';
+import { Shield, AlertTriangle, Check } from 'lucide-react';
+import type { FileStatusProps } from '@/types';
 
 type FileStatusBadgeProps = FileStatusProps;
 
@@ -13,7 +13,7 @@ export default function FileStatusBadge({
 }: FileStatusBadgeProps) {
   return (
     <AnimatePresence mode="wait">
-      {status === "scanning" && (
+      {status === 'scanning' && (
         <motion.div
           key="scanning"
           initial={{ opacity: 0, scale: 0.8 }}
@@ -29,16 +29,16 @@ export default function FileStatusBadge({
               transition={{
                 duration: 1,
                 repeat: Infinity,
-                ease: "linear",
+                ease: 'linear',
               }}
             >
-              <Shield className="h-3 w-3 mr-1" />
+              <Shield className="mr-1 h-3 w-3" />
             </motion.div>
             Scanning...
           </Badge>
         </motion.div>
       )}
-      {status === "threat_detected" && (
+      {status === 'threat_detected' && (
         <motion.div
           key="threat"
           initial={{ opacity: 0, scale: 0.8 }}
@@ -56,13 +56,13 @@ export default function FileStatusBadge({
                 repeat: Infinity,
               }}
             >
-              <AlertTriangle className="h-3 w-3 mr-1" />
+              <AlertTriangle className="mr-1 h-3 w-3" />
             </motion.div>
-            {threatDetails || "Threat"}
+            {threatDetails || 'Threat'}
           </Badge>
         </motion.div>
       )}
-      {status === "completed" && (
+      {status === 'completed' && (
         <motion.div
           key="completed"
           initial={{ opacity: 0, scale: 0.8 }}
@@ -76,15 +76,15 @@ export default function FileStatusBadge({
             <motion.div
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
-              transition={{ type: "spring", stiffness: 500 }}
+              transition={{ type: 'spring', stiffness: 500 }}
             >
-              <Check className="h-3 w-3 mr-1" />
+              <Check className="mr-1 h-3 w-3" />
             </motion.div>
             Complete
           </Badge>
         </motion.div>
       )}
-      {status === "error" && (
+      {status === 'error' && (
         <motion.div
           key="error"
           initial={{ opacity: 0, scale: 0.8 }}
@@ -92,7 +92,7 @@ export default function FileStatusBadge({
           exit={{ opacity: 0, scale: 0.8 }}
         >
           <Badge variant="destructive">
-            <AlertTriangle className="h-3 w-3 mr-1" />
+            <AlertTriangle className="mr-1 h-3 w-3" />
             Error
           </Badge>
         </motion.div>

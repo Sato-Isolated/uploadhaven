@@ -1,13 +1,13 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useAdminAnalytics } from "@/components/domains/admin/analytics/hooks";
+import { useState } from 'react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useAdminAnalytics } from '@/components/domains/admin/analytics/hooks';
 import {
   getFileTypeIcon,
   formatDate,
   formatDateTime,
-} from "@/components/domains/admin/analytics/utils";
+} from '@/components/domains/admin/analytics/utils';
 import {
   AnalyticsHeader,
   SystemOverviewCards,
@@ -18,16 +18,16 @@ import {
   AnalyticsLoadingState,
   AnalyticsErrorState,
   AnalyticsEmptyState,
-} from "./components";
+} from './components';
 
 interface AdminAnalyticsProps {
   className?: string;
 }
 
 export default function AdminAnalytics({
-  className = "",
+  className = '',
 }: AdminAnalyticsProps) {
-  const [timeRange, setTimeRange] = useState("30d");
+  const [timeRange, setTimeRange] = useState('30d');
 
   // Use TanStack Query for better performance and caching
   const {
@@ -65,14 +65,14 @@ export default function AdminAnalytics({
 
   // Colors for charts
   const COLORS = [
-    "#3B82F6",
-    "#10B981",
-    "#F59E0B",
-    "#EF4444",
-    "#8B5CF6",
-    "#06B6D4",
-    "#84CC16",
-    "#F97316",
+    '#3B82F6',
+    '#10B981',
+    '#F59E0B',
+    '#EF4444',
+    '#8B5CF6',
+    '#06B6D4',
+    '#84CC16',
+    '#F97316',
   ];
 
   return (
@@ -106,7 +106,7 @@ export default function AdminAnalytics({
             userAnalytics={userAnalytics}
             formatDate={formatDate}
           />
-        </TabsContent>{" "}
+        </TabsContent>{' '}
         {/* Security Analytics Tab */}
         <TabsContent value="security">
           <SecurityAnalyticsTab

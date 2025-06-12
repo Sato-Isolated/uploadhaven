@@ -1,15 +1,15 @@
-"use client";
+'use client';
 
-import { useState, useCallback } from "react";
-import { toast } from "sonner";
-import { detectSuspiciousActivity, logSecurityEvent } from "@/lib/security";
-import type { ScanResult } from "@/types";
+import { useState, useCallback } from 'react';
+import { toast } from 'sonner';
+import { detectSuspiciousActivity, logSecurityEvent } from '@/lib/security';
+import type { ScanResult } from '@/types';
 import type {
   ScanType,
   ScannedFile,
   MalwareScanResult,
   QuotaStatus,
-} from "@/types/security";
+} from '@/types/security';
 
 export interface SecurityScanningState {
   isScanning: boolean;
@@ -48,9 +48,9 @@ export function useSecurityScanning(): UseSecurityScanningReturn {
   // State management
   const [isScanning, setIsScanning] = useState(false);
   const [scanProgress, setScanProgress] = useState(0);
-  const [selectedScanType, setSelectedScanType] = useState<ScanType>("quick");
+  const [selectedScanType, setSelectedScanType] = useState<ScanType>('quick');
   const [scanResults, setScanResults] = useState<ScanResult[]>([]);
-  const [currentScanStep, setCurrentScanStep] = useState("");
+  const [currentScanStep, setCurrentScanStep] = useState('');
   const [scannedFiles, setScannedFiles] = useState<ScannedFile[]>([]);
   const [totalFilesToScan, setTotalFilesToScan] = useState(0);
   const [currentFileIndex, setCurrentFileIndex] = useState(0);
@@ -58,37 +58,37 @@ export function useSecurityScanning(): UseSecurityScanningReturn {
 
   // API operations
   const fetchFilesList = useCallback(async () => {
-    const response = await fetch("/api/security/files");
+    const response = await fetch('/api/security/files');
     if (!response.ok) {
-      throw new Error("Failed to fetch files list");
+      throw new Error('Failed to fetch files list');
     }
     return response.json();
   }, []);
 
   const scanSingleFile = useCallback(async (fileName: string) => {
-    const response = await fetch("/api/security/scan/file", {
-      method: "POST",
+    const response = await fetch('/api/security/scan/file', {
+      method: 'POST',
       headers: {
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify({ fileName }),
     });
     if (!response.ok) {
-      throw new Error("Failed to scan file");
+      throw new Error('Failed to scan file');
     }
     return response.json();
   }, []);
 
   const scanUploadedFile = useCallback(async (file: File) => {
     const formData = new FormData();
-    formData.append("file", file);
+    formData.append('file', file);
 
-    const response = await fetch("/api/security/scan", {
-      method: "POST",
+    const response = await fetch('/api/security/scan', {
+      method: 'POST',
       body: formData,
     });
     if (!response.ok) {
-      throw new Error("File scan failed");
+      throw new Error('File scan failed');
     }
     return response.json();
   }, []);
@@ -100,35 +100,35 @@ export function useSecurityScanning(): UseSecurityScanningReturn {
     setIsScanning(true);
     setScanProgress(0);
     setScanResults([]);
-    setCurrentScanStep("");
+    setCurrentScanStep('');
     setScannedFiles([]);
     setCurrentFileIndex(0);
 
     const scanSteps =
-      selectedScanType === "quick"
+      selectedScanType === 'quick'
         ? [
-            "Initializing quick scan",
-            "Checking recent uploads",
-            "Scanning for basic threats",
-            "Analyzing file signatures",
-            "Completing quick scan",
+            'Initializing quick scan',
+            'Checking recent uploads',
+            'Scanning for basic threats',
+            'Analyzing file signatures',
+            'Completing quick scan',
           ]
-        : selectedScanType === "full"
-        ? [
-            "Initializing full scan",
-            "Checking file system",
-            "Analyzing suspicious activities",
-            "Scanning for malware",
-            "Validating system integrity",
-            "Checking upload history",
-            "Analyzing security logs",
-          ]
-        : [
-            "Initializing custom scan",
-            "Running advanced threat detection",
-            "Deep system analysis",
-            "Custom security checks",
-          ];
+        : selectedScanType === 'full'
+          ? [
+              'Initializing full scan',
+              'Checking file system',
+              'Analyzing suspicious activities',
+              'Scanning for malware',
+              'Validating system integrity',
+              'Checking upload history',
+              'Analyzing security logs',
+            ]
+          : [
+              'Initializing custom scan',
+              'Running advanced threat detection',
+              'Deep system analysis',
+              'Custom security checks',
+            ];
 
     const results: ScanResult[] = [];
 
@@ -139,44 +139,44 @@ export function useSecurityScanning(): UseSecurityScanningReturn {
 
         // Simulate scan delay
         await new Promise((resolve) =>
-          setTimeout(resolve, selectedScanType === "quick" ? 1000 : 2000)
+          setTimeout(resolve, selectedScanType === 'quick' ? 1000 : 2000)
         );
 
         // Perform actual security checks based on scan step
-        if (scanSteps[i].includes("suspicious")) {
-          const isSuspicious = detectSuspiciousActivity("0.0.0.0");
+        if (scanSteps[i].includes('suspicious')) {
+          const isSuspicious = detectSuspiciousActivity('0.0.0.0');
           if (isSuspicious) {
             results.push({
-              type: "Suspicious Activity",
-              status: "warning",
-              message: "Detected suspicious activity patterns",
+              type: 'Suspicious Activity',
+              status: 'warning',
+              message: 'Detected suspicious activity patterns',
               details:
-                "Multiple failed upload attempts from specific IPs detected",
+                'Multiple failed upload attempts from specific IPs detected',
               timestamp: new Date(),
             });
           } else {
             results.push({
-              type: "Suspicious Activity",
-              status: "clean",
-              message: "No suspicious activities detected",
+              type: 'Suspicious Activity',
+              status: 'clean',
+              message: 'No suspicious activities detected',
               timestamp: new Date(),
             });
           }
         }
 
-        if (scanSteps[i].includes("system integrity")) {
+        if (scanSteps[i].includes('system integrity')) {
           const hasIntegrityIssues = Math.random() < 0.1;
           results.push({
-            type: "System Integrity",
-            status: hasIntegrityIssues ? "warning" : "clean",
+            type: 'System Integrity',
+            status: hasIntegrityIssues ? 'warning' : 'clean',
             message: hasIntegrityIssues
-              ? "Minor system integrity issues detected"
-              : "System integrity verified",
+              ? 'Minor system integrity issues detected'
+              : 'System integrity verified',
             timestamp: new Date(),
           });
         }
 
-        if (scanSteps[i].includes("malware")) {
+        if (scanSteps[i].includes('malware')) {
           // Check for malware in uploaded files
           try {
             const filesList = await fetchFilesList();
@@ -194,7 +194,7 @@ export function useSecurityScanning(): UseSecurityScanningReturn {
                 // Add file to scanned files list
                 setScannedFiles((prev) => [
                   ...prev,
-                  { fileName: file.name, status: "scanning" },
+                  { fileName: file.name, status: 'scanning' },
                 ]);
 
                 try {
@@ -203,17 +203,17 @@ export function useSecurityScanning(): UseSecurityScanningReturn {
                   if (scanResult) {
                     // Update file status
                     const fileStatus = scanResult.isMalicious
-                      ? "threat"
+                      ? 'threat'
                       : scanResult.isSuspicious
-                      ? "suspicious"
-                      : "clean";
+                        ? 'suspicious'
+                        : 'clean';
 
                     const details =
                       scanResult.threatName ||
                       `Source: ${scanResult.source}` +
                         (scanResult.engineResults
                           ? ` (${scanResult.engineResults.length} engines)`
-                          : "");
+                          : '');
 
                     setScannedFiles((prev) =>
                       prev.map((f, idx) =>
@@ -232,7 +232,7 @@ export function useSecurityScanning(): UseSecurityScanningReturn {
                     setScannedFiles((prev) =>
                       prev.map((f, idx) =>
                         idx === fileIndex
-                          ? { ...f, status: "error", details: "Scan failed" }
+                          ? { ...f, status: 'error', details: 'Scan failed' }
                           : f
                       )
                     );
@@ -242,7 +242,7 @@ export function useSecurityScanning(): UseSecurityScanningReturn {
                   setScannedFiles((prev) =>
                     prev.map((f, idx) =>
                       idx === fileIndex
-                        ? { ...f, status: "error", details: "Scan failed" }
+                        ? { ...f, status: 'error', details: 'Scan failed' }
                         : f
                     )
                   );
@@ -254,35 +254,35 @@ export function useSecurityScanning(): UseSecurityScanningReturn {
             }
 
             const threatsCount = scannedFiles.filter(
-              (f) => f.status === "threat"
+              (f) => f.status === 'threat'
             ).length;
             const suspiciousCount = scannedFiles.filter(
-              (f) => f.status === "suspicious"
+              (f) => f.status === 'suspicious'
             ).length;
 
             results.push({
-              type: "Malware Scan",
+              type: 'Malware Scan',
               status:
                 threatsCount > 0
-                  ? "threat"
+                  ? 'threat'
                   : suspiciousCount > 0
-                  ? "warning"
-                  : "clean",
+                    ? 'warning'
+                    : 'clean',
               message:
                 threatsCount > 0
                   ? `${threatsCount} malicious files detected`
                   : suspiciousCount > 0
-                  ? `${suspiciousCount} suspicious files detected`
-                  : "No malware detected",
+                    ? `${suspiciousCount} suspicious files detected`
+                    : 'No malware detected',
               details: `Scanned ${filesList.files?.length || 0} files`,
               timestamp: new Date(),
             });
           } catch (error) {
             results.push({
-              type: "Malware Scan",
-              status: "warning",
-              message: "Unable to complete malware scan",
-              details: error instanceof Error ? error.message : "Unknown error",
+              type: 'Malware Scan',
+              status: 'warning',
+              message: 'Unable to complete malware scan',
+              details: error instanceof Error ? error.message : 'Unknown error',
               timestamp: new Date(),
             });
           }
@@ -291,24 +291,24 @@ export function useSecurityScanning(): UseSecurityScanningReturn {
 
       setScanResults(results);
       setScanProgress(100);
-      setCurrentScanStep("Scan completed"); // Log security event
+      setCurrentScanStep('Scan completed'); // Log security event
       logSecurityEvent(
-        "file_scan",
+        'file_scan',
         `Security scan completed: ${selectedScanType} scan with ${results.length} results`,
-        "low",
+        'low',
         {
-          fileSize: results.filter((r) => r.status === "threat").length,
+          fileSize: results.filter((r) => r.status === 'threat').length,
         }
       );
 
-      toast.success("Security scan completed successfully");
+      toast.success('Security scan completed successfully');
     } catch (error) {
       const errorMessage =
-        error instanceof Error ? error.message : "Scan failed";
+        error instanceof Error ? error.message : 'Scan failed';
       setScanResults([
         {
-          type: "Scan Error",
-          status: "threat",
+          type: 'Scan Error',
+          status: 'threat',
           message: errorMessage,
           timestamp: new Date(),
         },
@@ -316,7 +316,7 @@ export function useSecurityScanning(): UseSecurityScanningReturn {
       toast.error(`Scan failed: ${errorMessage}`);
     } finally {
       setIsScanning(false);
-      setCurrentScanStep("");
+      setCurrentScanStep('');
     }
   }, [
     isScanning,
@@ -329,15 +329,15 @@ export function useSecurityScanning(): UseSecurityScanningReturn {
   const stopScan = useCallback(() => {
     setIsScanning(false);
     setScanProgress(0);
-    setCurrentScanStep("");
-    toast.info("Scan stopped");
+    setCurrentScanStep('');
+    toast.info('Scan stopped');
   }, []);
 
   const resetScan = useCallback(() => {
     setIsScanning(false);
     setScanProgress(0);
     setScanResults([]);
-    setCurrentScanStep("");
+    setCurrentScanStep('');
     setScannedFiles([]);
     setTotalFilesToScan(0);
     setCurrentFileIndex(0);

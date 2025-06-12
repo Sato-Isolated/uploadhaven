@@ -1,8 +1,8 @@
-import connectDB from "@/lib/mongodb";
-import { File, saveSecurityEvent } from "@/lib/models";
-import { unlink } from "fs/promises";
-import path from "path";
-import type { CleanupStats } from "@/types";
+import connectDB from '@/lib/mongodb';
+import { File, saveSecurityEvent } from '@/lib/models';
+import { unlink } from 'fs/promises';
+import path from 'path';
+import type { CleanupStats } from '@/types';
 
 class BackgroundCleanupService {
   private intervalId: NodeJS.Timeout | null = null;
@@ -12,7 +12,7 @@ class BackgroundCleanupService {
 
   constructor(intervalMinutes = 5) {
     this.intervalMs = intervalMinutes * 60 * 1000; // Convert to milliseconds
-    this.uploadsDir = path.join(process.cwd(), "public", "uploads");
+    this.uploadsDir = path.join(process.cwd(), 'public', 'uploads');
   }
 
   /**
@@ -84,7 +84,7 @@ class BackgroundCleanupService {
       for (const file of expiredFiles) {
         try {
           // Mark as deleted in database
-          await File.findByIdAndUpdate(file._id, { isDeleted: true });          // Try to delete physical file
+          await File.findByIdAndUpdate(file._id, { isDeleted: true }); // Try to delete physical file
           try {
             const filePath = path.join(this.uploadsDir, file.filename);
             await unlink(filePath);
@@ -106,11 +106,11 @@ class BackgroundCleanupService {
 
       // Log cleanup activity
       await saveSecurityEvent({
-        type: "system_maintenance",
-        ip: "127.0.0.1",
+        type: 'system_maintenance',
+        ip: '127.0.0.1',
         details: `Background cleanup completed: ${stats.deletedCount} expired files removed`,
-        severity: "low",
-        userAgent: "Background Service",
+        severity: 'low',
+        userAgent: 'Background Service',
         metadata: {
           deletedCount: stats.deletedCount,
           totalExpired: stats.totalExpired,
@@ -158,11 +158,11 @@ class BackgroundCleanupService {
 
         // Log instant deletion
         await saveSecurityEvent({
-          type: "file_expired",
-          ip: "127.0.0.1",
+          type: 'file_expired',
+          ip: '127.0.0.1',
           details: `Instant deletion of expired file: ${file.filename}`,
-          severity: "low",
-          userAgent: "Background Service",
+          severity: 'low',
+          userAgent: 'Background Service',
           metadata: {
             fileId: file._id.toString(),
             filename: file.filename,
@@ -174,7 +174,8 @@ class BackgroundCleanupService {
         return true;
       }
 
-      return false;    } catch {
+      return false;
+    } catch {
       // Error checking/deleting file ${fileId}
       return false;
     }

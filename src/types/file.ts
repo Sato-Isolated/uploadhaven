@@ -1,7 +1,7 @@
 /**
  * Centralized File Type System for UploadHaven
  * Replaces 6+ different FileData interfaces across the codebase
- * 
+ *
  * Hierarchy:
  * BaseFileData -> ClientFileData & AdminFileData
  * UploadedFile (for upload process)
@@ -15,17 +15,23 @@
 /**
  * File type classification
  */
-export type FileType = "image" | "video" | "audio" | "document" | "archive" | "other";
+export type FileType =
+  | 'image'
+  | 'video'
+  | 'audio'
+  | 'document'
+  | 'archive'
+  | 'other';
 
 /**
  * File upload status during processing
  */
-export type FileUploadStatus = 
-  | "scanning"
-  | "uploading" 
-  | "completed"
-  | "error"
-  | "threat_detected";
+export type FileUploadStatus =
+  | 'scanning'
+  | 'uploading'
+  | 'completed'
+  | 'error'
+  | 'threat_detected';
 
 /**
  * Base file data structure - shared properties across all file interfaces
@@ -84,7 +90,7 @@ export interface FilePreviewData {
 }
 
 // =============================================================================
-// Admin-Side File Interfaces  
+// Admin-Side File Interfaces
 // =============================================================================
 
 /**
@@ -157,14 +163,27 @@ export interface IFile {
  * Type guard to check if object is ClientFileData
  */
 export function isClientFileData(obj: unknown): obj is ClientFileData {
-  return typeof obj === 'object' && obj !== null && 'id' in obj && typeof (obj as Record<string, unknown>).id === 'string' && 'name' in obj && typeof (obj as Record<string, unknown>).name === 'string';
+  return (
+    typeof obj === 'object' &&
+    obj !== null &&
+    'id' in obj &&
+    typeof (obj as Record<string, unknown>).id === 'string' &&
+    'name' in obj &&
+    typeof (obj as Record<string, unknown>).name === 'string'
+  );
 }
 
 /**
  * Type guard to check if object is AdminFileData
  */
 export function isAdminFileData(obj: unknown): obj is AdminFileData {
-  return typeof obj === 'object' && obj !== null && 'id' in obj && typeof (obj as Record<string, unknown>).id === 'string' && 'isAnonymous' in obj;
+  return (
+    typeof obj === 'object' &&
+    obj !== null &&
+    'id' in obj &&
+    typeof (obj as Record<string, unknown>).id === 'string' &&
+    'isAnonymous' in obj
+  );
 }
 
 /**
@@ -188,7 +207,10 @@ export function toClientFileData(dbFile: IFile): ClientFileData {
 /**
  * Convert database model to admin file data
  */
-export function toAdminFileData(dbFile: IFile, userName?: string): AdminFileData {
+export function toAdminFileData(
+  dbFile: IFile,
+  userName?: string
+): AdminFileData {
   return {
     id: dbFile._id,
     name: dbFile.filename,
@@ -212,10 +234,20 @@ export function getFileTypeFromMimeType(mimeType: string): FileType {
   if (mimeType.startsWith('image/')) return 'image';
   if (mimeType.startsWith('video/')) return 'video';
   if (mimeType.startsWith('audio/')) return 'audio';
-  if (mimeType.includes('pdf') || mimeType.startsWith('text/') || 
-      mimeType.includes('document') || mimeType.includes('word')) return 'document';
-  if (mimeType.includes('zip') || mimeType.includes('archive') || 
-      mimeType.includes('tar') || mimeType.includes('gz')) return 'archive';
+  if (
+    mimeType.includes('pdf') ||
+    mimeType.startsWith('text/') ||
+    mimeType.includes('document') ||
+    mimeType.includes('word')
+  )
+    return 'document';
+  if (
+    mimeType.includes('zip') ||
+    mimeType.includes('archive') ||
+    mimeType.includes('tar') ||
+    mimeType.includes('gz')
+  )
+    return 'archive';
   return 'other';
 }
 
@@ -224,8 +256,9 @@ export function getFileTypeFromMimeType(mimeType: string): FileType {
  */
 export function getFileTypeFromFilename(filename: string): FileType {
   const ext = filename.split('.').pop()?.toLowerCase() || '';
-  
-  if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'].includes(ext)) return 'image';
+
+  if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'].includes(ext))
+    return 'image';
   if (['mp4', 'webm', 'avi', 'mov'].includes(ext)) return 'video';
   if (['mp3', 'wav', 'ogg', 'flac'].includes(ext)) return 'audio';
   if (['pdf', 'txt', 'md', 'doc', 'docx'].includes(ext)) return 'document';

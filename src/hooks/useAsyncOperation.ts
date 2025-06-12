@@ -1,10 +1,7 @@
-"use client";
+'use client';
 
-import { useState, useCallback } from "react";
-import type {
-  AsyncOperationState,
-  AsyncOperationOptions,
-} from "@/types";
+import { useState, useCallback } from 'react';
+import type { AsyncOperationState, AsyncOperationOptions } from '@/types';
 
 /**
  * Custom hook for managing async operations with loading states and error handling.
@@ -32,7 +29,7 @@ export function useAsyncOperation(options: AsyncOperationOptions = {}) {
         }
       } catch (error) {
         const errorMessage =
-          error instanceof Error ? error.message : "An unknown error occurred";
+          error instanceof Error ? error.message : 'An unknown error occurred';
         setState({ loading: false, error: errorMessage });
 
         if (onError) {

@@ -1,21 +1,21 @@
-import { auth } from "@/lib/auth";
-import { headers } from "next/headers";
-import { redirect } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import { ThemeToggle } from "@/components/ui/theme-toggle";
-import Link from "next/link";
-import AdminDashboard from "@/components/domains/admin/dashboard";
-import AdminFileManager from "@/components/domains/admin/filemanager";
-import AdminUserListWrapper from "@/components/domains/admin/users/AdminUserListWrapper";
-import AdminAnalytics from "@/components/domains/admin/analytics";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { auth } from '@/lib/auth';
+import { headers } from 'next/headers';
+import { redirect } from 'next/navigation';
+import { Button } from '@/components/ui/button';
+import { ThemeToggle } from '@/components/ui/theme-toggle';
+import Link from 'next/link';
+import AdminDashboard from '@/components/domains/admin/dashboard';
+import AdminFileManager from '@/components/domains/admin/filemanager';
+import AdminUserListWrapper from '@/components/domains/admin/users/AdminUserListWrapper';
+import AdminAnalytics from '@/components/domains/admin/analytics';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 // Helper function to fetch data with error handling
 async function fetchData(endpoint: string) {
   try {
-    const baseUrl = process.env.NEXTAUTH_URL || "http://localhost:3000";
+    const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000';
     const response = await fetch(`${baseUrl}${endpoint}`, {
-      cache: "no-store", // Always get fresh data for admin panel
+      cache: 'no-store', // Always get fresh data for admin panel
     });
 
     if (!response.ok) {
@@ -35,27 +35,27 @@ export default async function AdminPage() {
   });
 
   if (!session) {
-    redirect("/auth/signin");
+    redirect('/auth/signin');
   }
 
   // Check if user is admin (for now, we'll just check if they're authenticated)
   // Later we'll add proper role checking
   if (
-    session.user.role !== "admin" &&
-    session.user.email !== "admin@uploadhaven.com"
+    session.user.role !== 'admin' &&
+    session.user.email !== 'admin@uploadhaven.com'
   ) {
-    redirect("/dashboard");
+    redirect('/dashboard');
   } // Fetch data for admin components
   const [statsData, filesData, usersData] = await Promise.all([
-    fetchData("/api/stats?includeEvents=true"),
-    fetchData("/api/files"),
-    fetchData("/api/admin/users"),
+    fetchData('/api/stats?includeEvents=true'),
+    fetchData('/api/files'),
+    fetchData('/api/admin/users'),
   ]); // Map stats data to match AdminDashboard component expectations
   const dashboardStats = statsData
     ? {
         totalFiles: statsData.stats?.totalFiles || 0,
         totalUsers: statsData.users?.totalUsers || 0,
-        totalStorage: statsData.stats?.totalSize || "0 Bytes",
+        totalStorage: statsData.stats?.totalSize || '0 Bytes',
         todayUploads: statsData.stats?.last24hUploads || 0,
         activeUsers: statsData.users?.activeUsersLast7d || 0, // Users active in last 7 days
         securityEvents: statsData.security?.totalEvents || 0,
@@ -63,7 +63,7 @@ export default async function AdminPage() {
     : {
         totalFiles: 0,
         totalUsers: 0,
-        totalStorage: "0 Bytes",
+        totalStorage: '0 Bytes',
         todayUploads: 0,
         activeUsers: 0,
         securityEvents: 0,
@@ -96,34 +96,36 @@ export default async function AdminPage() {
   // Ensure users data is valid and filter out any invalid entries
   const validUsersData = Array.isArray(usersData?.users)
     ? usersData.users.filter(
-        (user: { id?: string; email?: string; name?: string }) => user && user.id && user.email && user.name
+        (user: { id?: string; email?: string; name?: string }) =>
+          user && user.id && user.email && user.name
       )
     : [];
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-800">
       <div className="container mx-auto px-4 py-8">
         {/* Background Elements */}
-        <div className="fixed inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob"></div>
-          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-yellow-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-2000"></div>
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-4000"></div>
+        <div className="pointer-events-none fixed inset-0 overflow-hidden">
+          <div className="animate-blob absolute -top-40 -right-40 h-80 w-80 rounded-full bg-purple-300 opacity-20 mix-blend-multiply blur-xl filter"></div>
+          <div className="animate-blob animation-delay-2000 absolute -bottom-40 -left-40 h-80 w-80 rounded-full bg-yellow-300 opacity-20 mix-blend-multiply blur-xl filter"></div>
+          <div className="animate-blob animation-delay-4000 absolute top-1/2 left-1/2 h-80 w-80 -translate-x-1/2 -translate-y-1/2 transform rounded-full bg-pink-300 opacity-20 mix-blend-multiply blur-xl filter"></div>
         </div>
 
         {/* Header */}
-        <div className="relative z-10 flex items-center justify-between mb-8">
+        <div className="relative z-10 mb-8 flex items-center justify-between">
           <div>
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-gray-900 via-blue-800 to-indigo-800 dark:from-white dark:via-blue-200 dark:to-indigo-200 bg-clip-text text-transparent">
+            <h1 className="bg-gradient-to-r from-gray-900 via-blue-800 to-indigo-800 bg-clip-text text-4xl font-bold text-transparent dark:from-white dark:via-blue-200 dark:to-indigo-200">
               Admin Panel
             </h1>
-            <p className="text-gray-600 dark:text-gray-400 mt-2 text-lg">
+            <p className="mt-2 text-lg text-gray-600 dark:text-gray-400">
               Manage users, files, and system settings
             </p>
-          </div>          <div className="flex items-center gap-4">
+          </div>{' '}
+          <div className="flex items-center gap-4">
             <ThemeToggle />
             <Link href="/dashboard">
               <Button
                 variant="outline"
-                className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-gray-200 dark:border-gray-700 hover:bg-white dark:hover:bg-gray-800 transition-all duration-200"
+                className="border-gray-200 bg-white/80 backdrop-blur-sm transition-all duration-200 hover:bg-white dark:border-gray-700 dark:bg-gray-800/80 dark:hover:bg-gray-800"
               >
                 Dashboard
               </Button>
@@ -131,7 +133,7 @@ export default async function AdminPage() {
             <Link href="/">
               <Button
                 variant="outline"
-                className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-gray-200 dark:border-gray-700 hover:bg-white dark:hover:bg-gray-800 transition-all duration-200"
+                className="border-gray-200 bg-white/80 backdrop-blur-sm transition-all duration-200 hover:bg-white dark:border-gray-700 dark:bg-gray-800/80 dark:hover:bg-gray-800"
               >
                 Home
               </Button>
@@ -142,7 +144,7 @@ export default async function AdminPage() {
         {/* Main Content */}
         <div className="relative z-10">
           <Tabs defaultValue="dashboard" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-4 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border border-gray-200 dark:border-gray-700">
+            <TabsList className="grid w-full grid-cols-4 border border-gray-200 bg-white/80 backdrop-blur-sm dark:border-gray-700 dark:bg-gray-800/80">
               <TabsTrigger
                 value="dashboard"
                 className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-indigo-600 data-[state=active]:text-white"

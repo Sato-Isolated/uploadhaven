@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import { useState, useMemo } from "react";
-import { useActivitiesQuery, useInfiniteActivitiesQuery } from "@/hooks";
-import { useRealTimeActivities } from "@/hooks/useRealTimePolling";
-import type { ActivityEvent } from "@/types";
+import { useState, useMemo } from 'react';
+import { useActivitiesQuery, useInfiniteActivitiesQuery } from '@/hooks';
+import { useRealTimeActivities } from '@/hooks/useRealTimePolling';
+import type { ActivityEvent } from '@/types';
 
 interface UseActivityManagementProps {
   enableInfiniteScroll?: boolean;
@@ -15,18 +15,18 @@ interface UseActivityManagementReturn {
   typeFilter: string;
   severityFilter: string;
   currentPage: number;
-  
+
   // Data
   activities: ActivityEvent[];
   loading: boolean;
   error: Error | null;
   hasMore: boolean;
   isFetchingNextPage: boolean;
-  
+
   // Real-time
   realtimeConnected: boolean;
   activityCount: number;
-  
+
   // Actions
   setTypeFilter: (filter: string) => void;
   setSeverityFilter: (filter: string) => void;
@@ -38,20 +38,20 @@ interface UseActivityManagementReturn {
 
 export function useActivityManagement({
   enableInfiniteScroll = false,
-  maxItems
+  maxItems,
 }: UseActivityManagementProps = {}): UseActivityManagementReturn {
-  const [typeFilter, setTypeFilter] = useState<string>("");
-  const [severityFilter, setSeverityFilter] = useState<string>("");
+  const [typeFilter, setTypeFilter] = useState<string>('');
+  const [severityFilter, setSeverityFilter] = useState<string>('');
   const [currentPage, setCurrentPage] = useState<number>(1);
 
   // Choose between infinite scroll or pagination
   const useInfinite = enableInfiniteScroll && !maxItems;
-  
+
   // Real-time updates for activities using polling
-  const { 
-    isConnected: realtimeConnected, 
-    activityCount, 
-    resetActivityCount 
+  const {
+    isConnected: realtimeConnected,
+    activityCount,
+    resetActivityCount,
   } = useRealTimeActivities();
 
   // Regular query for pagination mode
@@ -60,12 +60,15 @@ export function useActivityManagement({
     isLoading: paginationLoading,
     error: paginationError,
     refetch: fetchActivities,
-  } = useActivitiesQuery({
-    page: currentPage,
-    limit: maxItems || 10,
-    type: typeFilter || undefined,
-    severity: severityFilter || undefined,
-  }, { enabled: !useInfinite });
+  } = useActivitiesQuery(
+    {
+      page: currentPage,
+      limit: maxItems || 10,
+      type: typeFilter || undefined,
+      severity: severityFilter || undefined,
+    },
+    { enabled: !useInfinite }
+  );
   // Infinite query for infinite scroll mode
   const {
     data: infiniteData,
@@ -75,16 +78,19 @@ export function useActivityManagement({
     hasNextPage,
     isFetchingNextPage,
     refetch: refetchInfinite,
-  } = useInfiniteActivitiesQuery({
-    limit: 10,
-    type: typeFilter || undefined,
-    severity: severityFilter || undefined,
-  }, { enabled: useInfinite });
+  } = useInfiniteActivitiesQuery(
+    {
+      limit: 10,
+      type: typeFilter || undefined,
+      severity: severityFilter || undefined,
+    },
+    { enabled: useInfinite }
+  );
 
   // Memoized activities data
   const activities = useMemo(() => {
     if (useInfinite && infiniteData) {
-      return infiniteData.pages.flatMap(page => page.activities || []);
+      return infiniteData.pages.flatMap((page) => page.activities || []);
     }
     return activityData?.activities || [];
   }, [useInfinite, infiniteData, activityData]);
@@ -92,7 +98,7 @@ export function useActivityManagement({
   const loading = useInfinite ? infiniteLoading : paginationLoading;
   const error = useInfinite ? infiniteError : paginationError;
   const hasMore = useInfinite ? hasNextPage : false;
-  const isFetching = useInfinite ? (isFetchingNextPage || false) : false;
+  const isFetching = useInfinite ? isFetchingNextPage || false : false;
 
   const loadMore = () => {
     if (useInfinite && hasNextPage) {
@@ -112,18 +118,18 @@ export function useActivityManagement({
     typeFilter,
     severityFilter,
     currentPage,
-    
+
     // Data
     activities,
     loading,
     error,
     hasMore,
     isFetchingNextPage: isFetching,
-    
+
     // Real-time
     realtimeConnected,
     activityCount,
-    
+
     // Actions
     setTypeFilter,
     setSeverityFilter,

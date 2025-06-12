@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import { Button } from "@/components/ui/button";
-import { RefreshCw, Download, Trash2 } from "lucide-react";
-import { SecurityActionsProps } from "../types";
+import { Button } from '@/components/ui/button';
+import { RefreshCw, Download, Trash2 } from 'lucide-react';
+import { SecurityActionsProps } from '../types';
 
 export default function SecurityActions({
   onRefresh,
@@ -11,7 +11,7 @@ export default function SecurityActions({
   isLoading,
 }: SecurityActionsProps) {
   return (
-    <div className="flex gap-3 mb-6">
+    <div className="mb-6 flex gap-3">
       <Button
         variant="outline"
         size="sm"
@@ -19,7 +19,7 @@ export default function SecurityActions({
         disabled={isLoading}
         className="flex items-center gap-2"
       >
-        <RefreshCw className={`w-4 h-4 ${isLoading ? "animate-spin" : ""}`} />
+        <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
         Refresh
       </Button>
 
@@ -30,7 +30,7 @@ export default function SecurityActions({
         disabled={isLoading}
         className="flex items-center gap-2"
       >
-        <Download className="w-4 h-4" />
+        <Download className="h-4 w-4" />
         Export
       </Button>
 
@@ -39,9 +39,9 @@ export default function SecurityActions({
         size="sm"
         onClick={onClear}
         disabled={isLoading}
-        className="flex items-center gap-2 text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-950"
+        className="flex items-center gap-2 text-red-600 hover:bg-red-50 hover:text-red-700 dark:text-red-400 dark:hover:bg-red-950 dark:hover:text-red-300"
       >
-        <Trash2 className="w-4 h-4" />
+        <Trash2 className="h-4 w-4" />
         Clear Logs
       </Button>
     </div>

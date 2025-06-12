@@ -10,14 +10,14 @@
 /**
  * Scan types available in the system
  */
-export type ScanType = "quick" | "full" | "custom";
+export type ScanType = 'quick' | 'full' | 'custom';
 
 /**
  * Malware scanning results
  */
 export interface ScanResult {
   type: string;
-  status: "clean" | "threat" | "warning";
+  status: 'clean' | 'threat' | 'warning';
   message: string;
   details?: string;
   timestamp: Date;
@@ -36,7 +36,7 @@ export interface MalwareScanResult {
     result: string;
     category: string;
   }>;
-  source: "local" | "virustotal" | "cache";
+  source: 'local' | 'virustotal' | 'cache';
   scannedAt: Date;
 }
 
@@ -79,7 +79,7 @@ export interface QuotaStatus {
  */
 export interface ScannedFile {
   fileName: string;
-  status: "scanning" | "clean" | "suspicious" | "threat" | "error";
+  status: 'scanning' | 'clean' | 'suspicious' | 'threat' | 'error';
   details?: string;
   scanResult?: MalwareScanResult;
 }

@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import { motion } from "motion/react";
-import { Music } from "lucide-react";
-import type { FilePreviewData, BaseComponentProps } from "@/types";
+import { motion } from 'motion/react';
+import { Music } from 'lucide-react';
+import type { FilePreviewData, BaseComponentProps } from '@/types';
 
 interface AudioPreviewProps extends BaseComponentProps {
   file: FilePreviewData;
@@ -26,10 +26,10 @@ export default function AudioPreview({ file }: AudioPreviewProps) {
           transition={{
             duration: 3,
             repeat: Infinity,
-            ease: "easeInOut",
+            ease: 'easeInOut',
           }}
         >
-          <Music className="w-16 h-16 mx-auto text-green-500 mb-2" />
+          <Music className="mx-auto mb-2 h-16 w-16 text-green-500" />
         </motion.div>
         <p className="text-lg font-medium">{file.originalName}</p>
       </div>

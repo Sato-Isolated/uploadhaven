@@ -53,7 +53,7 @@ export type SecuritySeverity = 'low' | 'medium' | 'high' | 'critical';
 /**
  * Security event types
  */
-export type SecurityEventType = 
+export type SecurityEventType =
   | 'malware_detected'
   | 'invalid_file'
   | 'rate_limit_exceeded'
@@ -82,15 +82,18 @@ export interface SecurityEvent {
   userAgent?: string;
   severity?: SecuritySeverity;
   metadata?: Record<string, unknown>;
-  details?: {
-    ip?: string;
-    filename?: string;
-    fileSize?: number;
-    userAgent?: string;
-    endpoint?: string;
-    reason?: string;
-    userId?: string;
-  } | string;  message?: string; // Optional message field for compatibility
+  details?:
+    | {
+        ip?: string;
+        filename?: string;
+        fileSize?: number;
+        userAgent?: string;
+        endpoint?: string;
+        reason?: string;
+        userId?: string;
+      }
+    | string;
+  message?: string; // Optional message field for compatibility
 }
 
 // =============================================================================
@@ -100,7 +103,7 @@ export interface SecurityEvent {
 /**
  * Notification types
  */
-export type NotificationType = 
+export type NotificationType =
   | 'file_downloaded'
   | 'file_expired_soon'
   | 'file_shared'

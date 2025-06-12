@@ -1,7 +1,7 @@
-import { NextRequest, NextResponse } from "next/server";
-import connectDB from "@/lib/mongodb";
-import { User, saveSecurityEvent } from "@/lib/models";
-import { headers } from "next/headers";
+import { NextRequest, NextResponse } from 'next/server';
+import connectDB from '@/lib/mongodb';
+import { User, saveSecurityEvent } from '@/lib/models';
+import { headers } from 'next/headers';
 
 export async function POST(
   request: NextRequest,
@@ -12,16 +12,16 @@ export async function POST(
 
     const headersList = await headers();
     const ip =
-      headersList.get("x-forwarded-for") ||
-      headersList.get("x-real-ip") ||
-      "127.0.0.1";
-    const userAgent = headersList.get("user-agent") || "Unknown";
+      headersList.get('x-forwarded-for') ||
+      headersList.get('x-real-ip') ||
+      '127.0.0.1';
+    const userAgent = headersList.get('user-agent') || 'Unknown';
 
     const { userId } = await params;
 
     if (!userId) {
       return NextResponse.json(
-        { success: false, error: "User ID is required" },
+        { success: false, error: 'User ID is required' },
         { status: 400 }
       );
     }
@@ -31,14 +31,14 @@ export async function POST(
 
     if (!user) {
       return NextResponse.json(
-        { success: false, error: "User not found" },
+        { success: false, error: 'User not found' },
         { status: 404 }
       );
     }
 
     if (user.emailVerified) {
       return NextResponse.json(
-        { success: false, error: "User email is already verified" },
+        { success: false, error: 'User email is already verified' },
         { status: 400 }
       );
     }
@@ -52,10 +52,10 @@ export async function POST(
 
     // Log security event
     await saveSecurityEvent({
-      type: "verification_email_resent",
+      type: 'verification_email_resent',
       ip,
       details: `Verification email resent for user ${user.email} by admin`,
-      severity: "low",
+      severity: 'low',
       userAgent,
       metadata: {
         userId: userId,
@@ -69,9 +69,9 @@ export async function POST(
       message: `Verification email sent to ${user.email} successfully`,
     });
   } catch (error) {
-    console.error("Resend verification error:", error);
+    console.error('Resend verification error:', error);
     return NextResponse.json(
-      { success: false, error: "Failed to resend verification email" },
+      { success: false, error: 'Failed to resend verification email' },
       { status: 500 }
     );
   }

@@ -1,1 +1,1 @@
-export { default as SecurityScanModal } from "./SecurityScanModal";
+export { default as SecurityScanModal } from './SecurityScanModal';

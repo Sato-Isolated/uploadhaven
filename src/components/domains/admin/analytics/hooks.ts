@@ -12,7 +12,10 @@ type TimeRange = '24h' | '7d' | '30d' | '90d';
 export function useAdminAnalytics(timeRange: string) {
   return useQuery({
     queryKey: queryKeys.analyticsAdmin(timeRange as TimeRange),
-    queryFn: () => ApiClient.get<AdminAnalytics>(`/api/analytics/admin?timeRange=${timeRange}`),
+    queryFn: () =>
+      ApiClient.get<AdminAnalytics>(
+        `/api/analytics/admin?timeRange=${timeRange}`
+      ),
     staleTime: 2 * 60 * 1000, // 2 minutes - données assez fraîches pour analytics
     refetchInterval: 5 * 60 * 1000, // Auto-refresh toutes les 5 minutes
     refetchOnWindowFocus: true, // Rafraîchir quand on revient sur l'onglet

@@ -1,13 +1,18 @@
-import { useState } from "react";
-import SecurityHeader from "./components/SecurityHeader";
-import SecurityActions from "./components/SecurityActions";
-import SecurityStatsGrid from "./components/SecurityStatsGrid";
-import SecurityEventsList from "./components/SecurityEventsList";
-import SecurityAlert from "./components/SecurityAlert";
-import { useSecurityData, useExportSecurityLogs, useClearSecurityLogs } from "@/hooks";
+import { useState } from 'react';
+import SecurityHeader from './components/SecurityHeader';
+import SecurityActions from './components/SecurityActions';
+import SecurityStatsGrid from './components/SecurityStatsGrid';
+import SecurityEventsList from './components/SecurityEventsList';
+import SecurityAlert from './components/SecurityAlert';
+import {
+  useSecurityData,
+  useExportSecurityLogs,
+  useClearSecurityLogs,
+} from '@/hooks';
 
 export default function SecurityPanel() {
-  const [dismissedAlerts, setDismissedAlerts] = useState<Set<string>>(    new Set()
+  const [dismissedAlerts, setDismissedAlerts] = useState<Set<string>>(
+    new Set()
   );
   // Use TanStack Query for security data
   const {
@@ -35,15 +40,16 @@ export default function SecurityPanel() {
   // Get critical/high severity events that haven't been dismissed
   const activeAlerts = events.filter(
     (event) =>
-      (event.severity === "critical" || event.severity === "high") &&
+      (event.severity === 'critical' || event.severity === 'high') &&
       !dismissedAlerts.has(event.id)
-  );  const exportSecurityLogs = () => {
+  );
+  const exportSecurityLogs = () => {
     exportLogsMutation.mutate();
   };
   const clearSecurityLogs = () => {
     if (
       !confirm(
-        "Are you sure you want to clear all security logs? This action cannot be undone."
+        'Are you sure you want to clear all security logs? This action cannot be undone.'
       )
     ) {
       return;

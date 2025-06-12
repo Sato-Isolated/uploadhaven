@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import {
   Select,
@@ -6,7 +6,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from '@/components/ui/select';
 
 interface AnalyticsHeaderProps {
   timeRange: string;
@@ -15,21 +15,19 @@ interface AnalyticsHeaderProps {
   description?: string;
 }
 
-export function AnalyticsHeader({ 
-  timeRange, 
+export function AnalyticsHeader({
+  timeRange,
   onTimeRangeChange,
-  title = "Admin Analytics",
-  description = "Comprehensive system analytics and insights"
+  title = 'Admin Analytics',
+  description = 'Comprehensive system analytics and insights',
 }: AnalyticsHeaderProps) {
   return (
-    <div className="flex justify-between items-center">
+    <div className="flex items-center justify-between">
       <div>
         <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
           {title}
         </h2>
-        <p className="text-gray-600 dark:text-gray-400">
-          {description}
-        </p>
+        <p className="text-gray-600 dark:text-gray-400">{description}</p>
       </div>
       <Select value={timeRange} onValueChange={onTimeRangeChange}>
         <SelectTrigger className="w-32">

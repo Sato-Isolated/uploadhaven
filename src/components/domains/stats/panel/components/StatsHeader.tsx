@@ -1,10 +1,10 @@
-"use client";
+'use client';
 
-import { motion } from "motion/react";
-import { CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { RefreshCw, TrendingUp } from "lucide-react";
-import { StatsHeaderProps } from "../types";
+import { motion } from 'motion/react';
+import { CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { RefreshCw, TrendingUp } from 'lucide-react';
+import { StatsHeaderProps } from '../types';
 
 export default function StatsHeader({ onRefresh }: StatsHeaderProps) {
   return (
@@ -16,7 +16,7 @@ export default function StatsHeader({ onRefresh }: StatsHeaderProps) {
       >
         <div className="flex items-center space-x-3">
           <motion.div
-            className="p-2 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg"
+            className="rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 p-2"
             animate={{
               scale: [1, 1.1, 1],
               rotate: [0, 5, -5, 0],
@@ -24,7 +24,7 @@ export default function StatsHeader({ onRefresh }: StatsHeaderProps) {
             transition={{
               duration: 3,
               repeat: Infinity,
-              ease: "easeInOut",
+              ease: 'easeInOut',
             }}
           >
             <TrendingUp className="h-5 w-5 text-white" />
@@ -45,7 +45,7 @@ export default function StatsHeader({ onRefresh }: StatsHeaderProps) {
         whileTap={{ scale: 0.95 }}
       >
         <Button variant="outline" size="sm" onClick={onRefresh}>
-          <RefreshCw className="h-4 w-4 mr-2" />
+          <RefreshCw className="mr-2 h-4 w-4" />
           Refresh
         </Button>
       </motion.div>

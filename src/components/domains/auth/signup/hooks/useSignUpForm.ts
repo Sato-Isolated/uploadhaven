@@ -42,7 +42,8 @@ export function useSignUpForm() {
   ];
 
   const isPasswordValid = passwordValidations.every((v) => v.valid);
-  const doPasswordsMatch = password === confirmPassword && confirmPassword.length > 0;
+  const doPasswordsMatch =
+    password === confirmPassword && confirmPassword.length > 0;
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -72,7 +73,8 @@ export function useSignUpForm() {
   };
 
   const togglePasswordVisibility = () => setShowPassword(!showPassword);
-  const toggleConfirmPasswordVisibility = () => setShowConfirmPassword(!showConfirmPassword);
+  const toggleConfirmPasswordVisibility = () =>
+    setShowConfirmPassword(!showConfirmPassword);
 
   return {
     // Form state

@@ -1,8 +1,8 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { ApiClient } from "@/lib/api/client";
-import { queryKeys } from "@/lib/queryKeys";
-import { toast } from "sonner";
-import type { ClientFileData } from "@/types";
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { ApiClient } from '@/lib/api/client';
+import { queryKeys } from '@/lib/queryKeys';
+import { toast } from 'sonner';
+import type { ClientFileData } from '@/types';
 
 interface FilesResponse {
   files: ClientFileData[];
@@ -15,7 +15,7 @@ export function useFiles() {
   return useQuery({
     queryKey: queryKeys.files(),
     queryFn: async (): Promise<ClientFileData[]> => {
-      const response = await ApiClient.get<FilesResponse>("/api/files");
+      const response = await ApiClient.get<FilesResponse>('/api/files');
       return response.files;
     },
     staleTime: 2 * 60 * 1000, // 2 minutes
@@ -66,7 +66,7 @@ export function useDeleteFile() {
     onError: (err, variables, context) => {
       // If the mutation fails, roll back
       queryClient.setQueryData(queryKeys.files(), context?.previousFiles);
-      toast.error("Failed to delete file. Please try again.");
+      toast.error('Failed to delete file. Please try again.');
     },
 
     onSettled: () => {
@@ -77,7 +77,7 @@ export function useDeleteFile() {
     },
 
     onSuccess: () => {
-      toast.success("File deleted successfully");
+      toast.success('File deleted successfully');
     },
   });
 }
@@ -90,7 +90,7 @@ export function useDeleteFiles() {
 
   return useMutation({
     mutationFn: (filenames: string[]) =>
-      ApiClient.post("/api/bulk-delete", { filenames }),
+      ApiClient.post('/api/bulk-delete', { filenames }),
     onMutate: async (filenames) => {
       // Cancel any outgoing refetches
       await queryClient.cancelQueries({ queryKey: queryKeys.files() });
@@ -112,7 +112,7 @@ export function useDeleteFiles() {
     onError: (err, variables, context) => {
       // If the mutation fails, roll back
       queryClient.setQueryData(queryKeys.files(), context?.previousFiles);
-      toast.error("Failed to delete files. Please try again.");
+      toast.error('Failed to delete files. Please try again.');
     },
 
     onSettled: () => {
@@ -136,7 +136,7 @@ export function useUploadFile() {
 
   return useMutation<ClientFileData, Error, FormData>({
     mutationFn: async (formData: FormData): Promise<ClientFileData> => {
-      const response = await ApiClient.uploadFile("/api/upload", formData);
+      const response = await ApiClient.uploadFile('/api/upload', formData);
       return response as ClientFileData;
     },
 
@@ -151,12 +151,12 @@ export function useUploadFile() {
       queryClient.invalidateQueries({ queryKey: queryKeys.userStats() });
       queryClient.invalidateQueries({ queryKey: queryKeys.analytics() });
 
-      toast.success("File uploaded successfully");
+      toast.success('File uploaded successfully');
     },
 
     onError: (error) => {
-      toast.error("Upload failed. Please try again.");
-      console.error("Upload error:", error);
+      toast.error('Upload failed. Please try again.');
+      console.error('Upload error:', error);
     },
   });
 }

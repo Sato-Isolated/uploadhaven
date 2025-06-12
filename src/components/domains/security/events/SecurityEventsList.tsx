@@ -1,10 +1,10 @@
-import { Card, CardContent } from "@/components/ui/card";
-import type { SecurityEvent, BaseComponentProps } from "@/types";
-import { useSecurityEventsFilter } from "./hooks/useSecurityEventsFilter";
-import { SecurityEventsLoadingState } from "./components/SecurityEventsLoadingState";
-import { SecurityEventsHeader } from "./components/SecurityEventsHeader";
-import { SecurityEventsFilters } from "./components/SecurityEventsFilters";
-import { SecurityEventsListContent } from "./components/SecurityEventsListContent";
+import { Card, CardContent } from '@/components/ui/card';
+import type { SecurityEvent, BaseComponentProps } from '@/types';
+import { useSecurityEventsFilter } from './hooks/useSecurityEventsFilter';
+import { SecurityEventsLoadingState } from './components/SecurityEventsLoadingState';
+import { SecurityEventsHeader } from './components/SecurityEventsHeader';
+import { SecurityEventsFilters } from './components/SecurityEventsFilters';
+import { SecurityEventsListContent } from './components/SecurityEventsListContent';
 
 interface SecurityEventsListProps extends BaseComponentProps {
   events: SecurityEvent[];
@@ -34,7 +34,7 @@ export default function SecurityEventsList({
 
   return (
     <Card>
-      {" "}
+      {' '}
       <SecurityEventsHeader
         eventCount={filteredEvents.length}
         onToggleFilters={() => setShowFilters(!showFilters)}
@@ -51,7 +51,7 @@ export default function SecurityEventsList({
         />
       )}
       <CardContent>
-        <div className="max-h-96 overflow-y-auto space-y-3">
+        <div className="max-h-96 space-y-3 overflow-y-auto">
           <SecurityEventsListContent
             events={events}
             filteredEvents={filteredEvents}

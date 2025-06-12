@@ -18,8 +18,11 @@ interface SecurityNotificationData {
 /**
  * Create notifications for critical security events
  */
-export async function createSecurityNotification(data: SecurityNotificationData): Promise<void> {
-  const { userId, eventType, severity, details, metadata, relatedFileId } = data;
+export async function createSecurityNotification(
+  data: SecurityNotificationData
+): Promise<void> {
+  const { userId, eventType, severity, details, metadata, relatedFileId } =
+    data;
 
   // Only create notifications for high severity events
   if (severity !== 'high' && severity !== 'critical') {
@@ -28,7 +31,7 @@ export async function createSecurityNotification(data: SecurityNotificationData)
 
   try {
     const notificationConfig = getNotificationConfig(eventType, severity);
-    
+
     if (!notificationConfig) {
       return; // No notification needed for this event type
     }
@@ -76,7 +79,7 @@ export async function createSystemSecurityNotification(
   }
 
   // Create notifications for all users
-  const notificationPromises = userIds.map(userId =>
+  const notificationPromises = userIds.map((userId) =>
     saveNotification({
       userId,
       type: notificationConfig.type,
@@ -92,8 +95,11 @@ export async function createSystemSecurityNotification(
         },
         ...metadata,
       },
-    }).catch(error => {
-      console.error(`Failed to create security notification for user ${userId}:`, error);
+    }).catch((error) => {
+      console.error(
+        `Failed to create security notification for user ${userId}:`,
+        error
+      );
       // Continue with other users even if one fails
     })
   );
@@ -111,24 +117,31 @@ interface NotificationConfig {
 /**
  * Get notification configuration for security event types
  */
-function getNotificationConfig(eventType: SecurityEventType, severity: SecuritySeverity): NotificationConfig | null {
-  const configs: Partial<Record<SecurityEventType, NotificationConfig>> = {    malware_detected: {
+function getNotificationConfig(
+  eventType: SecurityEventType,
+  severity: SecuritySeverity
+): NotificationConfig | null {
+  const configs: Partial<Record<SecurityEventType, NotificationConfig>> = {
+    malware_detected: {
       type: 'malware_detected',
       title: 'Malware Detected',
       priority: 'urgent',
       getMessage: (details, metadata) => {
         const fileName = (metadata?.fileName as string) || 'your file';
-        const scanResult = metadata?.scanResult as { threatName?: string } | undefined;
+        const scanResult = metadata?.scanResult as
+          | { threatName?: string }
+          | undefined;
         const threatName = scanResult?.threatName;
         return `Malware detected in ${fileName}${threatName ? ` (${threatName})` : ''}. The file has been flagged for security review.`;
       },
     },
-    
+
     suspicious_activity: {
       type: 'security_alert',
       title: 'Suspicious Activity Detected',
       priority: severity === 'critical' ? 'urgent' : 'high',
-      getMessage: (details) => `Suspicious activity has been detected on your account: ${details}`,
+      getMessage: (details) =>
+        `Suspicious activity has been detected on your account: ${details}`,
     },
 
     blocked_ip: {
@@ -142,16 +155,17 @@ function getNotificationConfig(eventType: SecurityEventType, severity: SecurityS
     },
 
     rate_limit: {
-      type: 'security_alert', 
+      type: 'security_alert',
       title: 'Rate Limit Exceeded',
       priority: 'high',
-      getMessage: (details) => `Rate limit exceeded: ${details}. Please wait before trying again.`,
+      getMessage: (details) =>
+        `Rate limit exceeded: ${details}. Please wait before trying again.`,
     },
 
     invalid_file: {
       type: 'security_alert',
       title: 'Invalid File Upload Detected',
-      priority: 'high', 
+      priority: 'high',
       getMessage: (details, metadata) => {
         const fileName = metadata?.fileName || 'unknown file';
         return `Invalid file upload detected: ${fileName}. ${details}`;
@@ -162,7 +176,8 @@ function getNotificationConfig(eventType: SecurityEventType, severity: SecurityS
       type: 'security_alert',
       title: 'Unauthorized Access Attempt',
       priority: 'high',
-      getMessage: (details) => `Unauthorized access attempt detected: ${details}`,
+      getMessage: (details) =>
+        `Unauthorized access attempt detected: ${details}`,
     },
 
     system_maintenance: {
@@ -188,18 +203,21 @@ export async function createFileExpirationNotifications(): Promise<void> {
     // Find files expiring in the next 24 hours
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
-    
+
     const expiringFiles = await File.find({
-      expiresAt: { 
-        $gte: new Date(), 
-        $lte: tomorrow 
+      expiresAt: {
+        $gte: new Date(),
+        $lte: tomorrow,
       },
       userId: { $exists: true, $ne: null },
-    }).select('userId originalName expiresAt _id');    const notificationPromises = expiringFiles
-      .filter(file => file.userId) // Additional type guard
+    }).select('userId originalName expiresAt _id');
+    const notificationPromises = expiringFiles
+      .filter((file) => file.userId) // Additional type guard
       .map(async (file) => {
-        const hoursLeft = Math.ceil((file.expiresAt.getTime() - Date.now()) / (1000 * 60 * 60));
-        
+        const hoursLeft = Math.ceil(
+          (file.expiresAt.getTime() - Date.now()) / (1000 * 60 * 60)
+        );
+
         return saveNotification({
           userId: file.userId!,
           type: 'file_expired_soon',

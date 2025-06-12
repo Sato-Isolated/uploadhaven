@@ -1,49 +1,58 @@
-import { NextRequest, NextResponse } from "next/server";
-import { writeFile, mkdir } from "fs/promises";
-import path from "path";
-import { nanoid } from "nanoid";
-import { z } from "zod";
-import { rateLimit, rateLimitConfigs } from "@/lib/rateLimit";
-import connectDB from "@/lib/mongodb";
-import { saveFileMetadata, saveSecurityEvent, saveNotification, User } from "@/lib/models";
-import { auth } from "@/lib/auth";
-import { headers } from "next/headers";
-import { generateShortUrl } from "@/lib/server-utils";
-import { buildShortUrl, hashPassword, validatePassword } from "@/lib/utils";
-
+import { NextRequest, NextResponse } from 'next/server';
+import { writeFile, mkdir } from 'fs/promises';
+import path from 'path';
+import { nanoid } from 'nanoid';
+import { z } from 'zod';
+import { rateLimit, rateLimitConfigs } from '@/lib/rateLimit';
+import connectDB from '@/lib/mongodb';
+import {
+  saveFileMetadata,
+  saveSecurityEvent,
+  saveNotification,
+  User,
+} from '@/lib/models';
+import { auth } from '@/lib/auth';
+import { headers } from 'next/headers';
+import { generateShortUrl } from '@/lib/server-utils';
+import { buildShortUrl, hashPassword, validatePassword } from '@/lib/utils';
 
 const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100MB
 const ALLOWED_TYPES = [
-  "image/jpeg",
-  "image/png",
-  "image/gif",
-  "image/webp",
-  "text/plain",
-  "application/pdf",
-  "application/zip",
-  "video/mp4",
-  "audio/mpeg",
+  'image/jpeg',
+  'image/png',
+  'image/gif',
+  'image/webp',
+  'text/plain',
+  'application/pdf',
+  'application/zip',
+  'video/mp4',
+  'audio/mpeg',
 ];
 
 const uploadSchema = z.object({
   file: z
-    .instanceof(File)
+    .any()
+    .refine(
+      (file) =>
+        file && typeof file === 'object' && 'size' in file && 'type' in file,
+      'Invalid file object'
+    )
     .refine(
       (file) => file.size <= MAX_FILE_SIZE,
-      "File size must be less than 100MB"
+      'File size must be less than 100MB'
     )
     .refine(
       (file) => ALLOWED_TYPES.includes(file.type),
-      "File type not allowed"
+      'File type not allowed'
     ),
 });
 
 // Expiration options (in hours)
 const EXPIRATION_OPTIONS = {
-  "1h": 1,
-  "24h": 24,
-  "7d": 24 * 7,
-  "30d": 24 * 30,
+  '1h': 1,
+  '24h': 24,
+  '7d': 24 * 7,
+  '30d': 24 * 30,
   never: 0,
 } as const;
 
@@ -64,10 +73,10 @@ export async function POST(request: NextRequest) {
       session = null;
     } // Get client IP and user agent
     const clientIP =
-      request.headers.get("x-forwarded-for") ||
-      request.headers.get("x-real-ip") ||
-      "127.0.0.1";
-    const userAgent = request.headers.get("user-agent") || "";
+      request.headers.get('x-forwarded-for') ||
+      request.headers.get('x-real-ip') ||
+      '127.0.0.1';
+    const userAgent = request.headers.get('user-agent') || '';
 
     // Apply rate limiting
     let rateLimitCheck;
@@ -82,19 +91,19 @@ export async function POST(request: NextRequest) {
       // Rate limit exceeded
       // Log rate limit hit
       await saveSecurityEvent({
-        type: "rate_limit",
+        type: 'rate_limit',
         ip: clientIP,
         details: `Upload rate limit exceeded: ${
-          rateLimitCheck.message || "Rate limit exceeded"
+          rateLimitCheck.message || 'Rate limit exceeded'
         }`,
-        severity: "medium",
+        severity: 'medium',
         userAgent,
       });
 
       return NextResponse.json(
         {
           success: false,
-          error: rateLimitCheck.message || "Rate limit exceeded",
+          error: rateLimitCheck.message || 'Rate limit exceeded',
           rateLimit: {
             limit: rateLimitCheck.limit || 0,
             remaining: rateLimitCheck.remaining || 0,
@@ -104,9 +113,9 @@ export async function POST(request: NextRequest) {
         {
           status: 429,
           headers: {
-            "X-RateLimit-Limit": (rateLimitCheck.limit || 0).toString(),
-            "X-RateLimit-Remaining": (rateLimitCheck.remaining || 0).toString(),
-            "X-RateLimit-Reset": (
+            'X-RateLimit-Limit': (rateLimitCheck.limit || 0).toString(),
+            'X-RateLimit-Remaining': (rateLimitCheck.remaining || 0).toString(),
+            'X-RateLimit-Reset': (
               rateLimitCheck.reset || new Date()
             ).toISOString(),
           },
@@ -119,16 +128,16 @@ export async function POST(request: NextRequest) {
     } catch {
       // FormData parsing failed
       return NextResponse.json(
-        { success: false, error: "Invalid form data" },
+        { success: false, error: 'Invalid form data' },
         { status: 400 }
       );
     }
-    const file = formData.get("file") as File;
-    const expiration = (formData.get("expiration") as string) || "24h";
+    const file = formData.get('file') as File;
+    const expiration = (formData.get('expiration') as string) || '24h';
     // Visibility removed - all files use security by obscurity
-    const userId = formData.get("userId") as string;
-    const password = (formData.get("password") as string) || null;
-    const autoGenerateKey = formData.get("autoGenerateKey") === "true";
+    const userId = formData.get('userId') as string;
+    const password = (formData.get('password') as string) || null;
+    const autoGenerateKey = formData.get('autoGenerateKey') === 'true';
 
     // Form fields extracted successfully
 
@@ -161,7 +170,7 @@ export async function POST(request: NextRequest) {
       } catch {
         // Error processing password
         return NextResponse.json(
-          { success: false, error: "Error processing password" },
+          { success: false, error: 'Error processing password' },
           { status: 400 }
         );
       }
@@ -170,15 +179,15 @@ export async function POST(request: NextRequest) {
     if (!file) {
       // No file provided
       await saveSecurityEvent({
-        type: "invalid_file",
+        type: 'invalid_file',
         ip: clientIP,
-        details: "Upload attempt with no file provided",
-        severity: "low",
+        details: 'Upload attempt with no file provided',
+        severity: 'low',
         userAgent,
       });
 
       return NextResponse.json(
-        { success: false, error: "No file provided" },
+        { success: false, error: 'No file provided' },
         { status: 400 }
       );
     } // File details extracted successfully
@@ -189,7 +198,7 @@ export async function POST(request: NextRequest) {
     if (userId && (!session?.user || session.user.id !== userId)) {
       // Invalid user authentication
       return NextResponse.json(
-        { success: false, error: "Invalid user authentication" },
+        { success: false, error: 'Invalid user authentication' },
         { status: 401 }
       );
     }
@@ -198,7 +207,7 @@ export async function POST(request: NextRequest) {
     if (!Object.keys(EXPIRATION_OPTIONS).includes(expiration)) {
       // Invalid expiration
       return NextResponse.json(
-        { success: false, error: "Invalid expiration option" },
+        { success: false, error: 'Invalid expiration option' },
         { status: 400 }
       );
     }
@@ -212,10 +221,10 @@ export async function POST(request: NextRequest) {
     if (!validation.success) {
       // File validation failed
       await saveSecurityEvent({
-        type: "invalid_file",
+        type: 'invalid_file',
         ip: clientIP,
         details: `File validation failed: ${validation.error.issues[0].message}`,
-        severity: "medium",
+        severity: 'medium',
         userAgent,
         filename: file.name,
         fileSize: file.size,
@@ -227,18 +236,18 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
-    console.log("✓ File validation passed");
+    console.log('✓ File validation passed');
 
-    console.log("=== UPLOAD API DEBUG: VALIDATIONS COMPLETE ===");    // Get file extension
-    const fileExtension = path.extname(file.name) || "";
+    console.log('=== UPLOAD API DEBUG: VALIDATIONS COMPLETE ==='); // Get file extension
+    const fileExtension = path.extname(file.name) || '';
 
     // Generate unique filename
     const uniqueId = nanoid(10);
     const fileName = `${uniqueId}${fileExtension}`;
 
     // Determine which subdirectory to use based on password protection
-    const subDir = isPasswordProtected ? "protected" : "public";
-    const uploadsDir = path.join(process.cwd(), "public", "uploads", subDir);
+    const subDir = isPasswordProtected ? 'protected' : 'public';
+    const uploadsDir = path.join(process.cwd(), 'public', 'uploads', subDir);
     await mkdir(uploadsDir, { recursive: true });
 
     // Convert file to buffer and save
@@ -246,8 +255,8 @@ export async function POST(request: NextRequest) {
     const buffer = Buffer.from(bytes);
 
     const filePath = path.join(uploadsDir, fileName);
-    await writeFile(filePath, buffer);    // Generate file URL (include the subdirectory)
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+    await writeFile(filePath, buffer); // Generate file URL (include the subdirectory)
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
     const fileUrl = `${baseUrl}/uploads/${subDir}/${fileName}`;
 
     // Calculate expiration date
@@ -258,7 +267,7 @@ export async function POST(request: NextRequest) {
         ? new Date(Date.now() + expirationHours * 60 * 60 * 1000)
         : new Date(Date.now() + 365 * 24 * 60 * 60 * 1000); // 1 year for "never"    // Generate unique short URL
     const shortId = await generateShortUrl();
-    const shareableUrl = buildShortUrl(shortId);    // Save file metadata to MongoDB
+    const shareableUrl = buildShortUrl(shortId); // Save file metadata to MongoDB
     const savedFile = await saveFileMetadata({
       filename: `${subDir}/${fileName}`, // Include subdirectory in filename for proper file location
       shortUrl: shortId,
@@ -286,14 +295,14 @@ export async function POST(request: NextRequest) {
           lastActivity: new Date(),
         });
       } catch (error) {
-        console.error("Failed to update user lastActivity:", error);
+        console.error('Failed to update user lastActivity:', error);
       }
-    }    // Log successful upload
+    } // Log successful upload
     await saveSecurityEvent({
-      type: "file_upload",
+      type: 'file_upload',
       ip: clientIP,
       details: `File uploaded successfully: ${file.name}`,
-      severity: "low",
+      severity: 'low',
       userAgent,
       filename: file.name,
       fileSize: file.size,
@@ -306,10 +315,10 @@ export async function POST(request: NextRequest) {
       try {
         await saveNotification({
           userId: session.user.id,
-          type: "file_upload_complete",
-          title: "File Upload Complete",
+          type: 'file_upload_complete',
+          title: 'File Upload Complete',
           message: `Your file "${file.name}" has been uploaded successfully and is ready to share`,
-          priority: "normal",
+          priority: 'normal',
           relatedFileId: savedFile._id.toString(),
           actionUrl: shareableUrl,
           metadata: {
@@ -322,10 +331,13 @@ export async function POST(request: NextRequest) {
           },
         });
       } catch (notificationError) {
-        console.error("Failed to create upload notification:", notificationError);
+        console.error(
+          'Failed to create upload notification:',
+          notificationError
+        );
         // Don't fail the upload if notification creation fails
       }
-    }// File saved successfully
+    } // File saved successfully
 
     return NextResponse.json({
       success: true,
@@ -343,32 +355,32 @@ export async function POST(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error("=== UPLOAD API ERROR ===");
-    console.error("Upload error:", error);
+    console.error('=== UPLOAD API ERROR ===');
+    console.error('Upload error:', error);
     console.error(
-      "Error stack:",
-      error instanceof Error ? error.stack : "No stack trace"
+      'Error stack:',
+      error instanceof Error ? error.stack : 'No stack trace'
     );
-    console.error("=== END UPLOAD API ERROR ===");
+    console.error('=== END UPLOAD API ERROR ===');
 
     // Try to log the error
     try {
-      const clientIP = request.headers.get("x-forwarded-for") || "127.0.0.1";
+      const clientIP = request.headers.get('x-forwarded-for') || '127.0.0.1';
       await saveSecurityEvent({
-        type: "suspicious_activity",
+        type: 'suspicious_activity',
         ip: clientIP,
         details: `Upload error: ${
-          error instanceof Error ? error.message : "Unknown error"
+          error instanceof Error ? error.message : 'Unknown error'
         }`,
-        severity: "high",
-        userAgent: request.headers.get("user-agent") || "",
+        severity: 'high',
+        userAgent: request.headers.get('user-agent') || '',
       });
     } catch (logError) {
-      console.error("Failed to log error:", logError);
+      console.error('Failed to log error:', logError);
     }
 
     return NextResponse.json(
-      { success: false, error: "Internal server error" },
+      { success: false, error: 'Internal server error' },
       { status: 500 }
     );
   }
@@ -377,7 +389,7 @@ export async function POST(request: NextRequest) {
 // Handle other HTTP methods
 export async function GET() {
   return NextResponse.json(
-    { success: false, error: "Method not allowed" },
+    { success: false, error: 'Method not allowed' },
     { status: 405 }
   );
 }

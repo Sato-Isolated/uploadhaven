@@ -6,17 +6,17 @@ import {
   Archive,
   File,
   type LucideIcon,
-} from "lucide-react";
+} from 'lucide-react';
 
 /**
  * Format file size in bytes to human readable format
  */
 export function formatFileSize(bytes: number): string {
-  if (bytes === 0) return "0 Bytes";
+  if (bytes === 0) return '0 Bytes';
   const k = 1024;
-  const sizes = ["Bytes", "KB", "MB", "GB"];
+  const sizes = ['Bytes', 'KB', 'MB', 'GB'];
   const i = Math.floor(Math.log(bytes) / Math.log(k));
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
 }
 
 /**
@@ -24,15 +24,14 @@ export function formatFileSize(bytes: number): string {
  */
 export function getFileIcon(mimeType: string | undefined): LucideIcon {
   if (!mimeType) return File;
-  
-  if (mimeType.startsWith("image/")) return Image;
-  if (mimeType.startsWith("video/")) return Video;
-  if (mimeType.startsWith("audio/")) return Music;
-  if (mimeType.includes("zip") || mimeType.includes("archive"))
-    return Archive;
-  if (mimeType.startsWith("text/") || mimeType.includes("document"))
+
+  if (mimeType.startsWith('image/')) return Image;
+  if (mimeType.startsWith('video/')) return Video;
+  if (mimeType.startsWith('audio/')) return Music;
+  if (mimeType.includes('zip') || mimeType.includes('archive')) return Archive;
+  if (mimeType.startsWith('text/') || mimeType.includes('document'))
     return FileText;
-  
+
   return File;
 }
 
@@ -40,15 +39,15 @@ export function getFileIcon(mimeType: string | undefined): LucideIcon {
  * Get human readable file type label from MIME type
  */
 export function getFileTypeLabel(mimeType: string | undefined): string {
-  if (!mimeType) return "File";
-  
-  if (mimeType.startsWith("image/")) return "Image";
-  if (mimeType.startsWith("video/")) return "Video";
-  if (mimeType.startsWith("audio/")) return "Audio";
-  if (mimeType.includes("zip") || mimeType.includes("archive"))
-    return "Archive";
-  if (mimeType.startsWith("text/")) return "Text";
-  if (mimeType.includes("pdf")) return "PDF";
-  
-  return "File";
+  if (!mimeType) return 'File';
+
+  if (mimeType.startsWith('image/')) return 'Image';
+  if (mimeType.startsWith('video/')) return 'Video';
+  if (mimeType.startsWith('audio/')) return 'Audio';
+  if (mimeType.includes('zip') || mimeType.includes('archive'))
+    return 'Archive';
+  if (mimeType.startsWith('text/')) return 'Text';
+  if (mimeType.includes('pdf')) return 'PDF';
+
+  return 'File';
 }

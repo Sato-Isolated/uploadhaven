@@ -28,9 +28,9 @@ export function DashboardUploadArea() {
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.8, duration: 0.6 }}
     >
-      <Card className="mb-8 border-0 shadow-xl bg-gradient-to-br from-white via-blue-50/30 to-purple-50/30 dark:from-gray-900 dark:via-blue-950/20 dark:to-purple-950/20 backdrop-blur-sm">
+      <Card className="mb-8 border-0 bg-gradient-to-br from-white via-blue-50/30 to-purple-50/30 shadow-xl backdrop-blur-sm dark:from-gray-900 dark:via-blue-950/20 dark:to-purple-950/20">
         <UploadHeader onToggleSettings={toggleSettings} />
-        
+
         <CardContent className="p-8">
           <UploadSettings
             showSettings={showSettings}

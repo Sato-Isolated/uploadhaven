@@ -1,14 +1,11 @@
-import { FileText, Code, Image as ImageIcon, Video, Music } from "lucide-react";
-import type {
-  FileTypeInfo,
-  BaseComponentProps,
-} from "@/types";
+import { FileText, Code, Image as ImageIcon, Video, Music } from 'lucide-react';
+import type { FileTypeInfo, BaseComponentProps } from '@/types';
 
 interface FileIconProps extends BaseComponentProps {
   typeInfo: FileTypeInfo;
 }
 
-export function FileIcon({ typeInfo, className = "w-6 h-6" }: FileIconProps) {
+export function FileIcon({ typeInfo, className = 'w-6 h-6' }: FileIconProps) {
   if (typeInfo.isImage) {
     return <ImageIcon className={`${className} text-blue-500`} />;
   }

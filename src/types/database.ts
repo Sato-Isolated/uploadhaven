@@ -16,7 +16,7 @@ export interface IUser {
   email: string;
   emailVerified: boolean;
   image?: string;
-  role: "user" | "admin";
+  role: 'user' | 'admin';
   lastActivity: Date;
   createdAt: Date;
   updatedAt: Date;
@@ -60,11 +60,12 @@ export interface ISecurityEvent {
   timestamp: Date;
   ip: string;
   details: string;
-  severity: "low" | "medium" | "high";
+  severity: 'low' | 'medium' | 'high';
   userAgent?: string;
   filename?: string;
   fileSize?: number;
-  fileType?: string;  userId?: string;
+  fileType?: string;
+  userId?: string;
   metadata?: Record<string, unknown>;
 }
 
@@ -78,7 +79,7 @@ export interface INotification {
   title: string;
   message: string;
   isRead: boolean;
-  priority: "low" | "normal" | "high" | "urgent";
+  priority: 'low' | 'normal' | 'high' | 'urgent';
   relatedFileId?: string;
   relatedSecurityEventId?: string;
   actionUrl?: string;

@@ -12,7 +12,7 @@ interface UploadHeaderProps {
 
 export function UploadHeader({ onToggleSettings }: UploadHeaderProps) {
   return (
-    <CardHeader className="border-b border-gray-200/50 dark:border-gray-700/50 bg-gradient-to-r from-gray-50/50 to-gray-100/50 dark:from-gray-800/50 dark:to-gray-900/50">
+    <CardHeader className="border-b border-gray-200/50 bg-gradient-to-r from-gray-50/50 to-gray-100/50 dark:border-gray-700/50 dark:from-gray-800/50 dark:to-gray-900/50">
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
@@ -21,7 +21,7 @@ export function UploadHeader({ onToggleSettings }: UploadHeaderProps) {
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
             <motion.div
-              className="p-3 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl shadow-lg"
+              className="rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 p-3 shadow-lg"
               whileHover={{ rotate: 5, scale: 1.05 }}
               transition={{ type: 'spring', stiffness: 300 }}
             >
@@ -39,16 +39,16 @@ export function UploadHeader({ onToggleSettings }: UploadHeaderProps) {
               variant="outline"
               size="sm"
               onClick={onToggleSettings}
-              className="bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm"
+              className="bg-white/50 backdrop-blur-sm dark:bg-gray-900/50"
             >
-              <Settings className="h-4 w-4 mr-2" />
+              <Settings className="mr-2 h-4 w-4" />
               Settings
             </Button>
             <Link href="/dashboard/files">
               <Button
                 variant="outline"
                 size="sm"
-                className="bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm"
+                className="bg-white/50 backdrop-blur-sm dark:bg-gray-900/50"
               >
                 View All Files
               </Button>

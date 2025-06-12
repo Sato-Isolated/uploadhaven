@@ -1,27 +1,27 @@
-import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import { Toaster } from "@/components/ui/sonner";
-import { QueryProvider } from "@/components/providers/QueryProvider";
-import { PrefetchProvider } from "@/components/providers/PrefetchProvider";
-import { NotificationProvider } from "@/components/providers/NotificationProvider";
-import { NavigationSSEManager } from "@/components/domains/notifications/NavigationSSEManager";
-import { QueryErrorBoundary } from "@/components/domains/ui/QueryErrorBoundary";
-import { ThemeProvider } from "@/components/providers/ThemeProvider";
-import "./globals.css";
+import type { Metadata } from 'next';
+import { Geist, Geist_Mono } from 'next/font/google';
+import { Toaster } from '@/components/ui/sonner';
+import { QueryProvider } from '@/components/providers/QueryProvider';
+import { PrefetchProvider } from '@/components/providers/PrefetchProvider';
+import { NotificationProvider } from '@/components/providers/NotificationProvider';
+import { NavigationSSEManager } from '@/components/domains/notifications/NavigationSSEManager';
+import { QueryErrorBoundary } from '@/components/domains/ui/QueryErrorBoundary';
+import { ThemeProvider } from '@/components/providers/ThemeProvider';
+import './globals.css';
 
 const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
+  variable: '--font-geist-sans',
+  subsets: ['latin'],
 });
 
 const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+  variable: '--font-geist-mono',
+  subsets: ['latin'],
 });
 
 export const metadata: Metadata = {
-  title: "UploadHaven",
-  description: "Simple file uploader, built with Next.js and ShadCN",
+  title: 'UploadHaven',
+  description: 'Simple file uploader, built with Next.js and ShadCN',
 };
 
 export default function RootLayout({
@@ -33,14 +33,14 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >        <ThemeProvider>
+      >
+        {' '}
+        <ThemeProvider>
           <QueryProvider>
             <NotificationProvider>
               <NavigationSSEManager />
               <PrefetchProvider>
-                <QueryErrorBoundary>
-                  {children}
-                </QueryErrorBoundary>
+                <QueryErrorBoundary>{children}</QueryErrorBoundary>
               </PrefetchProvider>
             </NotificationProvider>
             <Toaster />

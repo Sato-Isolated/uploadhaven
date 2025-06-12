@@ -1,12 +1,12 @@
-"use client";
+'use client';
 
-import { motion, AnimatePresence } from "motion/react";
-import { Card, CardContent } from "@/components/ui/card";
-import { useFilesTableLogic } from "./hooks/useFilesTableLogic";
-import { FilesTableHeader } from "./components/FilesTableHeader";
-import { FilesTableRow } from "./components/FilesTableRow";
-import { FilesTableEmptyState } from "./components/FilesTableEmptyState";
-import type { AdminFileData } from "@/types";
+import { motion, AnimatePresence } from 'motion/react';
+import { Card, CardContent } from '@/components/ui/card';
+import { useFilesTableLogic } from './hooks/useFilesTableLogic';
+import { FilesTableHeader } from './components/FilesTableHeader';
+import { FilesTableRow } from './components/FilesTableRow';
+import { FilesTableEmptyState } from './components/FilesTableEmptyState';
+import type { AdminFileData } from '@/types';
 
 interface FilesTableProps {
   filteredFiles: AdminFileData[];
@@ -36,13 +36,13 @@ export default function FilesTable(props: FilesTableProps) {
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.6, duration: 0.5 }}
     >
-      <Card className="border-0 shadow-xl bg-gradient-to-br from-white via-blue-50/30 to-purple-50/30 dark:from-gray-900 dark:via-blue-950/20 dark:to-purple-950/20 backdrop-blur-sm">
+      <Card className="border-0 bg-gradient-to-br from-white via-blue-50/30 to-purple-50/30 shadow-xl backdrop-blur-sm dark:from-gray-900 dark:via-blue-950/20 dark:to-purple-950/20">
         <FilesTableHeader
           totalFiles={filteredFiles.length}
           isAllSelected={isAllSelected}
           onSelectAll={onSelectAll}
         />
-        
+
         <CardContent className="p-0">
           <div className="overflow-x-auto">
             <table className="w-full">
@@ -63,7 +63,7 @@ export default function FilesTable(props: FilesTableProps) {
                 </AnimatePresence>
               </tbody>
             </table>
-            
+
             {filteredFiles.length === 0 && <FilesTableEmptyState />}
           </div>
         </CardContent>

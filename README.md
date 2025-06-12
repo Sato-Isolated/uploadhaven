@@ -1,285 +1,119 @@
 # UploadHaven
 
-A modern file uploader, built with Next.js 15, TypeScript, and ShadCN/UI. UploadHaven provides a clean, simple interface for uploading files with drag & drop functionality and instant sharing capabilities.
+🚀 **Simple, secure, ephemeral file sharing** - Upload, get link, share. That's it.
 
-![UploadHaven Screenshot](https://via.placeholder.com/800x400/3B82F6/FFFFFF?text=UploadHaven+-+Modern+File+Uploader)
+[![Next.js](https://img.shields.io/badge/Next.js-15.3.3-blue)](https://nextjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue)](https://www.typescriptlang.org/)
+[![MongoDB](https://img.shields.io/badge/MongoDB-Latest-green)](https://www.mongodb.com/)
+[![License](https://img.shields.io/badge/License-MIT-yellow)](LICENSE)
 
-## Features
+A modern, privacy-first file sharing platform that focuses on simplicity and security. No accounts required, no permanent storage, just quick and secure temporary file transfers.
 
-- 🚀 **Drag & Drop Upload** - Simply drag files or click to select multiple files
-- 📱 **Responsive Design** - Works perfectly on desktop and mobile devices
-- 🔗 **Instant Sharing** - Get shareable links immediately after upload
-- 🛡️ **Secure & Private** - Files are validated and stored securely
-- 🔍 **Malware Scanning** - Advanced threat detection with VirusTotal integration
-- ⚡ **Fast Performance** - Built with Next.js and modern web technologies
-- 🎨 **Beautiful UI** - Clean, modern interface using ShadCN/UI components
-- 📊 **File Management** - Track and manage your uploaded files
-- 🔌 **API Access** - RESTful API for programmatic file uploads
-- 👨‍💼 **Admin Dashboard** - Comprehensive security monitoring and management
+## 🎯 Core Philosophy
 
-## Tech Stack
+- **Upload** → **Get Link** → **Share** - Nothing more, nothing less
+- **Ephemeral by design** - Files automatically expire
+- **Privacy first** - Minimal data collection, maximum security
+- **Open source forever** - Always free and transparent
 
-- **Framework**: Next.js 15 with App Router
-- **Language**: TypeScript
-- **Styling**: Tailwind CSS
-- **UI Components**: ShadCN/UI
-- **File Handling**: React Dropzone
-- **Validation**: Zod
-- **Icons**: Lucide React
+## ✨ Key Features
 
-## Quick Start
+- 📁 **Drag & Drop Upload** - Instant file sharing
+- ⏰ **Auto-Expiration** - Files delete automatically (15min - 7 days)
+- 🔒 **Security Scanning** - Malware detection built-in
+- 📱 **Mobile Optimized** - Works perfectly on all devices
+- 🔗 **Instant Links** - Share files immediately
+- 🕵️ **Anonymous Mode** - No tracking, no accounts needed
 
-### Prerequisites
+## 🚀 Quick Start
 
-- Node.js 18+ and npm/yarn/pnpm
-- Git
-
-### Installation
-
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/yourusername/uploadhaven.git
-   cd uploadhaven
-   ```
-
-2. **Install dependencies**
-   ```bash
-   npm install
-   # or
-   yarn install
-   # or
-   pnpm install
-   ```
-
-3. **Set up environment variables**
-   ```bash
-   cp .env.example .env.local
-   ```
-   
-   Edit `.env.local` with your configuration:
-   ```bash
-   # Required
-   MONGODB_URI=your-mongodb-connection-string
-   BETTER_AUTH_SECRET=your-secret-key
-   
-   # Optional - for enhanced malware detection
-   VIRUSTOTAL_API_KEY=your-virustotal-api-key
-   ```
-
-4. **Run the development server**
-   ```bash
-   npm run dev
-   # or
-   yarn dev
-   # or
-   pnpm dev
-   ```
-
-5. **Open your browser**
-   Navigate to [http://localhost:3000](http://localhost:3000)
-
-## Configuration
-
-### Upload Limits
-
-The current configuration supports:
-
-- **Maximum file size**: 100 MB
-- **Supported formats**: 
-  - Images: JPEG, PNG, GIF, WebP
-  - Documents: PDF, TXT
-  - Archives: ZIP
-  - Video: MP4
-  - Audio: MP3
-
-You can modify these limits in `src/components/FileUploader.tsx`:
-
-```typescript
-const MAX_FILE_SIZE = 100 * 1024 * 1024 // 100MB
-const ALLOWED_TYPES = [
-  'image/jpeg',
-  'image/png',
-  // ... add more types
-]
-```
-
-### Storage
-
-Files are currently stored in the local `uploads/` directory. For production deployments, consider:
-
-- Cloud storage (AWS S3, Google Cloud Storage, etc.)
-- CDN integration for faster file delivery
-- Database for file metadata and management
-
-## Security Features
-
-### Malware Detection
-
-UploadHaven includes advanced malware detection capabilities:
-
-- **Local Heuristic Scanning**: Pattern-based detection for suspicious file types and content
-- **VirusTotal Integration**: Cloud-based scanning with 70+ antivirus engines
-- **Hybrid Approach**: Combines local and cloud scanning for optimal security
-- **Quota Management**: Automatic tracking of VirusTotal API usage (500 requests/day free tier)
-- **File Caching**: 7-day cache to reduce API calls for previously scanned files
-
-### Setting up VirusTotal Integration
-
-1. Get a free API key from [VirusTotal](https://www.virustotal.com/gui/my-apikey)
-2. Add to your `.env.local`:
-   ```bash
-   VIRUSTOTAL_API_KEY=your-api-key-here
-   ```
-3. The system will automatically use VirusTotal for enhanced threat detection
-
-### Security Monitoring
-
-The admin dashboard provides comprehensive security monitoring:
-
-- Real-time security event tracking
-- Rate limiting and abuse detection
-- File validation and size limits
-- IP-based threat detection
-- Security scan capabilities
-
-### Admin Access
-
-Access the admin dashboard at `/admin` (requires authentication)
-
-## API Documentation
-
-### Upload File
-
-**Endpoint**: `POST /api/upload`
-
-**Request**: 
-- Content-Type: `multipart/form-data`
-- Field name: `file`
-
-**Example**:
 ```bash
-curl -X POST \
-  -F "file=@example.jpg" \
-  http://localhost:3000/api/upload
+# Clone and install
+git clone https://github.com/Sato-Isolated/uploadhaven.git
+cd uploadhaven
+pnpm install
+
+# Configure environment
+cp .env.example .env.local
+# Edit .env.local with your MongoDB URI
+
+# Start development
+pnpm dev
 ```
 
-**Response**:
-```json
-{
-  "message": "File uploaded successfully",
-  "filename": "unique-filename.jpg",
-  "url": "/api/files/unique-filename.jpg"
-}
-```
+Visit `http://localhost:3000` and start sharing files! 🎉
 
-### Download File
+## 📚 Documentation
 
-**Endpoint**: `GET /api/files/[filename]`
+| Topic | Description |
+|-------|-------------|
+| **[📖 Getting Started](docs/getting-started/)** | Installation and quick start guides |
+| **[⚙️ Development](docs/development/)** | Setup, contributing, and development workflow |
+| **[🔌 API Reference](docs/api/)** | Complete API documentation and examples |
+| **[🎯 Features](docs/features/)** | Roadmap, ideas, and feature documentation |
+| **[📋 Project Info](docs/project/)** | Technical details, changelog, and architecture |
 
-**Example**:
+## 🛠️ Tech Stack
+
+- **Frontend**: Next.js 15, TypeScript, Tailwind CSS
+- **Backend**: Next.js API Routes, MongoDB
+- **Security**: better-auth, malware scanning, rate limiting
+- **Real-time**: Server-Sent Events (SSE)
+- **Deployment**: Vercel, self-hosted options
+
+## 🤝 Contributing
+
+We welcome contributions! UploadHaven is built by the community, for the community.
+
+- 💡 **Ideas**: Share your thoughts in [GitHub Discussions](https://github.com/Sato-Isolated/uploadhaven/discussions)
+- 🐛 **Bugs**: Report issues in [GitHub Issues](https://github.com/Sato-Isolated/uploadhaven/issues)
+- 🔧 **Code**: See our [Contributing Guide](docs/development/contributing.md)
+
+## 📦 Self-Hosting
+
+UploadHaven is designed to be easily self-hosted:
+
 ```bash
-curl http://localhost:3000/api/files/unique-filename.jpg
+# Manual deployment
+pnpm install
+pnpm build
+pnpm start
 ```
 
-## Development
+See the [Installation Guide](docs/getting-started/installation.md) for detailed setup instructions.
 
-### Project Structure
+## 🔐 Security
 
-```
-src/
-├── app/                 # Next.js App Router
-│   ├── api/            # API routes
-│   │   ├── upload/     # Upload endpoint
-│   │   └── files/      # File serving
-│   ├── globals.css     # Global styles
-│   ├── layout.tsx      # Root layout
-│   └── page.tsx        # Home page
-├── components/         # React components
-│   ├── ui/            # ShadCN/UI components
-│   ├── FileUploader.tsx
-│   ├── FileManager.tsx
-│   └── InfoPanel.tsx
-└── lib/               # Utilities
-    └── utils.ts
-```
+- **Malware scanning** for all uploads
+- **File type validation** and size limits
+- **Rate limiting** to prevent abuse
+- **No permanent storage** - files auto-delete
+- **Password protection** for sensitive files
 
-### Scripts
+Report security issues in [GitHub Issues](https://github.com/Sato-Isolated/uploadhaven/issues)
 
-- `npm run dev` - Start development server
-- `npm run build` - Build for production
-- `npm run start` - Start production server
-- `npm run lint` - Run ESLint
+## 📄 License
 
-### Contributing
+MIT License - see [LICENSE](LICENSE) file for details.
 
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+## 🌟 Why UploadHaven?
 
-## Deployment
+Unlike complex file sharing platforms, UploadHaven focuses on **simplicity**:
 
-### Vercel (Recommended)
+- ✅ No user accounts required
+- ✅ No complex folder structures
+- ✅ No permanent file storage
+- ✅ No tracking or analytics
+- ✅ No premium features - always free
 
-1. Push your code to GitHub
-2. Connect your repository to [Vercel](https://vercel.com)
-3. Deploy with default settings
-
-### Docker
-
-```dockerfile
-FROM node:18-alpine
-WORKDIR /app
-COPY package*.json ./
-RUN npm ci --only=production
-COPY . .
-RUN npm run build
-EXPOSE 3000
-CMD ["npm", "start"]
-```
-
-### Manual Deployment
-
-1. Build the application: `npm run build`
-2. Start the production server: `npm start`
-
-## Environment Variables
-
-Create a `.env.local` file for local development:
-
-```env
-# Add any environment variables here
-NEXT_PUBLIC_APP_URL=http://localhost:3000
-```
-
-## Security Considerations
-
-- File type validation is enforced
-- File size limits prevent abuse
-- Unique filenames prevent conflicts
-- Consider adding rate limiting for production
-- Implement user authentication if needed
-- Set up file expiration for automatic cleanup
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## Acknowledgments
-
-- Built with [Next.js](https://nextjs.org/)
-- UI components by [ShadCN/UI](https://ui.shadcn.com/)
-- Icons by [Lucide](https://lucide.dev/)
-
-## Support
-
-If you encounter any issues or have questions:
-
-1. Check the [Issues](https://github.com/yourusername/uploadhaven/issues) page
-2. Create a new issue if needed
-3. Join our community discussions
+**Just upload, share, and let files expire naturally.**
 
 ---
 
-**UploadHaven** - Making file sharing simple and beautiful. 🚀
+<div align="center">
+
+**[🚀 Get Started](docs/getting-started/quick-start.md)** • **[📖 Documentation](docs/)** • **[💬 Discussions](https://github.com/Sato-Isolated/uploadhaven/discussions)**
+
+Made with ❤️ by the community
+
+</div>

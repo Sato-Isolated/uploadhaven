@@ -1,5 +1,5 @@
 // UI domain exports
-export { QueryErrorBoundary } from "./QueryErrorBoundary";
+export { QueryErrorBoundary } from './QueryErrorBoundary';
 
 // Button components
-export * from "./buttons";
+export * from './buttons';

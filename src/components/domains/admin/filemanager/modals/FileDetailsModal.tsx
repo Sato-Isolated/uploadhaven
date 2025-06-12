@@ -1,16 +1,16 @@
-"use client";
+'use client';
 
-import { motion } from "motion/react";
+import { motion } from 'motion/react';
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { formatFileSize } from "@/lib/utils";
-import type { AdminFileData } from "@/types";
-import { formatDate, getFileTypeIcon } from "../utils";
+} from '@/components/ui/dialog';
+import { formatFileSize } from '@/lib/utils';
+import type { AdminFileData } from '@/types';
+import { formatDate, getFileTypeIcon } from '../utils';
 
 interface FileDetailsModalProps {
   file: AdminFileData | null;
@@ -25,36 +25,36 @@ export default function FileDetailsModal({
 
   const fileDetails = [
     {
-      label: "Original Name",
+      label: 'Original Name',
       value: file.originalName,
     },
     {
-      label: "System Name",
+      label: 'System Name',
       value: file.name,
       mono: true,
     },
     {
-      label: "Size",
+      label: 'Size',
       value: formatFileSize(file.size),
     },
     {
-      label: "Type",
+      label: 'Type',
       value: file.mimeType,
     },
     {
-      label: "Upload Date",
+      label: 'Upload Date',
       value: formatDate(file.uploadDate),
     },
     {
-      label: "Downloads",
+      label: 'Downloads',
       value: file.downloadCount.toString(),
     },
     {
-      label: "Owner",
-      value: file.isAnonymous ? "Anonymous" : file.userName || "Unknown",
+      label: 'Owner',
+      value: file.isAnonymous ? 'Anonymous' : file.userName || 'Unknown',
     },
     {
-      label: "File ID",
+      label: 'File ID',
       value: file.id,
       mono: true,
     },
@@ -62,7 +62,7 @@ export default function FileDetailsModal({
 
   return (
     <Dialog open={file !== null} onOpenChange={onClose}>
-      <DialogContent className="max-w-md bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm border border-gray-200/60 dark:border-gray-700/60">
+      <DialogContent className="max-w-md border border-gray-200/60 bg-white/95 backdrop-blur-sm dark:border-gray-700/60 dark:bg-gray-900/95">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <motion.div
@@ -90,16 +90,16 @@ export default function FileDetailsModal({
               initial={{ opacity: 0, x: -10 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: index * 0.05, duration: 0.3 }}
-              className="p-3 bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 rounded-lg border border-gray-200/50 dark:border-gray-700/50"
+              className="rounded-lg border border-gray-200/50 bg-gradient-to-r from-gray-50 to-gray-100 p-3 dark:border-gray-700/50 dark:from-gray-800 dark:to-gray-900"
             >
-              <strong className="text-sm text-gray-700 dark:text-gray-300 block mb-1">
+              <strong className="mb-1 block text-sm text-gray-700 dark:text-gray-300">
                 {item.label}:
               </strong>
               <p
                 className={`text-sm text-gray-600 dark:text-gray-400 ${
                   item.mono
-                    ? "font-mono bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded"
-                    : ""
+                    ? 'rounded bg-gray-100 px-2 py-1 font-mono dark:bg-gray-800'
+                    : ''
                 }`}
               >
                 {item.value}

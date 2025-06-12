@@ -1,10 +1,10 @@
-import { auth } from "@/lib/auth";
-import { headers } from "next/headers";
-import { redirect } from "next/navigation";
-import UserAnalytics from "@/components/domains/analytics/user";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
+import { auth } from '@/lib/auth';
+import { headers } from 'next/headers';
+import { redirect } from 'next/navigation';
+import UserAnalytics from '@/components/domains/analytics/user';
+import Link from 'next/link';
+import { Button } from '@/components/ui/button';
+import { ArrowLeft } from 'lucide-react';
 
 export default async function UserAnalyticsPage() {
   const session = await auth.api.getSession({
@@ -12,19 +12,19 @@ export default async function UserAnalyticsPage() {
   });
 
   if (!session) {
-    redirect("/auth/signin");
+    redirect('/auth/signin');
   }
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="mb-8 flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
               Analytics
             </h1>
-            <p className="text-gray-600 dark:text-gray-400 mt-1">
+            <p className="mt-1 text-gray-600 dark:text-gray-400">
               Track your file downloads and performance
             </p>
           </div>

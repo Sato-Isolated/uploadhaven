@@ -1,5 +1,5 @@
-import { useMemo } from "react";
-import type { AdminFileData } from "@/types";
+import { useMemo } from 'react';
+import type { AdminFileData } from '@/types';
 
 export interface UseFilesTableLogicReturn {
   // Selection state
@@ -7,7 +7,7 @@ export interface UseFilesTableLogicReturn {
   isIndeterminate: boolean;
   hasSelectedFiles: boolean;
   selectedCount: number;
-  
+
   // Handlers (passed through from props)
   onFileSelect: (fileId: string) => void;
   onSelectAll: (checked: boolean) => void;
@@ -35,12 +35,11 @@ export function useFilesTableLogic({
   onDownloadFile,
   onDeleteFile,
 }: UseFilesTableLogicProps): UseFilesTableLogicReturn {
-  
   // Derived selection state
   const selectionState = useMemo(() => {
     const totalFiles = filteredFiles.length;
     const selectedCount = selectedFiles.length;
-    
+
     return {
       isAllSelected: selectedCount === totalFiles && totalFiles > 0,
       isIndeterminate: selectedCount > 0 && selectedCount < totalFiles,
@@ -52,7 +51,7 @@ export function useFilesTableLogic({
   return {
     // Selection state
     ...selectionState,
-    
+
     // Handlers (pass through)
     onFileSelect,
     onSelectAll,

@@ -1,22 +1,22 @@
-"use client";
+'use client';
 
-import { useCallback, useState } from "react";
-import { useDropzone } from "react-dropzone";
-import { useSession } from "@/lib/auth-client";
-import { toast } from "sonner";
-import { nanoid } from "nanoid";
+import { useCallback, useState } from 'react';
+import { useDropzone } from 'react-dropzone';
+import { useSession } from '@/lib/auth-client';
+import { toast } from 'sonner';
+import { nanoid } from 'nanoid';
 
 // Internal imports
-import type { UploadedFile } from "@/components/domains/upload/fileuploader/types";
+import type { UploadedFile } from '@/components/domains/upload/fileuploader/types';
 import {
   getFileType,
   copyToClipboard,
   saveFileToLocalStorage,
-} from "@/components/domains/upload/fileuploader/utils";
+} from '@/components/domains/upload/fileuploader/utils';
 
 // External imports
-import { scanFile, logSecurityEvent } from "@/lib/security";
-import { validateFileAdvanced } from "@/lib/utils";
+import { scanFile, logSecurityEvent } from '@/lib/security';
+import { validateFileAdvanced } from '@/lib/utils';
 
 export interface UseFileUploaderReturn {
   // State
@@ -36,7 +36,7 @@ export interface UseFileUploaderReturn {
 
 export function useFileUploader(): UseFileUploaderReturn {
   const [files, setFiles] = useState<UploadedFile[]>([]);
-  const [expiration, setExpiration] = useState("24h");
+  const [expiration, setExpiration] = useState('24h');
   const [isPasswordProtected, setIsPasswordProtected] = useState(false);
   const { data: session } = useSession();
 
@@ -44,16 +44,16 @@ export function useFileUploader(): UseFileUploaderReturn {
     async (uploadedFile: UploadedFile) => {
       try {
         const formData = new FormData();
-        formData.append("file", uploadedFile.file);
-        formData.append("expiration", expiration);
+        formData.append('file', uploadedFile.file);
+        formData.append('expiration', expiration);
 
         // Include auto-generate key flag if protection is enabled
         if (isPasswordProtected) {
-          formData.append("autoGenerateKey", "true");
+          formData.append('autoGenerateKey', 'true');
         }
         // Include user ID if authenticated
         if (session?.user?.id) {
-          formData.append("userId", session.user.id);
+          formData.append('userId', session.user.id);
         }
 
         const xhr = new XMLHttpRequest();
@@ -76,7 +76,7 @@ export function useFileUploader(): UseFileUploaderReturn {
                 f.id === uploadedFile.id
                   ? {
                       ...f,
-                      status: "completed",
+                      status: 'completed',
                       progress: 100,
                       url: response.url,
                       shortUrl: response.shortUrl,
@@ -120,10 +120,10 @@ export function useFileUploader(): UseFileUploaderReturn {
         };
 
         xhr.onerror = () => {
-          throw new Error("Upload failed");
+          throw new Error('Upload failed');
         };
 
-        xhr.open("POST", "/api/upload");
+        xhr.open('POST', '/api/upload');
         xhr.send(formData);
       } catch (error) {
         setFiles((prev) =>
@@ -131,9 +131,9 @@ export function useFileUploader(): UseFileUploaderReturn {
             f.id === uploadedFile.id
               ? {
                   ...f,
-                  status: "error",
+                  status: 'error',
                   error:
-                    error instanceof Error ? error.message : "Upload failed",
+                    error instanceof Error ? error.message : 'Upload failed',
                 }
               : f
           )
@@ -156,9 +156,9 @@ export function useFileUploader(): UseFileUploaderReturn {
           // Log security events for validation failures
           validation.errors.forEach((error) => {
             logSecurityEvent(
-              "invalid_file",
+              'invalid_file',
               `File ${file.name} rejected: ${error}`,
-              "medium",
+              'medium',
               {
                 filename: file.name,
                 fileSize: file.size,
@@ -189,7 +189,7 @@ export function useFileUploader(): UseFileUploaderReturn {
         id: nanoid(),
         file,
         progress: 0,
-        status: "scanning" as const,
+        status: 'scanning' as const,
       }));
 
       setFiles((prev) => [...prev, ...newFiles]);
@@ -206,9 +206,9 @@ export function useFileUploader(): UseFileUploaderReturn {
                 f.id === uploadedFile.id
                   ? {
                       ...f,
-                      status: "threat_detected",
+                      status: 'threat_detected',
                       scanResult,
-                      error: scanResult.threat || "Security threat detected",
+                      error: scanResult.threat || 'Security threat detected',
                     }
                   : f
               )
@@ -223,18 +223,18 @@ export function useFileUploader(): UseFileUploaderReturn {
           setFiles((prev) =>
             prev.map((f) =>
               f.id === uploadedFile.id
-                ? { ...f, status: "uploading", scanResult }
+                ? { ...f, status: 'uploading', scanResult }
                 : f
             )
           );
 
           // Start upload
-          uploadFile({ ...uploadedFile, status: "uploading", scanResult });
+          uploadFile({ ...uploadedFile, status: 'uploading', scanResult });
         } catch (error) {
           logSecurityEvent(
-            "suspicious_activity",
+            'suspicious_activity',
             `File scan failed for ${uploadedFile.file.name}: ${error}`,
-            "high",
+            'high',
             {
               filename: uploadedFile.file.name,
               fileSize: uploadedFile.file.size,
@@ -245,7 +245,7 @@ export function useFileUploader(): UseFileUploaderReturn {
           setFiles((prev) =>
             prev.map((f) =>
               f.id === uploadedFile.id
-                ? { ...f, status: "error", error: "Security scan failed" }
+                ? { ...f, status: 'error', error: 'Security scan failed' }
                 : f
             )
           );
@@ -257,7 +257,7 @@ export function useFileUploader(): UseFileUploaderReturn {
   );
 
   const handleCopyToClipboard = useCallback(
-    async (url: string, label: string = "URL") => {
+    async (url: string, label: string = 'URL') => {
       const result = await copyToClipboard(url, label);
       if (result.success) {
         toast.success(result.message);
@@ -276,12 +276,12 @@ export function useFileUploader(): UseFileUploaderReturn {
     onDrop,
     multiple: true,
     accept: {
-      "image/*": [".jpeg", ".jpg", ".png", ".gif", ".webp"],
-      "text/plain": [".txt"],
-      "application/pdf": [".pdf"],
-      "application/zip": [".zip"],
-      "video/mp4": [".mp4"],
-      "audio/mpeg": [".mp3"],
+      'image/*': ['.jpeg', '.jpg', '.png', '.gif', '.webp'],
+      'text/plain': ['.txt'],
+      'application/pdf': ['.pdf'],
+      'application/zip': ['.zip'],
+      'video/mp4': ['.mp4'],
+      'audio/mpeg': ['.mp3'],
     },
   });
 

@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import { motion } from "motion/react";
-import { Button } from "@/components/ui/button";
-import { Clock, Trash2 } from "lucide-react";
-import { ManagementActionsProps } from "../types";
+import { motion } from 'motion/react';
+import { Button } from '@/components/ui/button';
+import { Clock, Trash2 } from 'lucide-react';
+import { ManagementActionsProps } from '../types';
 
 export default function ManagementActions({
   stats,
@@ -22,7 +22,7 @@ export default function ManagementActions({
       <div className="flex flex-wrap gap-2">
         <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
           <Button variant="outline" onClick={onRunCleanup}>
-            <Clock className="h-4 w-4 mr-2" />
+            <Clock className="mr-2 h-4 w-4" />
             Clean Expired Files
           </Button>
         </motion.div>
@@ -32,13 +32,13 @@ export default function ManagementActions({
             onClick={onBulkDeleteAll}
             disabled={stats.totalFiles === 0 || bulkDeleting}
           >
-            <Trash2 className="h-4 w-4 mr-2" />
-            {bulkDeleting ? "Deleting..." : `Delete All (${stats.totalFiles})`}
+            <Trash2 className="mr-2 h-4 w-4" />
+            {bulkDeleting ? 'Deleting...' : `Delete All (${stats.totalFiles})`}
           </Button>
         </motion.div>
       </div>
       <motion.p
-        className="text-sm text-muted-foreground"
+        className="text-muted-foreground text-sm"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 2.2, duration: 0.5 }}

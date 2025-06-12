@@ -2,7 +2,12 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ApiClient } from '@/lib/api/client';
 import { queryKeys } from '@/lib/queryKeys';
 import { toast } from 'sonner';
-import type { SecurityEvent, SecurityStats, SecurityEventType, SecuritySeverity } from '@/types';
+import type {
+  SecurityEvent,
+  SecurityStats,
+  SecurityEventType,
+  SecuritySeverity,
+} from '@/types';
 
 interface SecurityApiResponse {
   events: Array<{
@@ -28,15 +33,21 @@ interface SecurityApiResponse {
 export function useSecurityData() {
   return useQuery({
     queryKey: queryKeys.security(),
-    queryFn: async (): Promise<{ events: SecurityEvent[]; stats: SecurityStats }> => {
-      const response = await ApiClient.get<SecurityApiResponse>('/api/security?include_events=true');      // Transform API events to SecurityEvent format
+    queryFn: async (): Promise<{
+      events: SecurityEvent[];
+      stats: SecurityStats;
+    }> => {
+      const response = await ApiClient.get<SecurityApiResponse>(
+        '/api/security?include_events=true'
+      ); // Transform API events to SecurityEvent format
       const events: SecurityEvent[] = response.events.map((event) => ({
         id: event.id,
         type: event.type as SecurityEventType,
         severity: event.severity as SecuritySeverity,
-        timestamp: typeof event.timestamp === "string"
-          ? new Date(parseInt(event.timestamp))
-          : new Date(event.timestamp || 0),
+        timestamp:
+          typeof event.timestamp === 'string'
+            ? new Date(parseInt(event.timestamp))
+            : new Date(event.timestamp || 0),
         details: {
           ip: event.ip,
           filename: event.filename,
@@ -45,9 +56,10 @@ export function useSecurityData() {
           endpoint: event.endpoint,
           reason: event.reason,
         },
-        message: typeof event.details === "string" 
-          ? event.details 
-          : event.message || `${event.type} event`,
+        message:
+          typeof event.details === 'string'
+            ? event.details
+            : event.message || `${event.type} event`,
       }));
 
       return {
@@ -60,7 +72,7 @@ export function useSecurityData() {
           last24h: 0,
           malwareDetected: 0,
           largeSizeBlocked: 0,
-        }
+        },
       };
     },
     staleTime: 30 * 1000, // 30 seconds
@@ -94,7 +106,10 @@ export function useExportSecurityLogs() {
       toast.success('Security logs exported successfully');
     },
     onError: (error) => {
-      const errorMessage = error instanceof Error ? error.message : 'Failed to export security logs';
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : 'Failed to export security logs';
       toast.error(errorMessage);
     },
   });
@@ -105,7 +120,7 @@ export function useExportSecurityLogs() {
  */
 export function useClearSecurityLogs() {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: async (): Promise<void> => {
       const response = await fetch('/api/security/clear', { method: 'DELETE' });
@@ -119,7 +134,10 @@ export function useClearSecurityLogs() {
       toast.success('Security logs cleared successfully');
     },
     onError: (error) => {
-      const errorMessage = error instanceof Error ? error.message : 'Failed to clear security logs';
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : 'Failed to clear security logs';
       toast.error(errorMessage);
     },
   });
@@ -144,7 +162,8 @@ export function useSecurityScan(options: { enabled?: boolean } = {}) {
   return useQuery({
     queryKey: queryKeys.securityScan(),
     queryFn: async (): Promise<SecurityScanStatus> => {
-      const response = await ApiClient.get<SecurityScanStatus>('/api/security/scan');
+      const response =
+        await ApiClient.get<SecurityScanStatus>('/api/security/scan');
       return response;
     },
     enabled,

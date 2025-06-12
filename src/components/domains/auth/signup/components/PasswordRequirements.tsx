@@ -9,9 +9,9 @@ interface PasswordRequirementsProps {
   passwordValidations: PasswordValidation[];
 }
 
-export function PasswordRequirements({ 
-  password, 
-  passwordValidations 
+export function PasswordRequirements({
+  password,
+  passwordValidations,
 }: PasswordRequirementsProps) {
   if (!password) return null;
 

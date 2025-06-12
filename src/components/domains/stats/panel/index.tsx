@@ -1,23 +1,24 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { motion } from "motion/react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
-import { toast } from "sonner";
-import { useStatsQuery } from "@/hooks";
+import { useState } from 'react';
+import { motion } from 'motion/react';
+import { Card, CardContent } from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
+import { toast } from 'sonner';
+import { useStatsQuery } from '@/hooks';
 
 // Component imports
-import StatsHeader from "./components/StatsHeader";
-import StatsLoadingIndicator from "./components/StatsLoadingIndicator";
-import StatsErrorState from "./components/StatsErrorState";
-import StatsGrid from "./components/StatsGrid";
-import SystemStatus from "./components/SystemStatus";
-import ManagementActions from "./components/ManagementActions";
-import SystemInformation from "./components/SystemInformation";
+import StatsHeader from './components/StatsHeader';
+import StatsLoadingIndicator from './components/StatsLoadingIndicator';
+import StatsErrorState from './components/StatsErrorState';
+import StatsGrid from './components/StatsGrid';
+import SystemStatus from './components/SystemStatus';
+import ManagementActions from './components/ManagementActions';
+import SystemInformation from './components/SystemInformation';
 
-export default function StatsPanel() {  const [bulkDeleting, setBulkDeleting] = useState(false);
-  
+export default function StatsPanel() {
+  const [bulkDeleting, setBulkDeleting] = useState(false);
+
   // Use TanStack Query for better performance and caching
   const {
     data: stats,
@@ -27,24 +28,24 @@ export default function StatsPanel() {  const [bulkDeleting, setBulkDeleting] = 
 
   const runCleanup = async () => {
     try {
-      const response = await fetch("/api/cleanup", { method: "POST" });
+      const response = await fetch('/api/cleanup', { method: 'POST' });
       const data = await response.json();
 
       if (data.success) {
         toast.success(`Cleanup completed: ${data.deletedCount} files removed`);
         await fetchStats(); // Refresh stats
       } else {
-        toast.error("Cleanup failed");
+        toast.error('Cleanup failed');
       }
     } catch {
-      toast.error("Error running cleanup");
+      toast.error('Error running cleanup');
     }
   };
 
   const bulkDeleteAll = async () => {
     if (
       !confirm(
-        "Are you sure you want to delete ALL uploaded files? This action cannot be undone."
+        'Are you sure you want to delete ALL uploaded files? This action cannot be undone.'
       )
     ) {
       return;
@@ -52,20 +53,20 @@ export default function StatsPanel() {  const [bulkDeleting, setBulkDeleting] = 
 
     try {
       setBulkDeleting(true);
-      const response = await fetch("/api/bulk-delete", { method: "DELETE" });
+      const response = await fetch('/api/bulk-delete', { method: 'DELETE' });
       const data = await response.json();
 
       if (data.success) {
         toast.success(
           `Bulk delete completed: ${data.deletedCount}/${data.totalFiles} files removed`
         );
-        localStorage.removeItem("uploadedFiles");
+        localStorage.removeItem('uploadedFiles');
         await fetchStats(); // Refresh stats
       } else {
-        toast.error("Bulk delete failed");
+        toast.error('Bulk delete failed');
       }
     } catch {
-      toast.error("Error performing bulk delete");
+      toast.error('Error performing bulk delete');
     } finally {
       setBulkDeleting(false);
     }
@@ -85,7 +86,7 @@ export default function StatsPanel() {  const [bulkDeleting, setBulkDeleting] = 
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
     >
-      <Card className="border-0 shadow-lg bg-gradient-to-br from-white via-blue-50/30 to-purple-50/30 dark:from-gray-900 dark:via-blue-950/20 dark:to-purple-950/20">
+      <Card className="border-0 bg-gradient-to-br from-white via-blue-50/30 to-purple-50/30 shadow-lg dark:from-gray-900 dark:via-blue-950/20 dark:to-purple-950/20">
         <StatsHeader onRefresh={fetchStats} />
         <CardContent className="space-y-6">
           <StatsGrid stats={stats} />

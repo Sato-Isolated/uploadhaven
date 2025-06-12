@@ -1,14 +1,14 @@
 // components/FileProgressCard.tsx - Individual file progress display
 
-"use client";
+'use client';
 
-import { motion } from "motion/react";
-import FileIcon from "./FileIcon";
-import FileDetails from "./FileDetails";
-import FileActions from "./FileActions";
-import ProgressSection from "./ProgressSection";
-import FileLinks from "./FileLinks";
-import type { FileHandlerProps } from "@/types";
+import { motion } from 'motion/react';
+import FileIcon from './FileIcon';
+import FileDetails from './FileDetails';
+import FileActions from './FileActions';
+import ProgressSection from './ProgressSection';
+import FileLinks from './FileLinks';
+import type { FileHandlerProps } from '@/types';
 
 interface FileProgressCardProps extends FileHandlerProps {
   index: number;
@@ -36,25 +36,22 @@ export default function FileProgressCard({
       className="group relative"
     >
       <motion.div
-        className={`
-          flex items-center space-x-4 p-4 rounded-xl border transition-all duration-300
-          ${
-            file.status === "completed"
-              ? "bg-green-50 border-green-200 dark:bg-green-950/20 dark:border-green-800"
-              : file.status === "error" || file.status === "threat_detected"
-              ? "bg-red-50 border-red-200 dark:bg-red-950/20 dark:border-red-800"
-              : "bg-white border-border dark:bg-gray-800/50"
-          }
-        `}
+        className={`flex items-center space-x-4 rounded-xl border p-4 transition-all duration-300 ${
+          file.status === 'completed'
+            ? 'border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-950/20'
+            : file.status === 'error' || file.status === 'threat_detected'
+              ? 'border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-950/20'
+              : 'border-border bg-white dark:bg-gray-800/50'
+        } `}
         whileHover={{ scale: 1.01 }}
         whileTap={{ scale: 0.98 }}
       >
         {/* File Icon */}
         <FileIcon status={file.status} />
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center justify-between mb-2">
+        <div className="min-w-0 flex-1">
+          <div className="mb-2 flex items-center justify-between">
             <motion.p
-              className="text-sm font-medium truncate max-w-xs"
+              className="max-w-xs truncate text-sm font-medium"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.2 }}

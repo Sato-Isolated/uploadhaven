@@ -1,9 +1,9 @@
 // TanStack Query hook for activities management
 // Uses fetch API instead of ApiClient to avoid compilation issues
 // filepath: c:\Users\ismys\Documents\GitHub\uploadhaven\src\hooks\useActivitiesQuery.ts
-import { useQuery, useInfiniteQuery } from "@tanstack/react-query";
-import { queryKeys } from "@/lib/queryKeys";
-import { ActivityResponse } from "@/types";
+import { useQuery, useInfiniteQuery } from '@tanstack/react-query';
+import { queryKeys } from '@/lib/queryKeys';
+import { ActivityResponse } from '@/types';
 
 interface ActivitiesFilters {
   page?: number;
@@ -25,9 +25,9 @@ export function useActivitiesQuery(
     limit: limit.toString(),
   });
 
-  if (type) params.append("type", type);
-  if (severity) params.append("severity", severity);
-  if (userId) params.append("userId", userId);
+  if (type) params.append('type', type);
+  if (severity) params.append('severity', severity);
+  if (userId) params.append('userId', userId);
 
   const url = `/api/admin/activities?${params}`;
   return useQuery({
@@ -51,7 +51,7 @@ export function useActivitiesQuery(
  * Provides smooth infinite scrolling experience
  */
 export function useInfiniteActivitiesQuery(
-  filters: Omit<ActivitiesFilters, "page"> = {},
+  filters: Omit<ActivitiesFilters, 'page'> = {},
   options?: { enabled?: boolean }
 ) {
   const { limit = 20, type, severity, userId } = filters;
@@ -64,9 +64,9 @@ export function useInfiniteActivitiesQuery(
         limit: limit.toString(),
       });
 
-      if (type) params.append("type", type);
-      if (severity) params.append("severity", severity);
-      if (userId) params.append("userId", userId);
+      if (type) params.append('type', type);
+      if (severity) params.append('severity', severity);
+      if (userId) params.append('userId', userId);
       const url = `/api/admin/activities?${params}`;
       const response = await fetch(url);
       if (!response.ok) {

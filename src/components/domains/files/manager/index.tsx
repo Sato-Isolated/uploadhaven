@@ -1,25 +1,25 @@
 // index.tsx - Main FileManager orchestrating component
 
-"use client";
+'use client';
 
-import { useState } from "react";
-import { toast } from "sonner";
-import { useFiles, useDeleteFile } from "@/hooks";
+import { useState } from 'react';
+import { toast } from 'sonner';
+import { useFiles, useDeleteFile } from '@/hooks';
 import {
   FileText,
   Image as ImageIcon,
   Film,
   Music,
   Archive,
-} from "lucide-react";
-import { FilePreview } from "../../filepreview";
-import LoadingIndicator from "./components/LoadingIndicator";
-import EmptyState from "./components/EmptyState";
-import FileListContainer from "./components/FileListContainer";
-import type { FilePreviewData } from "@/types";
-import type { FileInfo, ExpirationStatus, FileManagerProps } from "./types";
+} from 'lucide-react';
+import { FilePreview } from '../../filepreview';
+import LoadingIndicator from './components/LoadingIndicator';
+import EmptyState from './components/EmptyState';
+import FileListContainer from './components/FileListContainer';
+import type { FilePreviewData } from '@/types';
+import type { FileInfo, ExpirationStatus, FileManagerProps } from './types';
 
-export default function FileManager({ className = "" }: FileManagerProps) {
+export default function FileManager({ className = '' }: FileManagerProps) {
   const [previewFile, setPreviewFile] = useState<FilePreviewData | null>(null);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   // Use TanStack Query for better performance and caching
@@ -28,17 +28,17 @@ export default function FileManager({ className = "" }: FileManagerProps) {
   // Use TanStack Query mutation for deleting files
   const deleteFileMutation = useDeleteFile();
 
-  const getFileIcon = (type: FileInfo["type"]) => {
+  const getFileIcon = (type: FileInfo['type']) => {
     switch (type) {
-      case "image":
+      case 'image':
         return <ImageIcon className="h-4 w-4" />;
-      case "video":
+      case 'video':
         return <Film className="h-4 w-4" />;
-      case "audio":
+      case 'audio':
         return <Music className="h-4 w-4" />;
-      case "document":
+      case 'document':
         return <FileText className="h-4 w-4" />;
-      case "archive":
+      case 'archive':
         return <Archive className="h-4 w-4" />;
       default:
         return <FileText className="h-4 w-4" />;
@@ -48,12 +48,12 @@ export default function FileManager({ className = "" }: FileManagerProps) {
   const copyLink = (filename: string) => {
     const url = `${window.location.origin}/api/files/${filename}`;
     navigator.clipboard.writeText(url);
-    toast.success("Link copied to clipboard!");
+    toast.success('Link copied to clipboard!');
   };
 
   const downloadFile = (filename: string) => {
     const url = `${window.location.origin}/api/files/${filename}`;
-    window.open(url, "_blank");
+    window.open(url, '_blank');
   };
   const deleteFile = async (filename: string) => {
     deleteFileMutation.mutate(filename);
@@ -62,11 +62,11 @@ export default function FileManager({ className = "" }: FileManagerProps) {
   const getExpirationStatus = (expiresAt?: string | null): ExpirationStatus => {
     if (!expiresAt) {
       return {
-        text: "Never expires",
-        variant: "secondary" as const,
+        text: 'Never expires',
+        variant: 'secondary' as const,
         expired: false,
         isExpiringSoon: false,
-        timeLeft: "",
+        timeLeft: '',
       };
     }
 
@@ -76,11 +76,11 @@ export default function FileManager({ className = "" }: FileManagerProps) {
 
     if (timeLeft <= 0) {
       return {
-        text: "Expired",
-        variant: "destructive" as const,
+        text: 'Expired',
+        variant: 'destructive' as const,
         expired: true,
         isExpiringSoon: false,
-        timeLeft: "",
+        timeLeft: '',
       };
     }
 
@@ -89,28 +89,28 @@ export default function FileManager({ className = "" }: FileManagerProps) {
 
     if (days > 0) {
       return {
-        text: `Expires in ${days} day${days > 1 ? "s" : ""}`,
-        variant: days <= 1 ? ("destructive" as const) : ("secondary" as const),
+        text: `Expires in ${days} day${days > 1 ? 's' : ''}`,
+        variant: days <= 1 ? ('destructive' as const) : ('secondary' as const),
         expired: false,
         isExpiringSoon: days <= 1,
-        timeLeft: `${days} day${days > 1 ? "s" : ""}`,
+        timeLeft: `${days} day${days > 1 ? 's' : ''}`,
       };
     } else if (hours > 0) {
       return {
-        text: `Expires in ${hours} hour${hours > 1 ? "s" : ""}`,
-        variant: hours <= 2 ? ("destructive" as const) : ("secondary" as const),
+        text: `Expires in ${hours} hour${hours > 1 ? 's' : ''}`,
+        variant: hours <= 2 ? ('destructive' as const) : ('secondary' as const),
         expired: false,
         isExpiringSoon: hours <= 2,
-        timeLeft: `${hours} hour${hours > 1 ? "s" : ""}`,
+        timeLeft: `${hours} hour${hours > 1 ? 's' : ''}`,
       };
     } else {
       const minutes = Math.floor(timeLeft / (1000 * 60));
       return {
-        text: `Expires in ${minutes} min${minutes > 1 ? "s" : ""}`,
-        variant: "destructive" as const,
+        text: `Expires in ${minutes} min${minutes > 1 ? 's' : ''}`,
+        variant: 'destructive' as const,
         expired: false,
         isExpiringSoon: true,
-        timeLeft: `${minutes} min${minutes > 1 ? "s" : ""}`,
+        timeLeft: `${minutes} min${minutes > 1 ? 's' : ''}`,
       };
     }
   };

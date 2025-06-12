@@ -1,16 +1,16 @@
-"use client";
+'use client';
 
-import { motion } from "motion/react";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { X } from "lucide-react";
-import { getFileTypeDisplay } from "../utils";
-import { FileIcon } from "./FileIcon";
+import { motion } from 'motion/react';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { X } from 'lucide-react';
+import { getFileTypeDisplay } from '../utils';
+import { FileIcon } from './FileIcon';
 import type {
   FileTypeInfo,
   BaseComponentProps,
   FilePreviewData,
-} from "@/types";
+} from '@/types';
 
 interface FileHeaderProps extends BaseComponentProps {
   file: FilePreviewData;
@@ -33,7 +33,7 @@ export default function FileHeader({
       >
         <motion.div
           whileHover={{ scale: 1.1, rotate: 5 }}
-          transition={{ type: "spring", stiffness: 300 }}
+          transition={{ type: 'spring', stiffness: 300 }}
         >
           <FileIcon typeInfo={typeInfo} />
         </motion.div>
@@ -41,11 +41,11 @@ export default function FileHeader({
         <motion.div
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
-          transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
+          transition={{ delay: 0.2, type: 'spring', stiffness: 200 }}
         >
           <Badge
             variant="secondary"
-            className="bg-gradient-to-r from-blue-500/10 to-purple-600/10 border-0"
+            className="border-0 bg-gradient-to-r from-blue-500/10 to-purple-600/10"
           >
             {getFileTypeDisplay(typeInfo)}
           </Badge>

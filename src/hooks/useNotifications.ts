@@ -25,7 +25,7 @@ export function useNotifications(options: UseNotificationsOptions = {}) {
     limit = 50,
     includeRead = true,
     type,
-    realtime = true
+    realtime = true,
   } = options;
 
   const queryClient = useQueryClient();
@@ -46,14 +46,14 @@ export function useNotifications(options: UseNotificationsOptions = {}) {
     data: notificationsData,
     isLoading,
     error,
-    refetch
+    refetch,
   } = useQuery({
     queryKey: ['notifications', { limit, includeRead, type }],
     queryFn: async () => {
       const params = new URLSearchParams({
         limit: limit.toString(),
         includeRead: includeRead.toString(),
-        ...(type && { type })
+        ...(type && { type }),
       });
 
       const response = await fetch(`/api/notifications?${params}`);
@@ -73,7 +73,9 @@ export function useNotifications(options: UseNotificationsOptions = {}) {
     queryFn: async () => {
       const response = await fetch('/api/notifications?stats=true');
       if (!response.ok) {
-        throw new Error(`Failed to fetch notification stats: ${response.status}`);
+        throw new Error(
+          `Failed to fetch notification stats: ${response.status}`
+        );
       }
       return response.json();
     },
@@ -90,12 +92,14 @@ export function useNotifications(options: UseNotificationsOptions = {}) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           notificationId,
-          action: 'markRead'
-        })
+          action: 'markRead',
+        }),
       });
-      
+
       if (!response.ok) {
-        throw new Error(`Failed to mark notification as read: ${response.status}`);
+        throw new Error(
+          `Failed to mark notification as read: ${response.status}`
+        );
       }
       return response.json();
     },
@@ -106,7 +110,7 @@ export function useNotifications(options: UseNotificationsOptions = {}) {
     },
     onError: (error) => {
       toast.error(`Failed to mark notification as read: ${error.message}`);
-    }
+    },
   });
 
   // Mark all notifications as read mutation
@@ -115,11 +119,13 @@ export function useNotifications(options: UseNotificationsOptions = {}) {
       const response = await fetch('/api/notifications', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'markAllRead' })
+        body: JSON.stringify({ action: 'markAllRead' }),
       });
-      
+
       if (!response.ok) {
-        throw new Error(`Failed to mark all notifications as read: ${response.status}`);
+        throw new Error(
+          `Failed to mark all notifications as read: ${response.status}`
+        );
       }
       return response.json();
     },
@@ -129,16 +135,16 @@ export function useNotifications(options: UseNotificationsOptions = {}) {
     },
     onError: (error) => {
       toast.error(`Failed to mark all notifications as read: ${error.message}`);
-    }
+    },
   });
 
   // Delete notification mutation
   const deleteNotificationMutation = useMutation({
     mutationFn: async (notificationId: string) => {
       const response = await fetch(`/api/notifications?id=${notificationId}`, {
-        method: 'DELETE'
+        method: 'DELETE',
       });
-      
+
       if (!response.ok) {
         throw new Error(`Failed to delete notification: ${response.status}`);
       }
@@ -150,7 +156,7 @@ export function useNotifications(options: UseNotificationsOptions = {}) {
     },
     onError: (error) => {
       toast.error(`Failed to delete notification: ${error.message}`);
-    }
+    },
   });
   // Real-time notifications via Server-Sent Events
   const cleanupConnection = useCallback(() => {
@@ -158,17 +164,18 @@ export function useNotifications(options: UseNotificationsOptions = {}) {
       clearTimeout(reconnectTimeoutRef.current);
       reconnectTimeoutRef.current = null;
     }
-    
+
     if (eventSourceRef.current) {
       eventSourceRef.current.close();
       eventSourceRef.current = null;
     }
-    
+
     setIsConnected(false);
   }, []);
   const connectToNotificationStream = useCallback(() => {
     // Don't connect if unmounting, disabled, or if already connected
-    if (!effectiveRealtime || eventSourceRef.current || isUnmountingRef.current) return;
+    if (!effectiveRealtime || eventSourceRef.current || isUnmountingRef.current)
+      return;
 
     try {
       const eventSource = new EventSource('/api/notifications/stream');
@@ -184,27 +191,32 @@ export function useNotifications(options: UseNotificationsOptions = {}) {
       eventSource.onmessage = (event) => {
         try {
           const data: NotificationStreamEvent = JSON.parse(event.data);
-          
+
           if (data.type === 'connected') {
             console.log('🔔 Notification stream connected:', data.message);
           } else if (data.type === 'notification' && data.data) {
             // New notification received
             console.log('🔔 New notification received:', data.data);
-            
+
             // Show toast notification only if component is still mounted
             if (!isUnmountingRef.current) {
               const notification = data.data;
-              const toastFn = notification.priority === 'urgent' || notification.priority === 'high' 
-                ? toast.error 
-                : toast.success;
-              
+              const toastFn =
+                notification.priority === 'urgent' ||
+                notification.priority === 'high'
+                  ? toast.error
+                  : toast.success;
+
               toastFn(`${notification.title}: ${notification.message}`, {
-                action: notification.actionUrl ? {
-                  label: notification.actionLabel || 'View',
-                  onClick: () => window.location.href = notification.actionUrl!
-                } : undefined
+                action: notification.actionUrl
+                  ? {
+                      label: notification.actionLabel || 'View',
+                      onClick: () =>
+                        (window.location.href = notification.actionUrl!),
+                    }
+                  : undefined,
               });
-              
+
               // Update query cache with new notification
               queryClient.invalidateQueries({ queryKey: ['notifications'] });
             }
@@ -217,18 +229,27 @@ export function useNotifications(options: UseNotificationsOptions = {}) {
       eventSource.onerror = (error) => {
         console.error('❌ SSE connection error:', error);
         setIsConnected(false);
-        
+
         // Clean up current connection
         eventSource.close();
         eventSourceRef.current = null;
-        
+
         // Only attempt reconnection if component is still mounted, SSE is enabled, and we haven't exceeded max attempts
-        if (!isUnmountingRef.current && effectiveRealtime && reconnectAttemptsRef.current < maxReconnectAttempts) {
+        if (
+          !isUnmountingRef.current &&
+          effectiveRealtime &&
+          reconnectAttemptsRef.current < maxReconnectAttempts
+        ) {
           reconnectAttemptsRef.current++;
-          const retryDelay = Math.min(1000 * Math.pow(2, reconnectAttemptsRef.current), 10000); // Exponential backoff, max 10s
-          
-          setConnectionError(`Connection lost - retrying in ${Math.ceil(retryDelay / 1000)}s (attempt ${reconnectAttemptsRef.current}/${maxReconnectAttempts})`);
-          
+          const retryDelay = Math.min(
+            1000 * Math.pow(2, reconnectAttemptsRef.current),
+            10000
+          ); // Exponential backoff, max 10s
+
+          setConnectionError(
+            `Connection lost - retrying in ${Math.ceil(retryDelay / 1000)}s (attempt ${reconnectAttemptsRef.current}/${maxReconnectAttempts})`
+          );
+
           reconnectTimeoutRef.current = setTimeout(() => {
             if (!isUnmountingRef.current && effectiveRealtime) {
               connectToNotificationStream();
@@ -238,15 +259,14 @@ export function useNotifications(options: UseNotificationsOptions = {}) {
           setConnectionError('Connection failed - please refresh the page');
         }
       };
-
     } catch (error) {
       console.error('❌ Failed to connect to notification stream:', error);
       setConnectionError('Failed to connect to notification stream');
     }
-  }, [effectiveRealtime, queryClient, maxReconnectAttempts]);  // Connect to notification stream on mount and handle page navigation
+  }, [effectiveRealtime, queryClient, maxReconnectAttempts]); // Connect to notification stream on mount and handle page navigation
   useEffect(() => {
     isUnmountingRef.current = false;
-    
+
     if (effectiveRealtime && enabled) {
       connectToNotificationStream();
     }
@@ -256,7 +276,12 @@ export function useNotifications(options: UseNotificationsOptions = {}) {
       if (document.hidden) {
         // Page is hidden, close connection to avoid errors
         cleanupConnection();
-      } else if (!document.hidden && effectiveRealtime && enabled && !eventSourceRef.current) {
+      } else if (
+        !document.hidden &&
+        effectiveRealtime &&
+        enabled &&
+        !eventSourceRef.current
+      ) {
         // Page is visible again, reconnect
         setTimeout(() => {
           if (!isUnmountingRef.current) {
@@ -281,14 +306,24 @@ export function useNotifications(options: UseNotificationsOptions = {}) {
       window.removeEventListener('beforeunload', handleBeforeUnload);
       cleanupConnection();
     };
-  }, [connectToNotificationStream, cleanupConnection, effectiveRealtime, enabled]);
+  }, [
+    connectToNotificationStream,
+    cleanupConnection,
+    effectiveRealtime,
+    enabled,
+  ]);
 
   // Effect to handle SSE enable/disable state changes
   useEffect(() => {
     if (!effectiveRealtime) {
       // SSE disabled by context (e.g., during navigation), clean up connection
       cleanupConnection();
-    } else if (effectiveRealtime && enabled && !eventSourceRef.current && !isUnmountingRef.current) {
+    } else if (
+      effectiveRealtime &&
+      enabled &&
+      !eventSourceRef.current &&
+      !isUnmountingRef.current
+    ) {
       // SSE re-enabled, reconnect if needed
       const timer = setTimeout(() => {
         connectToNotificationStream();
@@ -296,40 +331,51 @@ export function useNotifications(options: UseNotificationsOptions = {}) {
 
       return () => clearTimeout(timer);
     }
-  }, [effectiveRealtime, enabled, connectToNotificationStream, cleanupConnection]);
+  }, [
+    effectiveRealtime,
+    enabled,
+    connectToNotificationStream,
+    cleanupConnection,
+  ]);
 
   // Helper functions
-  const markAsRead = useCallback((notificationId: string) => {
-    markAsReadMutation.mutate(notificationId);
-  }, [markAsReadMutation]);
+  const markAsRead = useCallback(
+    (notificationId: string) => {
+      markAsReadMutation.mutate(notificationId);
+    },
+    [markAsReadMutation]
+  );
 
   const markAllAsRead = useCallback(() => {
     markAllAsReadMutation.mutate();
   }, [markAllAsReadMutation]);
 
-  const deleteNotification = useCallback((notificationId: string) => {
-    deleteNotificationMutation.mutate(notificationId);
-  }, [deleteNotificationMutation]);
+  const deleteNotification = useCallback(
+    (notificationId: string) => {
+      deleteNotificationMutation.mutate(notificationId);
+    },
+    [deleteNotificationMutation]
+  );
 
   return {
     // Data
     notifications: notificationsData?.notifications || [],
     stats: statsData?.stats as NotificationStats | undefined,
-    
+
     // Loading states
     isLoading,
     isConnected,
     connectionError,
-    
+
     // Error states
     error,
-    
+
     // Actions
     markAsRead,
     markAllAsRead,
     deleteNotification,
     refetch,
-    
+
     // Mutation states
     isMarkingAsRead: markAsReadMutation.isPending,
     isMarkingAllAsRead: markAllAsReadMutation.isPending,

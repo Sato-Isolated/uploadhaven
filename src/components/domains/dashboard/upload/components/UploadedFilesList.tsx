@@ -5,7 +5,10 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { CheckCircle, AlertCircle, X, Copy, Key } from 'lucide-react';
 import type { UploadedFile } from '@/components/domains/upload/fileuploader/types';
-import { getFileType, copyToClipboard } from '@/components/domains/upload/fileuploader/utils';
+import {
+  getFileType,
+  copyToClipboard,
+} from '@/components/domains/upload/fileuploader/utils';
 import { toast } from 'sonner';
 
 interface UploadedFilesListProps {
@@ -14,10 +17,10 @@ interface UploadedFilesListProps {
   onClearCompleted: () => void;
 }
 
-export function UploadedFilesList({ 
-  files, 
-  onRemoveFile, 
-  onClearCompleted 
+export function UploadedFilesList({
+  files,
+  onRemoveFile,
+  onClearCompleted,
 }: UploadedFilesListProps) {
   const handleCopyToClipboard = async (url: string, label?: string) => {
     const success = await copyToClipboard(url);
@@ -54,11 +57,11 @@ export function UploadedFilesList({
       animate={{ opacity: 1, y: 0 }}
       className="mt-6"
     >
-      <div className="flex items-center justify-between mb-4">
+      <div className="mb-4 flex items-center justify-between">
         <h4 className="font-semibold text-gray-900 dark:text-white">
           Files ({files.length})
         </h4>
-        {files.some(f => f.status === 'completed') && (
+        {files.some((f) => f.status === 'completed') && (
           <Button
             variant="outline"
             size="sm"
@@ -69,20 +72,20 @@ export function UploadedFilesList({
           </Button>
         )}
       </div>
-      <div className="space-y-3 max-h-96 overflow-y-auto">
+      <div className="max-h-96 space-y-3 overflow-y-auto">
         {files.map((file, index) => (
           <motion.div
             key={file.id}
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: index * 0.1 }}
-            className="p-4 bg-white dark:bg-gray-800 rounded-lg border shadow-sm"
+            className="rounded-lg border bg-white p-4 shadow-sm dark:bg-gray-800"
           >
-            <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center space-x-3 flex-1 min-w-0">
+            <div className="mb-2 flex items-center justify-between">
+              <div className="flex min-w-0 flex-1 items-center space-x-3">
                 <span className="text-2xl">{getFileIcon(file.file)}</span>
-                <div className="flex-1 min-w-0">
-                  <p className="font-medium truncate text-gray-900 dark:text-white">
+                <div className="min-w-0 flex-1">
+                  <p className="truncate font-medium text-gray-900 dark:text-white">
                     {file.file.name}
                   </p>
                   <p className="text-sm text-gray-500">
@@ -114,9 +117,11 @@ export function UploadedFilesList({
             {/* Progress Bar */}
             {(file.status === 'scanning' || file.status === 'uploading') && (
               <div className="mb-3">
-                <div className="flex justify-between text-sm mb-1">
+                <div className="mb-1 flex justify-between text-sm">
                   <span className="text-gray-600">
-                    {file.status === 'scanning' ? 'Scanning...' : 'Uploading...'}
+                    {file.status === 'scanning'
+                      ? 'Scanning...'
+                      : 'Uploading...'}
                   </span>
                   <span className="text-gray-600">{file.progress}%</span>
                 </div>
@@ -126,9 +131,7 @@ export function UploadedFilesList({
 
             {/* Error Message */}
             {file.error && (
-              <div className="text-sm text-red-600 mb-2">
-                {file.error}
-              </div>
+              <div className="mb-2 text-sm text-red-600">{file.error}</div>
             )}
 
             {/* Success Actions */}
@@ -137,26 +140,27 @@ export function UploadedFilesList({
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => handleCopyToClipboard(
-                    `${window.location.origin}/s/${file.shortUrl}`,
-                    'Share link'
-                  )}
+                  onClick={() =>
+                    handleCopyToClipboard(
+                      `${window.location.origin}/s/${file.shortUrl}`,
+                      'Share link'
+                    )
+                  }
                   className="flex-1"
                 >
-                  <Copy className="h-4 w-4 mr-2" />
+                  <Copy className="mr-2 h-4 w-4" />
                   Copy Link
                 </Button>
                 {file.generatedKey && (
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => handleCopyToClipboard(
-                      file.generatedKey!,
-                      'Password'
-                    )}
+                    onClick={() =>
+                      handleCopyToClipboard(file.generatedKey!, 'Password')
+                    }
                     className="flex-1"
                   >
-                    <Key className="h-4 w-4 mr-2" />
+                    <Key className="mr-2 h-4 w-4" />
                     Copy Password
                   </Button>
                 )}

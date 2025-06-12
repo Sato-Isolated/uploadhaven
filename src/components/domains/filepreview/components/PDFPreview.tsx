@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import { motion } from "motion/react";
-import type { FilePreviewData, BaseComponentProps } from "@/types";
+import { motion } from 'motion/react';
+import type { FilePreviewData, BaseComponentProps } from '@/types';
 
 interface PDFPreviewProps extends BaseComponentProps {
   file: FilePreviewData;
@@ -11,7 +11,7 @@ export default function PDFPreview({ file }: PDFPreviewProps) {
   return (
     <motion.iframe
       src={file.url}
-      className="w-full h-[500px] rounded shadow-lg"
+      className="h-[500px] w-full rounded shadow-lg"
       title={file.originalName}
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}

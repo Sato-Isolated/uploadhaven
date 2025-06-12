@@ -2,7 +2,13 @@
 
 import { useState, useEffect } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
@@ -36,30 +42,37 @@ export function PerformanceTest() {
   const queryClient = useQueryClient();
 
   // Test hooks
-  const { data: stats, isLoading: statsLoading, refetch: refetchStats } = useStatsQuery();
-  const { 
-    data: activities, 
-    isLoading: activitiesLoading, 
+  const {
+    data: stats,
+    isLoading: statsLoading,
+    refetch: refetchStats,
+  } = useStatsQuery();
+  const {
+    data: activities,
+    isLoading: activitiesLoading,
     fetchNextPage,
     hasNextPage,
-    isFetchingNextPage 
+    isFetchingNextPage,
   } = useInfiniteActivitiesQuery();
 
-  const { 
-    isConnected: wsConnected, 
-    connectionStatus, 
-    activityCount 
+  const {
+    isConnected: wsConnected,
+    connectionStatus,
+    activityCount,
   } = useRealTimeActivities();
   // Update WebSocket metrics
   useEffect(() => {
     // Map polling connectionStatus to expected webSocketStatus type
-    const getWebSocketStatus = (): 'connected' | 'disconnected' | 'connecting' => {
+    const getWebSocketStatus = ():
+      | 'connected'
+      | 'disconnected'
+      | 'connecting' => {
       if (wsConnected) return 'connected';
       if (connectionStatus === 'connecting') return 'connecting';
       return 'disconnected'; // maps 'error' and other states to 'disconnected'
     };
 
-    setMetrics(prev => ({
+    setMetrics((prev) => ({
       ...prev,
       webSocketStatus: getWebSocketStatus(),
       realTimeEvents: activityCount,
@@ -70,19 +83,21 @@ export function PerformanceTest() {
     const interval = setInterval(() => {
       const cache = queryClient.getQueryCache();
       const queries = cache.getAll();
-        let hits = 0;
+      let hits = 0;
       let misses = 0;
-      let validQueries = 0;      queries.forEach(query => {
+      let validQueries = 0;
+      queries.forEach((query) => {
         const state = query.state;
         if (state.dataUpdateCount > 0) {
           validQueries++;
           // Skip timing calculation since dataUpdatedAt - dataUpdatedAt = 0
         }
-        
+
         // Estimate cache hits/misses based on data freshness
         if (state.data && state.dataUpdatedAt) {
           const age = Date.now() - state.dataUpdatedAt;
-          if (age > 30000) { // Consider stale after 30 seconds
+          if (age > 30000) {
+            // Consider stale after 30 seconds
             misses++;
           } else {
             hits++;
@@ -90,7 +105,7 @@ export function PerformanceTest() {
         }
       });
 
-      setMetrics(prev => ({
+      setMetrics((prev) => ({
         ...prev,
         queryCount: queries.length,
         cacheHits: hits,
@@ -105,23 +120,24 @@ export function PerformanceTest() {
 
   const runPerformanceTest = async () => {
     setIsRunning(true);
-    
+
     console.log('🚀 Starting TanStack Query Performance Test');
-    
+
     try {
       // Test 1: Multiple simultaneous queries
       console.log('📊 Test 1: Multiple simultaneous queries');
       const startTime = Date.now();
-      
+
       await Promise.all([
         refetchStats(),
         fetchNextPage?.(),
         queryClient.prefetchQuery({
           queryKey: ['test-query'],
-          queryFn: () => new Promise(resolve => setTimeout(() => resolve('test'), 100)),
+          queryFn: () =>
+            new Promise((resolve) => setTimeout(() => resolve('test'), 100)),
         }),
       ]);
-      
+
       const parallelTime = Date.now() - startTime;
       console.log(`⏱️ Parallel queries completed in ${parallelTime}ms`);
 
@@ -129,7 +145,7 @@ export function PerformanceTest() {
       console.log('🔄 Test 2: Cache invalidation test');
       queryClient.invalidateQueries({ queryKey: ['stats'] });
       await refetchStats();
-      
+
       // Test 3: Infinite scroll simulation
       if (hasNextPage && fetchNextPage) {
         console.log('📜 Test 3: Infinite scroll simulation');
@@ -137,7 +153,6 @@ export function PerformanceTest() {
       }
 
       console.log('✅ Performance test completed successfully');
-      
     } catch (error) {
       console.error('❌ Performance test failed:', error);
     } finally {
@@ -150,24 +165,26 @@ export function PerformanceTest() {
     console.log('🧹 Query cache cleared');
   };
 
-  const cacheEfficiency = metrics.totalQueries > 0 
-    ? (metrics.cacheHits / (metrics.cacheHits + metrics.cacheMisses)) * 100 
-    : 0;
+  const cacheEfficiency =
+    metrics.totalQueries > 0
+      ? (metrics.cacheHits / (metrics.cacheHits + metrics.cacheMisses)) * 100
+      : 0;
 
   return (
-    <Card className="w-full max-w-4xl mx-auto">
+    <Card className="mx-auto w-full max-w-4xl">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Zap className="h-5 w-5" />
           TanStack Query Performance Monitor
         </CardTitle>
         <CardDescription>
-          Real-time monitoring of query performance, caching efficiency, and WebSocket status
+          Real-time monitoring of query performance, caching efficiency, and
+          WebSocket status
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
         {/* Real-time Status */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           <Card>
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
@@ -179,7 +196,7 @@ export function PerformanceTest() {
                   )}
                   <span className="text-sm font-medium">WebSocket</span>
                 </div>
-                <Badge variant={wsConnected ? "default" : "destructive"}>
+                <Badge variant={wsConnected ? 'default' : 'destructive'}>
                   {wsConnected ? 'Connected' : 'Disconnected'}
                 </Badge>
               </div>
@@ -218,31 +235,39 @@ export function PerformanceTest() {
         </div>
 
         {/* Performance Metrics */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="text-center p-4 border rounded-lg">
-            <div className="text-2xl font-bold text-green-600">{metrics.cacheHits}</div>
-            <div className="text-sm text-muted-foreground">Cache Hits</div>
-          </div>
-          <div className="text-center p-4 border rounded-lg">
-            <div className="text-2xl font-bold text-red-600">{metrics.cacheMisses}</div>
-            <div className="text-sm text-muted-foreground">Cache Misses</div>
-          </div>
-          <div className="text-center p-4 border rounded-lg">
-            <div className="text-2xl font-bold text-blue-600">{metrics.totalQueries}</div>
-            <div className="text-sm text-muted-foreground">Total Queries</div>
-          </div>
-          <div className="text-center p-4 border rounded-lg">
-            <div className="text-2xl font-bold text-purple-600">
-              {metrics.avgResponseTime > 0 ? `${metrics.avgResponseTime.toFixed(0)}ms` : '-'}
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <div className="rounded-lg border p-4 text-center">
+            <div className="text-2xl font-bold text-green-600">
+              {metrics.cacheHits}
             </div>
-            <div className="text-sm text-muted-foreground">Avg Response</div>
+            <div className="text-muted-foreground text-sm">Cache Hits</div>
+          </div>
+          <div className="rounded-lg border p-4 text-center">
+            <div className="text-2xl font-bold text-red-600">
+              {metrics.cacheMisses}
+            </div>
+            <div className="text-muted-foreground text-sm">Cache Misses</div>
+          </div>
+          <div className="rounded-lg border p-4 text-center">
+            <div className="text-2xl font-bold text-blue-600">
+              {metrics.totalQueries}
+            </div>
+            <div className="text-muted-foreground text-sm">Total Queries</div>
+          </div>
+          <div className="rounded-lg border p-4 text-center">
+            <div className="text-2xl font-bold text-purple-600">
+              {metrics.avgResponseTime > 0
+                ? `${metrics.avgResponseTime.toFixed(0)}ms`
+                : '-'}
+            </div>
+            <div className="text-muted-foreground text-sm">Avg Response</div>
           </div>
         </div>
 
         {/* Test Controls */}
-        <div className="flex gap-4 justify-center">
-          <Button 
-            onClick={runPerformanceTest} 
+        <div className="flex justify-center gap-4">
+          <Button
+            onClick={runPerformanceTest}
             disabled={isRunning}
             className="flex items-center gap-2"
           >
@@ -264,26 +289,30 @@ export function PerformanceTest() {
         </div>
 
         {/* Loading States */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <Card>
             <CardContent className="p-4">
-              <h4 className="font-medium mb-2">Current Loading States</h4>
+              <h4 className="mb-2 font-medium">Current Loading States</h4>
               <div className="space-y-2">
                 <div className="flex justify-between">
                   <span className="text-sm">Stats Query:</span>
-                  <Badge variant={statsLoading ? "destructive" : "default"}>
+                  <Badge variant={statsLoading ? 'destructive' : 'default'}>
                     {statsLoading ? 'Loading' : 'Loaded'}
                   </Badge>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-sm">Activities Query:</span>
-                  <Badge variant={activitiesLoading ? "destructive" : "default"}>
+                  <Badge
+                    variant={activitiesLoading ? 'destructive' : 'default'}
+                  >
                     {activitiesLoading ? 'Loading' : 'Loaded'}
                   </Badge>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-sm">Infinite Loading:</span>
-                  <Badge variant={isFetchingNextPage ? "destructive" : "secondary"}>
+                  <Badge
+                    variant={isFetchingNextPage ? 'destructive' : 'secondary'}
+                  >
                     {isFetchingNextPage ? 'Fetching' : 'Ready'}
                   </Badge>
                 </div>
@@ -293,11 +322,11 @@ export function PerformanceTest() {
 
           <Card>
             <CardContent className="p-4">
-              <h4 className="font-medium mb-2">Data Status</h4>
+              <h4 className="mb-2 font-medium">Data Status</h4>
               <div className="space-y-2">
                 <div className="flex justify-between">
                   <span className="text-sm">Stats Data:</span>
-                  <Badge variant={stats ? "default" : "secondary"}>
+                  <Badge variant={stats ? 'default' : 'secondary'}>
                     {stats ? 'Available' : 'Empty'}
                   </Badge>
                 </div>
@@ -309,7 +338,7 @@ export function PerformanceTest() {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-sm">Has Next Page:</span>
-                  <Badge variant={hasNextPage ? "default" : "secondary"}>
+                  <Badge variant={hasNextPage ? 'default' : 'secondary'}>
                     {hasNextPage ? 'Yes' : 'No'}
                   </Badge>
                 </div>

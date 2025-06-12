@@ -11,7 +11,10 @@ export function useUserStats(userId?: string) {
   return useQuery({
     queryKey: queryKeys.userStats(userId),
     queryFn: async () => {
-      const response = await ApiClient.get<{ success: boolean; stats: UserStats }>('/api/user/stats');
+      const response = await ApiClient.get<{
+        success: boolean;
+        stats: UserStats;
+      }>('/api/user/stats');
       return response.stats; // Return only the stats object
     },
     staleTime: 2 * 60 * 1000, // 2 minutes

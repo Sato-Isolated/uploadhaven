@@ -1,8 +1,8 @@
-import { NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
-import { headers } from "next/headers";
-import connectDB from "@/lib/mongodb";
-import { User } from "@/lib/models";
+import { NextResponse } from 'next/server';
+import { auth } from '@/lib/auth';
+import { headers } from 'next/headers';
+import connectDB from '@/lib/mongodb';
+import { User } from '@/lib/models';
 
 export async function POST() {
   try {
@@ -13,7 +13,7 @@ export async function POST() {
 
     if (!session?.user) {
       return NextResponse.json(
-        { success: false, error: "Authentication required" },
+        { success: false, error: 'Authentication required' },
         { status: 401 }
       );
     }
@@ -28,9 +28,9 @@ export async function POST() {
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error("Error updating user activity:", error);
+    console.error('Error updating user activity:', error);
     return NextResponse.json(
-      { success: false, error: "Internal server error" },
+      { success: false, error: 'Internal server error' },
       { status: 500 }
     );
   }

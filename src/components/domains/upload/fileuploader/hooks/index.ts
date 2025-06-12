@@ -1,2 +1,2 @@
 // Hooks exports
-export { useFileUploader } from "./useFileUploader";
+export { useFileUploader } from './useFileUploader';

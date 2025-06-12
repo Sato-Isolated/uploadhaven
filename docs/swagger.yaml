@@ -1,0 +1,1427 @@
+openapi: 3.0.3
+info:
+  title: UploadHaven API
+  description: |
+    UploadHaven is a modern, secure file sharing platform built with Next.js 15, TypeScript, and MongoDB. 
+    This API provides comprehensive file management, real-time notifications, security scanning, and analytics capabilities.
+    
+    ## Features
+    - 🚀 Secure file upload and sharing
+    - 🔔 Real-time notifications via Server-Sent Events
+    - 🔒 Malware scanning and security monitoring
+    - 👥 User and admin management
+    - 📊 Analytics and statistics
+    - 🎯 Rate limiting and abuse prevention
+    
+    ## Authentication
+    The API uses session-based authentication with cookies. Most endpoints require authentication.
+    
+  version: 2.0.0
+  contact:
+    name: UploadHaven Support
+    url: https://github.com/yourusername/uploadhaven
+    email: support@uploadhaven.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: http://localhost:3000
+    description: Development server
+  - url: https://uploadhaven.vercel.app
+    description: Production server
+
+security:
+  - sessionAuth: []
+
+tags:
+  - name: Authentication
+    description: User authentication and session management
+  - name: Files
+    description: File upload, download, and management
+  - name: Notifications
+    description: Real-time notifications and messaging
+  - name: Security
+    description: Malware scanning and security monitoring
+  - name: Analytics
+    description: Usage statistics and analytics
+  - name: Admin
+    description: Administrative functions (admin only)
+  - name: User
+    description: User-specific operations
+
+paths:
+  # Authentication Endpoints
+  /api/auth/signup:
+    post:
+      tags: [Authentication]
+      summary: Register a new user
+      description: Create a new user account with email and password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, email, password]
+              properties:
+                name:
+                  type: string
+                  minLength: 2
+                  maxLength: 50
+                  example: "John Doe"
+                email:
+                  type: string
+                  format: email
+                  example: "john@example.com"
+                password:
+                  type: string
+                  minLength: 8
+                  example: "securepass123"
+      responses:
+        '201':
+          description: User registered successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthSuccess'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: User already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/auth/signin:
+    post:
+      tags: [Authentication]
+      summary: Sign in user
+      description: Authenticate user with email and password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: "john@example.com"
+                password:
+                  type: string
+                  example: "securepass123"
+                remember:
+                  type: boolean
+                  default: false
+      responses:
+        '200':
+          description: Authentication successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthSuccess'
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/auth/signout:
+    post:
+      tags: [Authentication]
+      summary: Sign out user
+      description: Invalidate user session and sign out
+      security:
+        - sessionAuth: []
+      responses:
+        '200':
+          description: Successfully signed out
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Successfully signed out"
+
+  # File Management Endpoints
+  /api/upload:
+    post:
+      tags: [Files]
+      summary: Upload a file
+      description: Upload a file with optional password protection and expiration
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file]
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: File to upload (max 100MB)
+                expiration:
+                  type: string
+                  enum: ["1h", "24h", "7d", "30d", "never"]
+                  default: "24h"
+                  description: File expiration time
+                userId:
+                  type: string
+                  description: User ID (must match authenticated user)
+                password:
+                  type: string
+                  description: Password protection for the file
+                autoGenerateKey:
+                  type: boolean
+                  default: false
+                  description: Auto-generate a secure password
+      responses:
+        '200':
+          description: File uploaded successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UploadResponse'
+        '400':
+          description: Invalid file or parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '413':
+          description: File too large
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: Rate limit exceeded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimitError'
+
+  /api/download/{shortUrl}:
+    get:
+      tags: [Files]
+      summary: Download a file
+      description: Download a file using its short URL
+      parameters:
+        - name: shortUrl
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Short URL identifier for the file
+        - name: verified
+          in: query
+          schema:
+            type: string
+          description: Verification token for password-protected files
+      responses:
+        '200':
+          description: File download
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+          headers:
+            Content-Type:
+              schema:
+                type: string
+              description: MIME type of the file
+            Content-Length:
+              schema:
+                type: integer
+              description: File size in bytes
+            Content-Disposition:
+              schema:
+                type: string
+              description: Attachment with original filename
+        '404':
+          description: File not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '410':
+          description: File has expired
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Password verification required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/preview-file/{shortUrl}:
+    get:
+      tags: [Files]
+      summary: Preview a file
+      description: Preview a file without counting as a download
+      parameters:
+        - name: shortUrl
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Short URL identifier for the file
+        - name: password
+          in: query
+          schema:
+            type: string
+          description: Password for protected files
+      responses:
+        '200':
+          description: File preview
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+          headers:
+            Content-Type:
+              schema:
+                type: string
+            Content-Disposition:
+              schema:
+                type: string
+                example: "inline; filename=\"document.pdf\""
+            Cache-Control:
+              schema:
+                type: string
+                example: "public, max-age=3600"
+        '404':
+          description: File not found
+        '401':
+          description: Password required or invalid
+
+  /api/thumbnail/{shortUrl}:
+    get:
+      tags: [Files]
+      summary: Get file thumbnail
+      description: Get a thumbnail image for supported file types
+      parameters:
+        - name: shortUrl
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: password
+          in: query
+          schema:
+            type: string
+          description: Password for protected files
+      responses:
+        '200':
+          description: Thumbnail image (WebP, 200x200px)
+          content:
+            image/webp:
+              schema:
+                type: string
+                format: binary
+        '400':
+          description: Thumbnail not supported for this file type
+        '404':
+          description: File not found
+
+  /api/user/files:
+    get:
+      tags: [Files, User]
+      summary: Get user's files
+      description: Get files uploaded by the authenticated user
+      security:
+        - sessionAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 10
+        - name: sortBy
+          in: query
+          schema:
+            type: string
+            enum: [uploadDate, filename, size, downloadCount]
+            default: uploadDate
+        - name: sortOrder
+          in: query
+          schema:
+            type: string
+            enum: [asc, desc]
+            default: desc
+      responses:
+        '200':
+          description: User's files
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FilesResponse'
+        '401':
+          description: Unauthorized
+
+  /api/files/{filename}:
+    delete:
+      tags: [Files]
+      summary: Delete a file
+      description: Delete a file (only by owner or admin)
+      security:
+        - sessionAuth: []
+      parameters:
+        - name: filename
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: File deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+        '404':
+          description: File not found
+        '403':
+          description: Not authorized to delete this file
+
+  # Notifications Endpoints
+  /api/notifications:
+    get:
+      tags: [Notifications]
+      summary: Get user notifications
+      description: Get notifications for the authenticated user
+      security:
+        - sessionAuth: []
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 50
+        - name: includeRead
+          in: query
+          schema:
+            type: boolean
+            default: true
+        - name: type
+          in: query
+          schema:
+            type: string
+          description: Filter by notification type
+        - name: stats
+          in: query
+          schema:
+            type: boolean
+            default: false
+          description: Return only statistics
+      responses:
+        '200':
+          description: User notifications
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/NotificationsResponse'
+                  - $ref: '#/components/schemas/NotificationStats'
+        '401':
+          description: Unauthorized
+
+    patch:
+      tags: [Notifications]
+      summary: Update notifications
+      description: Mark notifications as read or perform other actions
+      security:
+        - sessionAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [action]
+              properties:
+                notificationId:
+                  type: string
+                  description: Specific notification ID (required for markRead)
+                action:
+                  type: string
+                  enum: [markRead, markAllRead]
+      responses:
+        '200':
+          description: Action completed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  notification:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                      isRead:
+                        type: boolean
+        '400':
+          description: Invalid action or missing parameters
+        '404':
+          description: Notification not found
+
+    delete:
+      tags: [Notifications]
+      summary: Delete notification
+      description: Delete a specific notification
+      security:
+        - sessionAuth: []
+      parameters:
+        - name: id
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Notification ID to delete
+      responses:
+        '200':
+          description: Notification deleted successfully
+        '404':
+          description: Notification not found
+
+  /api/notifications/stream:
+    get:
+      tags: [Notifications]
+      summary: Real-time notification stream
+      description: |
+        Connect to real-time notification stream using Server-Sent Events (SSE).
+        
+        This endpoint provides real-time updates for:
+        - New notifications
+        - File downloads
+        - Security alerts
+        - System announcements
+        
+        ## Usage
+        ```javascript
+        const eventSource = new EventSource('/api/notifications/stream');
+        
+        eventSource.onmessage = (event) => {
+          const data = JSON.parse(event.data);
+          console.log('Event:', data);
+        };
+        ```
+      security:
+        - sessionAuth: []
+      responses:
+        '200':
+          description: SSE stream connection established
+          content:
+            text/event-stream:
+              schema:
+                type: string
+                description: |
+                  Server-Sent Events stream with events:
+                  - `connected`: Connection established
+                  - `notification`: New notification received
+              examples:
+                connected:
+                  summary: Connection event
+                  value: |
+                    data: {"type":"connected","message":"Notification stream connected","timestamp":"2025-06-12T10:00:00Z","userId":"user123"}
+                notification:
+                  summary: New notification
+                  value: |
+                    data: {"type":"notification","data":{"id":"notif123","title":"File Downloaded","message":"Your file was downloaded","priority":"normal"}}
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: "text/event-stream"
+            Cache-Control:
+              schema:
+                type: string
+                example: "no-cache"
+            Connection:
+              schema:
+                type: string
+                example: "keep-alive"
+        '401':
+          description: Unauthorized
+
+  # Security Endpoints
+  /api/security/scan/file:
+    post:
+      tags: [Security]
+      summary: Scan file for malware
+      description: Scan a specific file for malware and security threats
+      security:
+        - sessionAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [fileName]
+              properties:
+                fileName:
+                  type: string
+                  description: Filename to scan
+                  example: "document.pdf"
+      responses:
+        '200':
+          description: Scan completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScanResult'
+        '404':
+          description: File not found
+        '500':
+          description: Scan failed
+
+  /api/security/scan/bulk:
+    post:
+      tags: [Security, Admin]
+      summary: Bulk security scan
+      description: Scan multiple files for security threats (admin only)
+      security:
+        - sessionAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                filenames:
+                  type: array
+                  items:
+                    type: string
+                  description: Specific files to scan
+                scanAll:
+                  type: boolean
+                  default: false
+                  description: Scan all files in the system
+      responses:
+        '200':
+          description: Bulk scan completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BulkScanResult'
+        '403':
+          description: Admin access required
+
+  /api/security:
+    get:
+      tags: [Security, Admin]
+      summary: Get security events
+      description: Get security events and logs (admin only)
+      security:
+        - sessionAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 50
+        - name: type
+          in: query
+          schema:
+            type: string
+          description: Filter by event type
+        - name: severity
+          in: query
+          schema:
+            type: string
+            enum: [low, medium, high]
+          description: Filter by severity
+        - name: startDate
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: endDate
+          in: query
+          schema:
+            type: string
+            format: date-time
+      responses:
+        '200':
+          description: Security events
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SecurityEventsResponse'
+        '403':
+          description: Admin access required
+
+  # Analytics Endpoints
+  /api/analytics/user:
+    get:
+      tags: [Analytics, User]
+      summary: Get user analytics
+      description: Get analytics data for the authenticated user
+      security:
+        - sessionAuth: []
+      responses:
+        '200':
+          description: User analytics data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserAnalytics'
+
+  /api/analytics/admin:
+    get:
+      tags: [Analytics, Admin]
+      summary: Get admin analytics
+      description: Get system-wide analytics (admin only)
+      security:
+        - sessionAuth: []
+      responses:
+        '200':
+          description: Admin analytics data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminAnalytics'
+        '403':
+          description: Admin access required
+
+  # Admin Endpoints
+  /api/admin/users:
+    get:
+      tags: [Admin]
+      summary: Get all users
+      description: Get list of all users (admin only)
+      security:
+        - sessionAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 50
+        - name: search
+          in: query
+          schema:
+            type: string
+          description: Search by email or name
+        - name: role
+          in: query
+          schema:
+            type: string
+            enum: [user, admin]
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [active, inactive]
+      responses:
+        '200':
+          description: List of users
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UsersResponse'
+        '403':
+          description: Admin access required
+
+  /api/admin/users/{userId}/role:
+    put:
+      tags: [Admin]
+      summary: Update user role
+      description: Change a user's role (admin only)
+      security:
+        - sessionAuth: []
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [role]
+              properties:
+                role:
+                  type: string
+                  enum: [user, admin]
+      responses:
+        '200':
+          description: Role updated successfully
+        '403':
+          description: Admin access required
+        '404':
+          description: User not found
+
+  /api/admin/users/{userId}/delete:
+    delete:
+      tags: [Admin]
+      summary: Delete user
+      description: Delete a user account (admin only)
+      security:
+        - sessionAuth: []
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: User deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  deletedFiles:
+                    type: integer
+        '403':
+          description: Admin access required
+        '404':
+          description: User not found
+
+  /api/admin/notifications/system:
+    post:
+      tags: [Admin, Notifications]
+      summary: Send system notification
+      description: Send system-wide notifications (admin only)
+      security:
+        - sessionAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [title, message]
+              properties:
+                title:
+                  type: string
+                  maxLength: 100
+                message:
+                  type: string
+                  maxLength: 500
+                priority:
+                  type: string
+                  enum: [low, normal, high, urgent]
+                  default: normal
+                targetUsers:
+                  oneOf:
+                    - type: string
+                      enum: [all]
+                    - type: array
+                      items:
+                        type: string
+                  description: "Send to all users or specific user IDs"
+                metadata:
+                  type: object
+                  additionalProperties: true
+      responses:
+        '200':
+          description: System notification sent successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SystemNotificationResult'
+        '403':
+          description: Admin access required
+
+components:
+  securitySchemes:
+    sessionAuth:
+      type: apiKey
+      in: cookie
+      name: session
+      description: Session-based authentication using HTTP-only cookies
+
+  schemas:
+    # Base Response Types
+    Success:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+
+    Error:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: string
+        details:
+          type: string
+
+    RateLimitError:
+      allOf:
+        - $ref: '#/components/schemas/Error'
+        - type: object
+          properties:
+            rateLimit:
+              type: object
+              properties:
+                limit:
+                  type: integer
+                remaining:
+                  type: integer
+                reset:
+                  type: string
+                  format: date-time
+
+    PaginationData:
+      type: object
+      properties:
+        page:
+          type: integer
+        limit:
+          type: integer
+        total:
+          type: integer
+        pages:
+          type: integer
+        hasNext:
+          type: boolean
+        hasPrev:
+          type: boolean
+
+    # Authentication Types
+    AuthSuccess:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        user:
+          type: object
+          properties:
+            id:
+              type: string
+            name:
+              type: string
+            email:
+              type: string
+            role:
+              type: string
+              enum: [user, admin]
+        message:
+          type: string
+
+    # File Types
+    UploadResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        url:
+          type: string
+          example: "http://localhost:3000/uploads/public/abc123.pdf"
+        shortUrl:
+          type: string
+          example: "http://localhost:3000/s/abc123"
+        filename:
+          type: string
+          example: "abc123.pdf"
+        originalName:
+          type: string
+          example: "document.pdf"
+        size:
+          type: integer
+          example: 1048576
+        type:
+          type: string
+          example: "application/pdf"
+        expiresAt:
+          type: string
+          format: date-time
+        generatedKey:
+          type: string
+          description: Auto-generated password (if requested)
+        metadata:
+          type: object
+          properties:
+            id:
+              type: string
+            uploadDate:
+              type: string
+              format: date-time
+
+    FileInfo:
+      type: object
+      properties:
+        _id:
+          type: string
+        filename:
+          type: string
+        shortUrl:
+          type: string
+        originalName:
+          type: string
+        mimeType:
+          type: string
+        size:
+          type: integer
+        uploadDate:
+          type: string
+          format: date-time
+        expiresAt:
+          type: string
+          format: date-time
+        downloadCount:
+          type: integer
+        isPasswordProtected:
+          type: boolean
+
+    FilesResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        files:
+          type: array
+          items:
+            $ref: '#/components/schemas/FileInfo'
+        pagination:
+          $ref: '#/components/schemas/PaginationData'
+
+    # Notification Types
+    Notification:
+      type: object
+      properties:
+        id:
+          type: string
+        userId:
+          type: string
+        type:
+          type: string
+          enum: [file_downloaded, file_expired_soon, file_shared, security_alert, system_announcement, file_upload_complete, malware_detected, bulk_action_complete]
+        title:
+          type: string
+        message:
+          type: string
+        isRead:
+          type: boolean
+        priority:
+          type: string
+          enum: [low, normal, high, urgent]
+        relatedFileId:
+          type: string
+        actionUrl:
+          type: string
+        actionLabel:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        metadata:
+          type: object
+          additionalProperties: true
+
+    NotificationsResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        notifications:
+          type: array
+          items:
+            $ref: '#/components/schemas/Notification'
+        count:
+          type: integer
+
+    NotificationStats:
+      type: object
+      properties:
+        success:
+          type: boolean
+        stats:
+          type: object
+          properties:
+            total:
+              type: integer
+            unread:
+              type: integer
+            byPriority:
+              type: object
+              properties:
+                low:
+                  type: integer
+                normal:
+                  type: integer
+                high:
+                  type: integer
+                urgent:
+                  type: integer
+            byType:
+              type: object
+              additionalProperties:
+                type: integer
+
+    # Security Types
+    ScanResult:
+      type: object
+      properties:
+        fileName:
+          type: string
+        scanResult:
+          type: object
+          properties:
+            isMalicious:
+              type: boolean
+            isSuspicious:
+              type: boolean
+            threatName:
+              type: string
+            source:
+              type: string
+              enum: [local, virustotal]
+            scannedAt:
+              type: string
+              format: date-time
+            details:
+              type: string
+        quotaStatus:
+          type: object
+          properties:
+            remaining:
+              type: integer
+            used:
+              type: integer
+            limit:
+              type: integer
+            resetTime:
+              type: string
+              format: date-time
+        scannedAt:
+          type: string
+          format: date-time
+
+    BulkScanResult:
+      type: object
+      properties:
+        success:
+          type: boolean
+        totalFiles:
+          type: integer
+        scannedFiles:
+          type: integer
+        threatsFound:
+          type: integer
+        results:
+          type: array
+          items:
+            type: object
+            properties:
+              filename:
+                type: string
+              result:
+                type: string
+                enum: [clean, malicious, suspicious, error]
+              threatName:
+                type: string
+              error:
+                type: string
+
+    SecurityEvent:
+      type: object
+      properties:
+        _id:
+          type: string
+        type:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+        ip:
+          type: string
+        details:
+          type: string
+        severity:
+          type: string
+          enum: [low, medium, high]
+        userAgent:
+          type: string
+        filename:
+          type: string
+        userId:
+          type: string
+        metadata:
+          type: object
+          additionalProperties: true
+
+    SecurityEventsResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        events:
+          type: array
+          items:
+            $ref: '#/components/schemas/SecurityEvent'
+        pagination:
+          $ref: '#/components/schemas/PaginationData'
+
+    # Analytics Types
+    UserAnalytics:
+      type: object
+      properties:
+        success:
+          type: boolean
+        analytics:
+          type: object
+          properties:
+            totalUploads:
+              type: integer
+            totalDownloads:
+              type: integer
+            totalSize:
+              type: integer
+            storageUsed:
+              type: integer
+            uploadTrend:
+              type: array
+              items:
+                type: object
+                properties:
+                  date:
+                    type: string
+                    format: date
+                  count:
+                    type: integer
+            downloadTrend:
+              type: array
+              items:
+                type: object
+                properties:
+                  date:
+                    type: string
+                    format: date
+                  count:
+                    type: integer
+            topFiles:
+              type: array
+              items:
+                type: object
+                properties:
+                  filename:
+                    type: string
+                  originalName:
+                    type: string
+                  downloads:
+                    type: integer
+                  size:
+                    type: integer
+            fileTypes:
+              type: object
+              additionalProperties:
+                type: integer
+
+    AdminAnalytics:
+      type: object
+      properties:
+        success:
+          type: boolean
+        analytics:
+          type: object
+          properties:
+            totalUsers:
+              type: integer
+            totalFiles:
+              type: integer
+            totalDownloads:
+              type: integer
+            totalStorage:
+              type: integer
+            activeUsers:
+              type: integer
+            userGrowth:
+              type: array
+              items:
+                type: object
+                properties:
+                  date:
+                    type: string
+                    format: date
+                  count:
+                    type: integer
+            uploadActivity:
+              type: array
+              items:
+                type: object
+                properties:
+                  date:
+                    type: string
+                    format: date
+                  uploads:
+                    type: integer
+                  downloads:
+                    type: integer
+            storageUsage:
+              type: array
+              items:
+                type: object
+                properties:
+                  date:
+                    type: string
+                    format: date
+                  size:
+                    type: integer
+            topUsers:
+              type: array
+              items:
+                type: object
+                properties:
+                  userId:
+                    type: string
+                  email:
+                    type: string
+                  uploads:
+                    type: integer
+                  downloads:
+                    type: integer
+            securityEvents:
+              type: object
+              properties:
+                total:
+                  type: integer
+                bySeverity:
+                  type: object
+                  additionalProperties:
+                    type: integer
+                recent:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/SecurityEvent'
+
+    # User Management Types
+    User:
+      type: object
+      properties:
+        _id:
+          type: string
+        name:
+          type: string
+        email:
+          type: string
+        role:
+          type: string
+          enum: [user, admin]
+        emailVerified:
+          type: boolean
+        lastActivity:
+          type: string
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
+        _count:
+          type: object
+          properties:
+            files:
+              type: integer
+            downloads:
+              type: integer
+
+    UsersResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        users:
+          type: array
+          items:
+            $ref: '#/components/schemas/User'
+        pagination:
+          $ref: '#/components/schemas/PaginationData'
+
+    SystemNotificationResult:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        stats:
+          type: object
+          properties:
+            totalUsers:
+              type: integer
+            successful:
+              type: integer
+            failed:
+              type: integer
+        notification:
+          type: object
+          properties:
+            title:
+              type: string
+            message:
+              type: string
+            priority:
+              type: string
+            targetUsers:
+              type: string

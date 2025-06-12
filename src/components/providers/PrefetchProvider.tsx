@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import { createContext, useContext, useEffect, useMemo } from "react";
-import { useQueryClient } from "@tanstack/react-query";
-import { usePathname } from "next/navigation";
-import { PrefetchManager } from "@/lib/prefetch";
+import { createContext, useContext, useEffect, useMemo } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
+import { usePathname } from 'next/navigation';
+import { PrefetchManager } from '@/lib/prefetch';
 
 interface PrefetchContextType {
   prefetchManager: PrefetchManager;
@@ -29,23 +29,26 @@ export function PrefetchProvider({ children }: PrefetchProviderProps) {
   );
 
   // Context value
-  const contextValue = useMemo(() => ({
-    prefetchManager,
-    prefetchUserData: (userId: string) => {
-      prefetchManager.prefetchUserStats(userId);
-      prefetchManager.prefetchUserAnalytics(userId);
-    },
-    prefetchAdminData: () => {
-      prefetchManager.prefetchAdminDashboard();
-    },
-    prefetchFilesData: (userId?: string) => {
-      prefetchManager.prefetchFilesList(userId);
-    },
-  }), [prefetchManager]);  // Smart prefetching based on route changes
+  const contextValue = useMemo(
+    () => ({
+      prefetchManager,
+      prefetchUserData: (userId: string) => {
+        prefetchManager.prefetchUserStats(userId);
+        prefetchManager.prefetchUserAnalytics(userId);
+      },
+      prefetchAdminData: () => {
+        prefetchManager.prefetchAdminDashboard();
+      },
+      prefetchFilesData: (userId?: string) => {
+        prefetchManager.prefetchFilesList(userId);
+      },
+    }),
+    [prefetchManager]
+  ); // Smart prefetching based on route changes
   useEffect(() => {
     // Basic prefetching logic without session dependency
     // In a real app, you would get user info from your auth system
-    
+
     if (pathname === '/admin') {
       prefetchManager.prefetchAdminDashboard();
     } else if (pathname === '/dashboard') {
@@ -58,7 +61,7 @@ export function PrefetchProvider({ children }: PrefetchProviderProps) {
     const handleLinkHover = (event: MouseEvent) => {
       const target = event.target as HTMLElement;
       const link = target.closest('a[href]') as HTMLAnchorElement;
-      
+
       if (!link) return;
 
       const href = link.getAttribute('href');
@@ -82,7 +85,7 @@ export function PrefetchProvider({ children }: PrefetchProviderProps) {
 
     // Add hover listeners to document
     document.addEventListener('mouseover', handleLinkHover);
-    
+
     return () => {
       document.removeEventListener('mouseover', handleLinkHover);
     };

@@ -1,2 +1,2 @@
 // Activity domain exports
-export { default } from "./RecentActivity";
+export { default } from './RecentActivity';

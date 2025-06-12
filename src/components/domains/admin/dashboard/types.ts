@@ -1,8 +1,5 @@
 // Import centralized types for admin dashboard
-import type {
-  ActivityEvent,
-  SecurityStats,
-} from "@/types";
+import type { ActivityEvent, SecurityStats } from '@/types';
 
 // Re-export for component usage
 export type { SecurityStats };
@@ -28,7 +25,7 @@ export interface FileData {
   uploadDate: string;
   expiresAt: string | null;
   downloadCount: number;
-  type: "image" | "video" | "audio" | "document" | "archive" | "other";
+  type: 'image' | 'video' | 'audio' | 'document' | 'archive' | 'other';
   userId?: string;
   userName?: string;
   isAnonymous: boolean;

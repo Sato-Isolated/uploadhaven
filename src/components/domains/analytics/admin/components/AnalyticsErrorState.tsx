@@ -1,14 +1,17 @@
-"use client";
+'use client';
 
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 
 interface AnalyticsErrorStateProps {
   error: Error;
   onRetry: () => void;
 }
 
-export function AnalyticsErrorState({ error, onRetry }: AnalyticsErrorStateProps) {
+export function AnalyticsErrorState({
+  error,
+  onRetry,
+}: AnalyticsErrorStateProps) {
   return (
     <Card className="border-red-200 bg-red-50">
       <CardContent className="pt-6">

@@ -1,18 +1,18 @@
-import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
-import { headers } from "next/headers";
-import connectDB from "@/lib/mongodb";
-import { 
-  getNotificationsForUser, 
-  markNotificationAsRead, 
-  markAllNotificationsAsRead, 
+import { NextRequest, NextResponse } from 'next/server';
+import { auth } from '@/lib/auth';
+import { headers } from 'next/headers';
+import connectDB from '@/lib/mongodb';
+import {
+  getNotificationsForUser,
+  markNotificationAsRead,
+  markAllNotificationsAsRead,
   deleteNotification,
-  getNotificationStats 
-} from "@/lib/models";
+  getNotificationStats,
+} from '@/lib/models';
 
 /**
  * GET /api/notifications
- * 
+ *
  * Get notifications for authenticated user
  */
 export async function GET(request: NextRequest) {
@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
     });
     if (!session?.user?.id) {
       return NextResponse.json(
-        { success: false, error: "Unauthorized" },
+        { success: false, error: 'Unauthorized' },
         { status: 401 }
       );
     }
@@ -43,7 +43,7 @@ export async function GET(request: NextRequest) {
       const stats = await getNotificationStats(userId);
       return NextResponse.json({
         success: true,
-        stats
+        stats,
       });
     }
 
@@ -51,11 +51,11 @@ export async function GET(request: NextRequest) {
     const notifications = await getNotificationsForUser(userId, {
       limit,
       includeRead,
-      type
+      type,
     });
 
     // Transform notifications for client
-    const transformedNotifications = notifications.map(notification => ({
+    const transformedNotifications = notifications.map((notification) => ({
       id: notification._id.toString(),
       userId: notification.userId,
       type: notification.type,
@@ -67,19 +67,18 @@ export async function GET(request: NextRequest) {
       actionUrl: notification.actionUrl,
       actionLabel: notification.actionLabel,
       createdAt: notification.createdAt,
-      metadata: notification.metadata
+      metadata: notification.metadata,
     }));
 
     return NextResponse.json({
       success: true,
       notifications: transformedNotifications,
-      count: transformedNotifications.length
+      count: transformedNotifications.length,
     });
-
   } catch (error) {
-    console.error("Get notifications error:", error);
+    console.error('Get notifications error:', error);
     return NextResponse.json(
-      { success: false, error: "Internal server error" },
+      { success: false, error: 'Internal server error' },
       { status: 500 }
     );
   }
@@ -87,7 +86,7 @@ export async function GET(request: NextRequest) {
 
 /**
  * PATCH /api/notifications
- * 
+ *
  * Update notification(s) - mark as read/unread
  */
 export async function PATCH(request: NextRequest) {
@@ -98,7 +97,7 @@ export async function PATCH(request: NextRequest) {
     });
     if (!session?.user?.id) {
       return NextResponse.json(
-        { success: false, error: "Unauthorized" },
+        { success: false, error: 'Unauthorized' },
         { status: 401 }
       );
     }
@@ -114,7 +113,7 @@ export async function PATCH(request: NextRequest) {
       const result = await markAllNotificationsAsRead(userId);
       return NextResponse.json({
         success: true,
-        message: `Marked ${result.modifiedCount} notifications as read`
+        message: `Marked ${result.modifiedCount} notifications as read`,
       });
     }
 
@@ -123,7 +122,7 @@ export async function PATCH(request: NextRequest) {
       const notification = await markNotificationAsRead(notificationId, userId);
       if (!notification) {
         return NextResponse.json(
-          { success: false, error: "Notification not found" },
+          { success: false, error: 'Notification not found' },
           { status: 404 }
         );
       }
@@ -132,20 +131,19 @@ export async function PATCH(request: NextRequest) {
         success: true,
         notification: {
           id: notification._id.toString(),
-          isRead: notification.isRead
-        }
+          isRead: notification.isRead,
+        },
       });
     }
 
     return NextResponse.json(
-      { success: false, error: "Invalid action or missing parameters" },
+      { success: false, error: 'Invalid action or missing parameters' },
       { status: 400 }
     );
-
   } catch (error) {
-    console.error("Update notification error:", error);
+    console.error('Update notification error:', error);
     return NextResponse.json(
-      { success: false, error: "Internal server error" },
+      { success: false, error: 'Internal server error' },
       { status: 500 }
     );
   }
@@ -153,7 +151,7 @@ export async function PATCH(request: NextRequest) {
 
 /**
  * DELETE /api/notifications
- * 
+ *
  * Delete specific notification
  */
 export async function DELETE(request: NextRequest) {
@@ -164,7 +162,7 @@ export async function DELETE(request: NextRequest) {
     });
     if (!session?.user?.id) {
       return NextResponse.json(
-        { success: false, error: "Unauthorized" },
+        { success: false, error: 'Unauthorized' },
         { status: 401 }
       );
     }
@@ -177,29 +175,31 @@ export async function DELETE(request: NextRequest) {
 
     if (!notificationId) {
       return NextResponse.json(
-        { success: false, error: "Notification ID required" },
+        { success: false, error: 'Notification ID required' },
         { status: 400 }
       );
     }
 
-    const deletedNotification = await deleteNotification(notificationId, userId);
-    
+    const deletedNotification = await deleteNotification(
+      notificationId,
+      userId
+    );
+
     if (!deletedNotification) {
       return NextResponse.json(
-        { success: false, error: "Notification not found" },
+        { success: false, error: 'Notification not found' },
         { status: 404 }
       );
     }
 
     return NextResponse.json({
       success: true,
-      message: "Notification deleted successfully"
+      message: 'Notification deleted successfully',
     });
-
   } catch (error) {
-    console.error("Delete notification error:", error);
+    console.error('Delete notification error:', error);
     return NextResponse.json(
-      { success: false, error: "Internal server error" },
+      { success: false, error: 'Internal server error' },
       { status: 500 }
     );
   }

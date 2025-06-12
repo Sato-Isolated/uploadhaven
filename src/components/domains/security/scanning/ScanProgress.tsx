@@ -1,16 +1,17 @@
-"use client";
+'use client';
 
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
-import { 
-  Play, 
-  Square, 
-  RefreshCw, 
-  Database
-} from "lucide-react";
-import { motion } from "motion/react";
-import { ScanType, QuotaStatus } from "@/types/security";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Progress } from '@/components/ui/progress';
+import { Play, Square, RefreshCw, Database } from 'lucide-react';
+import { motion } from 'motion/react';
+import { ScanType, QuotaStatus } from '@/types/security';
 
 interface ScanProgressProps {
   isScanning: boolean;
@@ -24,7 +25,7 @@ interface ScanProgressProps {
   onStopScan: () => void;
 }
 
-export function ScanProgress({ 
+export function ScanProgress({
   isScanning,
   scanProgress,
   currentScanStep,
@@ -33,7 +34,7 @@ export function ScanProgress({
   virusTotalRequestsUsed,
   quotaStatus,
   onStartScan,
-  onStopScan
+  onStopScan,
 }: ScanProgressProps) {
   return (
     <Card>
@@ -48,8 +49,11 @@ export function ScanProgress({
             disabled={isScanning}
             className="flex items-center gap-2"
           >
-            <Play className="w-4 h-4" />
-            Start {selectedScanType.charAt(0).toUpperCase() + selectedScanType.slice(1)} Scan
+            <Play className="h-4 w-4" />
+            Start{' '}
+            {selectedScanType.charAt(0).toUpperCase() +
+              selectedScanType.slice(1)}{' '}
+            Scan
           </Button>
 
           {isScanning && (
@@ -58,7 +62,7 @@ export function ScanProgress({
               onClick={onStopScan}
               className="flex items-center gap-2 text-red-600 hover:text-red-700"
             >
-              <Square className="w-4 h-4" />
+              <Square className="h-4 w-4" />
               Stop Scan
             </Button>
           )}
@@ -71,7 +75,7 @@ export function ScanProgress({
             className="space-y-4"
           >
             <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-              <RefreshCw className="w-4 h-4 animate-spin" />
+              <RefreshCw className="h-4 w-4 animate-spin" />
               {currentScanStep}
             </div>
             <Progress value={scanProgress} className="h-2" />
@@ -81,9 +85,9 @@ export function ScanProgress({
 
             {/* VirusTotal Request Counter */}
             {virusTotalConfigured && virusTotalRequestsUsed > 0 && (
-              <div className="flex items-center justify-between p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-md">
+              <div className="flex items-center justify-between rounded-md border border-blue-200 bg-blue-50 p-3 dark:border-blue-800 dark:bg-blue-900/20">
                 <div className="flex items-center gap-2">
-                  <Database className="w-4 h-4 text-blue-600" />
+                  <Database className="h-4 w-4 text-blue-600" />
                   <span className="text-sm font-medium text-blue-700 dark:text-blue-400">
                     VirusTotal Requests Used
                   </span>

@@ -3,7 +3,7 @@ import type {
   SecurityEventType,
   SecuritySeverity,
   SecurityStats as BaseSecurityStats,
-} from "@/types";
+} from '@/types';
 
 // Compatible SecurityEvent interface for lib usage
 export interface SecurityEvent {
@@ -39,9 +39,9 @@ class SecurityLogger {
   }
 
   private loadEvents() {
-    if (typeof window !== "undefined") {
+    if (typeof window !== 'undefined') {
       try {
-        const savedEvents = localStorage.getItem("securityEvents");
+        const savedEvents = localStorage.getItem('securityEvents');
         this.events = savedEvents ? JSON.parse(savedEvents) : [];
       } catch {
         // Failed to load security events - fall back to empty array
@@ -50,9 +50,9 @@ class SecurityLogger {
     }
   }
   private saveEvents() {
-    if (typeof window !== "undefined") {
+    if (typeof window !== 'undefined') {
       try {
-        localStorage.setItem("securityEvents", JSON.stringify(this.events));
+        localStorage.setItem('securityEvents', JSON.stringify(this.events));
       } catch {
         // Failed to save security events - ignore silently
       }
@@ -66,19 +66,19 @@ class SecurityLogger {
   private getUserIP(): string {
     // In a real implementation, this would get the actual IP
     // For demo purposes, we'll use a simulated IP
-    return "127.0.0.1";
+    return '127.0.0.1';
   }
 
   private getUserAgent(): string {
-    return typeof window !== "undefined"
+    return typeof window !== 'undefined'
       ? window.navigator.userAgent
-      : "Unknown";
+      : 'Unknown';
   }
 
   public logEvent(
-    type: SecurityEvent["type"],
+    type: SecurityEvent['type'],
     details: string,
-    severity: SecurityEvent["severity"] = "low",
+    severity: SecurityEvent['severity'] = 'low',
     additionalData?: {
       filename?: string;
       fileSize?: number;
@@ -122,22 +122,22 @@ class SecurityLogger {
     const last24h = now - 24 * 60 * 60 * 1000;
 
     const getTimestamp = (event: SecurityEvent): number => {
-      if (typeof event.timestamp === "number") return event.timestamp;
+      if (typeof event.timestamp === 'number') return event.timestamp;
       if (event.timestamp instanceof Date) return event.timestamp.getTime();
       return new Date(event.timestamp).getTime();
     };
 
     return {
       totalEvents: this.events.length,
-      rateLimitHits: this.events.filter((e) => e.type === "rate_limit").length,
-      invalidFiles: this.events.filter((e) => e.type === "invalid_file").length,
+      rateLimitHits: this.events.filter((e) => e.type === 'rate_limit').length,
+      invalidFiles: this.events.filter((e) => e.type === 'invalid_file').length,
       blockedIPs: new Set(
-        this.events.filter((e) => e.type === "blocked_ip").map((e) => e.ip)
+        this.events.filter((e) => e.type === 'blocked_ip').map((e) => e.ip)
       ).size,
       last24h: this.events.filter((e) => getTimestamp(e) > last24h).length,
-      malwareDetected: this.events.filter((e) => e.type === "malware_detected")
+      malwareDetected: this.events.filter((e) => e.type === 'malware_detected')
         .length,
-      largeSizeBlocked: this.events.filter((e) => e.type === "large_file")
+      largeSizeBlocked: this.events.filter((e) => e.type === 'large_file')
         .length,
     };
   }
@@ -159,9 +159,9 @@ export const securityLogger = SecurityLogger.getInstance();
 
 // Convenience function for logging security events
 export function logSecurityEvent(
-  type: SecurityEvent["type"],
+  type: SecurityEvent['type'],
   details: string,
-  severity: SecurityEvent["severity"] = "low",
+  severity: SecurityEvent['severity'] = 'low',
   additionalData?: {
     filename?: string;
     fileSize?: number;
@@ -178,23 +178,23 @@ export async function scanFile(
 ): Promise<{ safe: boolean; threat?: string }> {
   // This is a placeholder implementation
   // In a real scenario, this would integrate with actual malware scanning
-  const suspiciousExtensions = [".exe", ".bat", ".com", ".scr", ".pif"];
+  const suspiciousExtensions = ['.exe', '.bat', '.com', '.scr', '.pif'];
   const fileExtension = file.name
     .toLowerCase()
-    .substring(file.name.lastIndexOf("."));
+    .substring(file.name.lastIndexOf('.'));
 
   if (suspiciousExtensions.includes(fileExtension)) {
     logSecurityEvent(
-      "file_scan",
+      'file_scan',
       `Suspicious file extension detected: ${fileExtension}`,
-      "high",
+      'high',
       {
         filename: file.name,
         fileSize: file.size,
         fileType: file.type,
       }
     );
-    return { safe: false, threat: "Suspicious file extension" };
+    return { safe: false, threat: 'Suspicious file extension' };
   }
 
   return { safe: true };
@@ -205,7 +205,7 @@ export function detectSuspiciousActivity(ip: string): boolean {
   const events = securityLogger.getEvents();
 
   const getTimestamp = (event: SecurityEvent): number => {
-    if (typeof event.timestamp === "number") return event.timestamp;
+    if (typeof event.timestamp === 'number') return event.timestamp;
     if (event.timestamp instanceof Date) return event.timestamp.getTime();
     return new Date(event.timestamp).getTime();
   };
@@ -218,9 +218,9 @@ export function detectSuspiciousActivity(ip: string): boolean {
   // Flag as suspicious if more than 10 events from same IP in 5 minutes
   if (recentEvents.length > 10) {
     logSecurityEvent(
-      "suspicious_activity",
+      'suspicious_activity',
       `High activity from IP: ${ip}`,
-      "medium",
+      'medium',
       { ip }
     );
     return true;

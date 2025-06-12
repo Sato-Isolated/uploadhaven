@@ -1,8 +1,8 @@
-import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
-import { headers } from "next/headers";
-import connectDB from "@/lib/mongodb";
-import { File, User } from "@/lib/models";
+import { NextRequest, NextResponse } from 'next/server';
+import { auth } from '@/lib/auth';
+import { headers } from 'next/headers';
+import connectDB from '@/lib/mongodb';
+import { File, User } from '@/lib/models';
 
 export async function GET(request: NextRequest) {
   try {
@@ -13,14 +13,14 @@ export async function GET(request: NextRequest) {
 
     if (!session?.user) {
       return NextResponse.json(
-        { success: false, error: "Authentication required" },
+        { success: false, error: 'Authentication required' },
         { status: 401 }
       );
     } // Connect to MongoDB
     await connectDB(); // Update lastActivity for navigation tracking
     try {
       console.log(
-        "🔍 FILES ROUTE: Attempting to update lastActivity for user:",
+        '🔍 FILES ROUTE: Attempting to update lastActivity for user:',
         session.user.id
       );
       const updateResult = await User.findByIdAndUpdate(
@@ -31,30 +31,30 @@ export async function GET(request: NextRequest) {
         { new: true }
       );
       console.log(
-        "🔍 FILES ROUTE: Update result:",
-        updateResult ? "Success" : "Failed"
+        '🔍 FILES ROUTE: Update result:',
+        updateResult ? 'Success' : 'Failed'
       );
       if (updateResult) {
         console.log(
-          "🔍 FILES ROUTE: New lastActivity:",
+          '🔍 FILES ROUTE: New lastActivity:',
           updateResult.lastActivity
         );
       }
     } catch (error) {
-      console.error("❌ FILES ROUTE: Failed to update lastActivity:", error);
+      console.error('❌ FILES ROUTE: Failed to update lastActivity:', error);
     }
 
     // Get query parameters
     const { searchParams } = new URL(request.url);
-    const page = parseInt(searchParams.get("page") || "1");
-    const limit = parseInt(searchParams.get("limit") || "10");
-    const sort = searchParams.get("sort") || "uploadDate";
-    const order = searchParams.get("order") || "desc";
+    const page = parseInt(searchParams.get('page') || '1');
+    const limit = parseInt(searchParams.get('limit') || '10');
+    const sort = searchParams.get('sort') || 'uploadDate';
+    const order = searchParams.get('order') || 'desc';
 
     // Calculate skip value for pagination
     const skip = (page - 1) * limit; // Build sort object
     const sortObj: Record<string, 1 | -1> = {};
-    sortObj[sort] = order === "desc" ? -1 : 1;
+    sortObj[sort] = order === 'desc' ? -1 : 1;
 
     // Fetch user's files
     const files = await File.find({ userId: session.user.id })
@@ -94,9 +94,9 @@ export async function GET(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error("Error fetching user files:", error);
+    console.error('Error fetching user files:', error);
     return NextResponse.json(
-      { success: false, error: "Internal server error" },
+      { success: false, error: 'Internal server error' },
       { status: 500 }
     );
   }

@@ -1,7 +1,7 @@
-import { NextRequest, NextResponse } from "next/server";
-import connectDB from "@/lib/mongodb";
-import { User, File, saveSecurityEvent } from "@/lib/models";
-import { headers } from "next/headers";
+import { NextRequest, NextResponse } from 'next/server';
+import connectDB from '@/lib/mongodb';
+import { User, File, saveSecurityEvent } from '@/lib/models';
+import { headers } from 'next/headers';
 
 interface ExportedUser {
   id: string;
@@ -31,14 +31,14 @@ interface ExportedFile {
 }
 
 interface UserExportData {
-  export_type: "users";
+  export_type: 'users';
   export_date: string;
   total_count: number;
   users: ExportedUser[];
 }
 
 interface FileExportData {
-  export_type: "files";
+  export_type: 'files';
   export_date: string;
   total_count: number;
   files: ExportedFile[];
@@ -52,18 +52,18 @@ export async function GET(request: NextRequest) {
 
     const headersList = await headers();
     const ip =
-      headersList.get("x-forwarded-for") ||
-      headersList.get("x-real-ip") ||
-      "127.0.0.1";
-    const userAgent = headersList.get("user-agent") || "Unknown";
+      headersList.get('x-forwarded-for') ||
+      headersList.get('x-real-ip') ||
+      '127.0.0.1';
+    const userAgent = headersList.get('user-agent') || 'Unknown';
 
     const { searchParams } = new URL(request.url);
-    const format = searchParams.get("format") || "json";
-    const type = searchParams.get("type") || "users";
+    const format = searchParams.get('format') || 'json';
+    const type = searchParams.get('type') || 'users';
 
     let data: ExportData;
-    let filename = "";
-    if (type === "users") {
+    let filename = '';
+    if (type === 'users') {
       // Export user data
       const users = await User.find(
         {},
@@ -79,7 +79,7 @@ export async function GET(request: NextRequest) {
       ).sort({ createdAt: -1 });
 
       data = {
-        export_type: "users",
+        export_type: 'users',
         export_date: new Date().toISOString(),
         total_count: users.length,
         users: users.map((user) => ({
@@ -94,13 +94,13 @@ export async function GET(request: NextRequest) {
             user.lastActivity > new Date(Date.now() - 30 * 24 * 60 * 60 * 1000), // Active within 30 days
         })),
       };
-      filename = `users_export_${new Date().toISOString().split("T")[0]}`;
-    } else if (type === "files") {
+      filename = `users_export_${new Date().toISOString().split('T')[0]}`;
+    } else if (type === 'files') {
       // Export file data
       const files = await File.find({}).sort({ uploadDate: -1 });
 
       data = {
-        export_type: "files",
+        export_type: 'files',
         export_date: new Date().toISOString(),
         total_count: files.length,
         files: files.map((file) => ({
@@ -119,7 +119,7 @@ export async function GET(request: NextRequest) {
           expires_at: file.expiresAt,
         })),
       };
-      filename = `files_export_${new Date().toISOString().split("T")[0]}`;
+      filename = `files_export_${new Date().toISOString().split('T')[0]}`;
     } else {
       return NextResponse.json(
         {
@@ -130,40 +130,40 @@ export async function GET(request: NextRequest) {
       );
     } // Log security event
     await saveSecurityEvent({
-      type: "data_export",
+      type: 'data_export',
       ip,
       details: `Admin exported ${type} data in ${format} format`,
-      severity: "medium",
+      severity: 'medium',
       userAgent,
       metadata: {
         export_type: type,
         format,
         record_count:
-          data.export_type === "users" ? data.users.length : data.files.length,
+          data.export_type === 'users' ? data.users.length : data.files.length,
         adminAction: true,
       },
     });
 
-    if (format === "csv") {
+    if (format === 'csv') {
       // Convert to CSV format
-      let csvContent = "";
+      let csvContent = '';
 
-      if (type === "users" && data.export_type === "users") {
+      if (type === 'users' && data.export_type === 'users') {
         csvContent =
-          "ID,Name,Email,Role,Created At,Email Verified,Is Active\\n";
+          'ID,Name,Email,Role,Created At,Email Verified,Is Active\\n';
         csvContent += data.users
           .map(
             (user: ExportedUser) =>
-              `"${user.id}","${user.name || ""}","${user.email}","${
+              `"${user.id}","${user.name || ''}","${user.email}","${
                 user.role
               }","${user.created_at}","${user.email_verified}","${
                 user.is_active
               }"`
           )
-          .join("\\n");
-      } else if (type === "files" && data.export_type === "files") {
+          .join('\\n');
+      } else if (type === 'files' && data.export_type === 'files') {
         csvContent =
-          "ID,Filename,Original Name,Size,MIME Type,Upload Date,Download Count,User Email,Is Anonymous\\n";
+          'ID,Filename,Original Name,Size,MIME Type,Upload Date,Download Count,User Email,Is Anonymous\\n';
         csvContent += data.files
           .map(
             (file: ExportedFile) =>
@@ -171,30 +171,30 @@ export async function GET(request: NextRequest) {
                 file.size
               }","${file.mime_type}","${file.upload_date}","${
                 file.download_count
-              }","${file.user_email || ""}","${file.is_anonymous}"`
+              }","${file.user_email || ''}","${file.is_anonymous}"`
           )
-          .join("\\n");
+          .join('\\n');
       }
 
       return new NextResponse(csvContent, {
         headers: {
-          "Content-Type": "text/csv",
-          "Content-Disposition": `attachment; filename="${filename}.csv"`,
+          'Content-Type': 'text/csv',
+          'Content-Disposition': `attachment; filename="${filename}.csv"`,
         },
       });
     } else {
       // Return JSON format
       return new NextResponse(JSON.stringify(data, null, 2), {
         headers: {
-          "Content-Type": "application/json",
-          "Content-Disposition": `attachment; filename="${filename}.json"`,
+          'Content-Type': 'application/json',
+          'Content-Disposition': `attachment; filename="${filename}.json"`,
         },
       });
     }
   } catch (error) {
-    console.error("Export error:", error);
+    console.error('Export error:', error);
     return NextResponse.json(
-      { success: false, error: "Failed to export data" },
+      { success: false, error: 'Failed to export data' },
       { status: 500 }
     );
   }

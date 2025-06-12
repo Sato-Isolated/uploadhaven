@@ -1,16 +1,16 @@
-"use client";
+'use client';
 
-import { useState, useEffect, useCallback } from "react";
-import { toast } from "sonner";
-import { useSecurityScan } from "@/hooks";
-import { useSecurityScanning } from "@/hooks/useSecurityScanning";
+import { useState, useEffect, useCallback } from 'react';
+import { toast } from 'sonner';
+import { useSecurityScan } from '@/hooks';
+import { useSecurityScanning } from '@/hooks/useSecurityScanning';
 import type {
   QuotaStatus,
   MalwareScanResult,
   ScanResult,
   ScannedFile,
   ScanType,
-} from "@/types/security";
+} from '@/types/security';
 
 interface FileScanResult {
   fileName: string;
@@ -108,7 +108,7 @@ export function useSecurityScanModal(
 
       // Update scan history
       const threatsFound = scanResults.filter(
-        (r) => r.status === "threat"
+        (r) => r.status === 'threat'
       ).length;
       const newScanEntry: ScanHistoryEntry = {
         date: new Date(),
@@ -118,10 +118,10 @@ export function useSecurityScanModal(
       };
       setScanHistory((prev) => [newScanEntry, ...prev.slice(0, 4)]);
 
-      toast.success("Security scan completed successfully");
+      toast.success('Security scan completed successfully');
     } catch (error) {
-      toast.error("Security scan failed");
-      console.error("Scan error:", error);
+      toast.error('Security scan failed');
+      console.error('Scan error:', error);
     }
   }, [hookStartScan, scanResults, selectedScanType]);
 
@@ -129,7 +129,7 @@ export function useSecurityScanModal(
   const handleFileScan = useCallback(
     async (file: File) => {
       if (file.size > 10 * 1024 * 1024) {
-        toast.error("File size must be less than 10MB");
+        toast.error('File size must be less than 10MB');
         return;
       }
 
@@ -162,8 +162,8 @@ export function useSecurityScanModal(
           }
         }
       } catch (error) {
-        toast.error("File scan failed");
-        console.error("File scan error:", error);
+        toast.error('File scan failed');
+        console.error('File scan error:', error);
       } finally {
         setIsFileScanning(false);
       }

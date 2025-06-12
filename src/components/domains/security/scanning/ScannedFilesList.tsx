@@ -1,15 +1,15 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { Badge } from "@/components/ui/badge";
-import { 
+import { useState } from 'react';
+import { Badge } from '@/components/ui/badge';
+import {
   AlertTriangle,
   CheckCircle,
   RefreshCw,
-  ChevronDown
-} from "lucide-react";
-import { motion, AnimatePresence } from "motion/react";
-import { ScannedFile } from "@/types/security";
+  ChevronDown,
+} from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
+import { ScannedFile } from '@/types/security';
 
 interface ScannedFilesListProps {
   scannedFiles: ScannedFile[];
@@ -29,41 +29,41 @@ function ScannedFileItem({ file }: ScannedFileItemProps) {
 
   return (
     <motion.div
-      className="bg-gray-50 dark:bg-gray-800 rounded border"
+      className="rounded border bg-gray-50 dark:bg-gray-800"
       initial={{ opacity: 0.5 }}
       animate={{
-        opacity: file.status === "scanning" ? [1, 0.5, 1] : 1,
-        scale: file.status === "scanning" ? [1, 1.02, 1] : 1,
+        opacity: file.status === 'scanning' ? [1, 0.5, 1] : 1,
+        scale: file.status === 'scanning' ? [1, 1.02, 1] : 1,
       }}
       transition={{
-        duration: file.status === "scanning" ? 1.5 : 0.3,
-        repeat: file.status === "scanning" ? Infinity : 0,
+        duration: file.status === 'scanning' ? 1.5 : 0.3,
+        repeat: file.status === 'scanning' ? Infinity : 0,
       }}
     >
       {/* Main file info row */}
       <div
         className={`flex items-center justify-between p-2 text-xs ${
           hasEngineResults
-            ? "cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700"
-            : ""
+            ? 'cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700'
+            : ''
         }`}
         onClick={() => hasEngineResults && setIsExpanded(!isExpanded)}
       >
-        <div className="flex items-center gap-2 flex-1 min-w-0">
-          {file.status === "scanning" ? (
-            <RefreshCw className="w-3 h-3 animate-spin text-blue-500" />
-          ) : file.status === "threat" ? (
-            <AlertTriangle className="w-3 h-3 text-red-500" />
-          ) : file.status === "suspicious" ? (
-            <AlertTriangle className="w-3 h-3 text-yellow-500" />
-          ) : file.status === "error" ? (
-            <AlertTriangle className="w-3 h-3 text-gray-500" />
+        <div className="flex min-w-0 flex-1 items-center gap-2">
+          {file.status === 'scanning' ? (
+            <RefreshCw className="h-3 w-3 animate-spin text-blue-500" />
+          ) : file.status === 'threat' ? (
+            <AlertTriangle className="h-3 w-3 text-red-500" />
+          ) : file.status === 'suspicious' ? (
+            <AlertTriangle className="h-3 w-3 text-yellow-500" />
+          ) : file.status === 'error' ? (
+            <AlertTriangle className="h-3 w-3 text-gray-500" />
           ) : (
-            <CheckCircle className="w-3 h-3 text-green-500" />
+            <CheckCircle className="h-3 w-3 text-green-500" />
           )}
           <span className="truncate font-mono">{file.fileName}</span>
-          {file.details && file.status !== "scanning" && (
-            <span className="text-xs text-gray-400 ml-1">- {file.details}</span>
+          {file.details && file.status !== 'scanning' && (
+            <span className="ml-1 text-xs text-gray-400">- {file.details}</span>
           )}
         </div>
 
@@ -71,26 +71,26 @@ function ScannedFileItem({ file }: ScannedFileItemProps) {
           <Badge
             variant="outline"
             className={`text-xs ${
-              file.status === "threat"
-                ? "border-red-500 text-red-600"
-                : file.status === "suspicious"
-                ? "border-yellow-500 text-yellow-600"
-                : file.status === "error"
-                ? "border-gray-500 text-gray-600" 
-                : file.status === "scanning"
-                ? "border-blue-500 text-blue-600"
-                : "border-green-500 text-green-600"
+              file.status === 'threat'
+                ? 'border-red-500 text-red-600'
+                : file.status === 'suspicious'
+                  ? 'border-yellow-500 text-yellow-600'
+                  : file.status === 'error'
+                    ? 'border-gray-500 text-gray-600'
+                    : file.status === 'scanning'
+                      ? 'border-blue-500 text-blue-600'
+                      : 'border-green-500 text-green-600'
             }`}
           >
-            {file.status === "threat"
-              ? "Threat"
-              : file.status === "suspicious"
-              ? "Suspicious"
-              : file.status === "error"
-              ? "Error"
-              : file.status === "scanning"
-              ? "Scanning..."
-              : "Clean"}
+            {file.status === 'threat'
+              ? 'Threat'
+              : file.status === 'suspicious'
+                ? 'Suspicious'
+                : file.status === 'error'
+                  ? 'Error'
+                  : file.status === 'scanning'
+                    ? 'Scanning...'
+                    : 'Clean'}
           </Badge>
 
           {hasEngineResults && (
@@ -98,7 +98,7 @@ function ScannedFileItem({ file }: ScannedFileItemProps) {
               animate={{ rotate: isExpanded ? 180 : 0 }}
               transition={{ duration: 0.2 }}
             >
-              <ChevronDown className="w-3 h-3 text-gray-400" />
+              <ChevronDown className="h-3 w-3 text-gray-400" />
             </motion.div>
           )}
         </div>
@@ -109,44 +109,50 @@ function ScannedFileItem({ file }: ScannedFileItemProps) {
         {isExpanded && hasEngineResults && (
           <motion.div
             initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
+            animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.3 }}
             className="overflow-hidden"
           >
-            <div className="border-t border-gray-200 dark:border-gray-600 p-3 bg-white dark:bg-gray-900">
+            <div className="border-t border-gray-200 bg-white p-3 dark:border-gray-600 dark:bg-gray-900">
               <div className="mb-2">
                 <div className="flex items-center justify-between text-xs">
                   <span className="font-medium text-gray-600 dark:text-gray-400">
                     Antivirus Engine Results
                   </span>
                   <span className="text-gray-500">
-                    {file.scanResult?.engineResults?.length || 0} engines analyzed
+                    {file.scanResult?.engineResults?.length || 0} engines
+                    analyzed
                   </span>
                 </div>
 
                 {file.scanResult?.threatName && (
                   <div className="mt-1 text-xs">
-                    <span className="font-medium text-red-600">Threat detected:</span>
-                    <span className="ml-1 font-mono">{file.scanResult.threatName}</span>
+                    <span className="font-medium text-red-600">
+                      Threat detected:
+                    </span>
+                    <span className="ml-1 font-mono">
+                      {file.scanResult.threatName}
+                    </span>
                   </div>
                 )}
               </div>
 
-              <div className="space-y-1 max-h-32 overflow-y-auto">
+              <div className="max-h-32 space-y-1 overflow-y-auto">
                 {file.scanResult?.engineResults?.map((engine, idx) => (
                   <div
                     key={idx}
-                    className="flex items-center justify-between p-1 text-xs bg-gray-50 dark:bg-gray-800 rounded"
+                    className="flex items-center justify-between rounded bg-gray-50 p-1 text-xs dark:bg-gray-800"
                   >
                     <span className="font-medium">{engine.engine}</span>
                     <div className="flex items-center gap-2">
                       <Badge
                         variant="outline"
                         className={`text-xs ${
-                          engine.result === "clean" || engine.result === "undetected"
-                            ? "border-green-500 text-green-600"
-                            : "border-red-500 text-red-600"
+                          engine.result === 'clean' ||
+                          engine.result === 'undetected'
+                            ? 'border-green-500 text-green-600'
+                            : 'border-red-500 text-red-600'
                         }`}
                       >
                         {engine.category || engine.result}
@@ -163,14 +169,16 @@ function ScannedFileItem({ file }: ScannedFileItemProps) {
   );
 }
 
-export function ScannedFilesList({ 
-  scannedFiles, 
-  currentFileIndex, 
-  totalFilesToScan 
+export function ScannedFilesList({
+  scannedFiles,
+  currentFileIndex,
+  totalFilesToScan,
 }: ScannedFilesListProps) {
   if (scannedFiles.length === 0) return null;
 
-  const completedScans = scannedFiles.filter((f) => f.status !== "scanning").length;
+  const completedScans = scannedFiles.filter(
+    (f) => f.status !== 'scanning'
+  ).length;
 
   return (
     <div className="space-y-3">
@@ -184,7 +192,7 @@ export function ScannedFilesList({
           </span>
         )}
       </div>
-      <div className="max-h-40 overflow-y-auto space-y-2">
+      <div className="max-h-40 space-y-2 overflow-y-auto">
         {scannedFiles.map((file, index) => (
           <ScannedFileItem key={index} file={file} />
         ))}

@@ -1,27 +1,30 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { motion } from "motion/react";
-import { toast } from "sonner";
-import { useDeleteFile, useDeleteFiles } from "@/hooks";
-import type { AdminFileData } from "@/types";
-import type { AdminFileManagerProps } from "./types";
-import StatisticsGrid from "./components/StatisticsGrid";
-import SearchAndFilters from "./components/SearchAndFilters";
-import FilesTable from "./components/FilesTable";
-import { FileDetailsModal, DeleteConfirmationModal } from "./modals";
+import { useState } from 'react';
+import { motion } from 'motion/react';
+import { toast } from 'sonner';
+import { useDeleteFile, useDeleteFiles } from '@/hooks';
+import type { AdminFileData } from '@/types';
+import type { AdminFileManagerProps } from './types';
+import StatisticsGrid from './components/StatisticsGrid';
+import SearchAndFilters from './components/SearchAndFilters';
+import FilesTable from './components/FilesTable';
+import { FileDetailsModal, DeleteConfirmationModal } from './modals';
 
 export default function AdminFileManager({ files }: AdminFileManagerProps) {
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState('');
   const [selectedFiles, setSelectedFiles] = useState<string[]>([]);
   const [fileToDelete, setFileToDelete] = useState<string | null>(null);
-  const [showFileDetails, setShowFileDetails] = useState<AdminFileData | null>(null);
+  const [showFileDetails, setShowFileDetails] = useState<AdminFileData | null>(
+    null
+  );
   const [localFiles, setLocalFiles] = useState<AdminFileData[]>(files);
   // Use TanStack Query mutations for delete operations
   const deleteFileMutation = useDeleteFile();
   const deleteFilesMutation = useDeleteFiles();
 
-  const isLoading = deleteFileMutation.isPending || deleteFilesMutation.isPending;
+  const isLoading =
+    deleteFileMutation.isPending || deleteFilesMutation.isPending;
 
   const filteredFiles = localFiles.filter(
     (file) =>
@@ -45,7 +48,8 @@ export default function AdminFileManager({ files }: AdminFileManagerProps) {
     } else {
       setSelectedFiles([]);
     }
-  };  const handleBulkDelete = async () => {
+  };
+  const handleBulkDelete = async () => {
     if (selectedFiles.length === 0) return;
 
     try {
@@ -67,25 +71,26 @@ export default function AdminFileManager({ files }: AdminFileManagerProps) {
       if (response.ok) {
         const blob = await response.blob();
         const url = window.URL.createObjectURL(blob);
-        const a = document.createElement("a");
+        const a = document.createElement('a');
         a.href = url;
         a.download = filename;
         document.body.appendChild(a);
         a.click();
         window.URL.revokeObjectURL(url);
         document.body.removeChild(a);
-        toast.success("File downloaded successfully");
+        toast.success('File downloaded successfully');
       } else {
-        throw new Error("Failed to download file");
+        throw new Error('Failed to download file');
       }
     } catch {
-      toast.error("Failed to download file. Please try again.");
+      toast.error('Failed to download file. Please try again.');
     }
   };
 
   const handleDeleteFile = async (filename: string) => {
     setFileToDelete(filename);
-  };  const confirmDeleteFile = async () => {
+  };
+  const confirmDeleteFile = async () => {
     if (!fileToDelete) return;
 
     try {
@@ -99,7 +104,8 @@ export default function AdminFileManager({ files }: AdminFileManagerProps) {
       console.error('File delete failed:', error);
     } finally {
       setFileToDelete(null);
-    }  };
+    }
+  };
 
   const handleViewFileDetails = (file: AdminFileData) => {
     setShowFileDetails(file);

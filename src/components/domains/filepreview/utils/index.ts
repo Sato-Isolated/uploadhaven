@@ -1,3 +1,3 @@
 // FilePreview utils exports
-export * from "./filePreview";
-export * from "./fileUtils";
+export * from './filePreview';
+export * from './fileUtils';

@@ -1,16 +1,16 @@
-import { NextRequest, NextResponse } from "next/server";
-import connectDB from "@/lib/mongodb";
-import { SecurityEvent } from "@/lib/models";
+import { NextRequest, NextResponse } from 'next/server';
+import connectDB from '@/lib/mongodb';
+import { SecurityEvent } from '@/lib/models';
 
 // GET /api/admin/activities - Get recent activities
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const page = parseInt(searchParams.get("page") || "1");
-    const limit = parseInt(searchParams.get("limit") || "50");
-    const type = searchParams.get("type"); // optional filter by activity type
-    const severity = searchParams.get("severity"); // optional filter by severity
-    const userId = searchParams.get("userId"); // optional filter by user
+    const page = parseInt(searchParams.get('page') || '1');
+    const limit = parseInt(searchParams.get('limit') || '50');
+    const type = searchParams.get('type'); // optional filter by activity type
+    const severity = searchParams.get('severity'); // optional filter by severity
+    const userId = searchParams.get('userId'); // optional filter by user
     const skip = (page - 1) * limit;
 
     await connectDB();
@@ -49,9 +49,9 @@ export async function GET(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error("Error fetching recent activities:", error);
+    console.error('Error fetching recent activities:', error);
     return NextResponse.json(
-      { success: false, error: "Failed to fetch recent activities" },
+      { success: false, error: 'Failed to fetch recent activities' },
       { status: 500 }
     );
   }

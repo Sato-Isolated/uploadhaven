@@ -1,19 +1,19 @@
 // components/FileDetails.tsx - File metadata and status information
 
-"use client";
+'use client';
 
-import { motion } from "motion/react";
-import { formatFileSize } from "@/lib/utils";
-import type { FileHandlerProps } from "@/types";
+import { motion } from 'motion/react';
+import { formatFileSize } from '@/lib/utils';
+import type { FileHandlerProps } from '@/types';
 
-type FileDetailsProps = Pick<FileHandlerProps, "file">;
+type FileDetailsProps = Pick<FileHandlerProps, 'file'>;
 
 export default function FileDetails({ file }: FileDetailsProps) {
   return (
-    <div className="flex items-center space-x-2 text-xs text-muted-foreground mb-2">
+    <div className="text-muted-foreground mb-2 flex items-center space-x-2 text-xs">
       <span className="font-medium">{formatFileSize(file.file.size)}</span>
       {/* Scanning status */}
-      {file.status === "scanning" && (
+      {file.status === 'scanning' && (
         <>
           <span>•</span>
           <motion.span
@@ -26,7 +26,7 @@ export default function FileDetails({ file }: FileDetailsProps) {
         </>
       )}
       {/* Upload progress */}
-      {file.status === "uploading" && (
+      {file.status === 'uploading' && (
         <>
           <span>•</span>
           <motion.span
@@ -40,11 +40,11 @@ export default function FileDetails({ file }: FileDetailsProps) {
         </>
       )}
       {/* Threat detected */}
-      {file.status === "threat_detected" && (
+      {file.status === 'threat_detected' && (
         <>
           <span>•</span>
           <motion.span
-            className="text-red-600 dark:text-red-400 font-medium"
+            className="font-medium text-red-600 dark:text-red-400"
             animate={{ opacity: [0.7, 1, 0.7] }}
             transition={{ duration: 1, repeat: Infinity }}
           >
@@ -53,18 +53,18 @@ export default function FileDetails({ file }: FileDetailsProps) {
         </>
       )}
       {/* Error status */}
-      {file.error && file.status === "error" && (
+      {file.error && file.status === 'error' && (
         <>
           <span>•</span>
           <span className="text-red-600 dark:text-red-400">{file.error}</span>
         </>
       )}
       {/* Security scan complete */}
-      {file.scanResult?.safe && file.status === "completed" && (
+      {file.scanResult?.safe && file.status === 'completed' && (
         <>
           <span>•</span>
           <motion.span
-            className="text-green-600 dark:text-green-400 font-medium"
+            className="font-medium text-green-600 dark:text-green-400"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.5 }}

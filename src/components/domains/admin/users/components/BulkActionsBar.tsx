@@ -1,14 +1,14 @@
-import React from "react";
-import { motion } from "motion/react";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Trash2, UserCog, Mail, X } from "lucide-react";
+import React from 'react';
+import { motion } from 'motion/react';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Trash2, UserCog, Mail, X } from 'lucide-react';
 
 interface BulkActionsBarProps {
   selectedCount: number;
   onClearSelection: () => void;
   onBulkAction: (
-    action: "delete" | "toggleRole" | "resendVerification"
+    action: 'delete' | 'toggleRole' | 'resendVerification'
   ) => void;
 }
 
@@ -24,9 +24,9 @@ export default function BulkActionsBar({
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
-      className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50"
+      className="fixed bottom-6 left-1/2 z-50 -translate-x-1/2 transform"
     >
-      <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg p-4 flex items-center gap-4">
+      <div className="flex items-center gap-4 rounded-lg border border-gray-200 bg-white p-4 shadow-lg dark:border-gray-700 dark:bg-gray-800">
         <Badge variant="secondary" className="flex items-center gap-2">
           {selectedCount} selected
         </Badge>
@@ -35,7 +35,7 @@ export default function BulkActionsBar({
           <Button
             variant="outline"
             size="sm"
-            onClick={() => onBulkAction("resendVerification")}
+            onClick={() => onBulkAction('resendVerification')}
             className="flex items-center gap-2"
           >
             <Mail className="h-4 w-4" />
@@ -45,7 +45,7 @@ export default function BulkActionsBar({
           <Button
             variant="outline"
             size="sm"
-            onClick={() => onBulkAction("toggleRole")}
+            onClick={() => onBulkAction('toggleRole')}
             className="flex items-center gap-2"
           >
             <UserCog className="h-4 w-4" />
@@ -55,7 +55,7 @@ export default function BulkActionsBar({
           <Button
             variant="destructive"
             size="sm"
-            onClick={() => onBulkAction("delete")}
+            onClick={() => onBulkAction('delete')}
             className="flex items-center gap-2"
           >
             <Trash2 className="h-4 w-4" />

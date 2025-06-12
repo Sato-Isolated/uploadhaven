@@ -1,7 +1,13 @@
 'use client';
 
 import { motion } from 'motion/react';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Clock, Shield } from 'lucide-react';
 import { EXPIRATION_OPTIONS } from '@/components/domains/upload/fileuploader/types';
 
@@ -27,7 +33,7 @@ export function UploadSettings({
       initial={{ opacity: 0, height: 0 }}
       animate={{ opacity: 1, height: 'auto' }}
       exit={{ opacity: 0, height: 0 }}
-      className="mb-6 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg border"
+      className="mb-6 rounded-lg border bg-gray-50 p-4 dark:bg-gray-800/50"
     >
       <div className="flex items-center gap-6">
         <div className="flex items-center space-x-2">
@@ -38,7 +44,7 @@ export function UploadSettings({
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              {EXPIRATION_OPTIONS.map(option => (
+              {EXPIRATION_OPTIONS.map((option) => (
                 <SelectItem key={option.value} value={option.value}>
                   {option.label}
                 </SelectItem>
@@ -54,7 +60,7 @@ export function UploadSettings({
             id="password-protection"
             checked={isPasswordProtected}
             onChange={(e) => onPasswordProtectedChange(e.target.checked)}
-            className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 h-4 w-4"
+            className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
           />
         </div>
       </div>

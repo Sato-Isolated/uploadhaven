@@ -1,7 +1,7 @@
-import { NextRequest, NextResponse } from "next/server";
-import connectDB from "@/lib/mongodb";
-import { File, saveSecurityEvent } from "@/lib/models";
-import { checkFileExpiration } from "@/lib/startup";
+import { NextRequest, NextResponse } from 'next/server';
+import connectDB from '@/lib/mongodb';
+import { File, saveSecurityEvent } from '@/lib/models';
+import { checkFileExpiration } from '@/lib/startup';
 
 export async function GET(
   request: NextRequest,
@@ -14,10 +14,10 @@ export async function GET(
 
     // Get client IP and user agent for logging
     const clientIP =
-      request.headers.get("x-forwarded-for") ||
-      request.headers.get("x-real-ip") ||
-      "127.0.0.1";
-    const userAgent = request.headers.get("user-agent") || "";
+      request.headers.get('x-forwarded-for') ||
+      request.headers.get('x-real-ip') ||
+      '127.0.0.1';
+    const userAgent = request.headers.get('user-agent') || '';
 
     // Find file by short URL
     const fileDoc = await File.findOne({
@@ -28,15 +28,15 @@ export async function GET(
     if (!fileDoc) {
       // Log file not found event
       await saveSecurityEvent({
-        type: "file_download",
+        type: 'file_download',
         ip: clientIP,
         details: `File preview requested for non-existent short URL: ${shortUrl}`,
-        severity: "low",
+        severity: 'low',
         userAgent,
       });
 
       return NextResponse.json(
-        { success: false, error: "File not found" },
+        { success: false, error: 'File not found' },
         { status: 404 }
       );
     } // Check if file has expired
@@ -46,16 +46,16 @@ export async function GET(
 
       // Log expired file access attempt
       await saveSecurityEvent({
-        type: "file_download",
+        type: 'file_download',
         ip: clientIP,
         details: `Preview requested for expired file: ${fileDoc.filename} (auto-deleted)`,
-        severity: "low",
+        severity: 'low',
         userAgent,
         filename: fileDoc.filename,
       });
 
       return NextResponse.json(
-        { success: false, error: "File has expired", expired: true },
+        { success: false, error: 'File has expired', expired: true },
         { status: 410 }
       );
     }
@@ -64,16 +64,16 @@ export async function GET(
     const wasDeleted = await checkFileExpiration(fileDoc._id.toString());
     if (wasDeleted) {
       await saveSecurityEvent({
-        type: "file_download",
+        type: 'file_download',
         ip: clientIP,
         details: `Preview requested for just-expired file: ${fileDoc.filename} (auto-deleted)`,
-        severity: "low",
+        severity: 'low',
         userAgent,
         filename: fileDoc.filename,
       });
 
       return NextResponse.json(
-        { success: false, error: "File has expired", expired: true },
+        { success: false, error: 'File has expired', expired: true },
         { status: 410 }
       );
     }
@@ -96,10 +96,10 @@ export async function GET(
 
     // Log successful preview request
     await saveSecurityEvent({
-      type: "file_download",
+      type: 'file_download',
       ip: clientIP,
       details: `File preview requested: ${fileDoc.originalName}`,
-      severity: "low",
+      severity: 'low',
       userAgent,
       filename: fileDoc.filename,
       fileSize: fileDoc.size,
@@ -122,26 +122,26 @@ export async function GET(
       },
     });
   } catch (error) {
-    console.error("Preview API error:", error);
+    console.error('Preview API error:', error);
 
     // Try to log the error
     try {
-      const clientIP = request.headers.get("x-forwarded-for") || "127.0.0.1";
+      const clientIP = request.headers.get('x-forwarded-for') || '127.0.0.1';
       await saveSecurityEvent({
-        type: "suspicious_activity",
+        type: 'suspicious_activity',
         ip: clientIP,
         details: `Preview API error: ${
-          error instanceof Error ? error.message : "Unknown error"
+          error instanceof Error ? error.message : 'Unknown error'
         }`,
-        severity: "high",
-        userAgent: request.headers.get("user-agent") || "",
+        severity: 'high',
+        userAgent: request.headers.get('user-agent') || '',
       });
     } catch (logError) {
-      console.error("Failed to log error:", logError);
+      console.error('Failed to log error:', logError);
     }
 
     return NextResponse.json(
-      { success: false, error: "Internal server error" },
+      { success: false, error: 'Internal server error' },
       { status: 500 }
     );
   }

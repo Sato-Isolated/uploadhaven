@@ -1,11 +1,8 @@
-"use client";
+'use client';
 
-import { useState, useCallback } from "react";
-import { toast } from "sonner";
-import type {
-  FileUploadOptions,
-  FileDeleteOptions,
-} from "@/types";
+import { useState, useCallback } from 'react';
+import { toast } from 'sonner';
+import type { FileUploadOptions, FileDeleteOptions } from '@/types';
 
 /**
  * Custom hook for file operations including upload, delete, and management.
@@ -28,38 +25,38 @@ export function useFileOperations() {
 
       try {
         const formData = new FormData();
-        formData.append("file", file);
+        formData.append('file', file);
 
         if (options.expiration) {
-          formData.append("expiration", options.expiration);
+          formData.append('expiration', options.expiration);
         }
 
         if (options.password) {
-          formData.append("password", options.password);
+          formData.append('password', options.password);
         }
 
         if (options.userId) {
-          formData.append("userId", options.userId);
+          formData.append('userId', options.userId);
         }
 
-        const response = await fetch("/api/upload", {
-          method: "POST",
+        const response = await fetch('/api/upload', {
+          method: 'POST',
           body: formData,
         });
 
         const result = await response.json();
 
         if (!response.ok || !result.success) {
-          throw new Error(result.error || "Upload failed");
+          throw new Error(result.error || 'Upload failed');
         }
 
-        toast.success("File uploaded successfully!");
+        toast.success('File uploaded successfully!');
         options.onSuccess?.(result);
 
         return result;
       } catch (error) {
         const errorMessage =
-          error instanceof Error ? error.message : "Upload failed";
+          error instanceof Error ? error.message : 'Upload failed';
         toast.error(errorMessage);
         options.onError?.(errorMessage);
         throw error;
@@ -75,10 +72,10 @@ export function useFileOperations() {
       setDeleting(true);
 
       try {
-        const response = await fetch("/api/bulk-delete", {
-          method: "DELETE",
+        const response = await fetch('/api/bulk-delete', {
+          method: 'DELETE',
           headers: {
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
           },
           body: JSON.stringify({
             filenames: [filename],
@@ -88,16 +85,16 @@ export function useFileOperations() {
         const result = await response.json();
 
         if (!result.success) {
-          throw new Error(result.error || "Delete failed");
+          throw new Error(result.error || 'Delete failed');
         }
 
-        toast.success("File deleted successfully!");
+        toast.success('File deleted successfully!');
         options.onSuccess?.();
 
         return result;
       } catch (error) {
         const errorMessage =
-          error instanceof Error ? error.message : "Delete failed";
+          error instanceof Error ? error.message : 'Delete failed';
         toast.error(errorMessage);
         options.onError?.(errorMessage);
         throw error;
@@ -113,10 +110,10 @@ export function useFileOperations() {
       setDeleting(true);
 
       try {
-        const response = await fetch("/api/bulk-delete", {
-          method: "DELETE",
+        const response = await fetch('/api/bulk-delete', {
+          method: 'DELETE',
           headers: {
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
           },
           body: JSON.stringify({
             filenames,
@@ -126,7 +123,7 @@ export function useFileOperations() {
         const result = await response.json();
 
         if (!result.success) {
-          throw new Error(result.error || "Bulk delete failed");
+          throw new Error(result.error || 'Bulk delete failed');
         }
 
         toast.success(`Successfully deleted ${result.deletedCount} files`);
@@ -135,7 +132,7 @@ export function useFileOperations() {
         return result;
       } catch (error) {
         const errorMessage =
-          error instanceof Error ? error.message : "Bulk delete failed";
+          error instanceof Error ? error.message : 'Bulk delete failed';
         toast.error(errorMessage);
         options.onError?.(errorMessage);
         throw error;
@@ -150,23 +147,23 @@ export function useFileOperations() {
     (file: File): { valid: boolean; error?: string } => {
       const MAX_SIZE = 100 * 1024 * 1024; // 100MB
       const ALLOWED_TYPES = [
-        "image/jpeg",
-        "image/png",
-        "image/gif",
-        "image/webp",
-        "text/plain",
-        "application/pdf",
-        "application/zip",
-        "video/mp4",
-        "audio/mpeg",
+        'image/jpeg',
+        'image/png',
+        'image/gif',
+        'image/webp',
+        'text/plain',
+        'application/pdf',
+        'application/zip',
+        'video/mp4',
+        'audio/mpeg',
       ];
 
       if (file.size > MAX_SIZE) {
-        return { valid: false, error: "File size must be less than 100MB" };
+        return { valid: false, error: 'File size must be less than 100MB' };
       }
 
       if (!ALLOWED_TYPES.includes(file.type)) {
-        return { valid: false, error: "File type not allowed" };
+        return { valid: false, error: 'File type not allowed' };
       }
 
       return { valid: true };

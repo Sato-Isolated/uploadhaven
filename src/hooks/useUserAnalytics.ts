@@ -1,7 +1,7 @@
-import { useQuery } from "@tanstack/react-query";
-import { ApiClient } from "@/lib/api/client";
-import { queryKeys } from "@/lib/queryKeys";
-import { DownloadAnalytics } from "@/components/domains/analytics/download/utils";
+import { useQuery } from '@tanstack/react-query';
+import { ApiClient } from '@/lib/api/client';
+import { queryKeys } from '@/lib/queryKeys';
+import { DownloadAnalytics } from '@/components/domains/analytics/download/utils';
 
 interface UserAnalyticsResponse {
   analytics: DownloadAnalytics;
@@ -9,10 +9,10 @@ interface UserAnalyticsResponse {
 
 export function useUserAnalytics() {
   return useQuery({
-    queryKey: queryKeys.analyticsUsers("7d"), // Using "7d" as default timeRange
+    queryKey: queryKeys.analyticsUsers('7d'), // Using "7d" as default timeRange
     queryFn: async (): Promise<DownloadAnalytics> => {
       const response = await ApiClient.get<UserAnalyticsResponse>(
-        "/api/analytics/user"
+        '/api/analytics/user'
       );
       return response.analytics;
     },

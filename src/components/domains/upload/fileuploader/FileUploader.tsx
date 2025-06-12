@@ -1,14 +1,14 @@
-"use client";
+'use client';
 
-import { motion } from "motion/react";
-import { Card } from "@/components/ui/card";
-import { useFileUploader } from "./hooks/useFileUploader";
+import { motion } from 'motion/react';
+import { Card } from '@/components/ui/card';
+import { useFileUploader } from './hooks/useFileUploader';
 
 // Import existing components
-import FileUploaderHeader from "./components/FileUploaderHeader";
-import UploadSettings from "./components/UploadSettings";
-import DropzoneArea from "./components/DropzoneArea";
-import FileProgressList from "./components/FileProgressList";
+import FileUploaderHeader from './components/FileUploaderHeader';
+import UploadSettings from './components/UploadSettings';
+import DropzoneArea from './components/DropzoneArea';
+import FileProgressList from './components/FileProgressList';
 
 export default function FileUploader() {
   const {
@@ -25,7 +25,7 @@ export default function FileUploader() {
   } = useFileUploader();
 
   return (
-    <div className="w-full max-w-4xl mx-auto p-6 space-y-8">
+    <div className="mx-auto w-full max-w-4xl space-y-8 p-6">
       {/* Enhanced Header */}
       <FileUploaderHeader />
 
@@ -35,7 +35,7 @@ export default function FileUploader() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3, duration: 0.8 }}
       >
-        <Card className="border-0 shadow-2xl bg-gradient-to-br from-white via-blue-50/30 to-purple-50/30 dark:from-gray-900 dark:via-blue-950/20 dark:to-purple-950/20 backdrop-blur-sm">
+        <Card className="border-0 bg-gradient-to-br from-white via-blue-50/30 to-purple-50/30 shadow-2xl backdrop-blur-sm dark:from-gray-900 dark:via-blue-950/20 dark:to-purple-950/20">
           {/* Enhanced Settings Row */}
           <UploadSettings
             expiration={expiration}
@@ -43,7 +43,7 @@ export default function FileUploader() {
             onExpirationChange={setExpiration}
             onPasswordProtectionChange={setIsPasswordProtected}
           />
-          
+
           {/* Enhanced Dropzone */}
           <DropzoneArea
             isDragActive={isDragActive}

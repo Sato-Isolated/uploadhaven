@@ -1,10 +1,10 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import Image from "next/image";
-import { motion } from "motion/react";
-import { getFileIcon } from "@/components/domains/filepreview/utils/fileUtils";
-import type { BaseComponentProps } from "@/types";
+import { useState } from 'react';
+import Image from 'next/image';
+import { motion } from 'motion/react';
+import { getFileIcon } from '@/components/domains/filepreview/utils/fileUtils';
+import type { BaseComponentProps } from '@/types';
 
 interface FileThumbnailProps extends BaseComponentProps {
   shortUrl: string;
@@ -20,16 +20,16 @@ export default function FileThumbnail({
   originalName,
   size = 48,
   password,
-  className = "",
+  className = '',
 }: FileThumbnailProps) {
   const [thumbnailError, setThumbnailError] = useState(false);
   const [thumbnailLoading, setThumbnailLoading] = useState(true);
 
   // Check if this file type supports thumbnails
   const supportsThumbnail = isThumbnailSupported(mimeType);
-  
+
   // Build thumbnail URL
-  const thumbnailUrl = supportsThumbnail 
+  const thumbnailUrl = supportsThumbnail
     ? `/api/thumbnail/${shortUrl}${password ? `?password=${encodeURIComponent(password)}` : ''}`
     : null;
 
@@ -41,9 +41,9 @@ export default function FileThumbnail({
         className={`flex items-center justify-center ${className}`}
         style={{ width: size, height: size }}
         whileHover={{ scale: 1.1, rotate: 5 }}
-        transition={{ type: "spring", stiffness: 300 }}
+        transition={{ type: 'spring', stiffness: 300 }}
       >
-        <IconComponent className="w-full h-full text-blue-500" />
+        <IconComponent className="h-full w-full text-blue-500" />
       </motion.div>
     );
   }
@@ -53,20 +53,20 @@ export default function FileThumbnail({
       className={`relative overflow-hidden rounded-lg ${className}`}
       style={{ width: size, height: size }}
       whileHover={{ scale: 1.05 }}
-      transition={{ type: "spring", stiffness: 300 }}
+      transition={{ type: 'spring', stiffness: 300 }}
     >
       {thumbnailLoading && (
         <div className="absolute inset-0 flex items-center justify-center bg-gray-100 dark:bg-gray-800">
-          <div className="animate-spin rounded-full h-4 w-4 border-2 border-blue-500 border-t-transparent" />
+          <div className="h-4 w-4 animate-spin rounded-full border-2 border-blue-500 border-t-transparent" />
         </div>
       )}
-      
+
       <Image
         src={thumbnailUrl!}
         alt={`Thumbnail of ${originalName}`}
         width={size}
         height={size}
-        className={`object-cover w-full h-full transition-opacity duration-200 ${
+        className={`h-full w-full object-cover transition-opacity duration-200 ${
           thumbnailLoading ? 'opacity-0' : 'opacity-100'
         }`}
         onLoad={() => setThumbnailLoading(false)}

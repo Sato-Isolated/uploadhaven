@@ -1,2 +1,2 @@
 // SignUp hooks exports
-export { useSignUpForm as useSignUp } from "./useSignUpForm";
+export { useSignUpForm as useSignUp } from './useSignUpForm';

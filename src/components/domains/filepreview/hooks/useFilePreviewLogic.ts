@@ -1,10 +1,10 @@
-"use client";
+'use client';
 
-import { useState, useCallback, useEffect } from "react";
-import { useParams } from "next/navigation";
-import { useFilePreview } from "@/hooks/useFilePreview";
-import { toast } from "sonner";
-import type { ClientFileData } from "@/types";
+import { useState, useCallback, useEffect } from 'react';
+import { useParams } from 'next/navigation';
+import { useFilePreview } from '@/hooks/useFilePreview';
+import { toast } from 'sonner';
+import type { ClientFileData } from '@/types';
 
 export interface UseFilePreviewLogicReturn {
   // State
@@ -36,7 +36,7 @@ export function useFilePreviewLogic(): UseFilePreviewLogicReturn {
   // Local state
   const [fileInfo, setFileInfo] = useState<ClientFileData | null>(null);
   const [passwordRequired, setPasswordRequired] = useState(false);
-  const [password, setPassword] = useState("");
+  const [password, setPassword] = useState('');
   const [passwordLoading, setPasswordLoading] = useState(false);
   const [downloading, setDownloading] = useState(false);
 
@@ -69,8 +69,8 @@ export function useFilePreviewLogic(): UseFilePreviewLogicReturn {
         setPasswordLoading(true);
 
         const response = await fetch(`/s/${shortUrl}/verify`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ password }),
         });
 
@@ -79,12 +79,12 @@ export function useFilePreviewLogic(): UseFilePreviewLogicReturn {
         if (result.success) {
           setPasswordRequired(false);
           setFileInfo(result.fileInfo);
-          toast.success("Password verified successfully!");
+          toast.success('Password verified successfully!');
         } else {
-          toast.error(result.error || "Invalid password");
+          toast.error(result.error || 'Invalid password');
         }
       } catch {
-        toast.error("Failed to verify password");
+        toast.error('Failed to verify password');
       } finally {
         setPasswordLoading(false);
       }
@@ -103,15 +103,15 @@ export function useFilePreviewLogic(): UseFilePreviewLogicReturn {
         : `/api/download/${shortUrl}`;
 
       // Create a temporary link to trigger download
-      const link = document.createElement("a");
+      const link = document.createElement('a');
       link.href = downloadUrl;
-      link.download = fileInfo?.originalName || "download";
+      link.download = fileInfo?.originalName || 'download';
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      toast.success("Download started!");
+      toast.success('Download started!');
     } catch {
-      toast.error("Failed to start download");
+      toast.error('Failed to start download');
     } finally {
       setDownloading(false);
     }
@@ -121,7 +121,7 @@ export function useFilePreviewLogic(): UseFilePreviewLogicReturn {
   const copyShareLink = useCallback(() => {
     const shareUrl = `${window.location.origin}/s/${shortUrl}`;
     navigator.clipboard.writeText(shareUrl);
-    toast.success("Share link copied to clipboard!");
+    toast.success('Share link copied to clipboard!');
   }, [shortUrl]);
 
   // Derived state for file expiration

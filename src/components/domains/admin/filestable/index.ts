@@ -1,2 +1,2 @@
 // Admin FilesTable domain exports
-export { default } from "./FilesTable";
+export { default } from './FilesTable';

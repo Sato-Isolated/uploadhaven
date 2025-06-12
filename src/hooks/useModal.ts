@@ -1,10 +1,7 @@
-"use client";
+'use client';
 
-import { useState, useCallback } from "react";
-import type {
-  HookModalState as ModalState,
-  UseModalReturn,
-} from "@/types";
+import { useState, useCallback } from 'react';
+import type { HookModalState as ModalState, UseModalReturn } from '@/types';
 
 /**
  * Custom hook for modal state management used across admin components

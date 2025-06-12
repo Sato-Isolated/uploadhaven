@@ -8,12 +8,26 @@ export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData();
     const file = formData.get('file') as File;
-    
+
     if (!file) {
-      return NextResponse.json(
-        { error: 'No file provided' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'No file provided' }, { status: 400 });
+    }
+
+    // Initialize malware scanner and check if scanning is enabled
+    const scanner = new MalwareScanner();
+
+    if (!scanner.isScanningEnabled()) {
+      return NextResponse.json({
+        scanResult: {
+          isClean: true,
+          isSuspicious: false,
+          isMalicious: false,
+          threatName: 'Malware scanning disabled',
+          source: 'local',
+          scannedAt: new Date(),
+        },
+        quotaStatus: null,
+      });
     }
 
     // Create temp directory if it doesn't exist
@@ -26,14 +40,11 @@ export async function POST(request: NextRequest) {
     const tempFilePath = path.join(tempDir, `scan_${Date.now()}_${file.name}`);
     await writeFile(tempFilePath, buffer);
 
-    // Initialize malware scanner
-    const scanner = new MalwareScanner();
-    
     // Perform scan
     const scanResult = await scanner.scanFile(tempFilePath);
-    
+
     // Get quota status
-    const quotaStatus = scanner.isConfigured() 
+    const quotaStatus = scanner.isConfigured()
       ? await scanner.getQuotaStatus()
       : null;
 
@@ -41,7 +52,11 @@ export async function POST(request: NextRequest) {
     logSecurityEvent(
       'file_scan',
       `File scan completed: ${file.name} - ${scanResult.isMalicious ? 'THREAT' : scanResult.isSuspicious ? 'SUSPICIOUS' : 'CLEAN'}`,
-      scanResult.isMalicious ? 'high' : scanResult.isSuspicious ? 'medium' : 'low'
+      scanResult.isMalicious
+        ? 'high'
+        : scanResult.isSuspicious
+          ? 'medium'
+          : 'low'
     );
 
     // Clean up temp file (in production, you might want to keep it for quarantine)
@@ -57,29 +72,26 @@ export async function POST(request: NextRequest) {
       fileSize: file.size,
       scanResult,
       quotaStatus,
-      scannedAt: new Date().toISOString()
+      scannedAt: new Date().toISOString(),
     });
-
   } catch (error) {
     console.error('File scan failed:', error);
-    return NextResponse.json(
-      { error: 'File scan failed' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'File scan failed' }, { status: 500 });
   }
 }
 
 export async function GET() {
   try {
     const scanner = new MalwareScanner();
-    
-    const quotaStatus = scanner.isConfigured() 
+
+    const quotaStatus = scanner.isConfigured()
       ? await scanner.getQuotaStatus()
       : null;
 
     return NextResponse.json({
       virusTotalConfigured: scanner.isConfigured(),
-      quotaStatus
+      scanningEnabled: scanner.isScanningEnabled(),
+      quotaStatus,
     });
   } catch (error) {
     console.error('Failed to get scan status:', error);

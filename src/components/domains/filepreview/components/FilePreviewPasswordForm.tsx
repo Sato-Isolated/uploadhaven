@@ -1,7 +1,13 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Lock } from "lucide-react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Lock } from 'lucide-react';
 
 interface FilePreviewPasswordFormProps {
   password: string;
@@ -10,14 +16,14 @@ interface FilePreviewPasswordFormProps {
   onPasswordSubmit: (e: React.FormEvent) => Promise<void>;
 }
 
-export function FilePreviewPasswordForm({ 
-  password, 
-  passwordLoading, 
-  onPasswordChange, 
-  onPasswordSubmit 
+export function FilePreviewPasswordForm({
+  password,
+  passwordLoading,
+  onPasswordChange,
+  onPasswordSubmit,
 }: FilePreviewPasswordFormProps) {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-100 flex items-center justify-center p-4">
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-amber-50 to-orange-100 p-4">
       <Card className="w-full max-w-md">
         <CardHeader>
           <div className="flex items-center space-x-2">
@@ -44,7 +50,7 @@ export function FilePreviewPasswordForm({
               className="w-full"
               disabled={passwordLoading || !password.trim()}
             >
-              {passwordLoading ? "Verifying..." : "Access File"}
+              {passwordLoading ? 'Verifying...' : 'Access File'}
             </Button>
           </form>
         </CardContent>

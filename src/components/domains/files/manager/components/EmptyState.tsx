@@ -1,26 +1,26 @@
 // EmptyState.tsx - Empty state component when no files are present
 
-"use client";
+'use client';
 
-import { motion } from "motion/react";
+import { motion } from 'motion/react';
 import {
   Card,
   CardContent,
   CardHeader,
   CardTitle,
   CardDescription,
-} from "@/components/ui/card";
-import { FileText } from "lucide-react";
+} from '@/components/ui/card';
+import { FileText } from 'lucide-react';
 
 export default function EmptyState() {
   return (
     <motion.div
-      className="w-full max-w-4xl mx-auto"
+      className="mx-auto w-full max-w-4xl"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
     >
-      <Card className="border-0 shadow-lg bg-gradient-to-br from-white via-blue-50/30 to-purple-50/30 dark:from-gray-900 dark:via-blue-950/20 dark:to-purple-950/20">
+      <Card className="border-0 bg-gradient-to-br from-white via-blue-50/30 to-purple-50/30 shadow-lg dark:from-gray-900 dark:via-blue-950/20 dark:to-purple-950/20">
         <CardHeader>
           <motion.div
             initial={{ opacity: 0, x: -20 }}
@@ -28,7 +28,7 @@ export default function EmptyState() {
             transition={{ delay: 0.2, duration: 0.5 }}
           >
             <div className="flex items-center space-x-3">
-              <div className="p-3 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl shadow-lg">
+              <div className="rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 p-3 shadow-lg">
                 <FileText className="h-6 w-6 text-white" />
               </div>
               <div>
@@ -42,13 +42,13 @@ export default function EmptyState() {
         </CardHeader>
         <CardContent>
           <motion.div
-            className="text-center py-16"
+            className="py-16 text-center"
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.4, duration: 0.5 }}
           >
             <motion.div
-              className="relative mx-auto w-24 h-24 mb-8"
+              className="relative mx-auto mb-8 h-24 w-24"
               animate={{
                 y: [0, -15, 0],
                 rotate: [0, 5, -5, 0],
@@ -56,18 +56,18 @@ export default function EmptyState() {
               transition={{
                 duration: 4,
                 repeat: Infinity,
-                ease: "easeInOut",
+                ease: 'easeInOut',
               }}
             >
               <div className="relative">
-                <div className="p-6 bg-gradient-to-br from-blue-500/20 to-purple-600/20 rounded-3xl backdrop-blur-sm border border-white/20 shadow-lg">
+                <div className="rounded-3xl border border-white/20 bg-gradient-to-br from-blue-500/20 to-purple-600/20 p-6 shadow-lg backdrop-blur-sm">
                   <FileText className="h-12 w-12 text-blue-600 dark:text-blue-400" />
                 </div>
-                <div className="absolute -inset-2 bg-gradient-to-br from-blue-500/20 to-purple-600/20 rounded-3xl opacity-50 blur-xl animate-pulse" />
+                <div className="absolute -inset-2 animate-pulse rounded-3xl bg-gradient-to-br from-blue-500/20 to-purple-600/20 opacity-50 blur-xl" />
               </div>
             </motion.div>
             <motion.h3
-              className="text-2xl font-bold text-gray-900 dark:text-white mb-3"
+              className="mb-3 text-2xl font-bold text-gray-900 dark:text-white"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.6, duration: 0.5 }}
@@ -75,7 +75,7 @@ export default function EmptyState() {
               No files uploaded yet
             </motion.h3>
             <motion.p
-              className="text-lg text-muted-foreground mb-8 max-w-md mx-auto"
+              className="text-muted-foreground mx-auto mb-8 max-w-md text-lg"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.7, duration: 0.5 }}
@@ -92,8 +92,8 @@ export default function EmptyState() {
                 whileTap={{ scale: 0.95 }}
               >
                 <button
-                  onClick={() => (window.location.href = "/")}
-                  className="px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold rounded-xl shadow-lg transition-all duration-300 hover:shadow-xl"
+                  onClick={() => (window.location.href = '/')}
+                  className="rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 px-8 py-4 font-semibold text-white shadow-lg transition-all duration-300 hover:from-blue-700 hover:to-purple-700 hover:shadow-xl"
                 >
                   Upload Your First File
                 </button>

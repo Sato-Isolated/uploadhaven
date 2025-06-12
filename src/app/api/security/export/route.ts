@@ -1,6 +1,6 @@
-import { NextResponse } from "next/server";
-import connectDB from "@/lib/mongodb";
-import { getRecentSecurityEvents } from "@/lib/models";
+import { NextResponse } from 'next/server';
+import connectDB from '@/lib/mongodb';
+import { getRecentSecurityEvents } from '@/lib/models';
 
 interface SecurityEventExport {
   id: string;
@@ -48,16 +48,16 @@ export async function GET() {
 
     return new NextResponse(blob, {
       headers: {
-        "Content-Type": "application/json",
-        "Content-Disposition": `attachment; filename="security-logs-${
-          new Date().toISOString().split("T")[0]
+        'Content-Type': 'application/json',
+        'Content-Disposition': `attachment; filename="security-logs-${
+          new Date().toISOString().split('T')[0]
         }.json"`,
       },
     });
   } catch (error) {
-    console.error("Error exporting security logs:", error);
+    console.error('Error exporting security logs:', error);
     return NextResponse.json(
-      { error: "Failed to export security logs" },
+      { error: 'Failed to export security logs' },
       { status: 500 }
     );
   }

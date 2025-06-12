@@ -1,10 +1,10 @@
-"use client";
+'use client';
 
-import React, { Component, ErrorInfo, ReactNode } from "react";
-import { motion } from "motion/react";
-import { AlertTriangle, RefreshCw, Home } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import React, { Component, ErrorInfo, ReactNode } from 'react';
+import { motion } from 'motion/react';
+import { AlertTriangle, RefreshCw, Home } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 interface Props {
   children: ReactNode;
@@ -32,11 +32,11 @@ export class QueryErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error("QueryErrorBoundary caught an error:", error, errorInfo);
-    
+    console.error('QueryErrorBoundary caught an error:', error, errorInfo);
+
     // Call custom error handler if provided
     this.props.onError?.(error, errorInfo);
-    
+
     this.setState({
       error,
       errorInfo,
@@ -48,7 +48,7 @@ export class QueryErrorBoundary extends Component<Props, State> {
   };
 
   handleGoHome = () => {
-    window.location.href = "/dashboard";
+    window.location.href = '/dashboard';
   };
 
   render() {
@@ -64,7 +64,7 @@ export class QueryErrorBoundary extends Component<Props, State> {
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.3 }}
-          className="flex items-center justify-center min-h-[400px] p-6"
+          className="flex min-h-[400px] items-center justify-center p-6"
         >
           <Card className="w-full max-w-lg border-red-200 dark:border-red-800">
             <CardHeader className="text-center">
@@ -72,9 +72,9 @@ export class QueryErrorBoundary extends Component<Props, State> {
                 initial={{ rotate: 0 }}
                 animate={{ rotate: [0, -10, 10, -10, 0] }}
                 transition={{ duration: 0.5, delay: 0.2 }}
-                className="flex justify-center mb-4"
+                className="mb-4 flex justify-center"
               >
-                <div className="p-3 bg-red-100 dark:bg-red-900/30 rounded-full">
+                <div className="rounded-full bg-red-100 p-3 dark:bg-red-900/30">
                   <AlertTriangle className="h-8 w-8 text-red-600 dark:text-red-400" />
                 </div>
               </motion.div>
@@ -83,22 +83,23 @@ export class QueryErrorBoundary extends Component<Props, State> {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <p className="text-sm text-gray-600 dark:text-gray-400 text-center">
-                An unexpected error occurred while loading this content. This might be a temporary issue.
+              <p className="text-center text-sm text-gray-600 dark:text-gray-400">
+                An unexpected error occurred while loading this content. This
+                might be a temporary issue.
               </p>
 
-              {process.env.NODE_ENV === "development" && this.state.error && (
+              {process.env.NODE_ENV === 'development' && this.state.error && (
                 <motion.div
                   initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: "auto" }}
+                  animate={{ opacity: 1, height: 'auto' }}
                   transition={{ delay: 0.3 }}
-                  className="mt-4 p-3 bg-gray-100 dark:bg-gray-800 rounded-lg"
+                  className="mt-4 rounded-lg bg-gray-100 p-3 dark:bg-gray-800"
                 >
                   <details className="text-xs">
-                    <summary className="cursor-pointer font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <summary className="mb-2 cursor-pointer font-medium text-gray-700 dark:text-gray-300">
                       Error Details (Development)
                     </summary>
-                    <pre className="whitespace-pre-wrap text-red-600 dark:text-red-400 overflow-x-auto">
+                    <pre className="overflow-x-auto whitespace-pre-wrap text-red-600 dark:text-red-400">
                       {this.state.error.toString()}
                       {this.state.errorInfo?.componentStack}
                     </pre>
@@ -106,12 +107,12 @@ export class QueryErrorBoundary extends Component<Props, State> {
                 </motion.div>
               )}
 
-              <div className="flex flex-col sm:flex-row gap-3 pt-4">
+              <div className="flex flex-col gap-3 pt-4 sm:flex-row">
                 <Button
                   onClick={this.handleRetry}
-                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
+                  className="flex-1 bg-blue-600 text-white hover:bg-blue-700"
                 >
-                  <RefreshCw className="h-4 w-4 mr-2" />
+                  <RefreshCw className="mr-2 h-4 w-4" />
                   Try Again
                 </Button>
                 <Button
@@ -119,7 +120,7 @@ export class QueryErrorBoundary extends Component<Props, State> {
                   variant="outline"
                   className="flex-1"
                 >
-                  <Home className="h-4 w-4 mr-2" />
+                  <Home className="mr-2 h-4 w-4" />
                   Go Home
                 </Button>
               </div>
@@ -164,6 +165,6 @@ export function withQueryErrorBoundary<P extends object>(
   );
 
   WrappedComponent.displayName = `withQueryErrorBoundary(${Component.displayName || Component.name})`;
-  
+
   return WrappedComponent;
 }

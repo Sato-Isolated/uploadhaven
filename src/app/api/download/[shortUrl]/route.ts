@@ -1,9 +1,14 @@
-import { NextRequest, NextResponse } from "next/server";
-import { readFile } from "fs/promises";
-import path from "path";
-import connectDB from "@/lib/mongodb";
-import { File, incrementDownloadCount, saveSecurityEvent, saveNotification } from "@/lib/models";
-import { checkFileExpiration } from "@/lib/startup";
+import { NextRequest, NextResponse } from 'next/server';
+import { readFile } from 'fs/promises';
+import path from 'path';
+import connectDB from '@/lib/mongodb';
+import {
+  File,
+  incrementDownloadCount,
+  saveSecurityEvent,
+  saveNotification,
+} from '@/lib/models';
+import { checkFileExpiration } from '@/lib/startup';
 
 export async function GET(
   request: NextRequest,
@@ -16,10 +21,10 @@ export async function GET(
 
     // Get client IP and user agent for logging
     const clientIP =
-      request.headers.get("x-forwarded-for") ||
-      request.headers.get("x-real-ip") ||
-      "127.0.0.1";
-    const userAgent = request.headers.get("user-agent") || "";
+      request.headers.get('x-forwarded-for') ||
+      request.headers.get('x-real-ip') ||
+      '127.0.0.1';
+    const userAgent = request.headers.get('user-agent') || '';
 
     // Find file by short URL
     const fileDoc = await File.findOne({
@@ -30,15 +35,15 @@ export async function GET(
     if (!fileDoc) {
       // Log file not found event
       await saveSecurityEvent({
-        type: "file_download",
+        type: 'file_download',
         ip: clientIP,
         details: `Download attempted for non-existent short URL: ${shortUrl}`,
-        severity: "medium",
+        severity: 'medium',
         userAgent,
       });
 
       return NextResponse.json(
-        { success: false, error: "File not found" },
+        { success: false, error: 'File not found' },
         { status: 404 }
       );
     } // Check if file has expired
@@ -48,16 +53,16 @@ export async function GET(
 
       // Log expired file download attempt
       await saveSecurityEvent({
-        type: "file_download",
+        type: 'file_download',
         ip: clientIP,
         details: `Download attempted for expired file: ${fileDoc.filename} (auto-deleted)`,
-        severity: "low",
+        severity: 'low',
         userAgent,
         filename: fileDoc.filename,
       });
 
       return NextResponse.json(
-        { success: false, error: "File has expired" },
+        { success: false, error: 'File has expired' },
         { status: 410 }
       );
     }
@@ -66,16 +71,16 @@ export async function GET(
     const wasDeleted = await checkFileExpiration(fileDoc._id.toString());
     if (wasDeleted) {
       await saveSecurityEvent({
-        type: "file_download",
+        type: 'file_download',
         ip: clientIP,
         details: `Download attempted for just-expired file: ${fileDoc.filename} (auto-deleted)`,
-        severity: "low",
+        severity: 'low',
         userAgent,
         filename: fileDoc.filename,
       });
 
       return NextResponse.json(
-        { success: false, error: "File has expired" },
+        { success: false, error: 'File has expired' },
         { status: 410 }
       );
     }
@@ -85,28 +90,29 @@ export async function GET(
       // For password-protected files, they should have been verified through the page
       // Check for verification token or session
       const url = new URL(request.url);
-      const verified = url.searchParams.get("verified");
+      const verified = url.searchParams.get('verified');
 
       if (!verified) {
         // Log unauthorized download attempt
         await saveSecurityEvent({
-          type: "unauthorized_access",
+          type: 'unauthorized_access',
           ip: clientIP,
           details: `Direct download attempt for password-protected file: ${fileDoc.filename}`,
-          severity: "high",
+          severity: 'high',
           userAgent,
           filename: fileDoc.filename,
         });
 
         return NextResponse.json(
-          { success: false, error: "Password verification required" },
+          { success: false, error: 'Password verification required' },
           { status: 403 }
-        );      }
-    }    // Build file path - fileDoc.filename already contains the full path from uploads directory
+        );
+      }
+    } // Build file path - fileDoc.filename already contains the full path from uploads directory
     const filePath = path.join(
       process.cwd(),
-      "public",
-      "uploads",
+      'public',
+      'uploads',
       fileDoc.filename
     );
 
@@ -115,12 +121,12 @@ export async function GET(
       const fileBuffer = await readFile(filePath);
 
       // Increment download count
-      await incrementDownloadCount(fileDoc.filename);      // Log successful download
+      await incrementDownloadCount(fileDoc.filename); // Log successful download
       await saveSecurityEvent({
-        type: "file_download",
+        type: 'file_download',
         ip: clientIP,
         details: `File downloaded: ${fileDoc.originalName}`,
-        severity: "low",
+        severity: 'low',
         userAgent,
         filename: fileDoc.filename,
         fileSize: fileDoc.size,
@@ -132,21 +138,24 @@ export async function GET(
         try {
           await saveNotification({
             userId: fileDoc.userId,
-            type: "file_downloaded",
-            title: "File Downloaded",
+            type: 'file_downloaded',
+            title: 'File Downloaded',
             message: `Your file "${fileDoc.originalName}" was downloaded`,
-            priority: "normal",
+            priority: 'normal',
             relatedFileId: fileDoc._id.toString(),
             metadata: {
               downloaderIP: clientIP,
               downloadTime: new Date(),
               fileSize: fileDoc.size,
-              mimeType: fileDoc.mimeType
-            }
+              mimeType: fileDoc.mimeType,
+            },
           });
         } catch (notificationError) {
           // Don't fail download if notification fails
-          console.error("Failed to create download notification:", notificationError);
+          console.error(
+            'Failed to create download notification:',
+            notificationError
+          );
         }
       }
 
@@ -154,55 +163,55 @@ export async function GET(
       return new NextResponse(fileBuffer, {
         status: 200,
         headers: {
-          "Content-Type": fileDoc.mimeType,
-          "Content-Length": fileDoc.size.toString(),
-          "Content-Disposition": `attachment; filename="${fileDoc.originalName}"`,
-          "Cache-Control": "private, no-cache, no-store, must-revalidate",
-          Pragma: "no-cache",
-          Expires: "0",
+          'Content-Type': fileDoc.mimeType,
+          'Content-Length': fileDoc.size.toString(),
+          'Content-Disposition': `attachment; filename="${fileDoc.originalName}"`,
+          'Cache-Control': 'private, no-cache, no-store, must-revalidate',
+          Pragma: 'no-cache',
+          Expires: '0',
         },
       });
     } catch (fileError) {
-      console.error("Error reading file:", fileError);
+      console.error('Error reading file:', fileError);
 
       // Log file read error
       await saveSecurityEvent({
-        type: "suspicious_activity",
+        type: 'suspicious_activity',
         ip: clientIP,
         details: `File read error for ${fileDoc.filename}: ${
-          fileError instanceof Error ? fileError.message : "Unknown error"
+          fileError instanceof Error ? fileError.message : 'Unknown error'
         }`,
-        severity: "medium",
+        severity: 'medium',
         userAgent,
         filename: fileDoc.filename,
       });
 
       return NextResponse.json(
-        { success: false, error: "File not accessible" },
+        { success: false, error: 'File not accessible' },
         { status: 500 }
       );
     }
   } catch (error) {
-    console.error("Download API error:", error);
+    console.error('Download API error:', error);
 
     // Try to log the error
     try {
-      const clientIP = request.headers.get("x-forwarded-for") || "127.0.0.1";
+      const clientIP = request.headers.get('x-forwarded-for') || '127.0.0.1';
       await saveSecurityEvent({
-        type: "suspicious_activity",
+        type: 'suspicious_activity',
         ip: clientIP,
         details: `Download API error: ${
-          error instanceof Error ? error.message : "Unknown error"
+          error instanceof Error ? error.message : 'Unknown error'
         }`,
-        severity: "high",
-        userAgent: request.headers.get("user-agent") || "",
+        severity: 'high',
+        userAgent: request.headers.get('user-agent') || '',
       });
     } catch (logError) {
-      console.error("Failed to log error:", logError);
+      console.error('Failed to log error:', logError);
     }
 
     return NextResponse.json(
-      { success: false, error: "Internal server error" },
+      { success: false, error: 'Internal server error' },
       { status: 500 }
     );
   }

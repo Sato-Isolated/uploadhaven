@@ -1,21 +1,21 @@
-"use client";
+'use client';
 
-import { motion } from "motion/react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Activity } from "lucide-react";
-import { SystemInformationProps } from "../types";
+import { motion } from 'motion/react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Activity } from 'lucide-react';
+import { SystemInformationProps } from '../types';
 
 export default function SystemInformation({ stats }: SystemInformationProps) {
   const systemInfo = [
-    { label: "Upload Directory:", value: "/public/uploads" },
-    { label: "Max File Size:", value: "100 MB" },
+    { label: 'Upload Directory:', value: '/public/uploads' },
+    { label: 'Max File Size:', value: '100 MB' },
     {
-      label: "Expiration Options:",
-      value: "1h, 24h, 7d, 30d, never",
+      label: 'Expiration Options:',
+      value: '1h, 24h, 7d, 30d, never',
     },
     {
-      label: "Allowed Types:",
-      value: "Images, Videos, Audio, Documents, Archives",
+      label: 'Allowed Types:',
+      value: 'Images, Videos, Audio, Documents, Archives',
     },
   ];
 
@@ -25,7 +25,7 @@ export default function SystemInformation({ stats }: SystemInformationProps) {
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.3, duration: 0.5 }}
     >
-      <Card className="border-0 shadow-lg bg-gradient-to-br from-white via-green-50/30 to-blue-50/30 dark:from-gray-900 dark:via-green-950/20 dark:to-blue-950/20">
+      <Card className="border-0 bg-gradient-to-br from-white via-green-50/30 to-blue-50/30 shadow-lg dark:from-gray-900 dark:via-green-950/20 dark:to-blue-950/20">
         <CardHeader>
           <motion.div
             initial={{ opacity: 0, x: -20 }}
@@ -34,14 +34,14 @@ export default function SystemInformation({ stats }: SystemInformationProps) {
           >
             <div className="flex items-center space-x-3">
               <motion.div
-                className="p-2 bg-gradient-to-br from-green-500 to-blue-600 rounded-lg"
+                className="rounded-lg bg-gradient-to-br from-green-500 to-blue-600 p-2"
                 animate={{
                   scale: [1, 1.1, 1],
                 }}
                 transition={{
                   duration: 2,
                   repeat: Infinity,
-                  ease: "easeInOut",
+                  ease: 'easeInOut',
                 }}
               >
                 <Activity className="h-5 w-5 text-white" />
@@ -52,7 +52,7 @@ export default function SystemInformation({ stats }: SystemInformationProps) {
         </CardHeader>
         <CardContent className="space-y-4">
           <motion.div
-            className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm"
+            className="grid grid-cols-1 gap-4 text-sm md:grid-cols-2"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.7, duration: 0.5 }}
@@ -66,9 +66,9 @@ export default function SystemInformation({ stats }: SystemInformationProps) {
               >
                 <span className="text-muted-foreground">{info.label}</span>
                 <motion.div
-                  className="font-mono text-xs mt-1 p-2 bg-muted rounded"
+                  className="bg-muted mt-1 rounded p-2 font-mono text-xs"
                   whileHover={{
-                    backgroundColor: "rgba(59, 130, 246, 0.1)",
+                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
                     transition: { duration: 0.2 },
                   }}
                 >
@@ -79,7 +79,7 @@ export default function SystemInformation({ stats }: SystemInformationProps) {
           </motion.div>
           {stats.totalFiles > 0 && (
             <motion.div
-              className="text-xs text-muted-foreground mt-4 pt-4 border-t"
+              className="text-muted-foreground mt-4 border-t pt-4 text-xs"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 2.4, duration: 0.5 }}

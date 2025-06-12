@@ -1,6 +1,6 @@
-import { NextResponse } from "next/server";
-import connectDB from "@/lib/mongodb";
-import { User, File } from "@/lib/models";
+import { NextResponse } from 'next/server';
+import connectDB from '@/lib/mongodb';
+import { User, File } from '@/lib/models';
 
 export async function GET() {
   try {
@@ -30,8 +30,8 @@ export async function GET() {
       },
       {
         $group: {
-          _id: "$userId",
-          storageUsed: { $sum: "$size" },
+          _id: '$userId',
+          storageUsed: { $sum: '$size' },
           fileCount: { $sum: 1 },
         },
       },
@@ -78,9 +78,9 @@ export async function GET() {
       users,
     });
   } catch (error) {
-    console.error("Error fetching users:", error);
+    console.error('Error fetching users:', error);
     return NextResponse.json(
-      { success: false, error: "Failed to fetch users" },
+      { success: false, error: 'Failed to fetch users' },
       { status: 500 }
     );
   }

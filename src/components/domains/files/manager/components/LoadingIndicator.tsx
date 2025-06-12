@@ -1,26 +1,26 @@
 // LoadingIndicator.tsx - Loading state component with animated skeleton cards
 
-"use client";
+'use client';
 
-import { motion } from "motion/react";
+import { motion } from 'motion/react';
 import {
   Card,
   CardContent,
   CardHeader,
   CardTitle,
   CardDescription,
-} from "@/components/ui/card";
-import { RefreshCw } from "lucide-react";
+} from '@/components/ui/card';
+import { RefreshCw } from 'lucide-react';
 
 export default function LoadingIndicator() {
   return (
     <motion.div
-      className="w-full max-w-4xl mx-auto"
+      className="mx-auto w-full max-w-4xl"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
     >
-      <Card className="border-0 shadow-lg bg-gradient-to-br from-white via-blue-50/30 to-purple-50/30 dark:from-gray-900 dark:via-blue-950/20 dark:to-purple-950/20">
+      <Card className="border-0 bg-gradient-to-br from-white via-blue-50/30 to-purple-50/30 shadow-lg dark:from-gray-900 dark:via-blue-950/20 dark:to-purple-950/20">
         <CardHeader>
           <motion.div
             initial={{ opacity: 0, x: -20 }}
@@ -29,9 +29,9 @@ export default function LoadingIndicator() {
           >
             <div className="flex items-center space-x-3">
               <motion.div
-                className="p-3 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl shadow-lg"
+                className="rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 p-3 shadow-lg"
                 animate={{ rotate: 360 }}
-                transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
               >
                 <RefreshCw className="h-6 w-6 text-white" />
               </motion.div>
@@ -48,21 +48,21 @@ export default function LoadingIndicator() {
           {[1, 2, 3].map((i) => (
             <motion.div
               key={i}
-              className="h-20 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded-xl"
+              className="h-20 rounded-xl bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700"
               initial={{ opacity: 0, x: -20 }}
               animate={{
                 opacity: [0.4, 1, 0.4],
                 x: 0,
-                backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
+                backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'],
               }}
               transition={{
                 delay: i * 0.1,
                 duration: 1.5,
                 repeat: Infinity,
-                ease: "easeInOut",
+                ease: 'easeInOut',
               }}
               style={{
-                backgroundSize: "200% 200%",
+                backgroundSize: '200% 200%',
               }}
             />
           ))}

@@ -1,15 +1,15 @@
-"use client";
+'use client';
 
-import { motion } from "motion/react";
+import { motion } from 'motion/react';
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Trash2, RefreshCw } from "lucide-react";
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Trash2, RefreshCw } from 'lucide-react';
 
 interface DeleteConfirmationModalProps {
   fileToDelete: string | null;
@@ -26,7 +26,7 @@ export default function DeleteConfirmationModal({
 }: DeleteConfirmationModalProps) {
   return (
     <Dialog open={fileToDelete !== null} onOpenChange={onCancel}>
-      <DialogContent className="max-w-md bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm border border-red-200/60 dark:border-red-800/60">
+      <DialogContent className="max-w-md border border-red-200/60 bg-white/95 backdrop-blur-sm dark:border-red-800/60 dark:bg-gray-900/95">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-red-600 dark:text-red-400">
             <motion.div
@@ -43,7 +43,7 @@ export default function DeleteConfirmationModal({
           </DialogDescription>
         </DialogHeader>
         <motion.div
-          className="flex justify-end gap-3 mt-6"
+          className="mt-6 flex justify-end gap-3"
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1, duration: 0.3 }}
@@ -66,9 +66,9 @@ export default function DeleteConfirmationModal({
               className="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700"
             >
               {isLoading ? (
-                <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
               ) : (
-                <Trash2 className="h-4 w-4 mr-2" />
+                <Trash2 className="mr-2 h-4 w-4" />
               )}
               Delete
             </Button>

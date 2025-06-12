@@ -1,7 +1,7 @@
-import { NextRequest, NextResponse } from "next/server";
-import connectDB from "@/lib/mongodb";
-import { User, saveSecurityEvent } from "@/lib/models";
-import { headers } from "next/headers";
+import { NextRequest, NextResponse } from 'next/server';
+import connectDB from '@/lib/mongodb';
+import { User, saveSecurityEvent } from '@/lib/models';
+import { headers } from 'next/headers';
 
 export async function POST(
   request: NextRequest,
@@ -12,16 +12,16 @@ export async function POST(
 
     const headersList = await headers();
     const ip =
-      headersList.get("x-forwarded-for") ||
-      headersList.get("x-real-ip") ||
-      "127.0.0.1";
-    const userAgent = headersList.get("user-agent") || "Unknown";
+      headersList.get('x-forwarded-for') ||
+      headersList.get('x-real-ip') ||
+      '127.0.0.1';
+    const userAgent = headersList.get('user-agent') || 'Unknown';
 
     const { userId } = await params;
 
     if (!userId) {
       return NextResponse.json(
-        { success: false, error: "User ID is required" },
+        { success: false, error: 'User ID is required' },
         { status: 400 }
       );
     }
@@ -31,7 +31,7 @@ export async function POST(
 
     if (!user) {
       return NextResponse.json(
-        { success: false, error: "User not found" },
+        { success: false, error: 'User not found' },
         { status: 404 }
       );
     }
@@ -44,10 +44,10 @@ export async function POST(
 
     // Log security event
     await saveSecurityEvent({
-      type: "user_deactivated",
+      type: 'user_deactivated',
       ip,
       details: `User ${user.email} has been deactivated by admin`,
-      severity: "medium",
+      severity: 'medium',
       userAgent,
       metadata: {
         userId: userId,
@@ -61,9 +61,9 @@ export async function POST(
       message: `User ${user.email} has been deactivated successfully`,
     });
   } catch (error) {
-    console.error("User deactivation error:", error);
+    console.error('User deactivation error:', error);
     return NextResponse.json(
-      { success: false, error: "Failed to deactivate user" },
+      { success: false, error: 'Failed to deactivate user' },
       { status: 500 }
     );
   }
@@ -79,16 +79,16 @@ export async function PATCH(
 
     const headersList = await headers();
     const ip =
-      headersList.get("x-forwarded-for") ||
-      headersList.get("x-real-ip") ||
-      "127.0.0.1";
-    const userAgent = headersList.get("user-agent") || "Unknown";
+      headersList.get('x-forwarded-for') ||
+      headersList.get('x-real-ip') ||
+      '127.0.0.1';
+    const userAgent = headersList.get('user-agent') || 'Unknown';
 
     const { userId } = await params;
 
     if (!userId) {
       return NextResponse.json(
-        { success: false, error: "User ID is required" },
+        { success: false, error: 'User ID is required' },
         { status: 400 }
       );
     }
@@ -98,7 +98,7 @@ export async function PATCH(
 
     if (!user) {
       return NextResponse.json(
-        { success: false, error: "User not found" },
+        { success: false, error: 'User not found' },
         { status: 404 }
       );
     }
@@ -111,10 +111,10 @@ export async function PATCH(
 
     // Log security event
     await saveSecurityEvent({
-      type: "user_reactivated",
+      type: 'user_reactivated',
       ip,
       details: `User ${user.email} has been reactivated by admin`,
-      severity: "low",
+      severity: 'low',
       userAgent,
       metadata: {
         userId: userId,
@@ -128,9 +128,9 @@ export async function PATCH(
       message: `User ${user.email} has been reactivated successfully`,
     });
   } catch (error) {
-    console.error("User reactivation error:", error);
+    console.error('User reactivation error:', error);
     return NextResponse.json(
-      { success: false, error: "Failed to reactivate user" },
+      { success: false, error: 'Failed to reactivate user' },
       { status: 500 }
     );
   }

@@ -9,7 +9,7 @@ export async function GET(request: NextRequest) {
   const headers = new Headers({
     'Content-Type': 'text/event-stream',
     'Cache-Control': 'no-cache',
-    'Connection': 'keep-alive',
+    Connection: 'keep-alive',
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Headers': 'Cache-Control',
   });
@@ -25,15 +25,15 @@ export async function GET(request: NextRequest) {
         data: { message: 'Connected to real-time updates' },
         timestamp: new Date().toISOString(),
       };
-      
-      controller.enqueue(`data: ${JSON.stringify(welcome)}\n\n`);      // Simulate real-time events for demo
+
+      controller.enqueue(`data: ${JSON.stringify(welcome)}\n\n`); // Simulate real-time events for demo
       const sendEvent = (type: string, data: Record<string, unknown>) => {
         const event = {
           type,
           data,
           timestamp: new Date().toISOString(),
         };
-        
+
         try {
           controller.enqueue(`data: ${JSON.stringify(event)}\n\n`);
         } catch (error) {
@@ -59,7 +59,7 @@ export async function GET(request: NextRequest) {
           'Security scan completed',
           'File shared',
         ];
-        
+
         sendEvent('activity', {
           action: activities[Math.floor(Math.random() * activities.length)],
           user: `User${Math.floor(Math.random() * 100)}`,

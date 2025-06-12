@@ -1,3 +1,3 @@
 // Domain activity components
-export { default as ActivityHeader } from "./ActivityHeader";
-export { default as ActivityContent } from "./ActivityContent";
+export { default as ActivityHeader } from './ActivityHeader';
+export { default as ActivityContent } from './ActivityContent';

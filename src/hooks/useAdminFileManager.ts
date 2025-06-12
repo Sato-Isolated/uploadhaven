@@ -1,23 +1,26 @@
 // filepath: src/hooks/useAdminFileManager.ts
-"use client";
+'use client';
 
-import { useState } from "react";
-import { toast } from "sonner";
-import { useDeleteFile, useDeleteFiles } from "@/hooks";
-import type { AdminFileData } from "@/types";
+import { useState } from 'react';
+import { toast } from 'sonner';
+import { useDeleteFile, useDeleteFiles } from '@/hooks';
+import type { AdminFileData } from '@/types';
 
 export function useAdminFileManager(initialFiles: AdminFileData[]) {
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState('');
   const [selectedFiles, setSelectedFiles] = useState<string[]>([]);
   const [fileToDelete, setFileToDelete] = useState<string | null>(null);
-  const [showFileDetails, setShowFileDetails] = useState<AdminFileData | null>(null);
+  const [showFileDetails, setShowFileDetails] = useState<AdminFileData | null>(
+    null
+  );
   const [localFiles, setLocalFiles] = useState<AdminFileData[]>(initialFiles);
-  
+
   // Use TanStack Query mutations for delete operations
   const deleteFileMutation = useDeleteFile();
   const deleteFilesMutation = useDeleteFiles();
 
-  const isLoading = deleteFileMutation.isPending || deleteFilesMutation.isPending;
+  const isLoading =
+    deleteFileMutation.isPending || deleteFilesMutation.isPending;
 
   const filteredFiles = localFiles.filter(
     (file) =>
@@ -65,19 +68,19 @@ export function useAdminFileManager(initialFiles: AdminFileData[]) {
       if (response.ok) {
         const blob = await response.blob();
         const url = window.URL.createObjectURL(blob);
-        const a = document.createElement("a");
+        const a = document.createElement('a');
         a.href = url;
         a.download = filename;
         document.body.appendChild(a);
         a.click();
         window.URL.revokeObjectURL(url);
         document.body.removeChild(a);
-        toast.success("File downloaded successfully");
+        toast.success('File downloaded successfully');
       } else {
-        throw new Error("Failed to download file");
+        throw new Error('Failed to download file');
       }
     } catch {
-      toast.error("Failed to download file. Please try again.");
+      toast.error('Failed to download file. Please try again.');
     }
   };
 
@@ -115,7 +118,7 @@ export function useAdminFileManager(initialFiles: AdminFileData[]) {
     localFiles,
     filteredFiles,
     isLoading,
-    
+
     // Handlers
     setSearchQuery,
     handleFileSelect,

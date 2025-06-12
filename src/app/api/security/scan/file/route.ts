@@ -12,17 +12,29 @@ export async function POST(request: NextRequest) {
     await connectDB();
 
     const { fileName } = await request.json();
-    
+
     if (!fileName) {
       return NextResponse.json(
         { error: 'No file name provided' },
         { status: 400 }
       );
-    }    // Build path to the uploaded file
+    } // Build path to the uploaded file
     // We need to check both public and protected directories since we don't know which one this file is in
-    const publicFilePath = path.join(process.cwd(), 'public', 'uploads', 'public', fileName);
-    const protectedFilePath = path.join(process.cwd(), 'public', 'uploads', 'protected', fileName);
-    
+    const publicFilePath = path.join(
+      process.cwd(),
+      'public',
+      'uploads',
+      'public',
+      fileName
+    );
+    const protectedFilePath = path.join(
+      process.cwd(),
+      'public',
+      'uploads',
+      'protected',
+      fileName
+    );
+
     let filePath: string;
     try {
       // Check if file exists in public directory first
@@ -34,21 +46,31 @@ export async function POST(request: NextRequest) {
         await readFile(protectedFilePath);
         filePath = protectedFilePath;
       } catch {
-        return NextResponse.json(
-          { error: 'File not found' },
-          { status: 404 }
-        );
+        return NextResponse.json({ error: 'File not found' }, { status: 404 });
       }
+    } // Initialize malware scanner
+    const scanner = new MalwareScanner();
+
+    // Check if scanning is enabled
+    if (!scanner.isScanningEnabled()) {
+      return NextResponse.json({
+        scanResult: {
+          isClean: true,
+          isSuspicious: false,
+          isMalicious: false,
+          threatName: 'Malware scanning disabled',
+          source: 'local',
+          scannedAt: new Date(),
+        },
+        quotaStatus: null,
+      });
     }
 
-    // Initialize malware scanner
-    const scanner = new MalwareScanner();
-    
     // Perform scan
     const scanResult = await scanner.scanFile(filePath);
-    
+
     // Get quota status
-    const quotaStatus = scanner.isConfigured() 
+    const quotaStatus = scanner.isConfigured()
       ? await scanner.getQuotaStatus()
       : null;
 
@@ -56,25 +78,33 @@ export async function POST(request: NextRequest) {
     logSecurityEvent(
       'file_scan',
       `File scan completed: ${fileName} - ${scanResult.isMalicious ? 'THREAT' : scanResult.isSuspicious ? 'SUSPICIOUS' : 'CLEAN'}`,
-      scanResult.isMalicious ? 'high' : scanResult.isSuspicious ? 'medium' : 'low'
+      scanResult.isMalicious
+        ? 'high'
+        : scanResult.isSuspicious
+          ? 'medium'
+          : 'low'
     );
 
     // Create critical security notifications for malware/suspicious files
     if (scanResult.isMalicious || scanResult.isSuspicious) {
       try {
         // Find the file in database to get the owner
-        const fileDoc = await File.findOne({ 
+        const fileDoc = await File.findOne({
           $or: [
             { filename: `public/${fileName}` },
-            { filename: `protected/${fileName}` }
-          ]
+            { filename: `protected/${fileName}` },
+          ],
         });
 
         if (fileDoc && fileDoc.userId) {
-          const notificationType = scanResult.isMalicious ? 'malware_detected' : 'security_alert';
+          const notificationType = scanResult.isMalicious
+            ? 'malware_detected'
+            : 'security_alert';
           const priority = scanResult.isMalicious ? 'urgent' : 'high';
-          const title = scanResult.isMalicious ? 'Malware Detected' : 'Suspicious File Detected';
-          const message = scanResult.isMalicious 
+          const title = scanResult.isMalicious
+            ? 'Malware Detected'
+            : 'Suspicious File Detected';
+          const message = scanResult.isMalicious
             ? `Malware detected in your file "${fileDoc.originalName}". The file has been flagged for security review.`
             : `Suspicious activity detected in your file "${fileDoc.originalName}". Please review the file content.`;
 
@@ -99,7 +129,10 @@ export async function POST(request: NextRequest) {
           });
         }
       } catch (notificationError) {
-        console.error('Failed to create security notification:', notificationError);
+        console.error(
+          'Failed to create security notification:',
+          notificationError
+        );
         // Don't fail the scan if notification creation fails
       }
     }
@@ -108,14 +141,10 @@ export async function POST(request: NextRequest) {
       fileName,
       scanResult,
       quotaStatus,
-      scannedAt: new Date().toISOString()
+      scannedAt: new Date().toISOString(),
     });
-
   } catch (error) {
     console.error('File scan failed:', error);
-    return NextResponse.json(
-      { error: 'File scan failed' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'File scan failed' }, { status: 500 });
   }
 }

@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import {
   ResponsiveContainer,
   BarChart,
@@ -10,7 +10,7 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
-} from "recharts";
+} from 'recharts';
 
 interface SecurityAnalyticsData {
   eventsByType: Array<{
@@ -28,13 +28,13 @@ interface SecurityAnalyticsTabProps {
   formatDateTime: (date: string) => string;
 }
 
-export function SecurityAnalyticsTab({ 
-  securityAnalytics, 
-  formatDateTime 
+export function SecurityAnalyticsTab({
+  securityAnalytics,
+  formatDateTime,
 }: SecurityAnalyticsTabProps) {
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         {/* Security Events Chart */}
         <Card>
           <CardHeader>
@@ -65,11 +65,11 @@ export function SecurityAnalyticsTab({
                 .map((event, index) => (
                   <div
                     key={`${event.type}-${index}`}
-                    className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg"
+                    className="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-gray-800"
                   >
                     <div>
-                      <p className="font-medium text-sm">
-                        {event.type.replace(/_/g, " ")}
+                      <p className="text-sm font-medium">
+                        {event.type.replace(/_/g, ' ')}
                       </p>
                       <p className="text-xs text-gray-500">
                         {formatDateTime(event.timestamp)}

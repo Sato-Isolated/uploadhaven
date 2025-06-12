@@ -1,12 +1,12 @@
 // components/FileActions.tsx - File action buttons and status badges
 
-"use client";
+'use client';
 
-import { motion, AnimatePresence } from "motion/react";
-import { Button } from "@/components/ui/button";
-import { Link2, Copy, X } from "lucide-react";
-import FileStatusBadge from "./FileStatusBadge";
-import type { FileHandlerProps } from "@/types";
+import { motion, AnimatePresence } from 'motion/react';
+import { Button } from '@/components/ui/button';
+import { Link2, Copy, X } from 'lucide-react';
+import FileStatusBadge from './FileStatusBadge';
+import type { FileHandlerProps } from '@/types';
 
 interface FileActionsProps extends FileHandlerProps {
   onRemoveFile: (id: string) => void;
@@ -28,7 +28,7 @@ export default function FileActions({
           threatDetails={file.error}
         />
         {/* Completed state action buttons */}
-        {file.status === "completed" && file.shortUrl && (
+        {file.status === 'completed' && file.shortUrl && (
           <motion.div
             key={`short-url-${file.id}`}
             initial={{ opacity: 0, x: 10 }}
@@ -38,15 +38,15 @@ export default function FileActions({
             <Button
               size="sm"
               variant="default"
-              onClick={() => onCopyToClipboard(file.shortUrl!, "Short URL")}
-              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
+              onClick={() => onCopyToClipboard(file.shortUrl!, 'Short URL')}
+              className="bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700"
             >
-              <Link2 className="h-3 w-3 mr-1" />
+              <Link2 className="mr-1 h-3 w-3" />
               Copy Link
             </Button>
           </motion.div>
         )}
-        {file.status === "completed" && file.url && (
+        {file.status === 'completed' && file.url && (
           <motion.div
             key={`direct-url-${file.id}`}
             initial={{ opacity: 0, x: 10 }}
@@ -56,10 +56,10 @@ export default function FileActions({
             <Button
               size="sm"
               variant="outline"
-              onClick={() => onCopyToClipboard(file.url!, "Direct URL")}
+              onClick={() => onCopyToClipboard(file.url!, 'Direct URL')}
               className="border-blue-200 hover:bg-blue-50 dark:border-blue-800 dark:hover:bg-blue-950"
             >
-              <Copy className="h-3 w-3 mr-1" />
+              <Copy className="mr-1 h-3 w-3" />
               Direct
             </Button>
           </motion.div>

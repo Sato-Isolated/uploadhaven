@@ -1,16 +1,16 @@
-"use client";
+'use client';
 
-import { motion } from "motion/react";
-import FeaturesSection from "./components/FeaturesSection";
-import UploadLimitsSection from "./components/UploadLimitsSection";
-import ApiInfoSection from "./components/ApiInfoSection";
-import FaqSection from "./components/FaqSection";
+import { motion } from 'motion/react';
+import FeaturesSection from './components/FeaturesSection';
+import UploadLimitsSection from './components/UploadLimitsSection';
+import ApiInfoSection from './components/ApiInfoSection';
+import FaqSection from './components/FaqSection';
 import {
   createFeatureItems,
   createApiEndpoints,
   createFaqItems,
   createExampleCommand,
-} from "./utils";
+} from './utils';
 
 export default function InfoPanel() {
   const features = createFeatureItems();

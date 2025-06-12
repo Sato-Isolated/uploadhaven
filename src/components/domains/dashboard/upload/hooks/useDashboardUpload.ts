@@ -7,8 +7,14 @@ import { nanoid } from 'nanoid';
 
 // Import types and utilities
 import type { UploadedFile } from '@/components/domains/upload/fileuploader/types';
-import { MAX_FILE_SIZE, ALLOWED_TYPES } from '@/components/domains/upload/fileuploader/types';
-import { getFileType, saveFileToLocalStorage } from '@/components/domains/upload/fileuploader/utils';
+import {
+  MAX_FILE_SIZE,
+  ALLOWED_TYPES,
+} from '@/components/domains/upload/fileuploader/types';
+import {
+  getFileType,
+  saveFileToLocalStorage,
+} from '@/components/domains/upload/fileuploader/utils';
 import { scanFile, logSecurityEvent } from '@/lib/security';
 import { validateFileAdvanced } from '@/lib/utils';
 
@@ -37,8 +43,8 @@ export function useDashboardUpload() {
         xhr.upload.onprogress = (event) => {
           if (event.lengthComputable) {
             const progress = Math.round((event.loaded / event.total) * 100);
-            setFiles(prev =>
-              prev.map(f =>
+            setFiles((prev) =>
+              prev.map((f) =>
                 f.id === uploadedFile.id ? { ...f, progress } : f
               )
             );
@@ -48,8 +54,8 @@ export function useDashboardUpload() {
         xhr.onload = () => {
           if (xhr.status === 200) {
             const response = JSON.parse(xhr.responseText);
-            setFiles(prev =>
-              prev.map(f =>
+            setFiles((prev) =>
+              prev.map((f) =>
                 f.id === uploadedFile.id
                   ? {
                       ...f,
@@ -62,7 +68,7 @@ export function useDashboardUpload() {
               )
             );
             toast.success('File uploaded successfully!');
-            
+
             if (session?.user?.id) {
               const fileInfo = {
                 name: response.filename,
@@ -75,8 +81,8 @@ export function useDashboardUpload() {
             }
           } else {
             const errorResponse = JSON.parse(xhr.responseText);
-            setFiles(prev =>
-              prev.map(f =>
+            setFiles((prev) =>
+              prev.map((f) =>
                 f.id === uploadedFile.id
                   ? {
                       ...f,
@@ -86,13 +92,15 @@ export function useDashboardUpload() {
                   : f
               )
             );
-            toast.error(`Upload failed: ${errorResponse.error || 'Unknown error'}`);
+            toast.error(
+              `Upload failed: ${errorResponse.error || 'Unknown error'}`
+            );
           }
         };
 
         xhr.onerror = () => {
-          setFiles(prev =>
-            prev.map(f =>
+          setFiles((prev) =>
+            prev.map((f) =>
               f.id === uploadedFile.id
                 ? { ...f, status: 'error', error: 'Network error' }
                 : f
@@ -104,8 +112,8 @@ export function useDashboardUpload() {
         xhr.open('POST', '/api/upload');
         xhr.send(formData);
       } catch {
-        setFiles(prev =>
-          prev.map(f =>
+        setFiles((prev) =>
+          prev.map((f) =>
             f.id === uploadedFile.id
               ? { ...f, status: 'error', error: 'Upload failed' }
               : f
@@ -124,7 +132,9 @@ export function useDashboardUpload() {
       for (const file of acceptedFiles) {
         // Validate file
         if (file.size > MAX_FILE_SIZE) {
-          toast.error(`File "${file.name}" is too large. Maximum size is 100MB.`);
+          toast.error(
+            `File "${file.name}" is too large. Maximum size is 100MB.`
+          );
           continue;
         }
 
@@ -135,7 +145,9 @@ export function useDashboardUpload() {
 
         const advancedValidation = await validateFileAdvanced(file);
         if (!advancedValidation.isValid) {
-          toast.error(`File "${file.name}" failed validation: ${advancedValidation.errors[0]}`);
+          toast.error(
+            `File "${file.name}" failed validation: ${advancedValidation.errors[0]}`
+          );
           continue;
         }
 
@@ -149,16 +161,16 @@ export function useDashboardUpload() {
         newFiles.push(uploadedFile);
       }
 
-      setFiles(prev => [...prev, ...newFiles]);
+      setFiles((prev) => [...prev, ...newFiles]);
 
       // Security scan and upload each file
       for (const uploadedFile of newFiles) {
         try {
           const scanResult = await scanFile(uploadedFile.file);
-          
+
           if (!scanResult.safe) {
-            setFiles(prev =>
-              prev.map(f =>
+            setFiles((prev) =>
+              prev.map((f) =>
                 f.id === uploadedFile.id
                   ? {
                       ...f,
@@ -169,7 +181,7 @@ export function useDashboardUpload() {
                   : f
               )
             );
-            
+
             logSecurityEvent(
               'malware_detected',
               `Security threat detected in ${uploadedFile.file.name}: ${scanResult.threat}`,
@@ -180,13 +192,15 @@ export function useDashboardUpload() {
                 fileType: uploadedFile.file.type,
               }
             );
-            
-            toast.error(`Security threat detected in "${uploadedFile.file.name}"`);
+
+            toast.error(
+              `Security threat detected in "${uploadedFile.file.name}"`
+            );
             continue;
           }
 
-          setFiles(prev =>
-            prev.map(f =>
+          setFiles((prev) =>
+            prev.map((f) =>
               f.id === uploadedFile.id
                 ? { ...f, status: 'uploading', scanResult }
                 : f
@@ -195,8 +209,8 @@ export function useDashboardUpload() {
 
           await uploadFile(uploadedFile);
         } catch {
-          setFiles(prev =>
-            prev.map(f =>
+          setFiles((prev) =>
+            prev.map((f) =>
               f.id === uploadedFile.id
                 ? { ...f, status: 'error', error: 'Security scan failed' }
                 : f
@@ -210,15 +224,15 @@ export function useDashboardUpload() {
   );
 
   const removeFile = useCallback((id: string) => {
-    setFiles(prev => prev.filter(f => f.id !== id));
+    setFiles((prev) => prev.filter((f) => f.id !== id));
   }, []);
 
   const clearCompleted = useCallback(() => {
-    setFiles(prev => prev.filter(f => f.status !== 'completed'));
+    setFiles((prev) => prev.filter((f) => f.status !== 'completed'));
   }, []);
 
   const toggleSettings = useCallback(() => {
-    setShowSettings(prev => !prev);
+    setShowSettings((prev) => !prev);
   }, []);
 
   return {
@@ -227,7 +241,7 @@ export function useDashboardUpload() {
     expiration,
     isPasswordProtected,
     showSettings,
-    
+
     // Actions
     processFiles,
     removeFile,

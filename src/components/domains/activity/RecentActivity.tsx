@@ -1,39 +1,40 @@
-"use client";
+'use client';
 
-import { useCallback } from "react";
-import { motion } from "motion/react";
-import { Card, CardContent } from "@/components/ui/card";
-import { useActivityManagement } from "@/hooks/useActivityManagement";
-import { useActivitiesQuery } from "@/hooks";
-import { ActivityHeader, ActivityContent } from "./components";
-import ActivityLoader from "./recent/ActivityLoader";
-import ActivityError from "./recent/ActivityError";
+import { useCallback } from 'react';
+import { motion } from 'motion/react';
+import { Card, CardContent } from '@/components/ui/card';
+import { useActivityManagement } from '@/hooks/useActivityManagement';
+import { useActivitiesQuery } from '@/hooks';
+import { ActivityHeader, ActivityContent } from './components';
+import ActivityLoader from './recent/ActivityLoader';
+import ActivityError from './recent/ActivityError';
 
 interface RecentActivityProps {
   enableInfiniteScroll?: boolean;
   maxItems?: number;
 }
 
-export default function RecentActivity({ 
+export default function RecentActivity({
   enableInfiniteScroll = false,
-  maxItems 
-}: RecentActivityProps = {}) {  const {
+  maxItems,
+}: RecentActivityProps = {}) {
+  const {
     // State
     typeFilter,
     severityFilter,
     currentPage,
-    
+
     // Data
     activities,
     loading,
     error,
     hasMore,
     isFetchingNextPage,
-    
+
     // Real-time
     realtimeConnected,
     activityCount,
-    
+
     // Actions
     setTypeFilter,
     setSeverityFilter,
@@ -57,12 +58,12 @@ export default function RecentActivity({
   };
 
   const handleTypeFilterChange = (value: string) => {
-    setTypeFilter(value === "all" ? "" : value);
+    setTypeFilter(value === 'all' ? '' : value);
     setCurrentPage(1);
   };
 
   const handleSeverityFilterChange = (value: string) => {
-    setSeverityFilter(value === "all" ? "" : value);
+    setSeverityFilter(value === 'all' ? '' : value);
     setCurrentPage(1);
   };
 
@@ -77,9 +78,11 @@ export default function RecentActivity({
   if (loading && !activities.length) {
     return <ActivityLoader />;
   }
-  
+
   if (error) {
-    return <ActivityError error={error?.message || "An unexpected error occurred"} />;
+    return (
+      <ActivityError error={error?.message || 'An unexpected error occurred'} />
+    );
   }
 
   return (
@@ -88,7 +91,7 @@ export default function RecentActivity({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
     >
-      <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-gray-200 dark:border-gray-700">
+      <Card className="border-gray-200 bg-white/80 backdrop-blur-sm dark:border-gray-700 dark:bg-gray-800/80">
         <ActivityHeader
           realtimeConnected={realtimeConnected}
           activityCount={activityCount}
@@ -97,7 +100,7 @@ export default function RecentActivity({
           onTypeFilterChange={handleTypeFilterChange}
           onSeverityFilterChange={handleSeverityFilterChange}
         />
-          <CardContent>
+        <CardContent>
           <ActivityContent
             activities={activities}
             loading={loading}

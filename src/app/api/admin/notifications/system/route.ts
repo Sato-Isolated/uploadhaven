@@ -24,7 +24,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { title, message, priority = 'normal', targetUsers = 'all', metadata } = await request.json();
+    const {
+      title,
+      message,
+      priority = 'normal',
+      targetUsers = 'all',
+      metadata,
+    } = await request.json();
 
     // Validate required fields
     if (!title || !message) {
@@ -44,11 +50,11 @@ export async function POST(request: NextRequest) {
 
     // Get target users
     let userIds: string[] = [];
-    
+
     if (targetUsers === 'all') {
       // Get all user IDs
       const users = await User.find({}, '_id').lean();
-      userIds = users.map(user => user._id.toString());
+      userIds = users.map((user) => user._id.toString());
     } else if (Array.isArray(targetUsers)) {
       // Specific user IDs provided
       userIds = targetUsers;
@@ -67,7 +73,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Create notifications for all target users
-    const notificationPromises = userIds.map(userId =>
+    const notificationPromises = userIds.map((userId) =>
       saveNotification({
         userId,
         type: 'system_announcement',
@@ -80,14 +86,19 @@ export async function POST(request: NextRequest) {
           isSystemAnnouncement: true,
           ...metadata,
         },
-      }).catch(error => {
-        console.error(`Failed to create notification for user ${userId}:`, error);
+      }).catch((error) => {
+        console.error(
+          `Failed to create notification for user ${userId}:`,
+          error
+        );
         return null; // Continue with other users
       })
     );
 
     const results = await Promise.allSettled(notificationPromises);
-    const successCount = results.filter(result => result.status === 'fulfilled' && result.value !== null).length;
+    const successCount = results.filter(
+      (result) => result.status === 'fulfilled' && result.value !== null
+    ).length;
     const failureCount = results.length - successCount;
 
     return NextResponse.json({
@@ -102,7 +113,10 @@ export async function POST(request: NextRequest) {
         title,
         message,
         priority,
-        targetUsers: targetUsers === 'all' ? 'all users' : `${userIds.length} specific users`,
+        targetUsers:
+          targetUsers === 'all'
+            ? 'all users'
+            : `${userIds.length} specific users`,
       },
     });
   } catch (error) {

@@ -1,12 +1,12 @@
-"use client";
+'use client';
 
-import { motion, AnimatePresence } from "motion/react";
+import { motion, AnimatePresence } from 'motion/react';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
+} from '@/components/ui/dialog';
 import {
   FileHeader,
   FileInfo,
@@ -18,8 +18,8 @@ import {
   PDFPreview,
   FallbackPreview,
   getFileTypeInfo,
-} from "./index";
-import type { BaseComponentProps, FilePreviewData } from "@/types";
+} from './index';
+import type { BaseComponentProps, FilePreviewData } from '@/types';
 
 interface FilePreviewProps extends BaseComponentProps {
   isOpen: boolean;
@@ -47,7 +47,7 @@ export default function FilePreview({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-auto border-0 shadow-2xl bg-gradient-to-br from-white via-blue-50/30 to-purple-50/30 dark:from-gray-900 dark:via-blue-950/20 dark:to-purple-950/20">
+      <DialogContent className="max-h-[90vh] max-w-4xl overflow-auto border-0 bg-gradient-to-br from-white via-blue-50/30 to-purple-50/30 shadow-2xl dark:from-gray-900 dark:via-blue-950/20 dark:to-purple-950/20">
         <DialogHeader>
           <DialogTitle>
             <FileHeader file={file} typeInfo={typeInfo} onClose={onClose} />
@@ -63,7 +63,7 @@ export default function FilePreview({
           <FileInfo file={file} />
 
           <motion.div
-            className="min-h-[300px] bg-gradient-to-br from-gray-50/80 to-white/80 dark:from-gray-800/80 dark:to-gray-900/80 rounded-lg flex items-center justify-center backdrop-blur-sm border border-white/20"
+            className="flex min-h-[300px] items-center justify-center rounded-lg border border-white/20 bg-gradient-to-br from-gray-50/80 to-white/80 backdrop-blur-sm dark:from-gray-800/80 dark:to-gray-900/80"
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.4, duration: 0.4 }}

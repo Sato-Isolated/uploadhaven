@@ -7,7 +7,7 @@ import type {
   BaseComponentProps,
   DataComponentProps,
   ActionComponentProps,
-} from "@/types";
+} from '@/types';
 
 // SecurityPanel-specific types that don't exist in common
 export interface SecurityEventAPI extends SecurityEvent {

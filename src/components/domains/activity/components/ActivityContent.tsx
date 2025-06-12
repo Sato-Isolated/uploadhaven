@@ -1,11 +1,11 @@
-"use client";
+'use client';
 
-import { Button } from "@/components/ui/button";
-import { MoreHorizontal } from "lucide-react";
-import type { ActivityEvent } from "@/types";
-import ActivityItem from "../recent/ActivityItem";
-import ActivityEmpty from "../recent/ActivityEmpty";
-import ActivityPagination from "../recent/ActivityPagination";
+import { Button } from '@/components/ui/button';
+import { MoreHorizontal } from 'lucide-react';
+import type { ActivityEvent } from '@/types';
+import ActivityItem from '../recent/ActivityItem';
+import ActivityEmpty from '../recent/ActivityEmpty';
+import ActivityPagination from '../recent/ActivityPagination';
 
 interface ActivityContentProps {
   activities: ActivityEvent[];
@@ -53,21 +53,21 @@ export default function ActivityContent({
       {useInfinite
         ? // Infinite scroll mode - Load More button
           hasMore && (
-            <div className="text-center mt-6">
+            <div className="mt-6 text-center">
               <Button
                 onClick={onLoadMore}
                 disabled={isFetchingNextPage}
                 variant="outline"
-                className="bg-white/80 dark:bg-gray-700/80 backdrop-blur-sm"
+                className="bg-white/80 backdrop-blur-sm dark:bg-gray-700/80"
               >
                 {isFetchingNextPage ? (
                   <>
-                    <MoreHorizontal className="h-4 w-4 mr-2 animate-pulse" />
+                    <MoreHorizontal className="mr-2 h-4 w-4 animate-pulse" />
                     Loading more...
                   </>
                 ) : (
                   <>
-                    <MoreHorizontal className="h-4 w-4 mr-2" />
+                    <MoreHorizontal className="mr-2 h-4 w-4" />
                     Load More Activities
                   </>
                 )}

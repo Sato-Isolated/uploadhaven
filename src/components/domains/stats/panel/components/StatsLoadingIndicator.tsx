@@ -1,14 +1,14 @@
-"use client";
+'use client';
 
-import { motion } from "motion/react";
+import { motion } from 'motion/react';
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { TrendingUp } from "lucide-react";
+} from '@/components/ui/card';
+import { TrendingUp } from 'lucide-react';
 
 export default function StatsLoadingIndicator() {
   return (
@@ -17,7 +17,7 @@ export default function StatsLoadingIndicator() {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
     >
-      <Card className="border-0 shadow-lg bg-gradient-to-br from-white via-blue-50/30 to-purple-50/30 dark:from-gray-900 dark:via-blue-950/20 dark:to-purple-950/20">
+      <Card className="border-0 bg-gradient-to-br from-white via-blue-50/30 to-purple-50/30 shadow-lg dark:from-gray-900 dark:via-blue-950/20 dark:to-purple-950/20">
         <CardHeader>
           <motion.div
             initial={{ opacity: 0, x: -20 }}
@@ -26,9 +26,9 @@ export default function StatsLoadingIndicator() {
           >
             <div className="flex items-center space-x-3">
               <motion.div
-                className="p-2 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg"
+                className="rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 p-2"
                 animate={{ rotate: 360 }}
-                transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
               >
                 <TrendingUp className="h-5 w-5 text-white" />
               </motion.div>
@@ -44,21 +44,21 @@ export default function StatsLoadingIndicator() {
             {[1, 2, 3, 4].map((i) => (
               <motion.div
                 key={i}
-                className="h-16 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded-lg"
+                className="h-16 rounded-lg bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700"
                 initial={{ opacity: 0, x: -20 }}
                 animate={{
                   opacity: [0.4, 1, 0.4],
                   x: 0,
-                  backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
+                  backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'],
                 }}
                 transition={{
                   delay: i * 0.1,
                   duration: 1.5,
                   repeat: Infinity,
-                  ease: "easeInOut",
+                  ease: 'easeInOut',
                 }}
                 style={{
-                  backgroundSize: "200% 200%",
+                  backgroundSize: '200% 200%',
                 }}
               />
             ))}

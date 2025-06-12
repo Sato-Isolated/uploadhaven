@@ -1,13 +1,13 @@
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Search, X } from "lucide-react";
+} from '@/components/ui/select';
+import { Search, X } from 'lucide-react';
 
 interface SecurityEventsFiltersProps {
   searchTerm: string;
@@ -29,11 +29,11 @@ export function SecurityEventsFilters({
   onClearFilters,
 }: SecurityEventsFiltersProps) {
   return (
-    <div className="mt-4 p-4 border rounded-lg bg-gray-50 dark:bg-gray-800 space-y-4">
-      <div className="flex flex-col sm:flex-row gap-3">
+    <div className="mt-4 space-y-4 rounded-lg border bg-gray-50 p-4 dark:bg-gray-800">
+      <div className="flex flex-col gap-3 sm:flex-row">
         <div className="flex-1">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+            <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform text-gray-400" />
             <Input
               placeholder="Search events, IPs, or filenames..."
               value={searchTerm}
@@ -66,16 +66,14 @@ export function SecurityEventsFilters({
             <SelectItem value="malware_detected">Malware</SelectItem>
             <SelectItem value="large_file">Large File</SelectItem>
             <SelectItem value="access_denied">Access Denied</SelectItem>
-            <SelectItem value="suspicious_activity">
-              Suspicious
-            </SelectItem>
+            <SelectItem value="suspicious_activity">Suspicious</SelectItem>
             <SelectItem value="system_maintenance">
               System Maintenance
             </SelectItem>
           </SelectContent>
         </Select>
         <Button variant="outline" size="sm" onClick={onClearFilters}>
-          <X className="w-4 h-4" />
+          <X className="h-4 w-4" />
         </Button>
       </div>
     </div>

@@ -26,7 +26,8 @@ export class PrefetchManager {
   async prefetchUserAnalytics(userId: string, timeRange: TimeRange = '7d') {
     await this.queryClient.prefetchQuery({
       queryKey: queryKeys.analyticsUser(userId, timeRange),
-      queryFn: () => ApiClient.get(`/api/analytics/user?timeRange=${timeRange}`),
+      queryFn: () =>
+        ApiClient.get(`/api/analytics/user?timeRange=${timeRange}`),
       staleTime: 2 * 60 * 1000, // 2 minutes
     });
   }
@@ -42,14 +43,14 @@ export class PrefetchManager {
         queryFn: () => ApiClient.get('/api/admin/activities?limit=3'),
         staleTime: 30 * 1000, // 30 seconds
       }),
-      
+
       // Prefetch security data
       this.queryClient.prefetchQuery({
         queryKey: queryKeys.security(),
         queryFn: () => ApiClient.get('/api/security'),
         staleTime: 60 * 1000, // 1 minute
       }),
-      
+
       // Prefetch admin stats
       this.queryClient.prefetchQuery({
         queryKey: queryKeys.adminStats(),
@@ -66,7 +67,7 @@ export class PrefetchManager {
    */
   async prefetchFilesList(userId?: string) {
     const endpoint = userId ? `/api/user/files` : '/api/files';
-    
+
     await this.queryClient.prefetchQuery({
       queryKey: userId ? queryKeys.userFiles(userId) : queryKeys.files(),
       queryFn: () => ApiClient.get(endpoint),
@@ -77,7 +78,10 @@ export class PrefetchManager {
   /**
    * Prefetch next page of activities for infinite scroll
    */
-  async prefetchNextActivitiesPage(currentPage: number, filters?: Record<string, unknown>) {
+  async prefetchNextActivitiesPage(
+    currentPage: number,
+    filters?: Record<string, unknown>
+  ) {
     const nextPage = currentPage + 1;
     const params = new URLSearchParams({
       page: nextPage.toString(),
@@ -116,7 +120,7 @@ export class PrefetchManager {
 
     // Execute all prefetches in parallel, but don't wait for completion
     // This allows the app to start while cache warms up in background
-    Promise.allSettled(promises).catch(error => {
+    Promise.allSettled(promises).catch((error) => {
       console.warn('Some prefetches failed during cache warm-up:', error);
     });
   }
@@ -126,20 +130,22 @@ export class PrefetchManager {
    */
   async prefetchRelatedAnalytics(currentTimeRange: TimeRange, userId?: string) {
     const otherTimeRanges: TimeRange[] = ['24h', '7d', '30d', '90d'].filter(
-      range => range !== currentTimeRange
+      (range) => range !== currentTimeRange
     ) as TimeRange[];
 
-    const promises = otherTimeRanges.slice(0, 2).map(timeRange => {
+    const promises = otherTimeRanges.slice(0, 2).map((timeRange) => {
       if (userId) {
         return this.queryClient.prefetchQuery({
           queryKey: queryKeys.analyticsUser(userId, timeRange),
-          queryFn: () => ApiClient.get(`/api/analytics/user?timeRange=${timeRange}`),
+          queryFn: () =>
+            ApiClient.get(`/api/analytics/user?timeRange=${timeRange}`),
           staleTime: 5 * 60 * 1000, // 5 minutes
         });
       } else {
         return this.queryClient.prefetchQuery({
           queryKey: queryKeys.analyticsAdmin(timeRange),
-          queryFn: () => ApiClient.get(`/api/analytics/admin?timeRange=${timeRange}`),
+          queryFn: () =>
+            ApiClient.get(`/api/analytics/admin?timeRange=${timeRange}`),
           staleTime: 5 * 60 * 1000, // 5 minutes
         });
       }

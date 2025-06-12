@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import {
   ResponsiveContainer,
   LineChart,
@@ -13,7 +13,7 @@ import {
   PieChart,
   Pie,
   Cell,
-} from "recharts";
+} from 'recharts';
 
 interface FileAnalyticsData {
   uploadTrends: Array<{
@@ -40,15 +40,15 @@ interface FileAnalyticsTabProps {
   colors: string[];
 }
 
-export function FileAnalyticsTab({ 
-  fileAnalytics, 
-  formatDate, 
-  getFileTypeIcon, 
-  colors 
+export function FileAnalyticsTab({
+  fileAnalytics,
+  formatDate,
+  getFileTypeIcon,
+  colors,
 }: FileAnalyticsTabProps) {
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         {/* Upload Trends Chart */}
         <Card>
           <CardHeader>
@@ -95,14 +95,12 @@ export function FileAnalyticsTab({
                   fill="#8884d8"
                   dataKey="count"
                 >
-                  {fileAnalytics.fileTypeDistribution.map(
-                    (entry, index) => (
-                      <Cell
-                        key={`cell-${index}`}
-                        fill={colors[index % colors.length]}
-                      />
-                    )
-                  )}
+                  {fileAnalytics.fileTypeDistribution.map((entry, index) => (
+                    <Cell
+                      key={`cell-${index}`}
+                      fill={colors[index % colors.length]}
+                    />
+                  ))}
                 </Pie>
                 <Tooltip />
               </PieChart>
@@ -121,16 +119,14 @@ export function FileAnalyticsTab({
             {fileAnalytics.topFiles.slice(0, 8).map((file) => (
               <div
                 key={file.filename}
-                className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg"
+                className="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-gray-800"
               >
                 <div className="flex items-center space-x-3">
                   <span className="text-lg">
                     {getFileTypeIcon(file.mimeType)}
                   </span>
                   <div>
-                    <p className="font-medium text-sm">
-                      {file.originalName}
-                    </p>
+                    <p className="text-sm font-medium">{file.originalName}</p>
                     <p className="text-xs text-gray-500">{file.size}</p>
                   </div>
                 </div>

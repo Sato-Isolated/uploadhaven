@@ -1,2 +1,2 @@
 // FilePreview hooks exports
-export { useFilePreviewLogic } from "./useFilePreviewLogic";
+export { useFilePreviewLogic } from './useFilePreviewLogic';

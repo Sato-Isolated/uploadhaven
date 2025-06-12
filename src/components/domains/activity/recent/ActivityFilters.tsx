@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import {
   Select,
@@ -6,8 +6,8 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { BaseComponentProps } from "@/types";
+} from '@/components/ui/select';
+import { BaseComponentProps } from '@/types';
 
 interface ActivityFiltersProps extends BaseComponentProps {
   typeFilter: string;
@@ -23,9 +23,9 @@ export default function ActivityFilters({
   onSeverityFilterChange,
 }: ActivityFiltersProps) {
   return (
-    <div className="flex gap-4 mt-4">
-      <Select value={typeFilter || "all"} onValueChange={onTypeFilterChange}>
-        <SelectTrigger className="w-48 bg-white/60 dark:bg-gray-700/60 backdrop-blur-sm">
+    <div className="mt-4 flex gap-4">
+      <Select value={typeFilter || 'all'} onValueChange={onTypeFilterChange}>
+        <SelectTrigger className="w-48 bg-white/60 backdrop-blur-sm dark:bg-gray-700/60">
           <SelectValue placeholder="Filter by type" />
         </SelectTrigger>
         <SelectContent>
@@ -45,10 +45,10 @@ export default function ActivityFilters({
       </Select>
 
       <Select
-        value={severityFilter || "all"}
+        value={severityFilter || 'all'}
         onValueChange={onSeverityFilterChange}
       >
-        <SelectTrigger className="w-48 bg-white/60 dark:bg-gray-700/60 backdrop-blur-sm">
+        <SelectTrigger className="w-48 bg-white/60 backdrop-blur-sm dark:bg-gray-700/60">
           <SelectValue placeholder="Filter by severity" />
         </SelectTrigger>
         <SelectContent>

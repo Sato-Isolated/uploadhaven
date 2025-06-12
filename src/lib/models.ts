@@ -1,10 +1,10 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 import type {
   IUser as BaseIUser,
   IFile as BaseIFile,
   ISecurityEvent as BaseISecurityEvent,
-} from "@/types";
-import type { INotification as BaseINotification } from "@/types/database";
+} from '@/types';
+import type { INotification as BaseINotification } from '@/types/database';
 
 // Re-export centralized interfaces
 export type IUser = BaseIUser;
@@ -35,8 +35,8 @@ const userSchema = new mongoose.Schema(
     // Additional field for role (defined in auth.ts)
     role: {
       type: String,
-      default: "user",
-      enum: ["user", "admin"],
+      default: 'user',
+      enum: ['user', 'admin'],
     }, // Track when user was last active (login, upload, etc.)
     lastActivity: {
       type: Date,
@@ -132,22 +132,23 @@ const securityEventSchema = new mongoose.Schema(
     type: {
       type: String,
       enum: [
-        "rate_limit",
-        "invalid_file",
-        "large_file",
-        "blocked_ip",
-        "suspicious_activity",
-        "file_scan",
-        "malware_detected",
-        "file_deletion",        "bulk_delete",
-        "file_upload",
-        "user_registration",
-        "file_download",
-        "file_preview", // New event type for file previews
-        "user_login",
-        "user_logout",
-        "user_role_changed",
-        "system_maintenance",
+        'rate_limit',
+        'invalid_file',
+        'large_file',
+        'blocked_ip',
+        'suspicious_activity',
+        'file_scan',
+        'malware_detected',
+        'file_deletion',
+        'bulk_delete',
+        'file_upload',
+        'user_registration',
+        'file_download',
+        'file_preview', // New event type for file previews
+        'user_login',
+        'user_logout',
+        'user_role_changed',
+        'system_maintenance',
       ],
       required: true,
     },
@@ -165,7 +166,7 @@ const securityEventSchema = new mongoose.Schema(
     },
     severity: {
       type: String,
-      enum: ["low", "medium", "high"],
+      enum: ['low', 'medium', 'high'],
       required: true,
     },
     userAgent: String,
@@ -210,14 +211,14 @@ const notificationSchema = new mongoose.Schema(
     type: {
       type: String,
       enum: [
-        "file_downloaded",
-        "file_expired_soon", 
-        "file_shared",
-        "security_alert",
-        "system_announcement",
-        "file_upload_complete",
-        "malware_detected",
-        "bulk_action_complete",
+        'file_downloaded',
+        'file_expired_soon',
+        'file_shared',
+        'security_alert',
+        'system_announcement',
+        'file_upload_complete',
+        'malware_detected',
+        'bulk_action_complete',
       ],
       required: true,
     },
@@ -235,8 +236,8 @@ const notificationSchema = new mongoose.Schema(
     },
     priority: {
       type: String,
-      enum: ["low", "normal", "high", "urgent"],
-      default: "normal",
+      enum: ['low', 'normal', 'high', 'urgent'],
+      default: 'normal',
     },
     relatedFileId: {
       type: String,
@@ -289,14 +290,14 @@ function getOrCreateModel<T>(
   return mongoose.model<T>(name, schema, collection);
 }
 
-export const User = getOrCreateModel<IUser>("User", userSchema, "user");
-export const File = getOrCreateModel<IFile>("File", fileSchema);
+export const User = getOrCreateModel<IUser>('User', userSchema, 'user');
+export const File = getOrCreateModel<IFile>('File', fileSchema);
 export const SecurityEvent = getOrCreateModel<ISecurityEvent>(
-  "SecurityEvent",
+  'SecurityEvent',
   securityEventSchema
 );
 export const Notification = getOrCreateModel<INotification>(
-  "Notification", 
+  'Notification',
   notificationSchema
 );
 
@@ -390,12 +391,12 @@ export const getSecurityStats = async () => {
       blockedIPs,
     ] = await Promise.all([
       SecurityEvent.countDocuments({}),
-      SecurityEvent.countDocuments({ type: "rate_limit" }),
-      SecurityEvent.countDocuments({ type: "invalid_file" }),
-      SecurityEvent.countDocuments({ type: "malware_detected" }),
-      SecurityEvent.countDocuments({ type: "large_file" }),
+      SecurityEvent.countDocuments({ type: 'rate_limit' }),
+      SecurityEvent.countDocuments({ type: 'invalid_file' }),
+      SecurityEvent.countDocuments({ type: 'malware_detected' }),
+      SecurityEvent.countDocuments({ type: 'large_file' }),
       SecurityEvent.countDocuments({ timestamp: { $gte: last24h } }),
-      SecurityEvent.distinct("ip", { type: "blocked_ip" }).then(
+      SecurityEvent.distinct('ip', { type: 'blocked_ip' }).then(
         (ips) => ips.length
       ),
     ]);
@@ -452,31 +453,32 @@ export const saveNotification = async (notificationData: {
 };
 
 export const getNotificationsForUser = async (
-  userId: string, 
+  userId: string,
   options: {
     limit?: number;
     includeRead?: boolean;
     type?: string;
   } = {}
-) => {  try {
+) => {
+  try {
     const { limit = 50, includeRead = true, type } = options;
-    
+
     const filter: Record<string, unknown> = { userId };
-    
+
     if (!includeRead) {
       filter.isRead = false;
     }
-    
+
     if (type) {
       filter.type = type;
     }
-    
+
     // Only include non-expired notifications
     filter.$or = [
       { expiresAt: { $exists: false } },
-      { expiresAt: { $gt: new Date() } }
+      { expiresAt: { $gt: new Date() } },
     ];
-    
+
     return await Notification.find(filter)
       .sort({ createdAt: -1 })
       .limit(limit)
@@ -487,7 +489,10 @@ export const getNotificationsForUser = async (
   }
 };
 
-export const markNotificationAsRead = async (notificationId: string, userId: string) => {
+export const markNotificationAsRead = async (
+  notificationId: string,
+  userId: string
+) => {
   try {
     return await Notification.findOneAndUpdate(
       { _id: notificationId, userId },
@@ -512,7 +517,10 @@ export const markAllNotificationsAsRead = async (userId: string) => {
   }
 };
 
-export const deleteNotification = async (notificationId: string, userId: string) => {
+export const deleteNotification = async (
+  notificationId: string,
+  userId: string
+) => {
   try {
     return await Notification.findOneAndDelete({ _id: notificationId, userId });
   } catch (error) {
@@ -524,27 +532,21 @@ export const deleteNotification = async (notificationId: string, userId: string)
 export const getNotificationStats = async (userId: string) => {
   try {
     const now = new Date();
-    
+
     const [total, unread, byPriority, byType] = await Promise.all([
       // Total notifications (non-expired)
       Notification.countDocuments({
         userId,
-        $or: [
-          { expiresAt: { $exists: false } },
-          { expiresAt: { $gt: now } }
-        ]
+        $or: [{ expiresAt: { $exists: false } }, { expiresAt: { $gt: now } }],
       }),
-      
+
       // Unread notifications
       Notification.countDocuments({
         userId,
         isRead: false,
-        $or: [
-          { expiresAt: { $exists: false } },
-          { expiresAt: { $gt: now } }
-        ]
+        $or: [{ expiresAt: { $exists: false } }, { expiresAt: { $gt: now } }],
       }),
-      
+
       // By priority
       Notification.aggregate([
         {
@@ -552,18 +554,18 @@ export const getNotificationStats = async (userId: string) => {
             userId,
             $or: [
               { expiresAt: { $exists: false } },
-              { expiresAt: { $gt: now } }
-            ]
-          }
+              { expiresAt: { $gt: now } },
+            ],
+          },
         },
         {
           $group: {
-            _id: "$priority",
-            count: { $sum: 1 }
-          }
-        }
+            _id: '$priority',
+            count: { $sum: 1 },
+          },
+        },
       ]),
-      
+
       // By type
       Notification.aggregate([
         {
@@ -571,43 +573,43 @@ export const getNotificationStats = async (userId: string) => {
             userId,
             $or: [
               { expiresAt: { $exists: false } },
-              { expiresAt: { $gt: now } }
-            ]
-          }
+              { expiresAt: { $gt: now } },
+            ],
+          },
         },
         {
           $group: {
-            _id: "$type",
-            count: { $sum: 1 }
-          }
-        }
-      ])
+            _id: '$type',
+            count: { $sum: 1 },
+          },
+        },
+      ]),
     ]);
-    
+
     // Process aggregation results
     const priorityStats = {
       low: 0,
       normal: 0,
       high: 0,
-      urgent: 0
+      urgent: 0,
     };
-      byPriority.forEach((item: { _id: string; count: number }) => {
+    byPriority.forEach((item: { _id: string; count: number }) => {
       if (item._id && priorityStats.hasOwnProperty(item._id)) {
         priorityStats[item._id as keyof typeof priorityStats] = item.count;
       }
     });
-      const typeStats: Record<string, number> = {};
+    const typeStats: Record<string, number> = {};
     byType.forEach((item: { _id: string; count: number }) => {
       if (item._id) {
         typeStats[item._id] = item.count;
       }
     });
-    
+
     return {
       total,
       unread,
       byPriority: priorityStats,
-      byType: typeStats
+      byType: typeStats,
     };
   } catch (error) {
     // Error getting notification stats
@@ -619,7 +621,7 @@ export const cleanupExpiredNotifications = async () => {
   try {
     const now = new Date();
     const result = await Notification.deleteMany({
-      expiresAt: { $lt: now }
+      expiresAt: { $lt: now },
     });
     return result.deletedCount;
   } catch (error) {

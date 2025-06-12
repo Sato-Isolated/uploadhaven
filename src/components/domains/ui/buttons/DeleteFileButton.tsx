@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
-import { useRouter } from "next/navigation";
-import { useFileOperations } from "@/hooks";
+import { Button } from '@/components/ui/button';
+import { toast } from 'sonner';
+import { useRouter } from 'next/navigation';
+import { useFileOperations } from '@/hooks';
 
 interface DeleteFileButtonProps {
   filename: string;
@@ -28,11 +28,11 @@ export default function DeleteFileButton({
 
     await deleteFile(filename, {
       onSuccess: () => {
-        toast.success("File deleted successfully");
+        toast.success('File deleted successfully');
         router.refresh();
       },
       onError: (error) => {
-        toast.error(error || "Failed to delete file");
+        toast.error(error || 'Failed to delete file');
       },
     });
   };
@@ -45,7 +45,7 @@ export default function DeleteFileButton({
       onClick={handleDelete}
       disabled={isDeleting}
     >
-      {isDeleting ? "Deleting..." : "Delete"}
+      {isDeleting ? 'Deleting...' : 'Delete'}
     </Button>
   );
 }

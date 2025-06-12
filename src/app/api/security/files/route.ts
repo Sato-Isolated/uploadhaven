@@ -7,7 +7,7 @@ export async function GET() {
     const uploadsDir = path.join(process.cwd(), 'public', 'uploads');
     const publicDir = path.join(uploadsDir, 'public');
     const protectedDir = path.join(uploadsDir, 'protected');
-    
+
     let allFiles: Array<{
       name: string;
       path: string;
@@ -17,7 +17,7 @@ export async function GET() {
       extension: string;
       isProtected: boolean;
     }> = [];
-    
+
     try {
       // Get files from public directory
       try {
@@ -26,7 +26,7 @@ export async function GET() {
           publicFiles.map(async (fileName) => {
             const filePath = path.join(publicDir, fileName);
             const stats = await stat(filePath);
-            
+
             return {
               name: fileName,
               path: filePath,
@@ -34,7 +34,7 @@ export async function GET() {
               createdAt: stats.birthtime,
               modifiedAt: stats.mtime,
               extension: path.extname(fileName).toLowerCase(),
-              isProtected: false
+              isProtected: false,
             };
           })
         );
@@ -50,7 +50,7 @@ export async function GET() {
           protectedFiles.map(async (fileName) => {
             const filePath = path.join(protectedDir, fileName);
             const stats = await stat(filePath);
-            
+
             return {
               name: fileName,
               path: filePath,
@@ -58,7 +58,7 @@ export async function GET() {
               createdAt: stats.birthtime,
               modifiedAt: stats.mtime,
               extension: path.extname(fileName).toLowerCase(),
-              isProtected: true
+              isProtected: true,
             };
           })
         );
@@ -68,26 +68,22 @@ export async function GET() {
       }
 
       // Filter out directories and system files
-      const validFiles = allFiles.filter(file => 
-        file.extension && 
-        !file.name.startsWith('.') &&
-        file.size > 0
+      const validFiles = allFiles.filter(
+        (file) => file.extension && !file.name.startsWith('.') && file.size > 0
       );
 
       return NextResponse.json({
         files: validFiles.slice(0, 20), // Limit to 20 files for performance
-        total: validFiles.length
+        total: validFiles.length,
       });
-
     } catch (error) {
       console.error('Error reading uploads directories:', error);
       return NextResponse.json({
         files: [],
         total: 0,
-        error: 'Unable to access uploads directories'
+        error: 'Unable to access uploads directories',
       });
     }
-
   } catch (error) {
     console.error('Failed to list files:', error);
     return NextResponse.json(

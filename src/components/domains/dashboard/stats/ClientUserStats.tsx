@@ -1,11 +1,11 @@
-"use client";
+'use client';
 
-import { motion } from "motion/react";
-import { BaseComponentProps } from "@/types";
-import { useClientUserStats } from "./hooks/useClientUserStats";
-import { UserStatsLoadingState } from "./components/UserStatsLoadingState";
-import { UserStatsErrorState } from "./components/UserStatsErrorState";
-import { UserStatsCards } from "./components/UserStatsCards";
+import { motion } from 'motion/react';
+import { BaseComponentProps } from '@/types';
+import { useClientUserStats } from './hooks/useClientUserStats';
+import { UserStatsLoadingState } from './components/UserStatsLoadingState';
+import { UserStatsErrorState } from './components/UserStatsErrorState';
+import { UserStatsCards } from './components/UserStatsCards';
 
 interface UserStatsProps extends BaseComponentProps {
   userId: string;
@@ -13,7 +13,10 @@ interface UserStatsProps extends BaseComponentProps {
 }
 
 export default function ClientUserStats({ userId, session }: UserStatsProps) {
-  const { isAuthenticated, stats, loading, error } = useClientUserStats(userId, session);
+  const { isAuthenticated, stats, loading, error } = useClientUserStats(
+    userId,
+    session
+  );
 
   // Don't render anything if not authenticated
   if (!isAuthenticated) {

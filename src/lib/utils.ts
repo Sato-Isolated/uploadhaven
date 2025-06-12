@@ -1,7 +1,7 @@
-import { clsx, type ClassValue } from "clsx";
-import { twMerge } from "tailwind-merge";
-import bcrypt from "bcryptjs";
-import { NextRequest } from "next/server";
+import { clsx, type ClassValue } from 'clsx';
+import { twMerge } from 'tailwind-merge';
+import bcrypt from 'bcryptjs';
+import { NextRequest } from 'next/server';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -10,7 +10,7 @@ export function cn(...inputs: ClassValue[]) {
 // Build full short URL for sharing
 export function buildShortUrl(shortId: string, baseUrl?: string): string {
   const base =
-    baseUrl || process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+    baseUrl || process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
   return `${base}/s/${shortId}`;
 }
 
@@ -50,7 +50,7 @@ export function validatePassword(password: string): {
   if (password.length < 6) {
     return {
       valid: false,
-      error: "Password must be at least 6 characters long",
+      error: 'Password must be at least 6 characters long',
     };
   }
 
@@ -58,7 +58,7 @@ export function validatePassword(password: string): {
   if (password.length > 128) {
     return {
       valid: false,
-      error: "Password must be less than 128 characters long",
+      error: 'Password must be less than 128 characters long',
     };
   }
 
@@ -71,13 +71,13 @@ export function validatePassword(password: string): {
  * @returns string - Formatted file size
  */
 export function formatFileSize(bytes: number): string {
-  if (bytes === 0) return "0 Bytes";
+  if (bytes === 0) return '0 Bytes';
 
   const k = 1024;
-  const sizes = ["Bytes", "KB", "MB", "GB", "TB"];
+  const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
   const i = Math.floor(Math.log(bytes) / Math.log(k));
 
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
 }
 
 /**
@@ -86,18 +86,18 @@ export function formatFileSize(bytes: number): string {
  * @returns string - Client IP address
  */
 export function getClientIP(request: NextRequest): string {
-  const forwarded = request.headers.get("x-forwarded-for");
-  const realIP = request.headers.get("x-real-ip");
+  const forwarded = request.headers.get('x-forwarded-for');
+  const realIP = request.headers.get('x-real-ip');
 
   if (forwarded) {
-    return forwarded.split(",")[0].trim();
+    return forwarded.split(',')[0].trim();
   }
 
   if (realIP) {
     return realIP.trim();
   }
 
-  return "127.0.0.1";
+  return '127.0.0.1';
 }
 
 // Advanced file validation
@@ -117,24 +117,24 @@ export function validateFileAdvanced(file: File): {
 
   // Check for suspicious file types
   const suspiciousTypes = [
-    "application/x-msdownload",
-    "application/x-executable",
-    "application/x-msdos-program",
+    'application/x-msdownload',
+    'application/x-executable',
+    'application/x-msdos-program',
   ];
 
   if (suspiciousTypes.includes(file.type)) {
-    errors.push("File type not allowed for security reasons");
+    errors.push('File type not allowed for security reasons');
   }
 
   // Warning for large files
   if (file.size > 10 * 1024 * 1024) {
-    warnings.push("Large file size may impact upload performance");
+    warnings.push('Large file size may impact upload performance');
   }
 
   // Check file name for suspicious patterns
   const suspiciousPatterns = /\.(exe|bat|com|scr|pif|cmd)$/i;
   if (suspiciousPatterns.test(file.name)) {
-    errors.push("File extension not allowed");
+    errors.push('File extension not allowed');
   }
 
   return {
@@ -150,13 +150,13 @@ export function validateFileAdvanced(file: File): {
  * @returns string - Formatted date
  */
 export function formatDisplayDate(date: string | Date): string {
-  const dateObj = typeof date === "string" ? new Date(date) : date;
-  return dateObj.toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
+  const dateObj = typeof date === 'string' ? new Date(date) : date;
+  return dateObj.toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
   });
 }
 
@@ -166,14 +166,14 @@ export function formatDisplayDate(date: string | Date): string {
  * @returns string - Formatted date and time
  */
 export function formatDateTime(date: string | Date): string {
-  const dateObj = typeof date === "string" ? new Date(date) : date;
-  return dateObj.toLocaleString("en-US", {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
+  const dateObj = typeof date === 'string' ? new Date(date) : date;
+  return dateObj.toLocaleString('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
   });
 }
 
@@ -184,7 +184,7 @@ export function formatDateTime(date: string | Date): string {
  * @returns string - Formatted percentage
  */
 export function formatPercentage(value: number, total: number): string {
-  if (total === 0) return "0%";
+  if (total === 0) return '0%';
   return `${Math.round((value / total) * 100)}%`;
 }
 
@@ -193,7 +193,7 @@ export function formatPercentage(value: number, total: number): string {
  * @param prefix - Optional prefix for the ID
  * @returns string - Unique ID
  */
-export function generateUniqueId(prefix = "id"): string {
+export function generateUniqueId(prefix = 'id'): string {
   return `${prefix}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 }
 
@@ -235,16 +235,16 @@ export function debounce<T extends (...args: unknown[]) => unknown>(
  */
 export function isSupportedFileType(mimeType: string): boolean {
   const supportedTypes = [
-    "image/jpeg",
-    "image/png",
-    "image/gif",
-    "image/webp",
-    "video/mp4",
-    "audio/mpeg",
-    "audio/wav",
-    "application/pdf",
-    "text/plain",
-    "application/zip",
+    'image/jpeg',
+    'image/png',
+    'image/gif',
+    'image/webp',
+    'video/mp4',
+    'audio/mpeg',
+    'audio/wav',
+    'application/pdf',
+    'text/plain',
+    'application/zip',
   ];
   return supportedTypes.includes(mimeType);
 }
@@ -256,18 +256,12 @@ export function isSupportedFileType(mimeType: string): boolean {
  */
 export function getFileTypeCategory(
   mimeType: string
-):
-  | "image"
-  | "video"
-  | "audio"
-  | "document"
-  | "archive"
-  | "other" {
-  if (mimeType.startsWith("image/")) return "image";
-  if (mimeType.startsWith("video/")) return "video";
-  if (mimeType.startsWith("audio/")) return "audio";
-  if (mimeType === "application/pdf" || mimeType === "text/plain")
-    return "document";
-  if (mimeType === "application/zip") return "archive";
-  return "other";
+): 'image' | 'video' | 'audio' | 'document' | 'archive' | 'other' {
+  if (mimeType.startsWith('image/')) return 'image';
+  if (mimeType.startsWith('video/')) return 'video';
+  if (mimeType.startsWith('audio/')) return 'audio';
+  if (mimeType === 'application/pdf' || mimeType === 'text/plain')
+    return 'document';
+  if (mimeType === 'application/zip') return 'archive';
+  return 'other';
 }

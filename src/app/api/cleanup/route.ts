@@ -1,9 +1,9 @@
-import { NextResponse } from "next/server";
-import { triggerManualCleanup } from "@/lib/startup";
+import { NextResponse } from 'next/server';
+import { triggerManualCleanup } from '@/lib/startup';
 
 export async function POST() {
   try {
-    console.log("Manual cleanup triggered via API endpoint");
+    console.log('Manual cleanup triggered via API endpoint');
 
     // Use the new background service cleanup function
     const result = await triggerManualCleanup();
@@ -15,9 +15,9 @@ export async function POST() {
       errors: result.errors.length > 0 ? result.errors : undefined,
     });
   } catch (error) {
-    console.error("Cleanup error:", error);
+    console.error('Cleanup error:', error);
     return NextResponse.json(
-      { success: false, error: "Internal server error" },
+      { success: false, error: 'Internal server error' },
       { status: 500 }
     );
   }
@@ -28,7 +28,7 @@ export async function GET() {
   return NextResponse.json(
     {
       success: false,
-      error: "Method not allowed. Use POST to trigger cleanup.",
+      error: 'Method not allowed. Use POST to trigger cleanup.',
     },
     { status: 405 }
   );

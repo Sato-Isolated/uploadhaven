@@ -1,6 +1,6 @@
-import { nanoid } from "nanoid";
-import connectDB from "./mongodb";
-import { File } from "./models";
+import { nanoid } from 'nanoid';
+import connectDB from './mongodb';
+import { File } from './models';
 
 // Generate a unique short URL for file sharing (SERVER ONLY)
 export async function generateShortUrl(customAlias?: string): Promise<string> {
@@ -21,7 +21,7 @@ export async function generateShortUrl(customAlias?: string): Promise<string> {
 
       // If custom alias already exists, throw error
       if (customAlias) {
-        throw new Error("Custom alias already exists");
+        throw new Error('Custom alias already exists');
       }
     } catch (error) {
       if (customAlias) {
@@ -31,5 +31,5 @@ export async function generateShortUrl(customAlias?: string): Promise<string> {
     }
   }
 
-  throw new Error("Failed to generate unique short URL after maximum attempts");
+  throw new Error('Failed to generate unique short URL after maximum attempts');
 }

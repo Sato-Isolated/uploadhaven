@@ -1,2 +1,2 @@
 // Analytics domain exports
-export { default } from "./UserAnalytics";
+export { default } from './UserAnalytics';
