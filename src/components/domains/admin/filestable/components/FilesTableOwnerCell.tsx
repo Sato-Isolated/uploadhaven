@@ -1,4 +1,5 @@
 import { motion } from 'motion/react';
+import { useTranslations } from 'next-intl';
 import { Badge } from '@/components/ui/badge';
 import { User } from 'lucide-react';
 
@@ -11,13 +12,15 @@ export function FilesTableOwnerCell({
   isAnonymous,
   userName,
 }: FilesTableOwnerCellProps) {
+  const t = useTranslations('Admin');
+  
   if (isAnonymous) {
     return (
       <Badge
         variant="secondary"
         className="bg-gradient-to-r from-gray-100 to-gray-200 text-xs font-semibold dark:from-gray-800 dark:to-gray-700"
       >
-        Anonymous
+        {t('anonymous')}
       </Badge>
     );
   }
@@ -31,7 +34,7 @@ export function FilesTableOwnerCell({
         <User className="h-3 w-3 text-green-600 dark:text-green-400" />
       </motion.div>
       <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-        {userName || 'Unknown'}
+        {userName || t('unknown')}
       </span>
     </div>
   );

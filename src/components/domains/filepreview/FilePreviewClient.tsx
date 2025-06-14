@@ -21,8 +21,11 @@ import {
 } from './index';
 import { getFileTypeInfo } from './utils/filePreview';
 import type { FilePreviewData } from '@/types';
+import { useTranslations } from 'next-intl';
 
 export default function FilePreviewClient() {
+  const t = useTranslations('FilePreview');
+  const tHome = useTranslations('Home');
   const {
     fileInfo,
     passwordRequired,
@@ -92,8 +95,10 @@ export default function FilePreviewClient() {
       <div className="mx-auto max-w-2xl pt-8">
         {/* Header */}
         <div className="mb-8 text-center">
-          <h1 className="mb-2 text-3xl font-bold text-gray-900">UploadHaven</h1>
-          <p className="text-gray-600">File Preview & Download</p>
+          <h1 className="mb-2 text-3xl font-bold text-gray-900">
+            {tHome('title')}
+          </h1>
+          <p className="text-gray-600">{t('filePreviewAndDownload')}</p>
         </div>
 
         {/* Main Card */}
@@ -125,7 +130,7 @@ export default function FilePreviewClient() {
 
         {/* Footer */}
         <div className="mt-8 text-center text-sm text-gray-500">
-          <p>Powered by UploadHaven - Secure File Sharing</p>
+          <p>{t('poweredByUploadHaven')}</p>
         </div>
       </div>
     </div>

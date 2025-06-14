@@ -9,12 +9,16 @@ import SignOutButton from '@/components/domains/auth/SignOutButton';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
 import { NotificationDropdown } from '@/components/domains/notifications/NotificationDropdown';
 import { Upload, User, ArrowRight } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 interface DashboardHeaderProps {
   userName: string;
 }
 
 export default function DashboardHeader({ userName }: DashboardHeaderProps) {
+  const t = useTranslations('FileUploader');
+  const tDashboard = useTranslations('Dashboard');
+
   return (
     <motion.div
       className="mb-8 flex items-center justify-between"
@@ -57,7 +61,7 @@ export default function DashboardHeader({ userName }: DashboardHeaderProps) {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4, duration: 0.6 }}
               >
-                My Dashboard
+                {tDashboard('myDashboard')}
               </motion.h1>
               <motion.p
                 className="mt-1 text-lg text-gray-600 dark:text-gray-400"
@@ -65,7 +69,7 @@ export default function DashboardHeader({ userName }: DashboardHeaderProps) {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.5, duration: 0.6 }}
               >
-                Welcome back,
+                {tDashboard('welcomeBack')}{' '}
                 <span className="font-semibold text-gray-800 dark:text-gray-200">
                   {userName}
                 </span>
@@ -73,7 +77,7 @@ export default function DashboardHeader({ userName }: DashboardHeaderProps) {
             </div>
           </div>
         </motion.div>
-      </div>{' '}
+      </div>
       <motion.div
         className="flex items-center gap-4"
         initial={{ opacity: 0, x: 20 }}
@@ -90,7 +94,7 @@ export default function DashboardHeader({ userName }: DashboardHeaderProps) {
           >
             <Button className="h-11 border-0 bg-gradient-to-r from-blue-600 to-purple-600 px-6 text-white shadow-lg hover:from-blue-700 hover:to-purple-700">
               <Upload className="mr-2 h-5 w-5" />
-              Upload Files
+              {t('uploadFiles')}
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           </motion.div>

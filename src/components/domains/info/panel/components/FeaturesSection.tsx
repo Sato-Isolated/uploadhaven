@@ -10,8 +10,11 @@ import {
 } from '@/components/ui/card';
 import { ZapIcon } from 'lucide-react';
 import { FeaturesProps } from '../types';
+import { useTranslations } from 'next-intl';
 
 export default function FeaturesSection({ features }: FeaturesProps) {
+  const t = useTranslations('InfoPanel');
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -23,15 +26,14 @@ export default function FeaturesSection({ features }: FeaturesProps) {
           <CardTitle className="flex items-center gap-2">
             <ZapIcon className="h-6 w-6 text-blue-600 dark:text-blue-400" />
             <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent dark:from-blue-400 dark:to-indigo-400">
-              Features
+              {t('features')}
             </span>
           </CardTitle>
           <CardDescription className="text-blue-600 dark:text-blue-400">
-            What makes UploadHaven special
+            {t('whatMakesUploadHavenSpecial')}
           </CardDescription>
-        </CardHeader>{' '}
+        </CardHeader>
         <CardContent>
-          {' '}
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             {features.map((feature, index) => (
               <motion.div

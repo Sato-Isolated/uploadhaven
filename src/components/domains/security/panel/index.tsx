@@ -9,8 +9,10 @@ import {
   useExportSecurityLogs,
   useClearSecurityLogs,
 } from '@/hooks';
+import { useTranslations } from 'next-intl';
 
 export default function SecurityPanel() {
+  const t = useTranslations('Security');
   const [dismissedAlerts, setDismissedAlerts] = useState<Set<string>>(
     new Set()
   );
@@ -49,7 +51,7 @@ export default function SecurityPanel() {
   const clearSecurityLogs = () => {
     if (
       !confirm(
-        'Are you sure you want to clear all security logs? This action cannot be undone.'
+        t('clearLogsConfirmation')
       )
     ) {
       return;
@@ -65,8 +67,8 @@ export default function SecurityPanel() {
   return (
     <div className="space-y-6">
       <SecurityHeader
-        title="Security Dashboard"
-        description="Monitor security events, rate limits, and potential threats to your file upload service."
+        title={t('securityDashboard')}
+        description={t('securityDashboardDescription')}
       />
 
       {/* Security Alerts for Critical/High Events */}

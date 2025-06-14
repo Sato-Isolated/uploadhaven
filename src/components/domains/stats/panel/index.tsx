@@ -6,6 +6,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { toast } from 'sonner';
 import { useStatsQuery } from '@/hooks';
+import { useTranslations } from 'next-intl';
 
 // Component imports
 import StatsHeader from './components/StatsHeader';
@@ -18,6 +19,8 @@ import SystemInformation from './components/SystemInformation';
 
 export default function StatsPanel() {
   const [bulkDeleting, setBulkDeleting] = useState(false);
+  const t = useTranslations('Stats');
+  const tCommon = useTranslations('Common');
 
   // Use TanStack Query for better performance and caching
   const {
@@ -32,20 +35,20 @@ export default function StatsPanel() {
       const data = await response.json();
 
       if (data.success) {
-        toast.success(`Cleanup completed: ${data.deletedCount} files removed`);
+        toast.success(t('cleanupCompleted', { deletedCount: data.deletedCount }));
         await fetchStats(); // Refresh stats
       } else {
-        toast.error('Cleanup failed');
+        toast.error(t('cleanupFailed'));
       }
     } catch {
-      toast.error('Error running cleanup');
+      toast.error(t('errorRunningCleanup'));
     }
   };
 
   const bulkDeleteAll = async () => {
     if (
       !confirm(
-        'Are you sure you want to delete ALL uploaded files? This action cannot be undone.'
+        t('bulkDeleteConfirmation')
       )
     ) {
       return;
@@ -58,15 +61,15 @@ export default function StatsPanel() {
 
       if (data.success) {
         toast.success(
-          `Bulk delete completed: ${data.deletedCount}/${data.totalFiles} files removed`
+          t('bulkDeleteCompleted', { deletedCount: data.deletedCount, totalFiles: data.totalFiles })
         );
         localStorage.removeItem('uploadedFiles');
         await fetchStats(); // Refresh stats
       } else {
-        toast.error('Bulk delete failed');
+        toast.error(t('bulkDeleteFailed'));
       }
     } catch {
-      toast.error('Error performing bulk delete');
+      toast.error(t('errorPerformingBulkDelete'));
     } finally {
       setBulkDeleting(false);
     }

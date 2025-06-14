@@ -3,12 +3,15 @@
 import { motion } from 'motion/react';
 import { useTextPreview } from '@/hooks/useFilePreview';
 import type { FilePreviewData, BaseComponentProps } from '@/types';
+import { useTranslations } from 'next-intl';
 
 interface TextPreviewProps extends BaseComponentProps {
   file: FilePreviewData;
 }
 
 export default function TextPreview({ file }: TextPreviewProps) {
+  const t = useTranslations('FilePreview');
+  
   // Use TanStack Query for better caching and error handling
   const {
     data: textContent,
@@ -36,7 +39,7 @@ export default function TextPreview({ file }: TextPreviewProps) {
             animate={{ opacity: [0.5, 1, 0.5] }}
             transition={{ duration: 1.5, repeat: Infinity }}
           >
-            Loading content...
+            {t('loadingContent')}
           </motion.div>
         </motion.div>
       ) : error ? (
@@ -46,7 +49,7 @@ export default function TextPreview({ file }: TextPreviewProps) {
           animate={{ opacity: 1 }}
           transition={{ duration: 0.3 }}
         >
-          Error loading content: {error.message}
+          {t('errorLoadingContent')}: {error.message}
         </motion.div>
       ) : (
         <motion.pre
@@ -55,7 +58,7 @@ export default function TextPreview({ file }: TextPreviewProps) {
           animate={{ opacity: 1 }}
           transition={{ delay: 0.2, duration: 0.3 }}
         >
-          {textContent || 'No content available'}
+          {textContent || t('noContentAvailable')}
         </motion.pre>
       )}
     </motion.div>

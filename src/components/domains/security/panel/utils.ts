@@ -68,7 +68,10 @@ export const getEventIcon = (type: SecurityEventType): React.ReactNode => {
   }
 };
 
-export const formatTimestamp = (timestamp: Date | string): string => {
+export const formatTimestamp = (
+  timestamp: Date | string,
+  t?: (key: string, values?: Record<string, string | number | Date>) => string
+): string => {
   const now = new Date();
   const date = timestamp instanceof Date ? timestamp : new Date(timestamp);
   const diff = now.getTime() - date.getTime();
@@ -77,13 +80,26 @@ export const formatTimestamp = (timestamp: Date | string): string => {
   const hours = Math.floor(minutes / 60);
   const days = Math.floor(hours / 24);
 
+  if (!t) {
+    // Fallback to English if no translation function is provided
+    if (days > 0) {
+      return `${days} day${days > 1 ? 's' : ''} ago`;
+    } else if (hours > 0) {
+      return `${hours} hour${hours > 1 ? 's' : ''} ago`;
+    } else if (minutes > 0) {
+      return `${minutes} minute${minutes > 1 ? 's' : ''} ago`;
+    } else {
+      return 'Just now';
+    }
+  }
+
   if (days > 0) {
-    return `${days} day${days > 1 ? 's' : ''} ago`;
+    return t(days > 1 ? 'daysAgo' : 'dayAgo', { value: days });
   } else if (hours > 0) {
-    return `${hours} hour${hours > 1 ? 's' : ''} ago`;
+    return t(hours > 1 ? 'hoursAgo' : 'hourAgo', { value: hours });
   } else if (minutes > 0) {
-    return `${minutes} minute${minutes > 1 ? 's' : ''} ago`;
+    return t(minutes > 1 ? 'minutesAgo' : 'minuteAgo', { value: minutes });
   } else {
-    return 'Just now';
+    return t('justNow');
   }
 };

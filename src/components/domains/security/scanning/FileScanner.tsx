@@ -10,6 +10,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { FileText, AlertTriangle, CheckCircle } from 'lucide-react';
 import { MalwareScanResult } from '@/types/security';
+import { useTranslations } from 'next-intl';
 
 interface FileScanResult {
   fileName: string;
@@ -29,15 +30,17 @@ export function FileScanner({
   fileScanResults,
   onFileScan,
 }: FileScannerProps) {
+  const t = useTranslations('Security');
+
   return (
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-lg">
           <FileText className="h-5 w-5" />
-          File Scanner
+          {t('fileScanner')}
         </CardTitle>
         <CardDescription>
-          Upload and scan files for malware and threats
+          {t('uploadAndScanFiles')}
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -65,11 +68,11 @@ export function FileScanner({
                 <FileText className="mx-auto h-8 w-8 text-gray-400" />
                 <p className="text-sm text-gray-600 dark:text-gray-400">
                   {isFileScanning
-                    ? 'Scanning file...'
-                    : 'Click to select a file to scan'}
+                    ? t('scanningFile')
+                    : t('clickToSelectFile')}
                 </p>
                 <p className="text-xs text-gray-500">
-                  Supports all file types • Max 10MB
+                  {t('fileConstraints')}
                 </p>
               </div>
             </label>
@@ -77,7 +80,7 @@ export function FileScanner({
 
           {fileScanResults.length > 0 && (
             <div className="space-y-3">
-              <h4 className="text-sm font-medium">Recent File Scans</h4>
+              <h4 className="text-sm font-medium">{t('recentFileScans')}</h4>
               <div className="max-h-48 space-y-2 overflow-y-auto">
                 {fileScanResults.map((result, index) => (
                   <div
@@ -95,7 +98,7 @@ export function FileScanner({
                       <div>
                         <p className="text-sm font-medium">{result.fileName}</p>
                         <p className="text-xs text-gray-500">
-                          {(result.fileSize / 1024).toFixed(1)} KB •{' '}
+                          {(result.fileSize / 1024).toFixed(1)} {t('fileSizeKb')} •
                           {result.scanResult.source}
                         </p>
                       </div>
@@ -110,10 +113,10 @@ export function FileScanner({
                       }
                     >
                       {result.scanResult.isMalicious
-                        ? 'Threat'
+                        ? t('threat')
                         : result.scanResult.isSuspicious
-                          ? 'Suspicious'
-                          : 'Clean'}
+                          ? t('suspicious')
+                          : t('clean')}
                     </Badge>
                   </div>
                 ))}

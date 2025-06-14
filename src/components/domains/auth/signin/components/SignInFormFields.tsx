@@ -1,5 +1,6 @@
 import { motion } from 'motion/react';
 import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 interface SignInFormFieldsProps {
   email: string;
@@ -22,6 +23,8 @@ export function SignInFormFields({
   setPassword,
   togglePasswordVisibility,
 }: SignInFormFieldsProps) {
+  const t = useTranslations('Auth');
+
   return (
     <div className="space-y-5">
       {/* Error Message */}
@@ -49,7 +52,7 @@ export function SignInFormFields({
           className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300"
         >
           <Mail className="h-4 w-4 text-blue-500" />
-          Email Address
+          {t('emailAddress')}
         </label>
         <div className="relative">
           <input
@@ -58,7 +61,7 @@ export function SignInFormFields({
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             className="w-full rounded-xl border border-gray-200 px-4 py-3 pl-11 backdrop-blur-sm transition-all duration-300 hover:border-gray-300 focus:border-transparent focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-gray-700 dark:bg-gray-800/50 dark:text-white dark:hover:border-gray-600"
-            placeholder="Enter your email address"
+            placeholder={t('enterYourEmailAddress')}
             required
             disabled={isLoading}
           />
@@ -78,7 +81,7 @@ export function SignInFormFields({
           className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300"
         >
           <Lock className="h-4 w-4 text-blue-500" />
-          Password
+          {t('password')}
         </label>
         <div className="relative">
           <input
@@ -87,7 +90,7 @@ export function SignInFormFields({
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             className="w-full rounded-xl border border-gray-200 px-4 py-3 pr-11 pl-11 backdrop-blur-sm transition-all duration-300 hover:border-gray-300 focus:border-transparent focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-gray-700 dark:bg-gray-800/50 dark:text-white dark:hover:border-gray-600"
-            placeholder="Enter your password"
+            placeholder={t('enterYourPassword')}
             required
             disabled={isLoading}
           />

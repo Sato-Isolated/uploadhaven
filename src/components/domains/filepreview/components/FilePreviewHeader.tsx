@@ -3,6 +3,7 @@ import { Badge } from '@/components/ui/badge';
 import { AlertCircle } from 'lucide-react';
 import { getFileIcon, getFileTypeLabel } from '../utils/fileUtils';
 import type { ClientFileData } from '@/types';
+import { useTranslations } from 'next-intl';
 
 interface FilePreviewHeaderProps {
   fileInfo: ClientFileData;
@@ -14,6 +15,7 @@ export function FilePreviewHeader({
   isExpired,
 }: FilePreviewHeaderProps) {
   const IconComponent = getFileIcon(fileInfo.mimeType);
+  const t = useTranslations('Files');
 
   return (
     <CardHeader>
@@ -24,7 +26,7 @@ export function FilePreviewHeader({
         <div className="min-w-0 flex-1">
           <CardTitle className="truncate text-xl font-semibold">
             {fileInfo.originalName}
-          </CardTitle>{' '}
+          </CardTitle>
           <CardDescription className="mt-2 flex items-center space-x-2">
             <Badge variant="secondary">
               {getFileTypeLabel(fileInfo.mimeType)}
@@ -32,7 +34,7 @@ export function FilePreviewHeader({
             {isExpired && (
               <Badge variant="destructive">
                 <AlertCircle className="mr-1 h-3 w-3" />
-                Expired
+                {t('expired')}
               </Badge>
             )}
           </CardDescription>

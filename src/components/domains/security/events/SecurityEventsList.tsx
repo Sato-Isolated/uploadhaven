@@ -34,7 +34,6 @@ export default function SecurityEventsList({
 
   return (
     <Card>
-      {' '}
       <SecurityEventsHeader
         eventCount={filteredEvents.length}
         onToggleFilters={() => setShowFilters(!showFilters)}

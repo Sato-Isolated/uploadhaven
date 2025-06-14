@@ -9,6 +9,7 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 import type { UserStats } from '@/types';
+import { useTranslations } from 'next-intl';
 
 interface StatCard {
   title: string;
@@ -24,16 +25,18 @@ interface UserStatsCardsProps {
 }
 
 export function UserStatsCards({ stats }: UserStatsCardsProps) {
+  const t = useTranslations('Stats');
+
   const statCards: StatCard[] = [
     {
-      title: 'Total Files',
+      title: t('totalFiles'),
       value: stats.totalFiles.toLocaleString(),
       icon: Database,
       gradient: 'from-blue-500 to-cyan-500',
       bgGradient: 'from-blue-50 to-cyan-50 dark:from-blue-950 dark:to-cyan-950',
     },
     {
-      title: 'Total Size',
+      title: t('totalSize'),
       value: formatFileSize(stats.totalSize),
       icon: HardDrive,
       gradient: 'from-purple-500 to-indigo-500',
@@ -41,18 +44,18 @@ export function UserStatsCards({ stats }: UserStatsCardsProps) {
         'from-purple-50 to-indigo-50 dark:from-purple-950 dark:to-indigo-950',
     },
     {
-      title: 'Recent Uploads',
+      title: t('recentUploads'),
       value: stats.recentUploads,
-      subtitle: 'Last 7 days',
+      subtitle: t('last7Days'),
       icon: Upload,
       gradient: 'from-green-500 to-emerald-500',
       bgGradient:
         'from-green-50 to-emerald-50 dark:from-green-950 dark:to-emerald-950',
     },
     {
-      title: 'Expiring Soon',
+      title: t('expiringSoon'),
       value: stats.expiringSoon,
-      subtitle: 'Next 24 hours',
+      subtitle: t('next24Hours'),
       icon: Clock,
       gradient: 'from-orange-500 to-red-500',
       bgGradient:

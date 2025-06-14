@@ -5,6 +5,7 @@ import {
   getEventIcon,
   formatTimestamp,
 } from '@/components/domains/security/panel/utils';
+import { useTranslations } from 'next-intl';
 
 interface SecurityEventsListContentProps {
   events: SecurityEvent[];
@@ -15,12 +16,15 @@ export function SecurityEventsListContent({
   events,
   filteredEvents,
 }: SecurityEventsListContentProps) {
+  const t = useTranslations('Security');
+  const tCommon = useTranslations('Common');
+
   if (filteredEvents.length === 0) {
     return (
       <div className="py-8 text-center text-gray-500 dark:text-gray-400">
         {events.length === 0
-          ? 'No security events recorded'
-          : 'No events match the current filters'}
+          ? t('noSecurityEventsRecorded')
+          : t('noEventsMatchFilters')}
       </div>
     );
   }
@@ -38,7 +42,7 @@ export function SecurityEventsListContent({
               <p className="truncate text-sm font-medium text-gray-900 dark:text-white">
                 {typeof event.details === 'string'
                   ? event.details
-                  : `${event.type.replace(/_/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase())} Event`}
+                  : `${event.type.replace(/_/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase())} ${t('event')}`}
               </p>
               <Badge
                 variant="outline"
@@ -48,28 +52,28 @@ export function SecurityEventsListContent({
               </Badge>
             </div>
             <p className="text-xs text-gray-500 dark:text-gray-400">
-              {formatTimestamp(event.timestamp)}
+              {formatTimestamp(event.timestamp, t)}
             </p>
             {event.details &&
               typeof event.details === 'object' &&
               event.details.ip && (
                 <p className="text-xs text-gray-500 dark:text-gray-400">
-                  IP: {event.details.ip}
+                  {t('ip')}: {event.details.ip}
                 </p>
               )}
             {event.details &&
               typeof event.details === 'object' &&
               event.details.filename && (
                 <p className="text-xs text-gray-500 dark:text-gray-400">
-                  File: {event.details.filename}
+                  {t('file')}: {event.details.filename}
                 </p>
               )}
             {event.details &&
               typeof event.details === 'object' &&
               event.details.fileSize && (
                 <p className="text-xs text-gray-500 dark:text-gray-400">
-                  Size: {(event.details.fileSize / 1024 / 1024).toFixed(2)}
-                  MB
+                  {t('sizeLabel')}: {(event.details.fileSize / 1024 / 1024).toFixed(2)}
+                  {tCommon('mb')}
                 </p>
               )}
           </div>

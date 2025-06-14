@@ -2,12 +2,15 @@
 
 import { motion } from 'motion/react';
 import type { FilePreviewData, BaseComponentProps } from '@/types';
+import { useTranslations } from 'next-intl';
 
 interface VideoPreviewProps extends BaseComponentProps {
   file: FilePreviewData;
 }
 
 export default function VideoPreview({ file }: VideoPreviewProps) {
+  const t = useTranslations('FilePreview');
+
   return (
     <motion.video
       src={file.url}
@@ -19,7 +22,7 @@ export default function VideoPreview({ file }: VideoPreviewProps) {
       exit={{ opacity: 0, scale: 0.9 }}
       transition={{ duration: 0.3 }}
     >
-      Your browser does not support video playback.
+      {t('videoNotSupported')}
     </motion.video>
   );
 }

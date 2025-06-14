@@ -4,6 +4,7 @@ import { useCallback, useState } from 'react';
 import { useSession } from '@/lib/auth-client';
 import { toast } from 'sonner';
 import { nanoid } from 'nanoid';
+import { useTranslations } from 'next-intl';
 
 // Import types and utilities
 import type { UploadedFile } from '@/components/domains/upload/fileuploader/types';
@@ -19,6 +20,7 @@ import { scanFile, logSecurityEvent } from '@/lib/security';
 import { validateFileAdvanced } from '@/lib/utils';
 
 export function useDashboardUpload() {
+  const t = useTranslations('Upload');
   const [files, setFiles] = useState<UploadedFile[]>([]);
   const [expiration, setExpiration] = useState('24h');
   const [isPasswordProtected, setIsPasswordProtected] = useState(false);
@@ -67,7 +69,7 @@ export function useDashboardUpload() {
                   : f
               )
             );
-            toast.success('File uploaded successfully!');
+            toast.success(t('fileUploadedSuccessfully'));
 
             if (session?.user?.id) {
               const fileInfo = {
@@ -87,13 +89,13 @@ export function useDashboardUpload() {
                   ? {
                       ...f,
                       status: 'error',
-                      error: errorResponse.error || 'Upload failed',
+                      error: errorResponse.error || t('uploadFailed'),
                     }
                   : f
               )
             );
             toast.error(
-              `Upload failed: ${errorResponse.error || 'Unknown error'}`
+              `${t('uploadFailed')}: ${errorResponse.error || t('unknownError')}`
             );
           }
         };
@@ -102,11 +104,11 @@ export function useDashboardUpload() {
           setFiles((prev) =>
             prev.map((f) =>
               f.id === uploadedFile.id
-                ? { ...f, status: 'error', error: 'Network error' }
+                ? { ...f, status: 'error', error: t('networkError') }
                 : f
             )
           );
-          toast.error('Network error during upload');
+          toast.error(t('networkErrorDuringUpload'));
         };
 
         xhr.open('POST', '/api/upload');
@@ -115,11 +117,11 @@ export function useDashboardUpload() {
         setFiles((prev) =>
           prev.map((f) =>
             f.id === uploadedFile.id
-              ? { ...f, status: 'error', error: 'Upload failed' }
+              ? { ...f, status: 'error', error: t('uploadFailed') }
               : f
           )
         );
-        toast.error('Failed to upload file');
+        toast.error(t('failedToUploadFile'));
       }
     },
     [expiration, isPasswordProtected, session]
@@ -132,21 +134,22 @@ export function useDashboardUpload() {
       for (const file of acceptedFiles) {
         // Validate file
         if (file.size > MAX_FILE_SIZE) {
-          toast.error(
-            `File "${file.name}" is too large. Maximum size is 100MB.`
-          );
+          toast.error(t('fileTooLarge', { filename: file.name }));
           continue;
         }
 
         if (!ALLOWED_TYPES.includes(file.type)) {
-          toast.error(`File type "${file.type}" is not allowed.`);
+          toast.error(t('fileTypeNotAllowed', { fileType: file.type }));
           continue;
         }
 
         const advancedValidation = await validateFileAdvanced(file);
         if (!advancedValidation.isValid) {
           toast.error(
-            `File "${file.name}" failed validation: ${advancedValidation.errors[0]}`
+            t('fileFailedValidation', {
+              filename: file.name,
+              error: advancedValidation.errors[0],
+            })
           );
           continue;
         }
@@ -176,7 +179,9 @@ export function useDashboardUpload() {
                       ...f,
                       status: 'threat_detected',
                       scanResult,
-                      error: `Security threat detected: ${scanResult.threat}`,
+                      error: t('securityThreatDetected', {
+                        threat: scanResult.threat || t('unknownError'),
+                      }),
                     }
                   : f
               )
@@ -194,7 +199,7 @@ export function useDashboardUpload() {
             );
 
             toast.error(
-              `Security threat detected in "${uploadedFile.file.name}"`
+              t('securityThreatInFile', { filename: uploadedFile.file.name })
             );
             continue;
           }
@@ -212,11 +217,13 @@ export function useDashboardUpload() {
           setFiles((prev) =>
             prev.map((f) =>
               f.id === uploadedFile.id
-                ? { ...f, status: 'error', error: 'Security scan failed' }
+                ? { ...f, status: 'error', error: t('securityScanFailed') }
                 : f
             )
           );
-          toast.error(`Failed to scan file "${uploadedFile.file.name}"`);
+          toast.error(
+            t('failedToScanFile', { filename: uploadedFile.file.name })
+          );
         }
       }
     },

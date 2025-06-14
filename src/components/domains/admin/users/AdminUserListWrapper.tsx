@@ -4,6 +4,7 @@ import { useState } from 'react';
 import AdminUserList from './index';
 import type { User } from './types';
 import { toast } from 'sonner';
+import { useTranslations } from 'next-intl';
 
 interface LocalUser extends User {
   deleted?: boolean;
@@ -16,6 +17,7 @@ interface AdminUserListWrapperProps {
 export default function AdminUserListWrapper({
   users,
 }: AdminUserListWrapperProps) {
+  const t = useTranslations('Admin');
   // Use derived state instead of syncing with useEffect
   const [localUsers, setLocalUsers] = useState<LocalUser[]>([]);
 
@@ -97,11 +99,11 @@ export default function AdminUserListWrapper({
         }
         // For resendVerification, no local state update needed
       } else {
-        toast.error(result.error || 'Action failed');
+        toast.error(result.error || t('actionFailed'));
       }
     } catch {
       // User action error
-      toast.error('An error occurred while performing the action');
+      toast.error(t('errorPerformingAction'));
     }
   };
   const handleBulkAction = async (
@@ -114,14 +116,12 @@ export default function AdminUserListWrapper({
       );
       await Promise.all(promises);
       toast.success(
-        `Successfully performed ${action} on ${userIds.length} user${
-          userIds.length > 1 ? 's' : ''
-        }`
+        t('bulkActionSuccess', { action, count: userIds.length })
       );
     } catch {
       // Bulk action error
       toast.error(
-        'Some actions may have failed. Please check individual results.'
+        t('bulkActionPartialFailure')
       );
     }
   };

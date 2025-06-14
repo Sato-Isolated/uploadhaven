@@ -4,6 +4,7 @@ import { motion } from 'motion/react';
 import { Button } from '@/components/ui/button';
 import { Clock, Trash2 } from 'lucide-react';
 import { ManagementActionsProps } from '../types';
+import { useTranslations } from 'next-intl';
 
 export default function ManagementActions({
   stats,
@@ -11,6 +12,7 @@ export default function ManagementActions({
   onRunCleanup,
   onBulkDeleteAll,
 }: ManagementActionsProps) {
+  const t = useTranslations('Stats');
   return (
     <motion.div
       className="space-y-3"
@@ -18,12 +20,12 @@ export default function ManagementActions({
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 2, duration: 0.5 }}
     >
-      <h3 className="text-lg font-medium">File Management</h3>
+      <h3 className="text-lg font-medium">{t('fileManagement')}</h3>
       <div className="flex flex-wrap gap-2">
         <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
           <Button variant="outline" onClick={onRunCleanup}>
             <Clock className="mr-2 h-4 w-4" />
-            Clean Expired Files
+            {t('cleanExpiredFiles')}
           </Button>
         </motion.div>
         <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
@@ -33,7 +35,9 @@ export default function ManagementActions({
             disabled={stats.totalFiles === 0 || bulkDeleting}
           >
             <Trash2 className="mr-2 h-4 w-4" />
-            {bulkDeleting ? 'Deleting...' : `Delete All (${stats.totalFiles})`}
+            {bulkDeleting
+              ? t('deleting')
+              : `${t('deleteAll')} (${stats.totalFiles})`}
           </Button>
         </motion.div>
       </div>
@@ -43,8 +47,7 @@ export default function ManagementActions({
         animate={{ opacity: 1 }}
         transition={{ delay: 2.2, duration: 0.5 }}
       >
-        Use cleanup to remove expired files, or bulk delete to clear all
-        uploaded files.
+        {t('cleanupDescription')}
       </motion.p>
     </motion.div>
   );

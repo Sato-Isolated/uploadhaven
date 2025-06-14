@@ -2,6 +2,7 @@
 
 import { motion } from 'motion/react';
 import { Card, CardContent } from '@/components/ui/card';
+import { useTranslations } from 'next-intl';
 
 interface SystemOverviewData {
   totalFiles: number;
@@ -19,32 +20,34 @@ interface SystemOverviewCardsProps {
 export function SystemOverviewCards({
   systemOverview,
 }: SystemOverviewCardsProps) {
+  const t = useTranslations('Analytics');
+
   const cards = [
     {
-      title: 'Total Files',
+      title: t('totalFiles'),
       value: systemOverview.totalFiles.toLocaleString(),
-      subtitle: `+${systemOverview.filesLast24h} today`,
+      subtitle: t('filesAddedToday', { count: systemOverview.filesLast24h }),
       icon: '📁',
       delay: 0.1,
     },
     {
-      title: 'Total Users',
+      title: t('totalUsers'),
       value: systemOverview.totalUsers.toLocaleString(),
-      subtitle: `${systemOverview.activeUsers} active this week`,
+      subtitle: t('activeUsersThisWeek', { count: systemOverview.activeUsers }),
       icon: '👥',
       delay: 0.2,
     },
     {
-      title: 'Storage Used',
+      title: t('storageUsed'),
       value: systemOverview.totalStorage,
-      subtitle: 'Across all files',
+      subtitle: t('acrossAllFiles'),
       icon: '💾',
       delay: 0.3,
     },
     {
-      title: 'Total Downloads',
+      title: t('totalDownloads'),
       value: systemOverview.totalDownloads.toLocaleString(),
-      subtitle: 'All time downloads',
+      subtitle: t('allTimeDownloads'),
       icon: '⬇️',
       delay: 0.4,
     },

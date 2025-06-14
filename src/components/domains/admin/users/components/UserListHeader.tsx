@@ -12,6 +12,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Search, Filter, UserPlus } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import type { User } from '../types';
 
 interface UserListHeaderProps {
@@ -39,6 +40,8 @@ export default function UserListHeader({
   allSelected = false,
   onSelectAll,
 }: UserListHeaderProps) {
+  const t = useTranslations('Search');
+
   return (
     <motion.div
       className="mb-6 space-y-4"
@@ -79,7 +82,7 @@ export default function UserListHeader({
         <div className="relative flex-1">
           <Search className="absolute top-3 left-3 h-4 w-4 text-gray-400" />
           <Input
-            placeholder="Search users by name or email..."
+            placeholder={t('searchUsersByNameOrEmail')}
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
             className="pl-10"
@@ -90,24 +93,24 @@ export default function UserListHeader({
           <Select value={roleFilter} onValueChange={onRoleFilterChange}>
             <SelectTrigger className="w-32">
               <Filter className="mr-2 h-4 w-4" />
-              <SelectValue placeholder="Role" />
+              <SelectValue placeholder={t('role')} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All Roles</SelectItem>
-              <SelectItem value="admin">Admin</SelectItem>
-              <SelectItem value="user">User</SelectItem>
+              <SelectItem value="all">{t('allRoles')}</SelectItem>
+              <SelectItem value="admin">{t('admin')}</SelectItem>
+              <SelectItem value="user">{t('user')}</SelectItem>
             </SelectContent>
           </Select>
 
           <Select value={statusFilter} onValueChange={onStatusFilterChange}>
             <SelectTrigger className="w-32">
-              <SelectValue placeholder="Status" />
+              <SelectValue placeholder={t('status')} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All Status</SelectItem>
-              <SelectItem value="verified">Verified</SelectItem>
-              <SelectItem value="unverified">Unverified</SelectItem>
-              <SelectItem value="active">Active</SelectItem>
+              <SelectItem value="all">{t('allStatus')}</SelectItem>
+              <SelectItem value="verified">{t('verified')}</SelectItem>
+              <SelectItem value="unverified">{t('unverified')}</SelectItem>
+              <SelectItem value="active">{t('active')}</SelectItem>
               <SelectItem value="inactive">Inactive</SelectItem>
             </SelectContent>
           </Select>

@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
 import { useFileOperations } from '@/hooks';
+import { useTranslations } from 'next-intl';
 
 interface DeleteFileButtonProps {
   filename: string;
@@ -16,11 +17,12 @@ export default function DeleteFileButton({
 }: DeleteFileButtonProps) {
   const router = useRouter();
   const { deleteFile, deleting: isDeleting } = useFileOperations();
+  const t = useTranslations('Common');
 
   const handleDelete = async () => {
     if (
       !confirm(
-        `Are you sure you want to delete "${fileName}"? This action cannot be undone.`
+        t('deleteFileConfirmation', { fileName })
       )
     ) {
       return;
@@ -28,11 +30,11 @@ export default function DeleteFileButton({
 
     await deleteFile(filename, {
       onSuccess: () => {
-        toast.success('File deleted successfully');
+        toast.success(t('fileDeletedSuccessfully'));
         router.refresh();
       },
       onError: (error) => {
-        toast.error(error || 'Failed to delete file');
+        toast.error(error || t('failedToDeleteFile'));
       },
     });
   };
@@ -45,7 +47,7 @@ export default function DeleteFileButton({
       onClick={handleDelete}
       disabled={isDeleting}
     >
-      {isDeleting ? 'Deleting...' : 'Delete'}
+      {isDeleting ? t('deleting') : t('delete')}
     </Button>
   );
 }

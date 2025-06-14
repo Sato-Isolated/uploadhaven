@@ -3,12 +3,14 @@
 'use client';
 
 import { motion } from 'motion/react';
+import { useTranslations } from 'next-intl';
 import { formatFileSize } from '@/lib/utils';
 import type { FileHandlerProps } from '@/types';
 
 type FileDetailsProps = Pick<FileHandlerProps, 'file'>;
 
 export default function FileDetails({ file }: FileDetailsProps) {
+  const t = useTranslations('FileUploader');
   return (
     <div className="text-muted-foreground mb-2 flex items-center space-x-2 text-xs">
       <span className="font-medium">{formatFileSize(file.file.size)}</span>
@@ -21,7 +23,7 @@ export default function FileDetails({ file }: FileDetailsProps) {
             animate={{ opacity: [0.5, 1, 0.5] }}
             transition={{ duration: 1.5, repeat: Infinity }}
           >
-            🔍 Security scan in progress...
+            {t('securityScanInProgress')}
           </motion.span>
         </>
       )}
@@ -69,7 +71,7 @@ export default function FileDetails({ file }: FileDetailsProps) {
             animate={{ opacity: 1 }}
             transition={{ delay: 0.5 }}
           >
-            ✅ Secure
+            {t('secure')}
           </motion.span>
         </>
       )}

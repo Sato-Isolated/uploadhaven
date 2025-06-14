@@ -11,6 +11,7 @@ import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Globe, AlertTriangle } from 'lucide-react';
 import { QuotaStatus } from '@/types/security';
+import { useTranslations } from 'next-intl';
 
 interface QuotaStatusDisplayProps {
   quotaStatus: QuotaStatus | null;
@@ -21,6 +22,8 @@ export function QuotaStatusDisplay({
   quotaStatus,
   virusTotalConfigured,
 }: QuotaStatusDisplayProps) {
+  const t = useTranslations('Security');
+
   if (!quotaStatus) return null;
 
   const usagePercentage = (quotaStatus.used / quotaStatus.total) * 100;
@@ -31,19 +34,19 @@ export function QuotaStatusDisplay({
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-lg">
           <Globe className="h-5 w-5" />
-          VirusTotal API Status
+          {t('virusTotalApiStatus')}
         </CardTitle>
         <CardDescription>
           {virusTotalConfigured
-            ? 'VirusTotal integration is active'
-            : 'VirusTotal API not configured'}
+            ? t('virusTotalIntegrationActive')
+            : t('virusTotalApiNotConfigured')}
         </CardDescription>
       </CardHeader>
       <CardContent>
         {virusTotalConfigured ? (
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <span className="text-sm font-medium">API Quota Usage</span>
+              <span className="text-sm font-medium">{t('apiQuotaUsage')}</span>
               <Badge variant={isLowQuota ? 'destructive' : 'default'}>
                 {quotaStatus.used}/{quotaStatus.total}
               </Badge>
@@ -56,10 +59,10 @@ export function QuotaStatusDisplay({
 
             <div className="flex items-center justify-between text-sm">
               <span className="text-gray-600 dark:text-gray-400">
-                {quotaStatus.remaining} requests remaining
+                {t('requestsRemaining', { count: quotaStatus.remaining })}
               </span>
               <span className="text-xs text-gray-500">
-                Resets at {new Date(quotaStatus.resetsAt).toLocaleTimeString()}
+                {t('resetsAt', { time: new Date(quotaStatus.resetsAt).toLocaleTimeString() })}
               </span>
             </div>
 
@@ -67,15 +70,14 @@ export function QuotaStatusDisplay({
               <div className="flex items-center gap-2 rounded-md border border-yellow-200 bg-yellow-50 p-3 dark:border-yellow-800 dark:bg-yellow-900/20">
                 <AlertTriangle className="h-4 w-4 text-yellow-600" />
                 <span className="text-sm text-yellow-700 dark:text-yellow-400">
-                  Quota usage is high. Consider upgrading your VirusTotal plan.
+                  {t('quotaUsageHighWarning')}
                 </span>
               </div>
             )}
 
             <div className="text-xs text-gray-500">
               <p>
-                Enhanced malware detection with {quotaStatus?.remaining || 500}{' '}
-                requests remaining today
+                {t('enhancedMalwareDetection', { count: quotaStatus?.remaining || 500 })}
               </p>
             </div>
           </div>
@@ -83,10 +85,10 @@ export function QuotaStatusDisplay({
           <div className="py-4 text-center">
             <AlertTriangle className="mx-auto mb-2 h-8 w-8 text-gray-400" />
             <p className="text-sm text-gray-600 dark:text-gray-400">
-              VirusTotal API not configured
+              {t('virusTotalApiNotConfiguredMessage')}
             </p>
             <p className="mt-1 text-xs text-gray-500">
-              Configure VirusTotal API for enhanced malware detection
+              {t('configureVirusTotalForEnhancedDetection')}
             </p>
           </div>
         )}

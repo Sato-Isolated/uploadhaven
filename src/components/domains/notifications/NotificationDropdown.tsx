@@ -1,6 +1,8 @@
 'use client';
 
+import React from 'react';
 import { motion, AnimatePresence } from 'motion/react';
+import { useTranslations } from 'next-intl';
 import {
   Bell,
   BellRing,
@@ -29,6 +31,8 @@ interface NotificationDropdownProps {
 }
 
 export function NotificationDropdown({ className }: NotificationDropdownProps) {
+  const t = useTranslations('Notifications');
+
   const {
     notifications,
     stats,
@@ -144,7 +148,7 @@ export function NotificationDropdown({ className }: NotificationDropdownProps) {
         sideOffset={8}
       >
         <div className="flex items-center justify-between border-b p-3">
-          <h3 className="text-sm font-semibold">Notifications</h3>
+          <h3 className="text-sm font-semibold">{t('notifications')}</h3>
           <div className="flex items-center gap-2">
             {unreadCount > 0 && (
               <Button
@@ -155,7 +159,7 @@ export function NotificationDropdown({ className }: NotificationDropdownProps) {
                 className="h-7 px-2 text-xs"
               >
                 <Check className="mr-1 h-3 w-3" />
-                Mark all read
+                {t('markAllRead')}
               </Button>
             )}
           </div>
@@ -164,19 +168,18 @@ export function NotificationDropdown({ className }: NotificationDropdownProps) {
         <div className="max-h-80 overflow-y-auto">
           {isLoading ? (
             <div className="p-4 text-center text-sm text-gray-500">
-              Loading notifications...
+              {t('loadingNotifications')}
             </div>
           ) : notifications.length === 0 ? (
             <div className="p-4 text-center">
               <Bell className="mx-auto mb-2 h-8 w-8 text-gray-400" />
               <p className="text-sm text-gray-500 dark:text-gray-400">
-                No notifications yet
+                {t('noNotificationsYet')}
               </p>
             </div>
           ) : (
             <div className="divide-y">
               <AnimatePresence>
-                {' '}
                 {notifications.map((notification: Notification) => (
                   <NotificationItem
                     key={notification.id}
@@ -198,7 +201,7 @@ export function NotificationDropdown({ className }: NotificationDropdownProps) {
             <DropdownMenuSeparator />
             <DropdownMenuItem className="justify-center py-2">
               <Button variant="ghost" size="sm" className="w-full">
-                View All Notifications
+                {t('viewAllNotifications')}
               </Button>
             </DropdownMenuItem>
           </>
@@ -225,6 +228,8 @@ function NotificationItem({
   getPriorityColor,
   getTypeIcon,
 }: NotificationItemProps) {
+  const tCommon = useTranslations('Common');
+
   const handleAction = () => {
     if (notification.actionUrl) {
       window.location.href = notification.actionUrl;
@@ -295,7 +300,7 @@ function NotificationItem({
                   }}
                   className="h-6 px-2 text-xs text-blue-600 hover:bg-blue-100 dark:hover:bg-blue-900"
                 >
-                  {notification.actionLabel || 'View'}
+                  {notification.actionLabel || tCommon('view')}
                 </Button>
               )}
 

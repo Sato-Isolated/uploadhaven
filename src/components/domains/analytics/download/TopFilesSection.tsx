@@ -6,6 +6,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { DownloadAnalytics, getFileTypeIcon } from './utils';
+import { useTranslations } from 'next-intl';
 
 interface TopFilesSectionProps {
   analytics: DownloadAnalytics;
@@ -24,6 +25,9 @@ export function TopFilesSection({
   analytics,
   onRefresh,
 }: TopFilesSectionProps) {
+  const t = useTranslations('Analytics');
+  const tCommon = useTranslations('Common');
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -34,7 +38,7 @@ export function TopFilesSection({
         <div className="mb-6 flex items-center justify-between">
           <h3 className="flex items-center gap-2 text-xl font-semibold">
             <Eye className="h-6 w-6 text-blue-600 dark:text-blue-400" />
-            Most Downloaded Files
+            {t('mostDownloadedFiles')}
           </h3>
           <Button
             onClick={onRefresh}
@@ -43,17 +47,15 @@ export function TopFilesSection({
             className="border-blue-300 bg-blue-50 text-blue-700 hover:bg-blue-100 dark:border-blue-700 dark:bg-blue-950 dark:text-blue-300"
           >
             <RefreshCw className="mr-2 h-4 w-4" />
-            Refresh
+            {tCommon('refresh')}
           </Button>
         </div>
 
         {analytics.topFiles.length === 0 ? (
           <div className="text-muted-foreground py-12 text-center">
             <FileText className="mx-auto mb-4 h-16 w-16 opacity-30" />
-            <p className="text-lg font-medium">No download data available</p>
-            <p className="mt-1 text-sm">
-              Files will appear here once they are downloaded
-            </p>
+            <p className="text-lg font-medium">{t('noDownloadData')}</p>
+            <p className="mt-1 text-sm">{t('filesWillAppear')}</p>
           </div>
         ) : (
           <div className="space-y-4">
@@ -80,7 +82,7 @@ export function TopFilesSection({
                       </p>
                     </div>
                     <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                      {formatFileSize(file.size)} • Uploaded
+                      {formatFileSize(file.size)} • {t('uploaded')}{' '}
                       {new Date(file.uploadDate).toLocaleDateString()}
                     </p>
                   </div>
@@ -93,7 +95,7 @@ export function TopFilesSection({
                     </span>
                   </div>
                   <p className="text-xs text-gray-500 dark:text-gray-400">
-                    downloads
+                    {t('downloads')}
                   </p>
                 </div>
               </motion.div>

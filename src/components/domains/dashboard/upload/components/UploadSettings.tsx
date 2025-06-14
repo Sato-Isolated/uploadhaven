@@ -9,7 +9,8 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Clock, Shield } from 'lucide-react';
-import { EXPIRATION_OPTIONS } from '@/components/domains/upload/fileuploader/types';
+import { getExpirationOptions } from '@/components/domains/upload/fileuploader/types';
+import { useTranslations } from 'next-intl';
 
 interface UploadSettingsProps {
   showSettings: boolean;
@@ -26,6 +27,11 @@ export function UploadSettings({
   onExpirationChange,
   onPasswordProtectedChange,
 }: UploadSettingsProps) {
+  const t = useTranslations('FileUploader');
+  const tExpiration = useTranslations('Expiration');
+
+  const expirationOptions = getExpirationOptions(tExpiration);
+
   if (!showSettings) return null;
 
   return (
@@ -38,13 +44,13 @@ export function UploadSettings({
       <div className="flex items-center gap-6">
         <div className="flex items-center space-x-2">
           <Clock className="h-4 w-4 text-gray-500" />
-          <span className="text-sm font-medium">Expires in:</span>
+          <span className="text-sm font-medium">{t('expiresIn')}:</span>
           <Select value={expiration} onValueChange={onExpirationChange}>
             <SelectTrigger className="w-32">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              {EXPIRATION_OPTIONS.map((option) => (
+              {expirationOptions.map((option) => (
                 <SelectItem key={option.value} value={option.value}>
                   {option.label}
                 </SelectItem>
@@ -54,7 +60,7 @@ export function UploadSettings({
         </div>
         <div className="flex items-center space-x-2">
           <Shield className="h-4 w-4 text-gray-500" />
-          <span className="text-sm font-medium">Password protect:</span>
+          <span className="text-sm font-medium">{t('passwordProtect')}:</span>
           <input
             type="checkbox"
             id="password-protection"

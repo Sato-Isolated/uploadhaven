@@ -4,8 +4,11 @@
 
 import { motion } from 'motion/react';
 import { CloudUpload } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 export default function FileUploaderHeader() {
+  const t = useTranslations('FileUploader');
+
   return (
     <motion.div
       className="space-y-6 text-center"
@@ -47,7 +50,7 @@ export default function FileUploaderHeader() {
             animate={{ opacity: 1 }}
             transition={{ delay: 0.4, duration: 0.8 }}
           >
-            UploadHaven
+            {t('title')}
           </motion.h1>
           <motion.p
             className="mt-2 text-xl text-gray-600 dark:text-gray-400"
@@ -55,7 +58,7 @@ export default function FileUploaderHeader() {
             animate={{ opacity: 1 }}
             transition={{ delay: 0.6, duration: 0.8 }}
           >
-            Secure file sharing made simple
+            {t('subtitle')}
           </motion.p>
         </div>
       </motion.div>
@@ -68,15 +71,15 @@ export default function FileUploaderHeader() {
       >
         <div className="flex items-center space-x-2">
           <div className="h-2 w-2 animate-pulse rounded-full bg-green-500" />
-          <span>100 MiB max upload</span>
+          <span>{t('maxFileSize')}</span>
         </div>
         <div className="flex items-center space-x-2">
           <div className="h-2 w-2 animate-pulse rounded-full bg-blue-500" />
-          <span>Secure & encrypted</span>
+          <span>{t('secureAndFast')}</span>
         </div>
         <div className="flex items-center space-x-2">
           <div className="h-2 w-2 animate-pulse rounded-full bg-purple-500" />
-          <span>Auto-expiration</span>
+          <span>{t('autoDelete')}</span>
         </div>
       </motion.div>
     </motion.div>

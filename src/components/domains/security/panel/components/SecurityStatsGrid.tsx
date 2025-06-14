@@ -9,6 +9,7 @@ import {
   HardDrive,
 } from 'lucide-react';
 import { SecurityStatsGridProps, SecurityStatCardProps } from '../types';
+import { useTranslations } from 'next-intl';
 
 function SecurityStatCard({
   title,
@@ -37,6 +38,8 @@ export default function SecurityStatsGrid({
   stats,
   isLoading,
 }: SecurityStatsGridProps) {
+  const t = useTranslations('Security');
+  
   if (isLoading) {
     return (
       <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -56,43 +59,43 @@ export default function SecurityStatsGrid({
   }
   const statCards = [
     {
-      title: 'Total Events',
+      title: t('totalEvents'),
       value: stats.totalEvents || 0,
       icon: <Shield className="h-4 w-4" />,
       color: 'text-blue-600 dark:text-blue-400',
     },
     {
-      title: 'Rate Limits',
+      title: t('rateLimits'),
       value: stats.rateLimitHits || 0,
       icon: <AlertTriangle className="h-4 w-4" />,
       color: 'text-yellow-600 dark:text-yellow-400',
     },
     {
-      title: 'Invalid Files',
+      title: t('invalidFiles'),
       value: stats.invalidFiles || 0,
       icon: <FileX className="h-4 w-4" />,
       color: 'text-orange-600 dark:text-orange-400',
     },
     {
-      title: 'Blocked IPs',
+      title: t('blockedIPs'),
       value: stats.blockedIPs || 0,
       icon: <Ban className="h-4 w-4" />,
       color: 'text-red-600 dark:text-red-400',
     },
     {
-      title: 'Last 24h',
+      title: t('last24h'),
       value: stats.last24h || 0,
       icon: <Clock className="h-4 w-4" />,
       color: 'text-purple-600 dark:text-purple-400',
     },
     {
-      title: 'Malware Detected',
+      title: t('malwareDetected'),
       value: stats.malwareDetected || 0,
       icon: <Bug className="h-4 w-4" />,
       color: 'text-red-700 dark:text-red-500',
     },
     {
-      title: 'Large Files Blocked',
+      title: t('largeFilesBlocked'),
       value: stats.largeSizeBlocked || 0,
       icon: <HardDrive className="h-4 w-4" />,
       color: 'text-gray-600 dark:text-gray-400',

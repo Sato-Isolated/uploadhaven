@@ -3,30 +3,33 @@
 import { motion } from 'motion/react';
 import { Files, HardDrive, Database, Clock } from 'lucide-react';
 import { StatsGridProps } from '../types';
+import { useTranslations } from 'next-intl';
 
 export default function StatsGrid({ stats }: StatsGridProps) {
+  const t = useTranslations('Stats');
+
   const statItems = [
     {
       icon: Files,
-      label: 'Total Files',
+      label: t('totalFiles'),
       value: stats.totalFiles,
       color: 'text-blue-500',
     },
     {
       icon: HardDrive,
-      label: 'Storage Used',
+      label: t('storageUsed'),
       value: stats.totalSize,
       color: 'text-green-500',
     },
     {
       icon: Database,
-      label: '24h Uploads',
+      label: t('uploads24h'),
       value: stats.last24hUploads,
       color: 'text-purple-500',
     },
     {
       icon: Clock,
-      label: 'Total Downloads',
+      label: t('totalDownloads'),
       value: stats.totalDownloads,
       color: 'text-orange-500',
     },

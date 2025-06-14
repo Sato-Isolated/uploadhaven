@@ -8,6 +8,7 @@ import { formatDistanceToNow } from 'date-fns';
 import FileActionButtons from './FileActionButtons';
 import FileThumbnail from './FileThumbnail';
 import type { FileCardProps } from '../types';
+import { useTranslations } from 'next-intl';
 
 export default function FileCard({
   file,
@@ -19,6 +20,8 @@ export default function FileCard({
   getExpirationStatus,
 }: FileCardProps) {
   const expirationStatus = getExpirationStatus(file.expiresAt);
+  const tFiles = useTranslations('Files');
+  const tAdmin = useTranslations('Admin');
 
   return (
     <motion.div
@@ -42,13 +45,11 @@ export default function FileCard({
         <div className="pointer-events-none absolute inset-0 rounded-2xl bg-gradient-to-r from-blue-500/5 via-purple-500/5 to-indigo-500/5 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
 
         <div className="relative flex items-center space-x-6">
-          {' '}
           <motion.div
             className="flex-shrink-0"
             whileHover={{ scale: 1.1, rotate: 2 }}
             transition={{ type: 'spring', stiffness: 300 }}
           >
-            {' '}
             <FileThumbnail
               shortUrl={file.shortUrl}
               mimeType={file.mimeType}
@@ -70,7 +71,7 @@ export default function FileCard({
               <span className="font-medium">{formatFileSize(file.size)}</span>
               <span>•</span>
               <span>
-                Uploaded
+                {tFiles('uploaded')}{' '}
                 {formatDistanceToNow(new Date(file.uploadDate), {
                   addSuffix: true,
                 })}
@@ -79,8 +80,7 @@ export default function FileCard({
                 <>
                   <span>•</span>
                   <span className="font-medium text-blue-600 dark:text-blue-400">
-                    {file.downloadCount} download
-                    {file.downloadCount !== 1 ? 's' : ''}
+                    {file.downloadCount} {file.downloadCount === 1 ? tFiles('download') : tFiles('downloads')}
                   </span>
                 </>
               )}
@@ -94,7 +94,7 @@ export default function FileCard({
                   animate={{ scale: 1 }}
                   className="rounded-full bg-red-100 px-3 py-1 text-xs font-medium text-red-800 dark:bg-red-950 dark:text-red-200"
                 >
-                  Expired
+                  {tFiles('expired')}
                 </motion.div>
               ) : expirationStatus.isExpiringSoon ? (
                 <motion.div
@@ -102,7 +102,7 @@ export default function FileCard({
                   animate={{ scale: 1 }}
                   className="rounded-full bg-yellow-100 px-3 py-1 text-xs font-medium text-yellow-800 dark:bg-yellow-950 dark:text-yellow-200"
                 >
-                  Expires in {expirationStatus.timeLeft}
+                  {tFiles('expiresIn')} {expirationStatus.timeLeft}
                 </motion.div>
               ) : (
                 <motion.div
@@ -110,7 +110,7 @@ export default function FileCard({
                   animate={{ scale: 1 }}
                   className="rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-800 dark:bg-green-950 dark:text-green-200"
                 >
-                  Active
+                  {tAdmin('active')}
                 </motion.div>
               )}
             </div>

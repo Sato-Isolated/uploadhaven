@@ -8,6 +8,7 @@ import {
   CardDescription,
 } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { useTranslations } from 'next-intl';
 
 interface ScanHistoryEntry {
   date: Date;
@@ -21,13 +22,15 @@ interface ScanHistoryProps {
 }
 
 export function ScanHistory({ scanHistory }: ScanHistoryProps) {
+  const t = useTranslations('Security');
+
   if (scanHistory.length === 0) return null;
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-lg">Scan History</CardTitle>
-        <CardDescription>Previous security scans performed</CardDescription>
+        <CardTitle className="text-lg">{t('scanHistory')}</CardTitle>
+        <CardDescription>{t('previousScansPerformed')}</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="space-y-2">
@@ -39,18 +42,20 @@ export function ScanHistory({ scanHistory }: ScanHistoryProps) {
               <div className="flex items-center gap-2">
                 <Badge variant="outline">{scan.type}</Badge>
                 <span className="text-sm">
-                  {scan.date.toLocaleDateString()}{' '}
+                  {scan.date.toLocaleDateString()}
                   {scan.date.toLocaleTimeString()}
                 </span>
               </div>
               <div className="flex items-center gap-4 text-sm">
-                <span>{scan.results} checks</span>
+                <span>
+                  {scan.results} {t('checks')}
+                </span>
                 {scan.threats > 0 ? (
                   <span className="font-medium text-red-600">
-                    {scan.threats} threats
+                    {scan.threats} {t('threats')}
                   </span>
                 ) : (
-                  <span className="text-green-600">Clean</span>
+                  <span className="text-green-600">{t('clean')}</span>
                 )}
               </div>
             </div>

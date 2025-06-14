@@ -5,10 +5,12 @@ import { useTheme } from 'next-themes';
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { motion } from 'motion/react';
+import { useTranslations } from 'next-intl';
 
 export function ThemeToggle() {
   const [mounted, setMounted] = useState(false);
   const { theme, setTheme } = useTheme();
+  const t = useTranslations('Common');
 
   // Prevent hydration mismatch
   useEffect(() => {
@@ -19,7 +21,7 @@ export function ThemeToggle() {
     return (
       <Button variant="ghost" size="icon" className="h-9 w-9">
         <div className="h-4 w-4" />
-        <span className="sr-only">Toggle theme</span>
+        <span className="sr-only">{t('toggleTheme')}</span>
       </Button>
     );
   }
@@ -44,7 +46,7 @@ export function ThemeToggle() {
           <Moon className="h-4 w-4 text-blue-600" />
         )}
       </motion.div>
-      <span className="sr-only">Toggle theme</span>
+      <span className="sr-only">{t('toggleTheme')}</span>
     </Button>
   );
 }

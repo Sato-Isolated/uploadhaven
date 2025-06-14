@@ -91,7 +91,7 @@ export default function SecurityScanModal({
             quotaStatus={quotaStatus}
             onStartScan={startScan}
             onStopScan={stopScan}
-          />{' '}
+          />
           {/* Scanned Files Progress (shows during scanning) */}
           {isScanning && (
             <ScannedFilesList

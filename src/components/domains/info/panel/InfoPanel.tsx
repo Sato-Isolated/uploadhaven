@@ -1,6 +1,7 @@
 'use client';
 
 import { motion } from 'motion/react';
+import { useTranslations } from 'next-intl';
 import FeaturesSection from './components/FeaturesSection';
 import UploadLimitsSection from './components/UploadLimitsSection';
 import ApiInfoSection from './components/ApiInfoSection';
@@ -13,9 +14,10 @@ import {
 } from './utils';
 
 export default function InfoPanel() {
-  const features = createFeatureItems();
-  const apiEndpoints = createApiEndpoints();
-  const faqItems = createFaqItems();
+  const t = useTranslations('InfoPanel');
+  const features = createFeatureItems(t);
+  const apiEndpoints = createApiEndpoints(t);
+  const faqItems = createFaqItems(t);
   const exampleCommand = createExampleCommand();
 
   return (

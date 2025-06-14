@@ -3,8 +3,11 @@
 import { motion } from 'motion/react';
 import { CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Upload } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 export function SignUpFormHeader() {
+  const t = useTranslations('Auth');
+
   return (
     <CardHeader className="relative z-10 space-y-4 pb-6 text-center">
       <motion.div
@@ -22,10 +25,10 @@ export function SignUpFormHeader() {
         transition={{ delay: 0.3 }}
       >
         <CardTitle className="bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-3xl font-bold text-transparent dark:from-white dark:to-gray-300">
-          Join UploadHaven
+          {t('joinUploadHaven')}
         </CardTitle>
         <CardDescription className="mt-2 text-gray-600 dark:text-gray-400">
-          Create your account to manage files and get extended storage
+          {t('createAccountToManage')}
         </CardDescription>
       </motion.div>
     </CardHeader>

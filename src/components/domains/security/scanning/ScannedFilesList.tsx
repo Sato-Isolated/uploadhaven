@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ScannedFile } from '@/types/security';
+import { useTranslations } from 'next-intl';
 
 interface ScannedFilesListProps {
   scannedFiles: ScannedFile[];
@@ -23,6 +24,7 @@ interface ScannedFileItemProps {
 
 function ScannedFileItem({ file }: ScannedFileItemProps) {
   const [isExpanded, setIsExpanded] = useState(false);
+  const t = useTranslations('Security');
 
   const hasEngineResults =
     file.scanResult?.engineResults && file.scanResult.engineResults.length > 0;
@@ -83,14 +85,14 @@ function ScannedFileItem({ file }: ScannedFileItemProps) {
             }`}
           >
             {file.status === 'threat'
-              ? 'Threat'
+              ? t('threat')
               : file.status === 'suspicious'
-                ? 'Suspicious'
+                ? t('suspicious')
                 : file.status === 'error'
-                  ? 'Error'
+                  ? t('error')
                   : file.status === 'scanning'
-                    ? 'Scanning...'
-                    : 'Clean'}
+                    ? t('scanning')
+                    : t('clean')}
           </Badge>
 
           {hasEngineResults && (
@@ -118,18 +120,17 @@ function ScannedFileItem({ file }: ScannedFileItemProps) {
               <div className="mb-2">
                 <div className="flex items-center justify-between text-xs">
                   <span className="font-medium text-gray-600 dark:text-gray-400">
-                    Antivirus Engine Results
+                    {t('antivirusEngineResults')}
                   </span>
                   <span className="text-gray-500">
-                    {file.scanResult?.engineResults?.length || 0} engines
-                    analyzed
+                    {file.scanResult?.engineResults?.length || 0} {t('enginesAnalyzed')}
                   </span>
                 </div>
 
                 {file.scanResult?.threatName && (
                   <div className="mt-1 text-xs">
                     <span className="font-medium text-red-600">
-                      Threat detected:
+                      {t('threatDetected')}:
                     </span>
                     <span className="ml-1 font-mono">
                       {file.scanResult.threatName}
@@ -174,6 +175,8 @@ export function ScannedFilesList({
   currentFileIndex,
   totalFilesToScan,
 }: ScannedFilesListProps) {
+  const t = useTranslations('Security');
+  
   if (scannedFiles.length === 0) return null;
 
   const completedScans = scannedFiles.filter(
@@ -184,11 +187,11 @@ export function ScannedFilesList({
     <div className="space-y-3">
       <div className="flex items-center justify-between">
         <h4 className="text-sm font-medium">
-          Scanned Files ({completedScans}/{scannedFiles.length})
+          {t('scannedFiles')} ({completedScans}/{scannedFiles.length})
         </h4>
         {totalFilesToScan > 0 && (
           <span className="text-xs text-gray-500">
-            File {currentFileIndex}/{totalFilesToScan}
+            {t('file')} {currentFileIndex}/{totalFilesToScan}
           </span>
         )}
       </div>

@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { motion } from 'motion/react';
+import { useTranslations } from 'next-intl';
 import {
   Card,
   CardContent,
@@ -25,17 +26,21 @@ type ExportType = 'users' | 'files';
 type ExportFormat = 'json' | 'csv';
 
 export default function DataExport() {
+  const t = useTranslations('Admin');
   const [exportType, setExportType] = useState<ExportType>('users');
   const [exportFormat, setExportFormat] = useState<ExportFormat>('json');
 
   const { loading: exporting, execute: executeExport } = useAsyncOperation({
     onSuccess: () => {
       toast.success(
-        `${exportType} data exported as ${exportFormat.toUpperCase()}`
+        t('dataExportedSuccess', {
+          type: exportType,
+          format: exportFormat.toUpperCase(),
+        })
       );
     },
     onError: () => {
-      toast.error('Failed to export data. Please try again.');
+      toast.error(t('failedToExportData'));
     },
   });
 
@@ -53,7 +58,7 @@ export default function DataExport() {
       });
 
       if (!response.ok) {
-        throw new Error('Export failed');
+        throw new Error(t('exportFailed'));
       }
 
       // Get the filename from the response headers
@@ -85,16 +90,14 @@ export default function DataExport() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Download className="h-5 w-5" />
-            Data Export
+            {t('dataExport')}
           </CardTitle>
-          <CardDescription>
-            Export user and file data in JSON or CSV format
-          </CardDescription>
+          <CardDescription>{t('dataExportDescription')}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
             <div className="space-y-2">
-              <label className="text-sm font-medium">Data Type</label>
+              <label className="text-sm font-medium">{t('dataType')}</label>
               <Select
                 value={exportType}
                 onValueChange={(value: ExportType) => setExportType(value)}
@@ -106,13 +109,13 @@ export default function DataExport() {
                   <SelectItem value="users">
                     <div className="flex items-center gap-2">
                       <Users className="h-4 w-4" />
-                      Users
+                      {t('users')}
                     </div>
                   </SelectItem>
                   <SelectItem value="files">
                     <div className="flex items-center gap-2">
                       <FileText className="h-4 w-4" />
-                      Files
+                      {t('files')}
                     </div>
                   </SelectItem>
                 </SelectContent>
@@ -120,7 +123,7 @@ export default function DataExport() {
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium">Format</label>
+              <label className="text-sm font-medium">{t('format')}</label>
               <Select
                 value={exportFormat}
                 onValueChange={(value: ExportFormat) => setExportFormat(value)}
@@ -136,7 +139,7 @@ export default function DataExport() {
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium">Action</label>
+              <label className="text-sm font-medium">{t('action')}</label>
               <Button
                 onClick={handleExport}
                 disabled={exporting}
@@ -145,12 +148,12 @@ export default function DataExport() {
                 {exporting ? (
                   <>
                     <div className="mr-2 h-4 w-4 animate-spin rounded-full border-b-2 border-white" />
-                    Exporting...
+                    {t('exporting')}
                   </>
                 ) : (
                   <>
                     <Download className="mr-2 h-4 w-4" />
-                    Export
+                    {t('export')}
                   </>
                 )}
               </Button>
@@ -158,9 +161,7 @@ export default function DataExport() {
           </div>
 
           <div className="rounded-lg bg-gray-50 p-3 text-xs text-gray-500 dark:bg-gray-900/50 dark:text-gray-400">
-            <strong>Note:</strong> Exported data includes all records and
-            sensitive information. Please handle the exported files securely and
-            in compliance with data protection regulations.
+            <strong>{t('note')}:</strong> {t('exportNote')}
           </div>
         </CardContent>
       </Card>

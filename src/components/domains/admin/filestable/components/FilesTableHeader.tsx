@@ -1,4 +1,5 @@
 import { motion } from 'motion/react';
+import { useTranslations } from 'next-intl';
 import { CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Database } from 'lucide-react';
 
@@ -13,6 +14,8 @@ export function FilesTableHeader({
   isAllSelected,
   onSelectAll,
 }: FilesTableHeaderProps) {
+  const t = useTranslations('Admin');
+  
   return (
     <>
       <CardHeader className="border-b border-gray-200/50 bg-gradient-to-r from-gray-50/50 to-gray-100/50 dark:border-gray-700/50 dark:from-gray-800/50 dark:to-gray-900/50">
@@ -25,9 +28,9 @@ export function FilesTableHeader({
             <Database className="h-6 w-6 text-white" />
           </motion.div>
           <div>
-            <CardTitle className="text-xl">All Files</CardTitle>
+            <CardTitle className="text-xl">{t('allFiles')}</CardTitle>
             <CardDescription className="text-base">
-              Manage all uploaded files across the platform ({totalFiles} files)
+              {t('manageAllFilesDescription', { totalFiles })}
             </CardDescription>
           </div>
         </div>
@@ -46,25 +49,25 @@ export function FilesTableHeader({
             />
           </th>
           <th className="p-4 text-left font-semibold text-gray-700 dark:text-gray-300">
-            File
+            {t('file')}
           </th>
           <th className="p-4 text-left font-semibold text-gray-700 dark:text-gray-300">
-            Size
+            {t('size')}
           </th>
           <th className="p-4 text-left font-semibold text-gray-700 dark:text-gray-300">
-            Type
+            {t('type')}
           </th>
           <th className="p-4 text-left font-semibold text-gray-700 dark:text-gray-300">
-            Owner
+            {t('owner')}
           </th>
           <th className="p-4 text-left font-semibold text-gray-700 dark:text-gray-300">
-            Upload Date
+            {t('uploadDate')}
           </th>
           <th className="p-4 text-left font-semibold text-gray-700 dark:text-gray-300">
-            Downloads
+            {t('downloads')}
           </th>
           <th className="p-4 text-right font-semibold text-gray-700 dark:text-gray-300">
-            Actions
+            {t('actions')}
           </th>
         </tr>
       </thead>

@@ -4,6 +4,7 @@ import { motion } from 'motion/react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { CheckCircle, AlertCircle, X, Copy, Key } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import type { UploadedFile } from '@/components/domains/upload/fileuploader/types';
 import {
   getFileType,
@@ -22,12 +23,15 @@ export function UploadedFilesList({
   onRemoveFile,
   onClearCompleted,
 }: UploadedFilesListProps) {
+  const t = useTranslations('Dashboard');
+  const tCommon = useTranslations('Common');
+
   const handleCopyToClipboard = async (url: string, label?: string) => {
     const success = await copyToClipboard(url);
     if (success) {
-      toast.success(`${label || 'Link'} copied to clipboard!`);
+      toast.success(t('linkCopiedToClipboard', { label: label || t('link') }));
     } else {
-      toast.error('Failed to copy to clipboard');
+      toast.error(t('failedToCopyToClipboard'));
     }
   };
 
@@ -59,7 +63,7 @@ export function UploadedFilesList({
     >
       <div className="mb-4 flex items-center justify-between">
         <h4 className="font-semibold text-gray-900 dark:text-white">
-          Files ({files.length})
+          {t('filesCount', { count: files.length })}
         </h4>
         {files.some((f) => f.status === 'completed') && (
           <Button
@@ -68,7 +72,7 @@ export function UploadedFilesList({
             onClick={onClearCompleted}
             className="text-xs"
           >
-            Clear Completed
+            {t('clearCompleted')}
           </Button>
         )}
       </div>
@@ -89,7 +93,7 @@ export function UploadedFilesList({
                     {file.file.name}
                   </p>
                   <p className="text-sm text-gray-500">
-                    {(file.file.size / 1024 / 1024).toFixed(2)} MB
+                    {(file.file.size / 1024 / 1024).toFixed(2)} {tCommon('mb')}
                   </p>
                 </div>
               </div>
@@ -120,8 +124,8 @@ export function UploadedFilesList({
                 <div className="mb-1 flex justify-between text-sm">
                   <span className="text-gray-600">
                     {file.status === 'scanning'
-                      ? 'Scanning...'
-                      : 'Uploading...'}
+                      ? t('scanning')
+                      : t('uploading')}
                   </span>
                   <span className="text-gray-600">{file.progress}%</span>
                 </div>
@@ -143,25 +147,25 @@ export function UploadedFilesList({
                   onClick={() =>
                     handleCopyToClipboard(
                       `${window.location.origin}/s/${file.shortUrl}`,
-                      'Share link'
+                      t('shareLink')
                     )
                   }
                   className="flex-1"
                 >
                   <Copy className="mr-2 h-4 w-4" />
-                  Copy Link
+                  {t('copyLink')}
                 </Button>
                 {file.generatedKey && (
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={() =>
-                      handleCopyToClipboard(file.generatedKey!, 'Password')
+                      handleCopyToClipboard(file.generatedKey!, t('password'))
                     }
                     className="flex-1"
                   >
                     <Key className="mr-2 h-4 w-4" />
-                    Copy Password
+                    {t('copyPassword')}
                   </Button>
                 )}
               </div>

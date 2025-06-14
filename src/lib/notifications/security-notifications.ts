@@ -15,11 +15,17 @@ interface SecurityNotificationData {
   relatedFileId?: string;
 }
 
+type TranslationFunction = (
+  key: string,
+  params?: Record<string, any>
+) => string;
+
 /**
  * Create notifications for critical security events
  */
 export async function createSecurityNotification(
-  data: SecurityNotificationData
+  data: SecurityNotificationData,
+  t?: TranslationFunction
 ): Promise<void> {
   const { userId, eventType, severity, details, metadata, relatedFileId } =
     data;
@@ -30,7 +36,7 @@ export async function createSecurityNotification(
   }
 
   try {
-    const notificationConfig = getNotificationConfig(eventType, severity);
+    const notificationConfig = getNotificationConfig(eventType, severity, t);
 
     if (!notificationConfig) {
       return; // No notification needed for this event type
@@ -67,13 +73,14 @@ export async function createSystemSecurityNotification(
   eventType: SecurityEventType,
   severity: SecuritySeverity,
   details: string,
-  metadata?: Record<string, unknown>
+  metadata?: Record<string, unknown>,
+  t?: TranslationFunction
 ): Promise<void> {
   if (severity !== 'high' && severity !== 'critical') {
     return;
   }
 
-  const notificationConfig = getNotificationConfig(eventType, severity);
+  const notificationConfig = getNotificationConfig(eventType, severity, t);
   if (!notificationConfig) {
     return;
   }
@@ -119,72 +126,137 @@ interface NotificationConfig {
  */
 function getNotificationConfig(
   eventType: SecurityEventType,
-  severity: SecuritySeverity
+  severity: SecuritySeverity,
+  t?: TranslationFunction
 ): NotificationConfig | null {
+  // Fallback function for when no translation function is provided
+  const translate =
+    t ||
+    ((key: string, params?: Record<string, any>) => {
+      // Fallback to English strings if no translation function provided
+      const fallbacks: Record<string, string> = {
+        'SecurityNotifications.malwareDetected': 'Malware Detected',
+        'SecurityNotifications.malwareDetectedMessage':
+          'Malware detected in {fileName}{threatName}. The file has been flagged for security review.',
+        'SecurityNotifications.suspiciousActivityDetected':
+          'Suspicious Activity Detected',
+        'SecurityNotifications.suspiciousActivityMessage':
+          'Suspicious activity has been detected on your account: {details}',
+        'SecurityNotifications.securityAlertIpBlocked':
+          'Security Alert: IP Blocked',
+        'SecurityNotifications.ipBlockedMessage':
+          'Security alert: IP address {ip} has been blocked due to suspicious activity.',
+        'SecurityNotifications.rateLimitExceeded': 'Rate Limit Exceeded',
+        'SecurityNotifications.rateLimitMessage':
+          'Rate limit exceeded: {details}. Please wait before trying again.',
+        'SecurityNotifications.invalidFileUploadDetected':
+          'Invalid File Upload Detected',
+        'SecurityNotifications.invalidFileMessage':
+          'Invalid file upload detected: {fileName}. {details}',
+        'SecurityNotifications.unauthorizedAccessAttempt':
+          'Unauthorized Access Attempt',
+        'SecurityNotifications.unauthorizedAccessMessage':
+          'Unauthorized access attempt detected: {details}',
+        'SecurityNotifications.systemMaintenance': 'System Maintenance',
+        'SecurityNotifications.systemMaintenanceMessage':
+          'System maintenance notification: {details}',
+        'SecurityNotifications.threatNamePrefix': ' ({threatName})',
+        'SecurityNotifications.unknownFile': 'unknown file',
+        'SecurityNotifications.unknownIp': 'unknown IP',
+      };
+      let message = fallbacks[key] || key;
+      if (params) {
+        Object.entries(params).forEach(([paramKey, value]) => {
+          message = message.replace(`{${paramKey}}`, String(value));
+        });
+      }
+      return message;
+    });
+
   const configs: Partial<Record<SecurityEventType, NotificationConfig>> = {
     malware_detected: {
       type: 'malware_detected',
-      title: 'Malware Detected',
+      title: translate('SecurityNotifications.malwareDetected'),
       priority: 'urgent',
       getMessage: (details, metadata) => {
-        const fileName = (metadata?.fileName as string) || 'your file';
+        const fileName =
+          (metadata?.fileName as string) ||
+          translate('SecurityNotifications.unknownFile');
         const scanResult = metadata?.scanResult as
           | { threatName?: string }
           | undefined;
-        const threatName = scanResult?.threatName;
-        return `Malware detected in ${fileName}${threatName ? ` (${threatName})` : ''}. The file has been flagged for security review.`;
+        const threatName = scanResult?.threatName
+          ? translate('SecurityNotifications.threatNamePrefix', {
+              threatName: scanResult.threatName,
+            })
+          : '';
+        return translate('SecurityNotifications.malwareDetectedMessage', {
+          fileName,
+          threatName,
+        });
       },
     },
 
     suspicious_activity: {
       type: 'security_alert',
-      title: 'Suspicious Activity Detected',
+      title: translate('SecurityNotifications.suspiciousActivityDetected'),
       priority: severity === 'critical' ? 'urgent' : 'high',
       getMessage: (details) =>
-        `Suspicious activity has been detected on your account: ${details}`,
+        translate('SecurityNotifications.suspiciousActivityMessage', {
+          details,
+        }),
     },
 
     blocked_ip: {
       type: 'security_alert',
-      title: 'Security Alert: IP Blocked',
+      title: translate('SecurityNotifications.securityAlertIpBlocked'),
       priority: 'high',
       getMessage: (details, metadata) => {
-        const ip = metadata?.ip || 'unknown IP';
-        return `Security alert: IP address ${ip} has been blocked due to suspicious activity.`;
+        const ip = metadata?.ip || translate('SecurityNotifications.unknownIp');
+        return translate('SecurityNotifications.ipBlockedMessage', { ip });
       },
     },
 
     rate_limit: {
       type: 'security_alert',
-      title: 'Rate Limit Exceeded',
+      title: translate('SecurityNotifications.rateLimitExceeded'),
       priority: 'high',
       getMessage: (details) =>
-        `Rate limit exceeded: ${details}. Please wait before trying again.`,
+        translate('SecurityNotifications.rateLimitMessage', { details }),
     },
 
     invalid_file: {
       type: 'security_alert',
-      title: 'Invalid File Upload Detected',
+      title: translate('SecurityNotifications.invalidFileUploadDetected'),
       priority: 'high',
       getMessage: (details, metadata) => {
-        const fileName = metadata?.fileName || 'unknown file';
-        return `Invalid file upload detected: ${fileName}. ${details}`;
+        const fileName =
+          metadata?.fileName || translate('SecurityNotifications.unknownFile');
+        return translate('SecurityNotifications.invalidFileMessage', {
+          fileName,
+          details,
+        });
       },
     },
 
     access_denied: {
       type: 'security_alert',
-      title: 'Unauthorized Access Attempt',
+      title: translate('SecurityNotifications.unauthorizedAccessAttempt'),
       priority: 'high',
       getMessage: (details) =>
-        `Unauthorized access attempt detected: ${details}`,
+        translate('SecurityNotifications.unauthorizedAccessMessage', {
+          details,
+        }),
     },
 
     system_maintenance: {
       type: 'system_announcement',
-      title: 'System Maintenance',
+      title: translate('SecurityNotifications.systemMaintenance'),
       priority: 'high',
-      getMessage: (details) => `System maintenance notification: ${details}`,
+      getMessage: (details) =>
+        translate('SecurityNotifications.systemMaintenanceMessage', {
+          details,
+        }),
     },
   };
 
@@ -194,7 +266,9 @@ function getNotificationConfig(
 /**
  * Create file expiration warning notifications
  */
-export async function createFileExpirationNotifications(): Promise<void> {
+export async function createFileExpirationNotifications(
+  t?: TranslationFunction
+): Promise<void> {
   try {
     // This would typically be called by a background job
     // Import here to avoid circular dependencies
@@ -211,6 +285,25 @@ export async function createFileExpirationNotifications(): Promise<void> {
       },
       userId: { $exists: true, $ne: null },
     }).select('userId originalName expiresAt _id');
+
+    // Fallback translation function
+    const translate =
+      t ||
+      ((key: string, params?: Record<string, any>) => {
+        const fallbacks: Record<string, string> = {
+          'SecurityNotifications.fileExpiringSoon': 'File Expiring Soon',
+          'SecurityNotifications.fileExpiringMessage':
+            'Your file "{fileName}" will expire in {hoursLeft} hour{plural}. Download or extend the expiration if needed.',
+        };
+        let message = fallbacks[key] || key;
+        if (params) {
+          Object.entries(params).forEach(([paramKey, value]) => {
+            message = message.replace(`{${paramKey}}`, String(value));
+          });
+        }
+        return message;
+      });
+
     const notificationPromises = expiringFiles
       .filter((file) => file.userId) // Additional type guard
       .map(async (file) => {
@@ -218,11 +311,17 @@ export async function createFileExpirationNotifications(): Promise<void> {
           (file.expiresAt.getTime() - Date.now()) / (1000 * 60 * 60)
         );
 
+        const plural = hoursLeft !== 1 ? 's' : '';
+
         return saveNotification({
           userId: file.userId!,
           type: 'file_expired_soon',
-          title: 'File Expiring Soon',
-          message: `Your file "${file.originalName}" will expire in ${hoursLeft} hour${hoursLeft !== 1 ? 's' : ''}. Download or extend the expiration if needed.`,
+          title: translate('SecurityNotifications.fileExpiringSoon'),
+          message: translate('SecurityNotifications.fileExpiringMessage', {
+            fileName: file.originalName,
+            hoursLeft,
+            plural,
+          }),
           priority: hoursLeft <= 2 ? 'high' : 'normal',
           relatedFileId: file._id.toString(),
           metadata: {

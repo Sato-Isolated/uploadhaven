@@ -5,8 +5,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Clock } from 'lucide-react';
 import { FaqProps } from '../types';
+import { useTranslations } from 'next-intl';
 
 export default function FaqSection({ faqs }: FaqProps) {
+  const t = useTranslations('InfoPanel');
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -18,12 +21,11 @@ export default function FaqSection({ faqs }: FaqProps) {
           <CardTitle className="flex items-center gap-2">
             <Clock className="h-6 w-6 text-orange-600 dark:text-orange-400" />
             <span className="bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent dark:from-orange-400 dark:to-red-400">
-              Frequently Asked Questions
+              {t('frequentlyAskedQuestions')}
             </span>
           </CardTitle>
         </CardHeader>
         <CardContent>
-          {' '}
           <div className="space-y-6">
             {faqs.map((faq, index) => (
               <div key={`faq-${index}-${faq.question.slice(0, 20)}`}>

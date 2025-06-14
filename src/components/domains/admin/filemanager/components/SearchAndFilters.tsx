@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Search, Filter, Trash2, RefreshCw } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 interface SearchAndFiltersProps {
   searchQuery: string;
@@ -20,6 +21,8 @@ export default function SearchAndFilters({
   onBulkDelete,
   isLoading,
 }: SearchAndFiltersProps) {
+  const t = useTranslations('Search');
+
   return (
     <motion.div
       className="flex flex-col gap-4 sm:flex-row"
@@ -30,7 +33,7 @@ export default function SearchAndFilters({
       <div className="relative flex-1">
         <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform text-gray-400" />
         <Input
-          placeholder="Search files by name, type, owner, or content..."
+          placeholder={t('searchFilesByNameTypeOwnerContent')}
           value={searchQuery}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
             setSearchQuery(e.target.value)
@@ -46,7 +49,7 @@ export default function SearchAndFilters({
             className="bg-white/50 backdrop-blur-sm dark:bg-gray-900/50"
           >
             <Filter className="mr-2 h-4 w-4" />
-            Filter
+            {t('filter')}
           </Button>
         </motion.div>
         <AnimatePresence>

@@ -1,8 +1,11 @@
 import { motion } from 'motion/react';
 import { CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Upload } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 export function SignInFormHeader() {
+  const t = useTranslations('Auth');
+
   return (
     <CardHeader className="relative z-10 space-y-4 pb-6 text-center">
       <motion.div
@@ -20,10 +23,10 @@ export function SignInFormHeader() {
         transition={{ delay: 0.3 }}
       >
         <CardTitle className="bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-3xl font-bold text-transparent dark:from-white dark:to-gray-300">
-          Welcome Back
+          {t('welcomeBack')}
         </CardTitle>
         <CardDescription className="mt-2 text-gray-600 dark:text-gray-400">
-          Sign in to access your files and continue uploading
+          {t('signInToAccess')}
         </CardDescription>
       </motion.div>
     </CardHeader>

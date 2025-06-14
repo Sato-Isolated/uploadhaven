@@ -4,6 +4,7 @@
 
 import { CloudUpload } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useTranslations } from 'next-intl';
 import type { DropzoneProps } from '../types';
 
 export default function DropzoneArea({
@@ -11,6 +12,8 @@ export default function DropzoneArea({
   getRootProps,
   getInputProps,
 }: DropzoneProps) {
+  const t = useTranslations('FileUploader');
+
   return (
     <div
       {...getRootProps()}
@@ -50,15 +53,15 @@ export default function DropzoneArea({
           size="lg"
           className="mb-4 border-0 bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg hover:from-blue-700 hover:to-purple-700"
         >
-          {isDragActive ? '🎯 Drop it here!' : '📁 Choose files to upload'}
+          {isDragActive
+            ? `🎯 ${t('dropItHere')}`
+            : `📁 ${t('chooseFilesToUpload')}`}
         </Button>
         <p className="text-muted-foreground text-sm">
-          {isDragActive
-            ? 'Release to start uploading your files'
-            : 'Drag & drop files here or click to browse'}
+          {isDragActive ? t('dropzoneActive') : t('dropzoneText')}
         </p>
         <p className="text-muted-foreground mt-2 text-xs opacity-75">
-          Supports images, documents, videos, audio & archives
+          {t('supportedFileTypes')}
         </p>
       </div>
     </div>

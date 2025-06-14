@@ -1,9 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
+import createMiddleware from 'next-intl/middleware';
+import { routing } from './i18n/routing';
+
+// Create the i18n middleware
+const intlMiddleware = createMiddleware(routing);
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Handle direct access to uploaded files
+  // Handle direct access to uploaded files - bypass i18n for these
   if (pathname.startsWith('/uploads/')) {
     // Allow direct access to public files (without password protection)
     if (pathname.startsWith('/uploads/public/')) {
@@ -31,46 +36,90 @@ export function middleware(request: NextRequest) {
     );
   }
 
+  // Skip i18n middleware for API routes, internal Next.js paths, and files with extensions
+  if (
+    pathname.startsWith('/api') ||
+    pathname.startsWith('/_next') ||
+    pathname.startsWith('/_vercel') ||
+    pathname.includes('.')
+  ) {
+    // For protected API routes, still check authentication
+    const protectedApiRoutes = ['/api/admin', '/api/dashboard'];
+    const isProtectedApiRoute = protectedApiRoutes.some((route) =>
+      pathname.startsWith(route)
+    );
+
+    if (isProtectedApiRoute) {
+      const sessionCookie =
+        request.cookies.get('better-auth.session_token') ||
+        request.cookies.get('uploadhaven.session_token') ||
+        request.cookies.get('session-token');
+
+      if (!sessionCookie || !sessionCookie.value) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      }
+    }
+
+    return NextResponse.next();
+  }
+
   // Check if the route needs authentication
   const protectedRoutes = ['/dashboard', '/admin'];
-  const isProtectedRoute = protectedRoutes.some((route) =>
-    pathname.startsWith(route)
-  );
+  const isProtectedRoute = protectedRoutes.some((route) => {
+    // Remove locale prefix when checking routes
+    const pathWithoutLocale = pathname.replace(/^\/[a-z]{2}(\/|$)/, '/');
+    return pathWithoutLocale.startsWith(route);
+  });
+
   if (isProtectedRoute) {
     // Check for Better Auth session cookie
-    // Better Auth typically uses these cookie names
     const sessionCookie =
       request.cookies.get('better-auth.session_token') ||
       request.cookies.get('uploadhaven.session_token') ||
       request.cookies.get('session-token');
 
     if (!sessionCookie || !sessionCookie.value) {
-      // Redirect to sign-in page
-      return NextResponse.redirect(new URL('/auth/signin', request.url));
+      // Redirect to sign-in page with locale
+      const locale = pathname.split('/')[1];
+      const isValidLocale = routing.locales.includes(
+        locale as (typeof routing.locales)[number]
+      );
+      const redirectLocale = isValidLocale ? locale : routing.defaultLocale;
+      return NextResponse.redirect(
+        new URL(`/${redirectLocale}/auth/signin`, request.url)
+      );
     }
   }
 
   // Check for admin routes
-  if (pathname.startsWith('/admin')) {
-    // For now, just check if user is authenticated
-    // Later we'll add proper role checking
+  if (pathname.includes('/admin')) {
     const sessionCookie =
       request.cookies.get('better-auth.session_token') ||
       request.cookies.get('uploadhaven.session_token') ||
       request.cookies.get('session-token');
 
     if (!sessionCookie || !sessionCookie.value) {
-      return NextResponse.redirect(new URL('/auth/signin', request.url));
+      const locale = pathname.split('/')[1];
+      const isValidLocale = routing.locales.includes(
+        locale as (typeof routing.locales)[number]
+      );
+      const redirectLocale = isValidLocale ? locale : routing.defaultLocale;
+      return NextResponse.redirect(
+        new URL(`/${redirectLocale}/auth/signin`, request.url)
+      );
     }
   }
 
-  return NextResponse.next();
+  // Apply i18n middleware for all other routes
+  return intlMiddleware(request);
 }
 
 export const config = {
   matcher: [
-    '/dashboard/:path*',
-    '/admin/:path*',
-    '/uploads/:path*', // Allow checking uploaded files but don't block them
+    // Match all pathnames except for
+    // - … if they start with `/api`, `/_next` or `/_vercel`
+    // - … the ones containing a dot (e.g. `favicon.ico`)
+    // - … uploads directory (handled separately)
+    '/((?!api|_next|_vercel|uploads|.*\\..*).*)',
   ],
 };

@@ -1,7 +1,10 @@
 import { motion } from 'motion/react';
+import { useTranslations } from 'next-intl';
 import { FileText } from 'lucide-react';
 
 export function FilesTableEmptyState() {
+  const t = useTranslations('Admin');
+  
   return (
     <motion.div
       className="py-16 text-center"
@@ -26,10 +29,10 @@ export function FilesTableEmptyState() {
         </div>
       </motion.div>
       <h3 className="mb-2 text-lg font-semibold text-gray-700 dark:text-gray-300">
-        No files found
+        {t('noFilesFound')}
       </h3>
       <p className="text-gray-500 dark:text-gray-400">
-        No files match your search criteria.
+        {t('noFilesMatchCriteria')}
       </p>
     </motion.div>
   );

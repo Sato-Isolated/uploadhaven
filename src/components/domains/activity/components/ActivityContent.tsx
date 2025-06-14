@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { MoreHorizontal } from 'lucide-react';
 import type { ActivityEvent } from '@/types';
@@ -38,6 +39,8 @@ export default function ActivityContent({
   onLoadMore,
   onPageChange,
 }: ActivityContentProps) {
+  const t = useTranslations('Activity');
+  
   if (!activities.length) {
     return <ActivityEmpty />;
   }
@@ -63,12 +66,12 @@ export default function ActivityContent({
                 {isFetchingNextPage ? (
                   <>
                     <MoreHorizontal className="mr-2 h-4 w-4 animate-pulse" />
-                    Loading more...
+                    {t('loadingMore')}
                   </>
                 ) : (
                   <>
                     <MoreHorizontal className="mr-2 h-4 w-4" />
-                    Load More Activities
+                    {t('loadMoreActivities')}
                   </>
                 )}
               </Button>

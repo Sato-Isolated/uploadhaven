@@ -5,6 +5,7 @@ import { useDropzone } from 'react-dropzone';
 import { useSession } from '@/lib/auth-client';
 import { toast } from 'sonner';
 import { nanoid } from 'nanoid';
+import { useTranslations } from 'next-intl';
 
 // Internal imports
 import type { UploadedFile } from '@/components/domains/upload/fileuploader/types';
@@ -35,6 +36,7 @@ export interface UseFileUploaderReturn {
 }
 
 export function useFileUploader(): UseFileUploaderReturn {
+  const t = useTranslations('Upload');
   const [files, setFiles] = useState<UploadedFile[]>([]);
   const [expiration, setExpiration] = useState('24h');
   const [isPasswordProtected, setIsPasswordProtected] = useState(false);
@@ -97,16 +99,19 @@ export function useFileUploader(): UseFileUploaderReturn {
 
             saveFileToLocalStorage(fileInfo);
 
-            toast.success(`${uploadedFile.file.name} uploaded successfully!`);
+            toast.success(t('fileUploadedSuccessfully'));
             // Show generated key if file is password protected
             if (response.generatedKey) {
-              toast.success(`🔑 Generated key: ${response.generatedKey}`, {
+              toast.success(t('generatedKey', { key: response.generatedKey }), {
                 duration: 10000, // Show for 10 seconds
               });
             }
           } else {
             // Parse server error response to get specific error message
-            let errorMessage = `Upload failed: ${xhr.status} ${xhr.statusText}`;
+            let errorMessage = t('uploadFailedWithStatus', {
+              status: xhr.status,
+              statusText: xhr.statusText,
+            });
             try {
               const errorResponse = JSON.parse(xhr.responseText);
               if (errorResponse.error) {
@@ -120,7 +125,7 @@ export function useFileUploader(): UseFileUploaderReturn {
         };
 
         xhr.onerror = () => {
-          throw new Error('Upload failed');
+          throw new Error(t('uploadFailed'));
         };
 
         xhr.open('POST', '/api/upload');
@@ -133,12 +138,12 @@ export function useFileUploader(): UseFileUploaderReturn {
                   ...f,
                   status: 'error',
                   error:
-                    error instanceof Error ? error.message : 'Upload failed',
+                    error instanceof Error ? error.message : t('uploadFailed'),
                 }
               : f
           )
         );
-        toast.error(`Failed to upload ${uploadedFile.file.name}`);
+        toast.error(t('failedToUploadFile'));
       }
     },
     [expiration, session?.user?.id, isPasswordProtected]
@@ -208,13 +213,17 @@ export function useFileUploader(): UseFileUploaderReturn {
                       ...f,
                       status: 'threat_detected',
                       scanResult,
-                      error: scanResult.threat || 'Security threat detected',
+                      error:
+                        scanResult.threat ||
+                        t('securityThreatDetected', {
+                          threat: t('unknownError'),
+                        }),
                     }
                   : f
               )
             );
             toast.error(
-              `Security threat detected in ${uploadedFile.file.name}`
+              t('securityThreatInFile', { filename: uploadedFile.file.name })
             );
             continue;
           }
@@ -245,11 +254,13 @@ export function useFileUploader(): UseFileUploaderReturn {
           setFiles((prev) =>
             prev.map((f) =>
               f.id === uploadedFile.id
-                ? { ...f, status: 'error', error: 'Security scan failed' }
+                ? { ...f, status: 'error', error: t('securityScanFailed') }
                 : f
             )
           );
-          toast.error(`Security scan failed for ${uploadedFile.file.name}`);
+          toast.error(
+            t('failedToScanFile', { filename: uploadedFile.file.name })
+          );
         }
       }
     },

@@ -1,6 +1,7 @@
 'use client';
 
 import { motion } from 'motion/react';
+import { useTranslations } from 'next-intl';
 import { Shield, Check } from 'lucide-react';
 import type { PasswordValidation } from '../hooks/useSignUpForm';
 
@@ -13,6 +14,8 @@ export function PasswordRequirements({
   password,
   passwordValidations,
 }: PasswordRequirementsProps) {
+  const t = useTranslations('Auth');
+  
   if (!password) return null;
 
   return (
@@ -23,7 +26,7 @@ export function PasswordRequirements({
     >
       <div className="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400">
         <Shield className="h-3 w-3" />
-        Password requirements:
+        {t('passwordRequirements')}
       </div>
       <div className="grid grid-cols-2 gap-2 text-xs">
         {passwordValidations.map((validation, index) => (

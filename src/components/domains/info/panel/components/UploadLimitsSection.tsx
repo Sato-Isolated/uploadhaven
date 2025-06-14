@@ -1,6 +1,7 @@
 'use client';
 
 import { motion } from 'motion/react';
+import { useTranslations } from 'next-intl';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
@@ -9,12 +10,15 @@ import {
   createSupportedFormats,
   createExpirationOptions,
   createSupportedTypes,
+  createUploadLimitItems,
 } from '../utils';
 
 export default function UploadLimitsSection() {
-  const supportedFormats = createSupportedFormats();
-  const expirationOptions = createExpirationOptions();
-  const supportedTypes = createSupportedTypes();
+  const t = useTranslations('InfoPanel');
+  const supportedFormats = createSupportedFormats(t);
+  const expirationOptions = createExpirationOptions(t);
+  const supportedTypes = createSupportedTypes(t);
+  const uploadLimitItems = createUploadLimitItems(t);
 
   return (
     <motion.div
@@ -27,7 +31,7 @@ export default function UploadLimitsSection() {
           <CardTitle className="flex items-center gap-2">
             <HardDrive className="h-6 w-6 text-emerald-600 dark:text-emerald-400" />
             <span className="bg-gradient-to-r from-emerald-600 to-green-600 bg-clip-text text-transparent dark:from-emerald-400 dark:to-green-400">
-              Upload Limits
+              {t('uploadLimits')}
             </span>
           </CardTitle>
         </CardHeader>
@@ -41,13 +45,13 @@ export default function UploadLimitsSection() {
               transition={{ duration: 0.3, delay: 0.3 }}
             >
               <span className="text-sm font-medium text-emerald-900 dark:text-emerald-100">
-                Maximum file size
+                {t('maximumFileSize')}
               </span>
               <Badge
                 variant="secondary"
                 className="bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200"
               >
-                100 MB
+                {t('maxFileSize')}
               </Badge>
             </motion.div>
 
@@ -59,8 +63,8 @@ export default function UploadLimitsSection() {
               transition={{ duration: 0.3, delay: 0.35 }}
             >
               <span className="text-sm font-medium text-emerald-900 dark:text-emerald-100">
-                Supported formats
-              </span>{' '}
+                {t('supportedFormats')}
+              </span>
               <div className="flex gap-1">
                 {supportedFormats.map((format, index) => (
                   <Badge
@@ -82,8 +86,8 @@ export default function UploadLimitsSection() {
               transition={{ duration: 0.3, delay: 0.4 }}
             >
               <span className="text-sm font-medium text-emerald-900 dark:text-emerald-100">
-                Expiration options
-              </span>{' '}
+                {t('expirationOptions')}
+              </span>
               <div className="flex gap-1">
                 {expirationOptions.map((option, index) => (
                   <Badge
@@ -106,7 +110,7 @@ export default function UploadLimitsSection() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3, delay: 0.45 }}
             >
-              <p className="font-semibold">Supported file types:</p>{' '}
+              <p className="font-semibold">{t('supportedFileTypes')}</p>
               <ul className="mt-2 space-y-1 text-xs">
                 {supportedTypes.map((type, index) => (
                   <li key={`type-${type.name}-${index}`}>

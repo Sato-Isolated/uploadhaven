@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { signUp } from '@/lib/auth-client';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
@@ -12,6 +13,7 @@ export interface PasswordValidation {
 }
 
 export function useSignUpForm() {
+  const t = useTranslations('Auth');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -23,11 +25,11 @@ export function useSignUpForm() {
 
   const { loading: isLoading, execute: executeSignUp } = useAsyncOperation({
     onSuccess: () => {
-      toast.success('Account created successfully!');
+      toast.success(t('accountCreatedSuccessfully'));
       router.push('/dashboard');
     },
     onError: () => {
-      const errorMessage = 'Failed to create account. Please try again.';
+      const errorMessage = t('failedToCreateAccount');
       setError(errorMessage);
       toast.error(errorMessage);
     },
@@ -35,10 +37,10 @@ export function useSignUpForm() {
 
   // Password validation helpers
   const passwordValidations: PasswordValidation[] = [
-    { label: 'At least 8 characters', valid: password.length >= 8 },
-    { label: 'Contains uppercase letter', valid: /[A-Z]/.test(password) },
-    { label: 'Contains lowercase letter', valid: /[a-z]/.test(password) },
-    { label: 'Contains number', valid: /\d/.test(password) },
+    { label: t('atLeast8Characters'), valid: password.length >= 8 },
+    { label: t('containsUppercaseLetter'), valid: /[A-Z]/.test(password) },
+    { label: t('containsLowercaseLetter'), valid: /[a-z]/.test(password) },
+    { label: t('containsNumber'), valid: /\d/.test(password) },
   ];
 
   const isPasswordValid = passwordValidations.every((v) => v.valid);
@@ -50,14 +52,14 @@ export function useSignUpForm() {
     setError(''); // Clear previous errors
 
     if (password !== confirmPassword) {
-      const errorMsg = 'Passwords do not match';
+      const errorMsg = t('passwordsDoNotMatch');
       setError(errorMsg);
       toast.error(errorMsg);
       return;
     }
 
     if (!isPasswordValid) {
-      const errorMsg = 'Please meet all password requirements';
+      const errorMsg = t('pleaseMeetPasswordRequirements');
       setError(errorMsg);
       toast.error(errorMsg);
       return;

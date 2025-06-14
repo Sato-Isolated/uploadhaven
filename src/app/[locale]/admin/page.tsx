@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
 import Link from 'next/link';
+import { getTranslations } from 'next-intl/server';
 import AdminDashboard from '@/components/domains/admin/dashboard';
 import AdminFileManager from '@/components/domains/admin/filemanager';
 import AdminUserListWrapper from '@/components/domains/admin/users/AdminUserListWrapper';
@@ -33,6 +34,9 @@ export default async function AdminPage() {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
+
+  const t = await getTranslations('Admin');
+  const tNav = await getTranslations('Navigation');
 
   if (!session) {
     redirect('/auth/signin');
@@ -114,12 +118,12 @@ export default async function AdminPage() {
         <div className="relative z-10 mb-8 flex items-center justify-between">
           <div>
             <h1 className="bg-gradient-to-r from-gray-900 via-blue-800 to-indigo-800 bg-clip-text text-4xl font-bold text-transparent dark:from-white dark:via-blue-200 dark:to-indigo-200">
-              Admin Panel
+              {t('panel')}
             </h1>
             <p className="mt-2 text-lg text-gray-600 dark:text-gray-400">
-              Manage users, files, and system settings
+              {t('manageDescription')}
             </p>
-          </div>{' '}
+          </div>
           <div className="flex items-center gap-4">
             <ThemeToggle />
             <Link href="/dashboard">
@@ -127,7 +131,7 @@ export default async function AdminPage() {
                 variant="outline"
                 className="border-gray-200 bg-white/80 backdrop-blur-sm transition-all duration-200 hover:bg-white dark:border-gray-700 dark:bg-gray-800/80 dark:hover:bg-gray-800"
               >
-                Dashboard
+                {tNav('dashboard')}
               </Button>
             </Link>
             <Link href="/">
@@ -135,7 +139,7 @@ export default async function AdminPage() {
                 variant="outline"
                 className="border-gray-200 bg-white/80 backdrop-blur-sm transition-all duration-200 hover:bg-white dark:border-gray-700 dark:bg-gray-800/80 dark:hover:bg-gray-800"
               >
-                Home
+                {tNav('home')}
               </Button>
             </Link>
           </div>
@@ -149,25 +153,25 @@ export default async function AdminPage() {
                 value="dashboard"
                 className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-indigo-600 data-[state=active]:text-white"
               >
-                Dashboard
+                {t('overview')}
               </TabsTrigger>
               <TabsTrigger
                 value="files"
                 className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-indigo-600 data-[state=active]:text-white"
               >
-                Files
+                {t('files')}
               </TabsTrigger>
               <TabsTrigger
                 value="users"
                 className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-indigo-600 data-[state=active]:text-white"
               >
-                Users
+                {t('users')}
               </TabsTrigger>
               <TabsTrigger
                 value="analytics"
                 className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-indigo-600 data-[state=active]:text-white"
               >
-                Analytics
+                {t('analytics')}
               </TabsTrigger>
             </TabsList>
             <TabsContent value="dashboard" className="space-y-6">

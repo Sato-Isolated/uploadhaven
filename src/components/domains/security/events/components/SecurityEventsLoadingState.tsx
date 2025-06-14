@@ -1,11 +1,14 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useTranslations } from 'next-intl';
 
 export function SecurityEventsLoadingState() {
+  const t = useTranslations('Security');
+
   return (
     <Card>
       <CardHeader>
         <CardTitle className="text-lg font-semibold text-gray-900 dark:text-white">
-          Recent Security Events
+          {t('recentSecurityEventsTitle')}
         </CardTitle>
       </CardHeader>
       <CardContent>

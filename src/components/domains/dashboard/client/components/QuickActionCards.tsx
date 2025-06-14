@@ -6,37 +6,41 @@ import { motion } from 'motion/react';
 import { Card, CardContent } from '@/components/ui/card';
 import Link from 'next/link';
 import { Files, Cloud, TrendingUp } from 'lucide-react';
-
-const quickActions = [
-  {
-    title: 'Upload Files',
-    description: 'Drag & drop or click to upload',
-    icon: Cloud,
-    href: '/',
-    gradient: 'from-blue-500 to-cyan-500',
-    bgGradient: 'from-blue-50 to-cyan-50 dark:from-blue-950 dark:to-cyan-950',
-  },
-  {
-    title: 'My Files',
-    description: 'View and manage your files',
-    icon: Files,
-    href: '/dashboard/files',
-    gradient: 'from-purple-500 to-indigo-500',
-    bgGradient:
-      'from-purple-50 to-indigo-50 dark:from-purple-950 dark:to-indigo-950',
-  },
-  {
-    title: 'Analytics',
-    description: 'Track your file statistics',
-    icon: TrendingUp,
-    href: '/dashboard/analytics',
-    gradient: 'from-green-500 to-emerald-500',
-    bgGradient:
-      'from-green-50 to-emerald-50 dark:from-green-950 dark:to-emerald-950',
-  },
-];
+import { useTranslations } from 'next-intl';
 
 export default function QuickActionCards() {
+  const t = useTranslations('FileUploader');
+  const tDashboard = useTranslations('Dashboard');
+
+  const quickActions = [
+    {
+      title: t('uploadFiles'),
+      description: t('dragDropOrClick'),
+      icon: Cloud,
+      href: '/',
+      gradient: 'from-blue-500 to-cyan-500',
+      bgGradient: 'from-blue-50 to-cyan-50 dark:from-blue-950 dark:to-cyan-950',
+    },
+    {
+      title: tDashboard('myFiles'),
+      description: tDashboard('viewAndManageFiles'),
+      icon: Files,
+      href: '/dashboard/files',
+      gradient: 'from-purple-500 to-indigo-500',
+      bgGradient:
+        'from-purple-50 to-indigo-50 dark:from-purple-950 dark:to-indigo-950',
+    },
+    {
+      title: tDashboard('analytics'),
+      description: tDashboard('trackFileStats'),
+      icon: TrendingUp,
+      href: '/dashboard/analytics',
+      gradient: 'from-green-500 to-emerald-500',
+      bgGradient:
+        'from-green-50 to-emerald-50 dark:from-green-950 dark:to-emerald-950',
+    },
+  ];
+
   return (
     <motion.div
       className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-3"

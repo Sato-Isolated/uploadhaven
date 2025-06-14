@@ -14,6 +14,7 @@ import connectDB from '@/lib/mongodb';
 import { File } from '@/lib/models';
 import DeleteFileButton from '@/components/domains/ui/buttons/DeleteFileButton';
 import CopyLinkButton from '@/components/domains/ui/buttons/CopyLinkButton';
+import { getTranslations } from 'next-intl/server';
 
 async function getUserFiles(userId: string) {
   await connectDB();
@@ -51,6 +52,8 @@ export default async function UserFilesPage() {
     session.user.id
   )) as unknown as UserFileData[];
 
+  const t = await getTranslations('Files');
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
       <div className="container mx-auto px-4 py-8">
@@ -58,18 +61,18 @@ export default async function UserFilesPage() {
         <div className="mb-8 flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-              My Files
+              {t('myFiles')}
             </h1>
             <p className="mt-1 text-gray-600 dark:text-gray-400">
-              Manage your uploaded files
+              {t('manageFiles')}
             </p>
           </div>
           <div className="flex items-center gap-4">
             <Link href="/dashboard">
-              <Button variant="outline">← Back to Dashboard</Button>
+              <Button variant="outline">{t('backToDashboard')}</Button>
             </Link>
             <Link href="/">
-              <Button>Upload New File</Button>
+              <Button>{t('uploadNewFile')}</Button>
             </Link>
           </div>
         </div>
@@ -95,13 +98,13 @@ export default async function UserFilesPage() {
                   </svg>
                 </div>
                 <h3 className="mb-2 text-lg font-medium text-gray-900 dark:text-white">
-                  No files uploaded yet
+                  {t('noFilesYet')}
                 </h3>
                 <p className="mb-4 text-gray-600 dark:text-gray-400">
-                  Start by uploading your first file
+                  {t('startByUploading')}
                 </p>
                 <Link href="/">
-                  <Button>Upload Files</Button>
+                  <Button>{t('uploadFiles')}</Button>
                 </Link>
               </div>
             </CardContent>
@@ -117,12 +120,12 @@ export default async function UserFilesPage() {
                         {file.originalName}
                       </CardTitle>
                       <CardDescription>
-                        Uploaded
-                        {new Date(file.uploadDate).toLocaleDateString()} •
-                        {(file.size / 1024 / 1024).toFixed(2)} MB •
-                        {file.downloadCount} downloads
+                        {t('uploaded')}{' '}
+                        {new Date(file.uploadDate).toLocaleDateString()} •{' '}
+                        {(file.size / 1024 / 1024).toFixed(2)} MB •{' '}
+                        {file.downloadCount} {t('downloads')}
                       </CardDescription>
-                    </div>{' '}
+                    </div>
                     <div className="flex items-center gap-2">
                       <Button variant="outline" size="sm" asChild>
                         <a
@@ -130,7 +133,7 @@ export default async function UserFilesPage() {
                           target="_blank"
                           rel="noopener noreferrer"
                         >
-                          Download
+                          {t('download')}
                         </a>
                       </Button>
                       <CopyLinkButton filename={file.filename} />
@@ -140,9 +143,12 @@ export default async function UserFilesPage() {
                 <CardContent className="pt-0">
                   <div className="flex items-center justify-between text-sm text-gray-600 dark:text-gray-400">
                     <div className="flex items-center gap-4">
-                      <span>Type: {file.mimeType}</span>
                       <span>
-                        Expires: {new Date(file.expiresAt).toLocaleDateString()}
+                        {t('type')}: {file.mimeType}
+                      </span>
+                      <span>
+                        {t('expires')}:{' '}
+                        {new Date(file.expiresAt).toLocaleDateString()}
                       </span>
                       {/* Visibility indicator removed - all files use security by obscurity */}
                     </div>

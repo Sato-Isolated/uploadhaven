@@ -1,4 +1,5 @@
 import { motion } from 'motion/react';
+import { useTranslations } from 'next-intl';
 import { Card, CardContent } from '@/components/ui/card';
 import { Activity } from 'lucide-react';
 
@@ -7,6 +8,8 @@ interface UserStatsErrorStateProps {
 }
 
 export function UserStatsErrorState({ error }: UserStatsErrorStateProps) {
+  const t = useTranslations('Errors');
+  
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.9 }}
@@ -25,10 +28,10 @@ export function UserStatsErrorState({ error }: UserStatsErrorStateProps) {
             </motion.div>
             <div>
               <p className="font-medium text-red-700 dark:text-red-300">
-                Unable to load statistics
+                {t('unableToLoadStatistics')}
               </p>
               <p className="text-sm text-red-600 dark:text-red-400">
-                {error?.message || 'An unexpected error occurred'}
+                {error?.message || t('unexpectedError')}
               </p>
             </div>
           </div>

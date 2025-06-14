@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -34,13 +35,15 @@ export function UserAnalyticsTab({
   userAnalytics,
   formatDate,
 }: UserAnalyticsTabProps) {
+  const t = useTranslations('Admin');
+  
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         {/* User Growth Chart */}
         <Card>
           <CardHeader>
-            <CardTitle>User Growth</CardTitle>
+            <CardTitle>{t('userGrowth')}</CardTitle>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
@@ -56,7 +59,7 @@ export function UserAnalyticsTab({
                   dataKey="count"
                   stroke="#10B981"
                   strokeWidth={2}
-                  name="New Users"
+                  name={t('newUsers')}
                 />
               </LineChart>
             </ResponsiveContainer>
@@ -66,7 +69,7 @@ export function UserAnalyticsTab({
         {/* Storage by User */}
         <Card>
           <CardHeader>
-            <CardTitle>Top Users by Storage</CardTitle>
+            <CardTitle>{t('topUsersByStorage')}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
@@ -77,10 +80,10 @@ export function UserAnalyticsTab({
                 >
                   <div>
                     <p className="text-sm font-medium">
-                      {user.userName || 'Unknown User'}
+                      {user.userName || t('unknownUser')}
                     </p>
                     <p className="text-xs text-gray-500">
-                      {user.fileCount} files
+                      {t('filesCount', { count: user.fileCount })}
                     </p>
                   </div>
                   <Badge variant="outline">{user.totalSize}</Badge>

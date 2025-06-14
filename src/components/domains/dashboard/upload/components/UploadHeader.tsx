@@ -5,12 +5,15 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Upload, Settings } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 interface UploadHeaderProps {
   onToggleSettings: () => void;
 }
 
 export function UploadHeader({ onToggleSettings }: UploadHeaderProps) {
+  const t = useTranslations('FileUploader');
+
   return (
     <CardHeader className="border-b border-gray-200/50 bg-gradient-to-r from-gray-50/50 to-gray-100/50 dark:border-gray-700/50 dark:from-gray-800/50 dark:to-gray-900/50">
       <motion.div
@@ -28,9 +31,9 @@ export function UploadHeader({ onToggleSettings }: UploadHeaderProps) {
               <Upload className="h-6 w-6 text-white" />
             </motion.div>
             <div>
-              <CardTitle className="text-2xl">Upload Files</CardTitle>
+              <CardTitle className="text-2xl">{t('uploadFiles')}</CardTitle>
               <CardDescription className="text-base">
-                Drag & drop files or click to browse
+                {t('dragDropFilesOrClick')}
               </CardDescription>
             </div>
           </div>
@@ -42,7 +45,7 @@ export function UploadHeader({ onToggleSettings }: UploadHeaderProps) {
               className="bg-white/50 backdrop-blur-sm dark:bg-gray-900/50"
             >
               <Settings className="mr-2 h-4 w-4" />
-              Settings
+              {t('settings')}
             </Button>
             <Link href="/dashboard/files">
               <Button
@@ -50,7 +53,7 @@ export function UploadHeader({ onToggleSettings }: UploadHeaderProps) {
                 size="sm"
                 className="bg-white/50 backdrop-blur-sm dark:bg-gray-900/50"
               >
-                View All Files
+                {t('viewAllFiles')}
               </Button>
             </Link>
           </div>

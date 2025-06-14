@@ -5,6 +5,7 @@ import UserAnalytics from '@/components/domains/analytics/user';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
+import { getTranslations } from 'next-intl/server';
 
 export default async function UserAnalyticsPage() {
   const session = await auth.api.getSession({
@@ -15,6 +16,8 @@ export default async function UserAnalyticsPage() {
     redirect('/auth/signin');
   }
 
+  const t = await getTranslations('Analytics');
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
       <div className="container mx-auto px-4 py-8">
@@ -22,16 +25,16 @@ export default async function UserAnalyticsPage() {
         <div className="mb-8 flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-              Analytics
+              {t('title')}
             </h1>
             <p className="mt-1 text-gray-600 dark:text-gray-400">
-              Track your file downloads and performance
+              {t('description')}
             </p>
           </div>
           <Link href="/dashboard">
             <Button variant="outline" className="flex items-center gap-2">
               <ArrowLeft className="h-4 w-4" />
-              Back to Dashboard
+              {t('backToDashboard')}
             </Button>
           </Link>
         </div>

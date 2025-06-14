@@ -4,12 +4,15 @@ import { motion } from 'motion/react';
 import { TrendingUp } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { DownloadAnalytics } from './utils';
+import { useTranslations } from 'next-intl';
 
 interface TrendsChartProps {
   analytics: DownloadAnalytics;
 }
 
 export function TrendsChart({ analytics }: TrendsChartProps) {
+  const t = useTranslations('Analytics');
+
   if (!analytics.downloadTrends || analytics.downloadTrends.length === 0) {
     return null;
   }
@@ -24,9 +27,9 @@ export function TrendsChart({ analytics }: TrendsChartProps) {
         <h3 className="mb-6 flex items-center gap-2 text-xl font-semibold">
           <TrendingUp className="h-6 w-6 text-orange-600 dark:text-orange-400" />
           <span className="bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent dark:from-orange-400 dark:to-red-400">
-            Download Trends (Last 7 Days)
+            {t('downloadTrendsLast7Days')}
           </span>
-        </h3>{' '}
+        </h3>
         <div className="space-y-4">
           {analytics.downloadTrends.map((trend, index) => (
             <motion.div

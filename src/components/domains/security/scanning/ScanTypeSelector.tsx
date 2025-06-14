@@ -11,6 +11,7 @@ import {
 } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Zap, Search, Shield } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import type { ScanType } from '@/types/security';
 import { BaseComponentProps } from '@/types';
 
@@ -74,13 +75,13 @@ export default function ScanTypeSelector({
   disabled = false,
   className = '',
 }: ScanTypeSelectorProps) {
+  const t = useTranslations('Security');
+
   return (
     <Card className={className}>
       <CardHeader>
-        <CardTitle className="text-lg">Select Scan Type</CardTitle>
-        <CardDescription>
-          Choose the type of security scan to perform
-        </CardDescription>
+        <CardTitle className="text-lg">{t('selectScanType')}</CardTitle>
+        <CardDescription>{t('chooseScanTypeDescription')}</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">

@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from 'react';
 import { toast } from 'sonner';
+import { useTranslations } from 'next-intl';
 import type { FileUploadOptions, FileDeleteOptions } from '@/types';
 
 /**
@@ -9,6 +10,7 @@ import type { FileUploadOptions, FileDeleteOptions } from '@/types';
  * Consolidates file handling logic used across FileUploader, AdminFileManager, etc.
  */
 export function useFileOperations() {
+  const t = useTranslations('Upload');
   const [uploading, setUploading] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
@@ -47,16 +49,16 @@ export function useFileOperations() {
         const result = await response.json();
 
         if (!response.ok || !result.success) {
-          throw new Error(result.error || 'Upload failed');
+          throw new Error(result.error || t('uploadFailed'));
         }
 
-        toast.success('File uploaded successfully!');
+        toast.success(t('fileUploadedSuccessfully'));
         options.onSuccess?.(result);
 
         return result;
       } catch (error) {
         const errorMessage =
-          error instanceof Error ? error.message : 'Upload failed';
+          error instanceof Error ? error.message : t('uploadFailed');
         toast.error(errorMessage);
         options.onError?.(errorMessage);
         throw error;
@@ -85,16 +87,16 @@ export function useFileOperations() {
         const result = await response.json();
 
         if (!result.success) {
-          throw new Error(result.error || 'Delete failed');
+          throw new Error(result.error || t('deleteFailed'));
         }
 
-        toast.success('File deleted successfully!');
+        toast.success(t('fileDeletedSuccessfully'));
         options.onSuccess?.();
 
         return result;
       } catch (error) {
         const errorMessage =
-          error instanceof Error ? error.message : 'Delete failed';
+          error instanceof Error ? error.message : t('deleteFailed');
         toast.error(errorMessage);
         options.onError?.(errorMessage);
         throw error;
@@ -123,16 +125,18 @@ export function useFileOperations() {
         const result = await response.json();
 
         if (!result.success) {
-          throw new Error(result.error || 'Bulk delete failed');
+          throw new Error(result.error || t('bulkDeleteFailed'));
         }
 
-        toast.success(`Successfully deleted ${result.deletedCount} files`);
+        toast.success(
+          t('successfullyDeletedFiles', { count: result.deletedCount })
+        );
         options.onSuccess?.();
 
         return result;
       } catch (error) {
         const errorMessage =
-          error instanceof Error ? error.message : 'Bulk delete failed';
+          error instanceof Error ? error.message : t('bulkDeleteFailed');
         toast.error(errorMessage);
         options.onError?.(errorMessage);
         throw error;
@@ -159,11 +163,11 @@ export function useFileOperations() {
       ];
 
       if (file.size > MAX_SIZE) {
-        return { valid: false, error: 'File size must be less than 100MB' };
+        return { valid: false, error: t('fileSizeMustBeLess') };
       }
 
       if (!ALLOWED_TYPES.includes(file.type)) {
-        return { valid: false, error: 'File type not allowed' };
+        return { valid: false, error: t('fileTypeNotAllowedGeneric') };
       }
 
       return { valid: true };

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useTranslations } from 'next-intl';
 import { useQueryClient } from '@tanstack/react-query';
 import {
   Card,
@@ -28,6 +29,8 @@ interface PerformanceMetrics {
 }
 
 export function PerformanceTest() {
+  const t = useTranslations('Admin');
+  
   const [metrics, setMetrics] = useState<PerformanceMetrics>({
     queryCount: 0,
     cacheHits: 0,
@@ -175,11 +178,10 @@ export function PerformanceTest() {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Zap className="h-5 w-5" />
-          TanStack Query Performance Monitor
+          {t('performanceMonitorTitle')}
         </CardTitle>
         <CardDescription>
-          Real-time monitoring of query performance, caching efficiency, and
-          WebSocket status
+          {t('performanceMonitorDescription')}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -194,15 +196,15 @@ export function PerformanceTest() {
                   ) : (
                     <WifiOff className="h-4 w-4 text-red-500" />
                   )}
-                  <span className="text-sm font-medium">WebSocket</span>
+                  <span className="text-sm font-medium">{t('webSocket')}</span>
                 </div>
                 <Badge variant={wsConnected ? 'default' : 'destructive'}>
-                  {wsConnected ? 'Connected' : 'Disconnected'}
+                  {wsConnected ? t('connected') : t('disconnected')}
                 </Badge>
               </div>
               {activityCount > 0 && (
                 <div className="mt-2">
-                  <Badge variant="secondary">{activityCount} new events</Badge>
+                  <Badge variant="secondary">{t('newEventsCount', { count: activityCount })}</Badge>
                 </div>
               )}
             </CardContent>
@@ -213,7 +215,7 @@ export function PerformanceTest() {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Activity className="h-4 w-4 text-blue-500" />
-                  <span className="text-sm font-medium">Active Queries</span>
+                  <span className="text-sm font-medium">{t('activeQueries')}</span>
                 </div>
                 <Badge variant="outline">{metrics.queryCount}</Badge>
               </div>
@@ -225,7 +227,7 @@ export function PerformanceTest() {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <CheckCircle className="h-4 w-4 text-green-500" />
-                  <span className="text-sm font-medium">Cache Efficiency</span>
+                  <span className="text-sm font-medium">{t('cacheEfficiency')}</span>
                 </div>
                 <Badge variant="outline">{cacheEfficiency.toFixed(1)}%</Badge>
               </div>
@@ -240,19 +242,19 @@ export function PerformanceTest() {
             <div className="text-2xl font-bold text-green-600">
               {metrics.cacheHits}
             </div>
-            <div className="text-muted-foreground text-sm">Cache Hits</div>
+            <div className="text-muted-foreground text-sm">{t('cacheHits')}</div>
           </div>
           <div className="rounded-lg border p-4 text-center">
             <div className="text-2xl font-bold text-red-600">
               {metrics.cacheMisses}
             </div>
-            <div className="text-muted-foreground text-sm">Cache Misses</div>
+            <div className="text-muted-foreground text-sm">{t('cacheMisses')}</div>
           </div>
           <div className="rounded-lg border p-4 text-center">
             <div className="text-2xl font-bold text-blue-600">
               {metrics.totalQueries}
             </div>
-            <div className="text-muted-foreground text-sm">Total Queries</div>
+            <div className="text-muted-foreground text-sm">{t('totalQueries')}</div>
           </div>
           <div className="rounded-lg border p-4 text-center">
             <div className="text-2xl font-bold text-purple-600">
@@ -260,7 +262,7 @@ export function PerformanceTest() {
                 ? `${metrics.avgResponseTime.toFixed(0)}ms`
                 : '-'}
             </div>
-            <div className="text-muted-foreground text-sm">Avg Response</div>
+            <div className="text-muted-foreground text-sm">{t('avgResponse')}</div>
           </div>
         </div>
 
@@ -274,17 +276,17 @@ export function PerformanceTest() {
             {isRunning ? (
               <>
                 <Clock className="h-4 w-4 animate-spin" />
-                Running Test...
+                {t('runningTest')}
               </>
             ) : (
               <>
                 <Zap className="h-4 w-4" />
-                Run Performance Test
+                {t('runPerformanceTest')}
               </>
             )}
           </Button>
           <Button variant="outline" onClick={clearCache}>
-            Clear Cache
+            {t('clearCache')}
           </Button>
         </div>
 
@@ -292,28 +294,28 @@ export function PerformanceTest() {
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <Card>
             <CardContent className="p-4">
-              <h4 className="mb-2 font-medium">Current Loading States</h4>
+              <h4 className="mb-2 font-medium">{t('currentLoadingStates')}</h4>
               <div className="space-y-2">
                 <div className="flex justify-between">
-                  <span className="text-sm">Stats Query:</span>
+                  <span className="text-sm">{t('statsQuery')}:</span>
                   <Badge variant={statsLoading ? 'destructive' : 'default'}>
-                    {statsLoading ? 'Loading' : 'Loaded'}
+                    {statsLoading ? t('loading') : t('loaded')}
                   </Badge>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-sm">Activities Query:</span>
+                  <span className="text-sm">{t('activitiesQuery')}:</span>
                   <Badge
                     variant={activitiesLoading ? 'destructive' : 'default'}
                   >
-                    {activitiesLoading ? 'Loading' : 'Loaded'}
+                    {activitiesLoading ? t('loading') : t('loaded')}
                   </Badge>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-sm">Infinite Loading:</span>
+                  <span className="text-sm">{t('infiniteLoading')}:</span>
                   <Badge
                     variant={isFetchingNextPage ? 'destructive' : 'secondary'}
                   >
-                    {isFetchingNextPage ? 'Fetching' : 'Ready'}
+                    {isFetchingNextPage ? t('fetching') : t('ready')}
                   </Badge>
                 </div>
               </div>
@@ -322,24 +324,24 @@ export function PerformanceTest() {
 
           <Card>
             <CardContent className="p-4">
-              <h4 className="mb-2 font-medium">Data Status</h4>
+              <h4 className="mb-2 font-medium">{t('dataStatus')}</h4>
               <div className="space-y-2">
                 <div className="flex justify-between">
-                  <span className="text-sm">Stats Data:</span>
+                  <span className="text-sm">{t('statsData')}:</span>
                   <Badge variant={stats ? 'default' : 'secondary'}>
-                    {stats ? 'Available' : 'Empty'}
+                    {stats ? t('available') : t('empty')}
                   </Badge>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-sm">Activities Pages:</span>
+                  <span className="text-sm">{t('activitiesPages')}:</span>
                   <Badge variant="outline">
-                    {activities?.pages?.length || 0} pages
+                    {activities?.pages?.length || 0} {t('pages')}
                   </Badge>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-sm">Has Next Page:</span>
+                  <span className="text-sm">{t('hasNextPage')}:</span>
                   <Badge variant={hasNextPage ? 'default' : 'secondary'}>
-                    {hasNextPage ? 'Yes' : 'No'}
+                    {hasNextPage ? t('yes') : t('no')}
                   </Badge>
                 </div>
               </div>

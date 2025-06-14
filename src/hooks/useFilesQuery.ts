@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ApiClient } from '@/lib/api/client';
 import { queryKeys } from '@/lib/queryKeys';
 import { toast } from 'sonner';
+import { useTranslations } from 'next-intl';
 import type { ClientFileData } from '@/types';
 
 interface FilesResponse {
@@ -9,7 +10,7 @@ interface FilesResponse {
 }
 
 /**
- * Hook pour récupérer la liste des fichiers
+ * Hook to fetch the list of files
  */
 export function useFiles() {
   return useQuery({
@@ -25,7 +26,7 @@ export function useFiles() {
 }
 
 /**
- * Hook pour récupérer un fichier spécifique
+ * Hook to fetch a specific file
  */
 export function useFile(id: string) {
   return useQuery({
@@ -37,10 +38,11 @@ export function useFile(id: string) {
 }
 
 /**
- * Hook pour supprimer un seul fichier avec optimistic updates
+ * Hook to delete a single file with optimistic updates
  */
 export function useDeleteFile() {
   const queryClient = useQueryClient();
+  const t = useTranslations('Query');
 
   return useMutation({
     mutationFn: (filename: string) =>
@@ -66,7 +68,7 @@ export function useDeleteFile() {
     onError: (err, variables, context) => {
       // If the mutation fails, roll back
       queryClient.setQueryData(queryKeys.files(), context?.previousFiles);
-      toast.error('Failed to delete file. Please try again.');
+      toast.error(t('failedToDeleteFile'));
     },
 
     onSettled: () => {
@@ -77,16 +79,17 @@ export function useDeleteFile() {
     },
 
     onSuccess: () => {
-      toast.success('File deleted successfully');
+      toast.success(t('fileDeletedSuccessfully'));
     },
   });
 }
 
 /**
- * Hook pour supprimer des fichiers avec optimistic updates
+ * Hook to delete multiple files with optimistic updates
  */
 export function useDeleteFiles() {
   const queryClient = useQueryClient();
+  const t = useTranslations('Query');
 
   return useMutation({
     mutationFn: (filenames: string[]) =>
@@ -112,7 +115,7 @@ export function useDeleteFiles() {
     onError: (err, variables, context) => {
       // If the mutation fails, roll back
       queryClient.setQueryData(queryKeys.files(), context?.previousFiles);
-      toast.error('Failed to delete files. Please try again.');
+      toast.error(t('failedToDeleteFiles'));
     },
 
     onSettled: () => {
@@ -123,16 +126,17 @@ export function useDeleteFiles() {
     },
 
     onSuccess: (data, variables) => {
-      toast.success(`Successfully deleted ${variables.length} file(s)`);
+      toast.success(t('successfullyDeletedCount', { count: variables.length }));
     },
   });
 }
 
 /**
- * Hook pour upload de fichiers
+ * Hook for file upload
  */
 export function useUploadFile() {
   const queryClient = useQueryClient();
+  const t = useTranslations('Query');
 
   return useMutation<ClientFileData, Error, FormData>({
     mutationFn: async (formData: FormData): Promise<ClientFileData> => {
@@ -151,11 +155,11 @@ export function useUploadFile() {
       queryClient.invalidateQueries({ queryKey: queryKeys.userStats() });
       queryClient.invalidateQueries({ queryKey: queryKeys.analytics() });
 
-      toast.success('File uploaded successfully');
+      toast.success(t('fileUploadedSuccessfully'));
     },
 
     onError: (error) => {
-      toast.error('Upload failed. Please try again.');
+      toast.error(t('uploadFailedTryAgain'));
       console.error('Upload error:', error);
     },
   });

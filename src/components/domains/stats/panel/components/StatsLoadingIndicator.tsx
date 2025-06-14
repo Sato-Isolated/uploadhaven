@@ -9,8 +9,11 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { TrendingUp } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 export default function StatsLoadingIndicator() {
+  const t = useTranslations('Stats');
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -33,8 +36,8 @@ export default function StatsLoadingIndicator() {
                 <TrendingUp className="h-5 w-5 text-white" />
               </motion.div>
               <div>
-                <CardTitle>Server Statistics</CardTitle>
-                <CardDescription>Loading server metrics...</CardDescription>
+                <CardTitle>{t('title')}</CardTitle>
+                <CardDescription>{t('description')}</CardDescription>
               </div>
             </div>
           </motion.div>

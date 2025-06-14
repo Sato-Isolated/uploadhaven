@@ -7,18 +7,20 @@ import { toast } from 'sonner';
 import { motion } from 'motion/react';
 import { LogOut, Loader2 } from 'lucide-react';
 import { useAsyncOperation } from '@/hooks';
+import { useTranslations } from 'next-intl';
 
 export default function SignOutButton() {
   const router = useRouter();
+  const t = useTranslations('Auth');
 
   const { loading: isLoading, execute } = useAsyncOperation({
     onSuccess: () => {
-      toast.success('Signed out successfully');
+      toast.success(t('signedOutSuccessfully'));
       router.push('/');
       router.refresh();
     },
     onError: () => {
-      toast.error('Failed to sign out');
+      toast.error(t('failedToSignOut'));
     },
   });
 
@@ -52,7 +54,7 @@ export default function SignOutButton() {
           ) : (
             <LogOut className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
           )}
-          {isLoading ? 'Signing out...' : 'Sign Out'}
+          {isLoading ? t('signingOut') : t('signOut')}
         </span>
       </Button>
     </motion.div>

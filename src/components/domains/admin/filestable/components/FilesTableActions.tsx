@@ -1,4 +1,5 @@
 import { motion } from 'motion/react';
+import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -22,6 +23,8 @@ export function FilesTableActions({
   onDownloadFile,
   onDeleteFile,
 }: FilesTableActionsProps) {
+  const t = useTranslations('Admin');
+  
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -40,21 +43,21 @@ export function FilesTableActions({
           className="hover:bg-blue-50 dark:hover:bg-blue-950/50"
         >
           <Eye className="mr-2 h-4 w-4 text-blue-600" />
-          View Details
+          {t('viewDetails')}
         </DropdownMenuItem>
         <DropdownMenuItem
           onClick={() => onDownloadFile(file.name)}
           className="hover:bg-green-50 dark:hover:bg-green-950/50"
         >
           <Download className="mr-2 h-4 w-4 text-green-600" />
-          Download
+          {t('download')}
         </DropdownMenuItem>
         <DropdownMenuItem
           className="text-red-600 hover:bg-red-50 dark:hover:bg-red-950/50"
           onClick={() => onDeleteFile(file.name)}
         >
           <Trash2 className="mr-2 h-4 w-4" />
-          Delete
+          {t('delete')}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

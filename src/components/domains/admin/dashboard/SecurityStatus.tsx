@@ -1,6 +1,7 @@
 'use client';
 
 import { motion } from 'motion/react';
+import { useTranslations } from 'next-intl';
 import {
   Card,
   CardContent,
@@ -30,6 +31,8 @@ export default function SecurityStatus({
   securityStats,
   loading,
 }: SecurityStatusProps) {
+  const t = useTranslations('Admin');
+  
   return (
     <motion.div
       initial={{ opacity: 0, x: 20 }}
@@ -40,39 +43,39 @@ export default function SecurityStatus({
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Shield className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
-            Security Status
+            {t('securityStatus')}
           </CardTitle>
-          <CardDescription>System security overview</CardDescription>
+          <CardDescription>{t('securityStatusDescription')}</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
             <div className="flex items-center justify-between rounded-lg border border-emerald-200 bg-emerald-50 p-3 dark:border-emerald-800 dark:bg-emerald-950/20">
               <div className="flex items-center gap-3">
                 <div className="h-2 w-2 rounded-full bg-emerald-500"></div>
-                <span className="text-sm font-medium">System Status</span>
+                <span className="text-sm font-medium">{t('systemStatus')}</span>
               </div>
               <Badge
                 variant="outline"
                 className="border-emerald-300 bg-emerald-100 text-emerald-700 dark:border-emerald-700 dark:bg-emerald-900 dark:text-emerald-300"
               >
-                Healthy
+                {t('healthy')}
               </Badge>
             </div>
             <div className="space-y-2">
               <div className="flex justify-between text-sm">
-                <span>Security Events</span>
+                <span>{t('securityEvents')}</span>
                 <span className="font-medium">
                   {loading ? '...' : securityStats.totalEvents}
                 </span>
               </div>
               <div className="flex justify-between text-sm">
-                <span>Rate Limit Hits</span>
+                <span>{t('rateLimitHits')}</span>
                 <span className="font-medium">
                   {loading ? '...' : securityStats.rateLimitHits}
                 </span>
               </div>
               <div className="flex justify-between text-sm">
-                <span>Blocked IPs</span>
+                <span>{t('blockedIPs')}</span>
                 <span className="font-medium">
                   {loading ? '...' : securityStats.blockedIPs}
                 </span>
@@ -83,12 +86,12 @@ export default function SecurityStatus({
             <Dialog>
               <DialogTrigger asChild>
                 <Button variant="outline" size="sm" className="w-full">
-                  Security Dashboard
+                  {t('securityDashboard')}
                 </Button>
               </DialogTrigger>
               <DialogContent className="max-h-[85vh] !max-w-6xl overflow-hidden">
                 <DialogHeader>
-                  <DialogTitle>Security Dashboard</DialogTitle>
+                  <DialogTitle>{t('securityDashboard')}</DialogTitle>
                 </DialogHeader>
                 <div className="max-h-[75vh] overflow-y-auto pr-2">
                   <SecurityPanel />

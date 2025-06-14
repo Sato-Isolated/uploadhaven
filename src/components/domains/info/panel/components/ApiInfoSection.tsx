@@ -10,11 +10,14 @@ import {
 } from '@/components/ui/card';
 import { Shield } from 'lucide-react';
 import { ApiInfoProps } from '../types';
+import { useTranslations } from 'next-intl';
 
 export default function ApiInfoSection({
   endpoints,
   exampleCommand,
 }: ApiInfoProps) {
+  const t = useTranslations('API');
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -26,17 +29,15 @@ export default function ApiInfoSection({
           <CardTitle className="flex items-center gap-2">
             <Shield className="h-6 w-6 text-purple-600 dark:text-purple-400" />
             <span className="bg-gradient-to-r from-purple-600 to-violet-600 bg-clip-text text-transparent dark:from-purple-400 dark:to-violet-400">
-              API Access
+              {t('apiAccess')}
             </span>
           </CardTitle>
           <CardDescription className="text-purple-600 dark:text-purple-400">
-            Programmatic access to UploadHaven
+            {t('programmaticAccess')}
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {' '}
           <div className="space-y-6">
-            {' '}
             {endpoints.map((endpoint, index) => (
               <motion.div
                 key={`endpoint-${endpoint.title}-${index}`}
@@ -64,7 +65,7 @@ export default function ApiInfoSection({
               transition={{ duration: 0.3, delay: 0.5 }}
             >
               <h4 className="mb-3 font-semibold text-purple-900 dark:text-purple-100">
-                Example Usage
+                {t('exampleUsage')}
               </h4>
               <div className="rounded-lg bg-purple-100 p-4 backdrop-blur-sm dark:bg-purple-900">
                 <code className="font-mono text-sm break-all text-purple-800 dark:text-purple-200">

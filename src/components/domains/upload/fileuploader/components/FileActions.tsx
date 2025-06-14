@@ -5,6 +5,7 @@
 import { motion, AnimatePresence } from 'motion/react';
 import { Button } from '@/components/ui/button';
 import { Link2, Copy, X } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import FileStatusBadge from './FileStatusBadge';
 import type { FileHandlerProps } from '@/types';
 
@@ -18,6 +19,8 @@ export default function FileActions({
   onRemoveFile,
   onCopyToClipboard,
 }: FileActionsProps) {
+  const t = useTranslations('FileUploader');
+
   return (
     <div className="flex items-center space-x-2">
       <AnimatePresence mode="wait">
@@ -38,11 +41,11 @@ export default function FileActions({
             <Button
               size="sm"
               variant="default"
-              onClick={() => onCopyToClipboard(file.shortUrl!, 'Short URL')}
+              onClick={() => onCopyToClipboard(file.shortUrl!, t('shortUrl'))}
               className="bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700"
             >
               <Link2 className="mr-1 h-3 w-3" />
-              Copy Link
+              {t('copyLink')}
             </Button>
           </motion.div>
         )}
@@ -56,11 +59,11 @@ export default function FileActions({
             <Button
               size="sm"
               variant="outline"
-              onClick={() => onCopyToClipboard(file.url!, 'Direct URL')}
+              onClick={() => onCopyToClipboard(file.url!, t('directUrl'))}
               className="border-blue-200 hover:bg-blue-50 dark:border-blue-800 dark:hover:bg-blue-950"
             >
               <Copy className="mr-1 h-3 w-3" />
-              Direct
+              {t('direct')}
             </Button>
           </motion.div>
         )}

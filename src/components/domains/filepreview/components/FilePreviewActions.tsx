@@ -1,5 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { Download, Share2, AlertCircle } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 interface FilePreviewActionsProps {
   isExpired: boolean;
@@ -14,6 +15,9 @@ export function FilePreviewActions({
   onDownload,
   onCopyShareLink,
 }: FilePreviewActionsProps) {
+  const t = useTranslations('FilePreview');
+  const tCommon = useTranslations('Common');
+  
   return (
     <div className="space-y-3">
       {!isExpired ? (
@@ -24,14 +28,14 @@ export function FilePreviewActions({
           size="lg"
         >
           <Download className="mr-2 h-5 w-5" />
-          {downloading ? 'Starting Download...' : 'Download File'}
+          {downloading ? t('startingDownload') : t('downloadFile')}
         </Button>
       ) : (
         <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-center">
           <AlertCircle className="mx-auto mb-2 h-6 w-6 text-red-600" />
-          <p className="font-medium text-red-800">This file has expired</p>
+          <p className="font-medium text-red-800">{t('fileExpired')}</p>
           <p className="text-sm text-red-600">
-            Download is no longer available
+            {t('downloadNoLongerAvailable')}
           </p>
         </div>
       )}
@@ -43,7 +47,7 @@ export function FilePreviewActions({
         size="lg"
       >
         <Share2 className="mr-2 h-5 w-5" />
-        Copy Share Link
+        {t('copyShareLink')}
       </Button>
     </div>
   );

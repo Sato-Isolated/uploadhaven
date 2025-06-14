@@ -1,11 +1,15 @@
 import { Metadata } from 'next';
+import { getTranslations } from 'next-intl/server';
 import FilePreviewClient from '@/components/domains/filepreview/FilePreviewClient';
 
-export const metadata: Metadata = {
-  title: 'File Preview - UploadHaven',
-  description:
-    'Preview and download files securely with UploadHaven. View file details before downloading.',
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('FilePreview');
+
+  return {
+    title: t('pageTitle'),
+    description: t('pageDescription'),
+  };
+}
 
 export default function FilePreviewPage() {
   return <FilePreviewClient />;

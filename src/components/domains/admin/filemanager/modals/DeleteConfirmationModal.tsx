@@ -1,6 +1,7 @@
 'use client';
 
 import { motion } from 'motion/react';
+import { useTranslations } from 'next-intl';
 import {
   Dialog,
   DialogContent,
@@ -24,6 +25,8 @@ export default function DeleteConfirmationModal({
   onCancel,
   isLoading,
 }: DeleteConfirmationModalProps) {
+  const t = useTranslations('Modal');
+
   return (
     <Dialog open={fileToDelete !== null} onOpenChange={onCancel}>
       <DialogContent className="max-w-md border border-red-200/60 bg-white/95 backdrop-blur-sm dark:border-red-800/60 dark:bg-gray-900/95">
@@ -35,11 +38,10 @@ export default function DeleteConfirmationModal({
             >
               <Trash2 className="h-5 w-5" />
             </motion.div>
-            Delete File
+            {t('deleteFile')}
           </DialogTitle>
           <DialogDescription className="text-gray-600 dark:text-gray-400">
-            Are you sure you want to delete this file? This action cannot be
-            undone and the file will be permanently removed from the system.
+            {t('deleteFileDescription')}
           </DialogDescription>
         </DialogHeader>
         <motion.div
@@ -55,7 +57,7 @@ export default function DeleteConfirmationModal({
               disabled={isLoading}
               className="bg-white/50 dark:bg-gray-900/50"
             >
-              Cancel
+              {t('cancel')}
             </Button>
           </motion.div>
           <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
@@ -70,7 +72,7 @@ export default function DeleteConfirmationModal({
               ) : (
                 <Trash2 className="mr-2 h-4 w-4" />
               )}
-              Delete
+              {t('delete')}
             </Button>
           </motion.div>
         </motion.div>

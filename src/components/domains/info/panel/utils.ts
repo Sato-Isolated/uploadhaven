@@ -11,13 +11,15 @@ import {
 } from './types';
 
 // Create feature items data
-export const createFeatureItems = (): FeatureItem[] => [
+export const createFeatureItems = (
+  t: (key: string) => string
+): FeatureItem[] => [
   {
     icon: React.createElement(FileIcon, {
       className: 'h-5 w-5 text-blue-600 dark:text-blue-400',
     }),
-    title: 'Drag & Drop Upload',
-    description: 'Simply drag files or click to select multiple files at once',
+    title: t('dragDropUpload'),
+    description: t('dragDropDescription'),
     iconBgColor: 'bg-blue-100 dark:bg-blue-900',
     delay: 0.2,
   },
@@ -25,8 +27,8 @@ export const createFeatureItems = (): FeatureItem[] => [
     icon: React.createElement(ShareIcon, {
       className: 'h-5 w-5 text-green-600 dark:text-green-400',
     }),
-    title: 'Instant Sharing',
-    description: 'Get shareable links immediately after upload',
+    title: t('instantSharing'),
+    description: t('instantSharingDescription'),
     iconBgColor: 'bg-green-100 dark:bg-green-900',
     delay: 0.25,
   },
@@ -34,8 +36,8 @@ export const createFeatureItems = (): FeatureItem[] => [
     icon: React.createElement(ShieldIcon, {
       className: 'h-5 w-5 text-purple-600 dark:text-purple-400',
     }),
-    title: 'Secure & Private',
-    description: 'Files are validated and stored securely',
+    title: t('securePrivate'),
+    description: t('securePrivateDescription'),
     iconBgColor: 'bg-purple-100 dark:bg-purple-900',
     delay: 0.3,
   },
@@ -43,8 +45,8 @@ export const createFeatureItems = (): FeatureItem[] => [
     icon: React.createElement(Clock, {
       className: 'h-5 w-5 text-orange-600 dark:text-orange-400',
     }),
-    title: 'Flexible Expiration',
-    description: 'Choose when your files expire - from 1 hour to never',
+    title: t('flexibleExpiration'),
+    description: t('flexibleExpirationDescription'),
     iconBgColor: 'bg-orange-100 dark:bg-orange-900',
     delay: 0.35,
   },
@@ -52,17 +54,19 @@ export const createFeatureItems = (): FeatureItem[] => [
     icon: React.createElement(ZapIcon, {
       className: 'h-5 w-5 text-yellow-600 dark:text-yellow-400',
     }),
-    title: 'Fast & Reliable',
-    description: 'Built with Next.js for optimal performance',
+    title: t('fastReliable'),
+    description: t('fastReliableDescription'),
     iconBgColor: 'bg-yellow-100 dark:bg-yellow-900',
     delay: 0.4,
   },
 ];
 
 // Create upload limit items data
-export const createUploadLimitItems = (): UploadLimitItem[] => [
+export const createUploadLimitItems = (
+  t: (key: string) => string
+): UploadLimitItem[] => [
   {
-    label: 'Maximum file size',
+    label: t('maximumFileSize'),
     value: React.createElement(
       Badge,
       {
@@ -77,108 +81,109 @@ export const createUploadLimitItems = (): UploadLimitItem[] => [
 ];
 
 // Create supported formats data
-export const createSupportedFormats = (): SupportedFormat[] => [
+export const createSupportedFormats = (
+  t: (key: string) => string
+): SupportedFormat[] => [
   {
-    name: 'Images',
+    name: t('images'),
     color:
       'border-emerald-300 text-emerald-700 dark:border-emerald-700 dark:text-emerald-300',
   },
   {
-    name: 'Videos',
+    name: t('videos'),
     color:
       'border-emerald-300 text-emerald-700 dark:border-emerald-700 dark:text-emerald-300',
   },
   {
-    name: 'Audio',
+    name: t('audio'),
     color:
       'border-emerald-300 text-emerald-700 dark:border-emerald-700 dark:text-emerald-300',
   },
   {
-    name: 'Documents',
+    name: t('documents'),
     color:
       'border-emerald-300 text-emerald-700 dark:border-emerald-700 dark:text-emerald-300',
   },
 ];
 
 // Create expiration options data
-export const createExpirationOptions = (): ExpirationOption[] => [
+export const createExpirationOptions = (
+  t: (key: string) => string
+): ExpirationOption[] => [
   {
-    label: '1 Hour',
+    label: t('oneHour'),
     color:
       'border-emerald-300 text-emerald-700 dark:border-emerald-700 dark:text-emerald-300',
   },
   {
-    label: '24 Hours',
+    label: t('twentyFourHours'),
     color:
       'border-emerald-300 text-emerald-700 dark:border-emerald-700 dark:text-emerald-300',
   },
   {
-    label: '7 Days',
+    label: t('sevenDays'),
     color:
       'border-emerald-300 text-emerald-700 dark:border-emerald-700 dark:text-emerald-300',
   },
   {
-    label: '30 Days',
+    label: t('thirtyDays'),
     color:
       'border-emerald-300 text-emerald-700 dark:border-emerald-700 dark:text-emerald-300',
   },
   {
-    label: 'Never',
+    label: t('never'),
     color:
       'border-emerald-300 text-emerald-700 dark:border-emerald-700 dark:text-emerald-300',
   },
 ];
 
 // Create supported file types data
-export const createSupportedTypes = () => [
-  { name: 'Images', extensions: 'JPEG, PNG, GIF, WebP' },
-  { name: 'Documents', extensions: 'PDF, TXT' },
-  { name: 'Archives', extensions: 'ZIP' },
-  { name: 'Video', extensions: 'MP4' },
-  { name: 'Audio', extensions: 'MP3' },
+export const createSupportedTypes = (t: (key: string) => string) => [
+  { name: t('images'), extensions: t('imagesExtensions') },
+  { name: t('documents'), extensions: t('documentsExtensions') },
+  { name: t('archives'), extensions: t('archivesExtensions') },
+  { name: t('video'), extensions: t('videoExtensions') },
+  { name: t('audio'), extensions: t('audioExtensions') },
 ];
 
 // Create API endpoints data
-export const createApiEndpoints = (): ApiEndpoint[] => [
+export const createApiEndpoints = (
+  t: (key: string) => string
+): ApiEndpoint[] => [
   {
-    title: 'Upload Endpoint',
+    title: t('uploadEndpoint'),
     endpoint: 'POST /api/upload',
-    description:
-      "Send files via multipart/form-data with the field name 'file'",
+    description: t('uploadEndpointDescription'),
     delay: 0.4,
   },
   {
-    title: 'Download Endpoint',
+    title: t('downloadEndpoint'),
     endpoint: 'GET /api/files/[filename]',
-    description: 'Access uploaded files directly via their filename',
+    description: t('downloadEndpointDescription'),
     delay: 0.45,
   },
 ];
 
 // Create FAQ items data
-export const createFaqItems = (): FaqItem[] => [
+export const createFaqItems = (t: (key: string) => string): FaqItem[] => [
   {
-    question: 'How long are files stored?',
-    answer:
-      'Files are currently stored indefinitely. Future versions will include automatic cleanup options.',
+    question: t('faqStorageQuestion'),
+    answer: t('faqStorageAnswer'),
     delay: 0.5,
   },
   {
-    question: 'Is there a file count limit?',
-    answer:
-      'No, you can upload as many files as you need, as long as each file is under 100MB.',
+    question: t('faqLimitQuestion'),
+    answer: t('faqLimitAnswer'),
     delay: 0.55,
   },
   {
-    question: 'Can I delete uploaded files?',
-    answer:
-      'Files are tracked locally in your browser. You can remove them from your file list, but the actual files remain on the server.',
+    question: t('faqDeleteQuestion'),
+    answer: t('faqDeleteAnswer'),
     delay: 0.6,
   },
   {
-    question: 'Is UploadHaven open source?',
-    answer:
-      'Yes! UploadHaven is fully open source. You can find the code on GitHub.',
+    question: t('faqOpenSourceQuestion'),
+    answer: t('faqOpenSourceAnswer'),
     delay: 0.65,
   },
 ];

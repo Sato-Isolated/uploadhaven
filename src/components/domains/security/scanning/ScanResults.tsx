@@ -11,6 +11,7 @@ import { Badge } from '@/components/ui/badge';
 import { CheckCircle, AlertTriangle, Clock } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ScanResult } from '@/types/security';
+import { useTranslations } from 'next-intl';
 
 interface ScanResultsProps {
   scanResults: ScanResult[];
@@ -43,6 +44,8 @@ const getStatusColor = (status: 'clean' | 'threat' | 'warning') => {
 };
 
 export function ScanResults({ scanResults }: ScanResultsProps) {
+  const t = useTranslations('Security');
+
   if (scanResults.length === 0) return null;
 
   const threatsCount = scanResults.filter((r) => r.status === 'threat').length;
@@ -53,10 +56,13 @@ export function ScanResults({ scanResults }: ScanResultsProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-lg">Scan Results</CardTitle>
+        <CardTitle className="text-lg">{t('scanResults')}</CardTitle>
         <CardDescription>
-          Found {scanResults.length} items ({threatsCount} threats,{' '}
-          {warningsCount} warnings)
+          {t('scanResultsSummary', {
+            total: scanResults.length,
+            threats: threatsCount,
+            warnings: warningsCount
+          })}
         </CardDescription>
       </CardHeader>
       <CardContent>

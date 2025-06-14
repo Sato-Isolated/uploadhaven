@@ -11,8 +11,13 @@ import {
   CardDescription,
 } from '@/components/ui/card';
 import { FileText } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 export default function EmptyState() {
+  const tFiles = useTranslations('Files');
+  const tDashboard = useTranslations('Dashboard');
+  const tStats = useTranslations('Stats');
+
   return (
     <motion.div
       className="mx-auto w-full max-w-4xl"
@@ -32,9 +37,9 @@ export default function EmptyState() {
                 <FileText className="h-6 w-6 text-white" />
               </div>
               <div>
-                <CardTitle className="text-xl">File Manager</CardTitle>
+                <CardTitle className="text-xl">{tStats('fileManager')}</CardTitle>
                 <CardDescription className="text-base">
-                  Manage your uploaded files
+                  {tFiles('manageFiles')}
                 </CardDescription>
               </div>
             </div>
@@ -72,7 +77,7 @@ export default function EmptyState() {
               animate={{ opacity: 1 }}
               transition={{ delay: 0.6, duration: 0.5 }}
             >
-              No files uploaded yet
+              {tFiles('noFilesYet')}
             </motion.h3>
             <motion.p
               className="text-muted-foreground mx-auto mb-8 max-w-md text-lg"
@@ -80,7 +85,7 @@ export default function EmptyState() {
               animate={{ opacity: 1 }}
               transition={{ delay: 0.7, duration: 0.5 }}
             >
-              Start by uploading your first file to see it appear here
+              {tFiles('startByUploadingDescription')}
             </motion.p>
             <motion.div
               initial={{ opacity: 0, y: 10 }}
@@ -95,7 +100,7 @@ export default function EmptyState() {
                   onClick={() => (window.location.href = '/')}
                   className="rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 px-8 py-4 font-semibold text-white shadow-lg transition-all duration-300 hover:from-blue-700 hover:to-purple-700 hover:shadow-xl"
                 >
-                  Upload Your First File
+                  {tDashboard('uploadFirstFile')}
                 </button>
               </motion.div>
             </motion.div>

@@ -1,14 +1,18 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
+
 export default function FallbackPreview() {
+  const t = useTranslations('FilePreview');
+
   return (
     <div className="space-y-4 text-center">
       <div className="text-6xl text-gray-300">📄</div>
       <div className="text-gray-600">
-        Preview not available for this file type
+        {t('previewNotAvailable')}
       </div>
       <div className="text-muted-foreground text-sm">
-        Use the download button to view the file
+        {t('useDownloadButton')}
       </div>
     </div>
   );

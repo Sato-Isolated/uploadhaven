@@ -18,8 +18,10 @@ import EmptyState from './components/EmptyState';
 import FileListContainer from './components/FileListContainer';
 import type { FilePreviewData } from '@/types';
 import type { FileInfo, ExpirationStatus, FileManagerProps } from './types';
+import { useTranslations } from 'next-intl';
 
 export default function FileManager({ className = '' }: FileManagerProps) {
+  const t = useTranslations('Files');
   const [previewFile, setPreviewFile] = useState<FilePreviewData | null>(null);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   // Use TanStack Query for better performance and caching
@@ -48,7 +50,7 @@ export default function FileManager({ className = '' }: FileManagerProps) {
   const copyLink = (filename: string) => {
     const url = `${window.location.origin}/api/files/${filename}`;
     navigator.clipboard.writeText(url);
-    toast.success('Link copied to clipboard!');
+    toast.success(t('linkCopied'));
   };
 
   const downloadFile = (filename: string) => {
@@ -62,7 +64,7 @@ export default function FileManager({ className = '' }: FileManagerProps) {
   const getExpirationStatus = (expiresAt?: string | null): ExpirationStatus => {
     if (!expiresAt) {
       return {
-        text: 'Never expires',
+        text: t('neverExpires'),
         variant: 'secondary' as const,
         expired: false,
         isExpiringSoon: false,
@@ -76,7 +78,7 @@ export default function FileManager({ className = '' }: FileManagerProps) {
 
     if (timeLeft <= 0) {
       return {
-        text: 'Expired',
+        text: t('expired'),
         variant: 'destructive' as const,
         expired: true,
         isExpiringSoon: false,
@@ -89,28 +91,28 @@ export default function FileManager({ className = '' }: FileManagerProps) {
 
     if (days > 0) {
       return {
-        text: `Expires in ${days} day${days > 1 ? 's' : ''}`,
+        text: t('expiresInDays', { count: days }),
         variant: days <= 1 ? ('destructive' as const) : ('secondary' as const),
         expired: false,
         isExpiringSoon: days <= 1,
-        timeLeft: `${days} day${days > 1 ? 's' : ''}`,
+        timeLeft: `${days} ${days > 1 ? t('days') : t('day')}`,
       };
     } else if (hours > 0) {
       return {
-        text: `Expires in ${hours} hour${hours > 1 ? 's' : ''}`,
+        text: t('expiresInHours', { count: hours }),
         variant: hours <= 2 ? ('destructive' as const) : ('secondary' as const),
         expired: false,
         isExpiringSoon: hours <= 2,
-        timeLeft: `${hours} hour${hours > 1 ? 's' : ''}`,
+        timeLeft: `${hours} ${hours > 1 ? t('hours') : t('hour')}`,
       };
     } else {
       const minutes = Math.floor(timeLeft / (1000 * 60));
       return {
-        text: `Expires in ${minutes} min${minutes > 1 ? 's' : ''}`,
+        text: t('expiresInMinutes', { count: minutes }),
         variant: 'destructive' as const,
         expired: false,
         isExpiringSoon: true,
-        timeLeft: `${minutes} min${minutes > 1 ? 's' : ''}`,
+        timeLeft: `${minutes} ${minutes > 1 ? t('minutes') : t('minute')}`,
       };
     }
   };

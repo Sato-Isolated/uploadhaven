@@ -11,22 +11,25 @@ import { formatFileSize } from '@/lib/utils';
 import { Database, HardDrive, TrendingUp, Users } from 'lucide-react';
 import type { AdminFileData } from '@/types';
 import type { Statistic } from '../types';
+import { useTranslations } from 'next-intl';
 
 interface StatisticsGridProps {
   files: AdminFileData[];
 }
 
 export default function StatisticsGrid({ files }: StatisticsGridProps) {
+  const t = useTranslations('Admin');
+
   const statistics: Statistic[] = [
     {
-      title: 'Total Files',
+      title: t('totalFiles'),
       value: files.length,
       icon: Database,
       gradient: 'from-blue-500 to-cyan-500',
       bgGradient: 'from-blue-50 to-cyan-50 dark:from-blue-950 dark:to-cyan-950',
     },
     {
-      title: 'Total Size',
+      title: t('totalSize'),
       value: formatFileSize(
         files.reduce((total, file) => total + file.size, 0)
       ),
@@ -36,7 +39,7 @@ export default function StatisticsGrid({ files }: StatisticsGridProps) {
         'from-purple-50 to-indigo-50 dark:from-purple-950 dark:to-indigo-950',
     },
     {
-      title: 'Total Downloads',
+      title: t('totalDownloads'),
       value: files.reduce((total, file) => total + file.downloadCount, 0),
       icon: TrendingUp,
       gradient: 'from-green-500 to-emerald-500',
@@ -44,7 +47,7 @@ export default function StatisticsGrid({ files }: StatisticsGridProps) {
         'from-green-50 to-emerald-50 dark:from-green-950 dark:to-emerald-950',
     },
     {
-      title: 'Anonymous Files',
+      title: t('anonymousFiles'),
       value: files.filter((file) => file.isAnonymous).length,
       icon: Users,
       gradient: 'from-orange-500 to-red-500',

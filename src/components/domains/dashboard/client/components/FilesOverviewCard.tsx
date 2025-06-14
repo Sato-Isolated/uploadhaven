@@ -13,8 +13,11 @@ import {
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { Files, Upload, Activity, ArrowRight, Zap } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 export default function FilesOverviewCard() {
+  const t = useTranslations('Dashboard');
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -38,9 +41,11 @@ export default function FilesOverviewCard() {
                   <Files className="h-6 w-6 text-white" />
                 </motion.div>
                 <div>
-                  <CardTitle className="text-2xl">File Overview</CardTitle>
+                  <CardTitle className="text-2xl">
+                    {t('fileOverview')}
+                  </CardTitle>
                   <CardDescription className="text-base">
-                    Quick access to your file management tools
+                    {t('quickAccessTools')}
                   </CardDescription>
                 </div>
               </div>
@@ -54,7 +59,7 @@ export default function FilesOverviewCard() {
                     className="bg-white/50 backdrop-blur-sm dark:bg-gray-900/50"
                   >
                     <Activity className="mr-2 h-4 w-4" />
-                    View All Files
+                    {t('viewAllFiles')}
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
                 </Link>
@@ -105,7 +110,7 @@ export default function FilesOverviewCard() {
               animate={{ opacity: 1 }}
               transition={{ delay: 1.4, duration: 0.5 }}
             >
-              Ready to Get Started?
+              {t('readyToStart')}
             </motion.h3>
             <motion.p
               className="mx-auto mb-8 max-w-md text-lg text-gray-600 dark:text-gray-400"
@@ -113,7 +118,7 @@ export default function FilesOverviewCard() {
               animate={{ opacity: 1 }}
               transition={{ delay: 1.6, duration: 0.5 }}
             >
-              Upload your first file to start sharing and managing your content
+              {t('uploadFirstFilePrompt')}
             </motion.p>
             <motion.div
               className="flex flex-col justify-center gap-4 sm:flex-row"
@@ -128,7 +133,7 @@ export default function FilesOverviewCard() {
                 >
                   <Button className="h-12 border-0 bg-gradient-to-r from-blue-600 to-purple-600 px-8 text-white shadow-lg hover:from-blue-700 hover:to-purple-700">
                     <Upload className="mr-2 h-5 w-5" />
-                    Upload Your First File
+                    {t('uploadFirstFile')}
                   </Button>
                 </motion.div>
               </Link>
@@ -142,7 +147,7 @@ export default function FilesOverviewCard() {
                     className="h-12 bg-white/50 px-8 backdrop-blur-sm dark:bg-gray-900/50"
                   >
                     <Files className="mr-2 h-5 w-5" />
-                    Browse Files
+                    {t('browseFiles')}
                   </Button>
                 </motion.div>
               </Link>

@@ -11,8 +11,11 @@ import {
   CardDescription,
 } from '@/components/ui/card';
 import { RefreshCw } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 export default function LoadingIndicator() {
+  const tStats = useTranslations('Stats');
+
   return (
     <motion.div
       className="mx-auto w-full max-w-4xl"
@@ -36,9 +39,9 @@ export default function LoadingIndicator() {
                 <RefreshCw className="h-6 w-6 text-white" />
               </motion.div>
               <div>
-                <CardTitle className="text-xl">File Manager</CardTitle>
+                <CardTitle className="text-xl">{tStats('fileManager')}</CardTitle>
                 <CardDescription className="text-base">
-                  Loading your uploaded files...
+                  {tStats('loadingFiles')}
                 </CardDescription>
               </div>
             </div>

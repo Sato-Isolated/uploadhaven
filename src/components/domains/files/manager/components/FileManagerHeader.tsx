@@ -7,11 +7,15 @@ import { CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { FileText } from 'lucide-react';
 import { formatFileSize } from '@/lib/utils';
 import type { FileManagerHeaderProps } from '../types';
+import { useTranslations } from 'next-intl';
 
 export default function FileManagerHeader({
   filesCount,
   totalSize,
 }: FileManagerHeaderProps) {
+  const t = useTranslations('Stats');
+  const tDashboard = useTranslations('Dashboard');
+
   return (
     <CardHeader className="pb-6">
       <motion.div
@@ -25,10 +29,9 @@ export default function FileManagerHeader({
               <FileText className="h-6 w-6 text-white" />
             </div>
             <div>
-              <CardTitle className="text-xl">File Manager</CardTitle>
+              <CardTitle className="text-xl">{t('fileManager')}</CardTitle>
               <CardDescription className="text-base">
-                Manage your uploaded files ({filesCount} file
-                {filesCount !== 1 ? 's' : ''})
+                {t('manageFilesWithCount', { count: filesCount })}
               </CardDescription>
             </div>
           </div>
@@ -39,7 +42,7 @@ export default function FileManagerHeader({
             className="text-right"
           >
             <div className="text-muted-foreground text-sm">
-              Total Size: {formatFileSize(totalSize)}
+              {t('totalSize')}: {formatFileSize(totalSize)}
             </div>
           </motion.div>
         </div>

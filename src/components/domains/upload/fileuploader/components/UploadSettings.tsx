@@ -4,7 +4,8 @@
 
 import { motion } from 'motion/react';
 import { Clock, Shield, Check } from 'lucide-react';
-import { EXPIRATION_OPTIONS } from '../types';
+import { useTranslations } from 'next-intl';
+import { getExpirationOptions } from '../types';
 import type { UploadSettingsProps } from '../types';
 
 export default function UploadSettings({
@@ -13,6 +14,11 @@ export default function UploadSettings({
   onExpirationChange,
   onPasswordProtectionChange,
 }: UploadSettingsProps) {
+  const t = useTranslations('FileUploader');
+  const tExpiration = useTranslations('Expiration');
+
+  const expirationOptions = getExpirationOptions(tExpiration);
+
   return (
     <motion.div
       className="border-b border-gray-200/50 bg-gradient-to-r from-gray-50/50 to-gray-100/50 p-8 dark:border-gray-700/50 dark:from-gray-800/50 dark:to-gray-900/50"
@@ -38,7 +44,7 @@ export default function UploadSettings({
               <Clock className="h-5 w-5 text-white" />
             </motion.div>
             <label className="bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-lg font-semibold text-transparent dark:from-white dark:to-gray-200">
-              File Expiration
+              {t('fileExpiration')}
             </label>
           </div>
           <select
@@ -46,7 +52,7 @@ export default function UploadSettings({
             onChange={(e) => onExpirationChange(e.target.value)}
             className="w-full rounded-xl border border-gray-200/60 bg-white/80 p-4 font-medium text-gray-900 backdrop-blur-sm transition-all duration-300 focus:border-blue-500/60 focus:ring-2 focus:ring-blue-500/60 dark:border-gray-700/60 dark:bg-gray-900/80 dark:text-white"
           >
-            {EXPIRATION_OPTIONS.map((option) => (
+            {expirationOptions.map((option) => (
               <option key={option.value} value={option.value}>
                 {option.label}
               </option>
@@ -58,7 +64,7 @@ export default function UploadSettings({
             animate={{ opacity: 1 }}
             transition={{ delay: 0.8, duration: 0.5 }}
           >
-            Files will be automatically deleted after this time
+            {t('filesAutoDeleted')}
           </motion.p>
         </motion.div>
 
@@ -79,7 +85,7 @@ export default function UploadSettings({
               <Shield className="h-5 w-5 text-white" />
             </motion.div>
             <label className="bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-lg font-semibold text-transparent dark:from-white dark:to-gray-200">
-              Security Protection
+              {t('securityProtection')}
             </label>
           </div>
           <motion.label
@@ -96,7 +102,7 @@ export default function UploadSettings({
               whileTap={{ scale: 0.9 }}
             />
             <span className="flex-1 text-base font-medium text-gray-700 dark:text-gray-300">
-              Auto-generate access key
+              {t('autoGenerateKey')}
             </span>
             {isPasswordProtected && (
               <motion.div
@@ -114,7 +120,7 @@ export default function UploadSettings({
             animate={{ opacity: 1 }}
             transition={{ delay: 0.9, duration: 0.5 }}
           >
-            Protect your files with an automatically generated key
+            {t('protectFiles')}
           </motion.p>
         </motion.div>
       </div>
@@ -123,8 +129,8 @@ export default function UploadSettings({
         <div className="flex items-center space-x-3">
           <p className="text-muted-foreground text-xs">
             {isPasswordProtected
-              ? '🔑 A secure key will protect your files'
-              : '🌐 Public access via link sharing'}
+              ? `🔑 ${t('secureAccess')}`
+              : `🌐 ${t('publicAccess')}`}
           </p>
         </div>
       </div>

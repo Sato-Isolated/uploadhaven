@@ -1,10 +1,13 @@
 'use client';
 
 import { motion } from 'motion/react';
+import { useTranslations } from 'next-intl';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Activity } from 'lucide-react';
 
 export default function ActivityLoader() {
+  const t = useTranslations('Activity');
+  
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -16,7 +19,7 @@ export default function ActivityLoader() {
           <CardTitle className="flex items-center gap-2">
             <Activity className="h-6 w-6 text-blue-600 dark:text-blue-400" />
             <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent dark:from-blue-400 dark:to-purple-400">
-              Recent Activity
+              {t('recentActivity')}
             </span>
           </CardTitle>
         </CardHeader>

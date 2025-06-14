@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -32,13 +33,15 @@ export function SecurityAnalyticsTab({
   securityAnalytics,
   formatDateTime,
 }: SecurityAnalyticsTabProps) {
+  const t = useTranslations('Admin');
+  
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         {/* Security Events Chart */}
         <Card>
           <CardHeader>
-            <CardTitle>Security Events</CardTitle>
+            <CardTitle>{t('securityEvents')}</CardTitle>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
@@ -56,7 +59,7 @@ export function SecurityAnalyticsTab({
         {/* Recent Security Events */}
         <Card>
           <CardHeader>
-            <CardTitle>Recent Security Events</CardTitle>
+            <CardTitle>{t('recentSecurityEvents')}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">

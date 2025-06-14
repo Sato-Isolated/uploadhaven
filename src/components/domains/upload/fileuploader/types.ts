@@ -24,10 +24,13 @@ export const ALLOWED_TYPES = [
   'audio/mpeg',
 ];
 
-export const EXPIRATION_OPTIONS = [
-  { value: '1h', label: '1 Hour' },
-  { value: '24h', label: '24 Hours' },
-  { value: '7d', label: '7 Days' },
-  { value: '30d', label: '30 Days' },
-  { value: 'never', label: 'Never' },
-];
+export const EXPIRATION_VALUES = ['1h', '24h', '7d', '30d', 'never'] as const;
+
+// Use this function in components to get translated labels
+// Example: getExpirationOptions(t) where t = useTranslations('Expiration')
+export function getExpirationOptions(t: (key: string) => string) {
+  return EXPIRATION_VALUES.map((value) => ({
+    value,
+    label: t(value),
+  }));
+}

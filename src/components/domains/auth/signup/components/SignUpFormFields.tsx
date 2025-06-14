@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { PasswordRequirements } from './PasswordRequirements';
 import type { PasswordValidation } from '../hooks/useSignUpForm';
+import { useTranslations } from 'next-intl';
 
 interface SignUpFormFieldsProps {
   // Form state
@@ -61,6 +62,8 @@ export function SignUpFormFields({
   toggleConfirmPasswordVisibility,
   onSubmit,
 }: SignUpFormFieldsProps) {
+  const t = useTranslations('Auth');
+
   return (
     <form onSubmit={onSubmit} className="space-y-5">
       {/* Error Message */}
@@ -88,7 +91,7 @@ export function SignUpFormFields({
           className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300"
         >
           <User className="h-4 w-4 text-purple-500" />
-          Full Name
+          {t('fullName')}
         </label>
         <div className="relative">
           <input
@@ -97,7 +100,7 @@ export function SignUpFormFields({
             value={name}
             onChange={(e) => setName(e.target.value)}
             className="w-full rounded-xl border border-gray-200 px-4 py-3 pl-11 backdrop-blur-sm transition-all duration-300 hover:border-gray-300 focus:border-transparent focus:ring-2 focus:ring-purple-500 focus:outline-none dark:border-gray-700 dark:bg-gray-800/50 dark:text-white dark:hover:border-gray-600"
-            placeholder="Enter your full name"
+            placeholder={t('enterYourFullName')}
             required
             disabled={isLoading}
           />
@@ -117,7 +120,7 @@ export function SignUpFormFields({
           className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300"
         >
           <Mail className="h-4 w-4 text-purple-500" />
-          Email Address
+          {t('emailAddress')}
         </label>
         <div className="relative">
           <input
@@ -126,7 +129,7 @@ export function SignUpFormFields({
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             className="w-full rounded-xl border border-gray-200 px-4 py-3 pl-11 backdrop-blur-sm transition-all duration-300 hover:border-gray-300 focus:border-transparent focus:ring-2 focus:ring-purple-500 focus:outline-none dark:border-gray-700 dark:bg-gray-800/50 dark:text-white dark:hover:border-gray-600"
-            placeholder="Enter your email address"
+            placeholder={t('enterYourEmailAddress')}
             required
             disabled={isLoading}
           />
@@ -146,7 +149,7 @@ export function SignUpFormFields({
           className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300"
         >
           <Lock className="h-4 w-4 text-purple-500" />
-          Password
+          {t('password')}
         </label>
         <div className="relative">
           <input
@@ -155,7 +158,7 @@ export function SignUpFormFields({
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             className="w-full rounded-xl border border-gray-200 px-4 py-3 pr-11 pl-11 backdrop-blur-sm transition-all duration-300 hover:border-gray-300 focus:border-transparent focus:ring-2 focus:ring-purple-500 focus:outline-none dark:border-gray-700 dark:bg-gray-800/50 dark:text-white dark:hover:border-gray-600"
-            placeholder="Create a secure password"
+            placeholder={t('createSecurePassword')}
             required
             disabled={isLoading}
           />
@@ -191,7 +194,7 @@ export function SignUpFormFields({
           className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300"
         >
           <Lock className="h-4 w-4 text-purple-500" />
-          Confirm Password
+          {t('confirmPassword')}
         </label>
         <div className="relative">
           <input
@@ -206,7 +209,7 @@ export function SignUpFormFields({
                   ? 'border-red-300 dark:border-red-600'
                   : 'border-gray-200 hover:border-gray-300 dark:border-gray-700 dark:hover:border-gray-600'
             }`}
-            placeholder="Confirm your password"
+            placeholder={t('confirmYourPassword')}
             required
             disabled={isLoading}
           />
@@ -234,7 +237,7 @@ export function SignUpFormFields({
             }`}
           >
             <Check className="h-3 w-3" />
-            {doPasswordsMatch ? 'Passwords match' : "Passwords don't match"}
+            {doPasswordsMatch ? t('passwordsMatch') : t('passwordsDontMatch')}
           </motion.div>
         )}
       </motion.div>
@@ -262,7 +265,7 @@ export function SignUpFormFields({
             ) : (
               <UserPlus className="h-5 w-5" />
             )}
-            {isLoading ? 'Creating account...' : 'Create Account'}
+            {isLoading ? t('creatingAccount') : t('createAccount')}
           </span>
         </Button>
       </motion.div>

@@ -10,6 +10,7 @@ import {
   TrendingDown,
 } from 'lucide-react';
 import { DownloadAnalytics, TrendData } from './utils';
+import { useTranslations } from 'next-intl';
 
 interface AnalyticsOverviewProps {
   analytics: DownloadAnalytics;
@@ -20,6 +21,8 @@ export default function AnalyticsOverview({
   analytics,
   trend,
 }: AnalyticsOverviewProps) {
+  const t = useTranslations('Analytics');
+
   return (
     <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
       {/* Total Downloads Card */}
@@ -32,7 +35,7 @@ export default function AnalyticsOverview({
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-blue-600 dark:text-blue-400">
-                Total Downloads
+                {t('totalDownloads')}
               </p>
               <p className="mt-1 text-3xl font-bold text-blue-900 dark:text-blue-100">
                 {analytics.totalDownloads.toLocaleString()}
@@ -53,7 +56,7 @@ export default function AnalyticsOverview({
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-emerald-600 dark:text-emerald-400">
-                Last 24 Hours
+                {t('last24Hours')}
               </p>
               <p className="mt-1 text-3xl font-bold text-emerald-900 dark:text-emerald-100">
                 {analytics.last24hDownloads.toLocaleString()}
@@ -90,13 +93,15 @@ export default function AnalyticsOverview({
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-purple-600 dark:text-purple-400">
-                Last 7 Days
+                {t('last7Days')}
               </p>
               <p className="mt-1 text-3xl font-bold text-purple-900 dark:text-purple-100">
                 {analytics.last7dDownloads.toLocaleString()}
               </p>
               <p className="mt-2 text-xs text-purple-600 dark:text-purple-400">
-                Avg: {Math.round(analytics.last7dDownloads / 7)} per day
+                {t('avgPerDay', {
+                  count: Math.round(analytics.last7dDownloads / 7),
+                })}
               </p>
             </div>
             <BarChart3 className="h-10 w-10 text-purple-600 dark:text-purple-400" />

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAdminAnalytics } from '@/components/domains/admin/analytics/hooks';
 import {
@@ -27,6 +28,7 @@ interface AdminAnalyticsProps {
 export default function AdminAnalytics({
   className = '',
 }: AdminAnalyticsProps) {
+  const t = useTranslations('Admin');
   const [timeRange, setTimeRange] = useState('30d');
 
   // Use TanStack Query for better performance and caching
@@ -86,10 +88,10 @@ export default function AdminAnalytics({
       {/* Analytics Tabs */}
       <Tabs defaultValue="files" className="space-y-6">
         <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="files">File Analytics</TabsTrigger>
-          <TabsTrigger value="users">User Analytics</TabsTrigger>
-          <TabsTrigger value="security">Security</TabsTrigger>
-          <TabsTrigger value="performance">Performance</TabsTrigger>
+          <TabsTrigger value="files">{t('fileAnalytics')}</TabsTrigger>
+          <TabsTrigger value="users">{t('userAnalytics')}</TabsTrigger>
+          <TabsTrigger value="security">{t('security')}</TabsTrigger>
+          <TabsTrigger value="performance">{t('performance')}</TabsTrigger>
         </TabsList>
         {/* File Analytics Tab */}
         <TabsContent value="files">
@@ -106,7 +108,7 @@ export default function AdminAnalytics({
             userAnalytics={userAnalytics}
             formatDate={formatDate}
           />
-        </TabsContent>{' '}
+        </TabsContent>
         {/* Security Analytics Tab */}
         <TabsContent value="security">
           <SecurityAnalyticsTab

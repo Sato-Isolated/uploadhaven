@@ -5,8 +5,11 @@ import { CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { RefreshCw, TrendingUp } from 'lucide-react';
 import { StatsHeaderProps } from '../types';
+import { useTranslations } from 'next-intl';
 
 export default function StatsHeader({ onRefresh }: StatsHeaderProps) {
+  const t = useTranslations('Stats');
+  const tCommon = useTranslations('Common');
   return (
     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
       <motion.div
@@ -30,9 +33,9 @@ export default function StatsHeader({ onRefresh }: StatsHeaderProps) {
             <TrendingUp className="h-5 w-5 text-white" />
           </motion.div>
           <div>
-            <CardTitle>Server Statistics</CardTitle>
+            <CardTitle>{t('serverStatistics')}</CardTitle>
             <CardDescription>
-              Real-time server metrics and file management
+              {t('realTimeServerMetrics')}
             </CardDescription>
           </div>
         </div>
@@ -46,7 +49,7 @@ export default function StatsHeader({ onRefresh }: StatsHeaderProps) {
       >
         <Button variant="outline" size="sm" onClick={onRefresh}>
           <RefreshCw className="mr-2 h-4 w-4" />
-          Refresh
+          {tCommon('refresh')}
         </Button>
       </motion.div>
     </CardHeader>

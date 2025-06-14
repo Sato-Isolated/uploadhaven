@@ -10,8 +10,10 @@ import StatisticsGrid from './components/StatisticsGrid';
 import SearchAndFilters from './components/SearchAndFilters';
 import FilesTable from './components/FilesTable';
 import { FileDetailsModal, DeleteConfirmationModal } from './modals';
+import { useTranslations } from 'next-intl';
 
 export default function AdminFileManager({ files }: AdminFileManagerProps) {
+  const t = useTranslations('Admin');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedFiles, setSelectedFiles] = useState<string[]>([]);
   const [fileToDelete, setFileToDelete] = useState<string | null>(null);
@@ -78,12 +80,12 @@ export default function AdminFileManager({ files }: AdminFileManagerProps) {
         a.click();
         window.URL.revokeObjectURL(url);
         document.body.removeChild(a);
-        toast.success('File downloaded successfully');
+        toast.success(t('fileDownloadedSuccessfully'));
       } else {
         throw new Error('Failed to download file');
       }
     } catch {
-      toast.error('Failed to download file. Please try again.');
+      toast.error(t('failedToDownloadFile'));
     }
   };
 

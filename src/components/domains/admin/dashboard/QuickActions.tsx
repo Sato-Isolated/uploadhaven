@@ -25,8 +25,8 @@ export default function QuickActions({ onSecurityScan }: QuickActionsProps) {
       <Card className="border-gray-200 bg-white/80 backdrop-blur-sm dark:border-gray-700 dark:bg-gray-800/80">
         <CardHeader>
           <CardTitle>Quick Actions</CardTitle>
-          <CardDescription>Common administrative tasks</CardDescription>{' '}
-        </CardHeader>{' '}
+          <CardDescription>Common administrative tasks</CardDescription>
+        </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 gap-4">
             {/* Only Security Scan remains - System Logs removed as it duplicated ActivityOverview */}

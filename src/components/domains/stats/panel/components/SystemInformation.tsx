@@ -4,18 +4,21 @@ import { motion } from 'motion/react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Activity } from 'lucide-react';
 import { SystemInformationProps } from '../types';
+import { useTranslations } from 'next-intl';
 
 export default function SystemInformation({ stats }: SystemInformationProps) {
+  const t = useTranslations('Stats');
+
   const systemInfo = [
-    { label: 'Upload Directory:', value: '/public/uploads' },
-    { label: 'Max File Size:', value: '100 MB' },
+    { label: t('uploadDirectory'), value: '/public/uploads' },
+    { label: t('maxFileSize'), value: '100 MB' },
     {
-      label: 'Expiration Options:',
+      label: t('expirationOptions'),
       value: '1h, 24h, 7d, 30d, never',
     },
     {
-      label: 'Allowed Types:',
-      value: 'Images, Videos, Audio, Documents, Archives',
+      label: t('allowedTypes'),
+      value: t('allowedTypesValue'),
     },
   ];
 
@@ -46,7 +49,7 @@ export default function SystemInformation({ stats }: SystemInformationProps) {
               >
                 <Activity className="h-5 w-5 text-white" />
               </motion.div>
-              <CardTitle>System Information</CardTitle>
+              <CardTitle>{t('systemInformation')}</CardTitle>
             </div>
           </motion.div>
         </CardHeader>

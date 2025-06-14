@@ -1,6 +1,7 @@
 'use client';
 
 import { motion } from 'motion/react';
+import { useTranslations } from 'next-intl';
 import { Activity, Wifi, WifiOff } from 'lucide-react';
 import { CardHeader, CardTitle } from '@/components/ui/card';
 import ActivityFilters from '../recent/ActivityFilters';
@@ -22,12 +23,14 @@ export default function ActivityHeader({
   onTypeFilterChange,
   onSeverityFilterChange,
 }: ActivityHeaderProps) {
+  const t = useTranslations('Activity');
+  
   return (
     <CardHeader>
       <CardTitle className="flex items-center gap-2">
         <Activity className="h-6 w-6 text-blue-600 dark:text-blue-400" />
         <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent dark:from-blue-400 dark:to-purple-400">
-          Recent Activity
+          {t('recentActivity')}
         </span>
 
         {/* Real-time connection indicator */}
@@ -38,7 +41,7 @@ export default function ActivityHeader({
               animate={{ scale: 1 }}
               className="rounded-full bg-red-500 px-2 py-1 text-xs text-white"
             >
-              {activityCount} new
+              {t('newActivitiesCount', { count: activityCount })}
             </motion.div>
           )}
           <motion.div
@@ -48,12 +51,12 @@ export default function ActivityHeader({
             {realtimeConnected ? (
               <>
                 <Wifi className="h-3 w-3 text-green-500" />
-                <span className="text-green-600 dark:text-green-400">Live</span>
+                <span className="text-green-600 dark:text-green-400">{t('live')}</span>
               </>
             ) : (
               <>
                 <WifiOff className="h-3 w-3 text-gray-400" />
-                <span className="text-gray-500">Offline</span>
+                <span className="text-gray-500">{t('offline')}</span>
               </>
             )}
           </motion.div>

@@ -2,6 +2,7 @@
 
 import { motion } from 'motion/react';
 import { Music } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import type { FilePreviewData, BaseComponentProps } from '@/types';
 
 interface AudioPreviewProps extends BaseComponentProps {
@@ -9,6 +10,8 @@ interface AudioPreviewProps extends BaseComponentProps {
 }
 
 export default function AudioPreview({ file }: AudioPreviewProps) {
+  const t = useTranslations('FilePreview');
+
   return (
     <motion.div
       className="w-full max-w-md space-y-4"
@@ -34,7 +37,7 @@ export default function AudioPreview({ file }: AudioPreviewProps) {
         <p className="text-lg font-medium">{file.originalName}</p>
       </div>
       <audio src={file.url} controls className="w-full" preload="metadata">
-        Your browser does not support audio playback.
+        {t('audioNotSupported')}
       </audio>
     </motion.div>
   );

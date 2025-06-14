@@ -1,6 +1,7 @@
 'use client';
 
 import { motion } from 'motion/react';
+import { useTranslations } from 'next-intl';
 import {
   Dialog,
   DialogContent,
@@ -21,40 +22,42 @@ export default function FileDetailsModal({
   file,
   onClose,
 }: FileDetailsModalProps) {
+  const t = useTranslations('Admin');
+
   if (!file) return null;
 
   const fileDetails = [
     {
-      label: 'Original Name',
+      label: t('originalName'),
       value: file.originalName,
     },
     {
-      label: 'System Name',
+      label: t('systemName'),
       value: file.name,
       mono: true,
     },
     {
-      label: 'Size',
+      label: t('size'),
       value: formatFileSize(file.size),
     },
     {
-      label: 'Type',
+      label: t('type'),
       value: file.mimeType,
     },
     {
-      label: 'Upload Date',
+      label: t('uploadDate'),
       value: formatDate(file.uploadDate),
     },
     {
-      label: 'Downloads',
+      label: t('downloads'),
       value: file.downloadCount.toString(),
     },
     {
-      label: 'Owner',
-      value: file.isAnonymous ? 'Anonymous' : file.userName || 'Unknown',
+      label: t('owner'),
+      value: file.isAnonymous ? t('anonymous') : file.userName || t('unknown'),
     },
     {
-      label: 'File ID',
+      label: t('fileId'),
       value: file.id,
       mono: true,
     },
@@ -72,11 +75,9 @@ export default function FileDetailsModal({
             >
               {getFileTypeIcon(file.mimeType)}
             </motion.div>
-            File Details
+            {t('fileDetails')}
           </DialogTitle>
-          <DialogDescription>
-            Complete information about the selected file
-          </DialogDescription>
+          <DialogDescription>{t('fileDetailsDescription')}</DialogDescription>
         </DialogHeader>
         <motion.div
           className="space-y-4"

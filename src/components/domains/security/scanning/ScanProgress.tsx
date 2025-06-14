@@ -12,6 +12,7 @@ import { Progress } from '@/components/ui/progress';
 import { Play, Square, RefreshCw, Database } from 'lucide-react';
 import { motion } from 'motion/react';
 import { ScanType, QuotaStatus } from '@/types/security';
+import { useTranslations } from 'next-intl';
 
 interface ScanProgressProps {
   isScanning: boolean;
@@ -36,11 +37,13 @@ export function ScanProgress({
   onStartScan,
   onStopScan,
 }: ScanProgressProps) {
+  const t = useTranslations('Security');
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-lg">Scan Control</CardTitle>
-        <CardDescription>Start or stop security scanning</CardDescription>
+        <CardTitle className="text-lg">{t('scanControl')}</CardTitle>
+        <CardDescription>{t('startOrStopScanning')}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="flex gap-3">
@@ -50,10 +53,10 @@ export function ScanProgress({
             className="flex items-center gap-2"
           >
             <Play className="h-4 w-4" />
-            Start{' '}
+            {t('start')}{' '}
             {selectedScanType.charAt(0).toUpperCase() +
               selectedScanType.slice(1)}{' '}
-            Scan
+            {t('scan')}
           </Button>
 
           {isScanning && (
@@ -63,7 +66,7 @@ export function ScanProgress({
               className="flex items-center gap-2 text-red-600 hover:text-red-700"
             >
               <Square className="h-4 w-4" />
-              Stop Scan
+              {t('stopScan')}
             </Button>
           )}
         </div>
@@ -80,7 +83,7 @@ export function ScanProgress({
             </div>
             <Progress value={scanProgress} className="h-2" />
             <p className="text-xs text-gray-500">
-              {Math.round(scanProgress)}% complete
+              {Math.round(scanProgress)}% {t('complete')}
             </p>
 
             {/* VirusTotal Request Counter */}
@@ -89,7 +92,7 @@ export function ScanProgress({
                 <div className="flex items-center gap-2">
                   <Database className="h-4 w-4 text-blue-600" />
                   <span className="text-sm font-medium text-blue-700 dark:text-blue-400">
-                    VirusTotal Requests Used
+                    {t('virusTotalRequestsUsed')}
                   </span>
                 </div>
                 <span className="text-sm font-bold text-blue-600">

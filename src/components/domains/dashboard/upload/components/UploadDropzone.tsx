@@ -4,12 +4,14 @@ import { motion } from 'motion/react';
 import { useDropzone } from 'react-dropzone';
 import { Badge } from '@/components/ui/badge';
 import { Upload } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 interface UploadDropzoneProps {
   onFileDrop: (files: File[]) => void;
 }
 
 export function UploadDropzone({ onFileDrop }: UploadDropzoneProps) {
+  const t = useTranslations('FileUploader');
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop: onFileDrop,
     multiple: true,
@@ -51,19 +53,19 @@ export function UploadDropzone({ onFileDrop }: UploadDropzoneProps) {
           </div>
         </motion.div>
         <h3 className="mb-2 text-xl font-semibold text-gray-900 dark:text-white">
-          {isDragActive ? 'Drop files here' : 'Upload your files'}
+          {isDragActive ? t('dropzoneActive') : t('uploadYourFiles')}
         </h3>
         <p className="mb-4 text-gray-600 dark:text-gray-400">
-          Drag & drop files here or click to browse
+          {t('dragDropFilesOrClick')}
         </p>
         <div className="flex flex-wrap justify-center gap-2 text-xs text-gray-500">
-          <Badge variant="secondary">Images</Badge>
-          <Badge variant="secondary">Documents</Badge>
-          <Badge variant="secondary">Videos</Badge>
-          <Badge variant="secondary">Audio</Badge>
-          <Badge variant="secondary">Archives</Badge>
+          <Badge variant="secondary">{t('fileTypes.images')}</Badge>
+          <Badge variant="secondary">{t('fileTypes.documents')}</Badge>
+          <Badge variant="secondary">{t('fileTypes.videos')}</Badge>
+          <Badge variant="secondary">{t('fileTypes.audio')}</Badge>
+          <Badge variant="secondary">{t('fileTypes.archives')}</Badge>
         </div>
-        <p className="mt-2 text-xs text-gray-500">Max file size: 100MB</p>
+        <p className="mt-2 text-xs text-gray-500">{t('maxFileSize')}</p>
       </div>
     </div>
   );

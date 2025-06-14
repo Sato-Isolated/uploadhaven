@@ -2,6 +2,7 @@
 
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
+import { useTranslations } from 'next-intl';
 
 interface CopyLinkButtonProps {
   filename: string;
@@ -12,10 +13,12 @@ export default function CopyLinkButton({
   filename,
   className,
 }: CopyLinkButtonProps) {
+  const t = useTranslations('Dashboard');
+
   const handleCopyLink = () => {
     const link = `${window.location.origin}/api/files/${filename}`;
     navigator.clipboard.writeText(link);
-    toast.success('Link copied to clipboard!');
+    toast.success(t('linkCopiedToClipboard', { label: t('link') }));
   };
 
   return (
@@ -25,7 +28,7 @@ export default function CopyLinkButton({
       onClick={handleCopyLink}
       className={className}
     >
-      Copy Link
+      {t('copyLink')}
     </Button>
   );
 }

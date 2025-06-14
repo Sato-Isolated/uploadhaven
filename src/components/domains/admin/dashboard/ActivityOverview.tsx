@@ -21,6 +21,7 @@ import { Activity } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import type { ActivityEvent } from '@/types';
 import { getActivityColor, formatActivityType } from './utils';
+import { useTranslations } from 'next-intl';
 
 interface ActivityOverviewProps {
   activities: ActivityEvent[];
@@ -31,6 +32,7 @@ export default function ActivityOverview({
   activities,
   loading,
 }: ActivityOverviewProps) {
+  const t = useTranslations('Activity');
   return (
     <motion.div
       initial={{ opacity: 0, x: -20 }}
@@ -41,16 +43,16 @@ export default function ActivityOverview({
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Activity className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-            Recent Activity
+            {t('recentActivity')}
           </CardTitle>
-          <CardDescription>Latest system activity</CardDescription>
+          <CardDescription>{t('latestSystemActivity')}</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
             {loading ? (
               <div className="flex items-center justify-center py-8">
                 <div className="text-muted-foreground text-sm">
-                  Loading activities...
+                  {t('loadingActivities')}
                 </div>
               </div>
             ) : activities.length > 0 ? (
@@ -79,7 +81,7 @@ export default function ActivityOverview({
             ) : (
               <div className="flex items-center justify-center py-8">
                 <div className="text-muted-foreground text-sm">
-                  No recent activities
+                  {t('noRecentActivities')}
                 </div>
               </div>
             )}
@@ -88,13 +90,13 @@ export default function ActivityOverview({
             <Dialog>
               <DialogTrigger asChild>
                 <Button variant="outline" size="sm" className="w-full">
-                  View All Activity
+                  {t('viewAllActivity')}
                 </Button>
               </DialogTrigger>
               <DialogContent className="max-h-[85vh] !max-w-6xl overflow-hidden">
                 <DialogHeader>
-                  <DialogTitle>Recent Activity</DialogTitle>
-                </DialogHeader>{' '}
+                  <DialogTitle>{t('recentActivity')}</DialogTitle>
+                </DialogHeader>
                 <div className="max-h-[75vh] overflow-y-auto pr-2">
                   <RecentActivity enableInfiniteScroll={true} />
                 </div>

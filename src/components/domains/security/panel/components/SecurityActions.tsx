@@ -3,6 +3,7 @@
 import { Button } from '@/components/ui/button';
 import { RefreshCw, Download, Trash2 } from 'lucide-react';
 import { SecurityActionsProps } from '../types';
+import { useTranslations } from 'next-intl';
 
 export default function SecurityActions({
   onRefresh,
@@ -10,6 +11,10 @@ export default function SecurityActions({
   onClear,
   isLoading,
 }: SecurityActionsProps) {
+  const tCommon = useTranslations('Common');
+  const tAdmin = useTranslations('Admin');
+  const tSecurity = useTranslations('Security');
+
   return (
     <div className="mb-6 flex gap-3">
       <Button
@@ -20,7 +25,7 @@ export default function SecurityActions({
         className="flex items-center gap-2"
       >
         <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
-        Refresh
+        {tCommon('refresh')}
       </Button>
 
       <Button
@@ -31,7 +36,7 @@ export default function SecurityActions({
         className="flex items-center gap-2"
       >
         <Download className="h-4 w-4" />
-        Export
+        {tAdmin('export')}
       </Button>
 
       <Button
@@ -42,7 +47,7 @@ export default function SecurityActions({
         className="flex items-center gap-2 text-red-600 hover:bg-red-50 hover:text-red-700 dark:text-red-400 dark:hover:bg-red-950 dark:hover:text-red-300"
       >
         <Trash2 className="h-4 w-4" />
-        Clear Logs
+        {tSecurity('clearLogs')}
       </Button>
     </div>
   );

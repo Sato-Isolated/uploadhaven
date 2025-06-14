@@ -14,6 +14,7 @@ import {
   Pie,
   Cell,
 } from 'recharts';
+import { useTranslations } from 'next-intl';
 
 interface FileAnalyticsData {
   uploadTrends: Array<{
@@ -46,13 +47,15 @@ export function FileAnalyticsTab({
   getFileTypeIcon,
   colors,
 }: FileAnalyticsTabProps) {
+  const t = useTranslations('Analytics');
+
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         {/* Upload Trends Chart */}
         <Card>
           <CardHeader>
-            <CardTitle>Upload Trends</CardTitle>
+            <CardTitle>{t('uploadTrends')}</CardTitle>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
@@ -68,7 +71,7 @@ export function FileAnalyticsTab({
                   dataKey="count"
                   stroke="#3B82F6"
                   strokeWidth={2}
-                  name="Files Uploaded"
+                  name={t('filesUploaded')}
                 />
               </LineChart>
             </ResponsiveContainer>
@@ -78,7 +81,7 @@ export function FileAnalyticsTab({
         {/* File Type Distribution */}
         <Card>
           <CardHeader>
-            <CardTitle>File Type Distribution</CardTitle>
+            <CardTitle>{t('fileTypeDistribution')}</CardTitle>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
@@ -112,7 +115,7 @@ export function FileAnalyticsTab({
       {/* Top Files */}
       <Card>
         <CardHeader>
-          <CardTitle>Most Downloaded Files</CardTitle>
+          <CardTitle>{t('mostDownloadedFiles')}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
@@ -131,7 +134,7 @@ export function FileAnalyticsTab({
                   </div>
                 </div>
                 <Badge variant="secondary">
-                  {file.downloadCount} downloads
+                  {file.downloadCount} {t('downloads')}
                 </Badge>
               </div>
             ))}
