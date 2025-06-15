@@ -27,10 +27,10 @@ export function NotificationProvider({ children }: NotificationProviderProps) {
     // Temporarily disable SSE during route changes
     setShouldEnableSSE(false);
 
-    // Re-enable after a short delay to allow navigation to complete
+    // Re-enable after a longer delay to allow navigation to complete fully
     setTimeout(() => {
       setShouldEnableSSE(true);
-    }, 1000);
+    }, 2000); // Increased from 1000ms to 2000ms to reduce connection churn
   };
 
   useEffect(() => {

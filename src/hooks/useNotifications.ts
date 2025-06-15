@@ -263,13 +263,9 @@ export function useNotifications(options: UseNotificationsOptions = {}) {
       console.error('❌ Failed to connect to notification stream:', error);
       setConnectionError('Failed to connect to notification stream');
     }
-  }, [effectiveRealtime, queryClient, maxReconnectAttempts]); // Connect to notification stream on mount and handle page navigation
+  }, [effectiveRealtime, queryClient, maxReconnectAttempts]);  // Consolidated effect to handle SSE connection state
   useEffect(() => {
     isUnmountingRef.current = false;
-
-    if (effectiveRealtime && enabled) {
-      connectToNotificationStream();
-    }
 
     // Handle page navigation/visibility changes
     const handleVisibilityChange = () => {
@@ -280,14 +276,15 @@ export function useNotifications(options: UseNotificationsOptions = {}) {
         !document.hidden &&
         effectiveRealtime &&
         enabled &&
-        !eventSourceRef.current
+        !eventSourceRef.current &&
+        !isUnmountingRef.current
       ) {
-        // Page is visible again, reconnect
+        // Page is visible again, reconnect with delay to avoid rapid reconnections
         setTimeout(() => {
-          if (!isUnmountingRef.current) {
+          if (!isUnmountingRef.current && effectiveRealtime && enabled) {
             connectToNotificationStream();
           }
-        }, 500); // Small delay to avoid rapid reconnections
+        }, 1000); // Longer delay to prevent connection conflicts
       }
     };
 
@@ -296,7 +293,32 @@ export function useNotifications(options: UseNotificationsOptions = {}) {
       cleanupConnection();
     };
 
-    // Add event listeners for better navigation handling
+    // Main connection logic with debouncing
+    if (effectiveRealtime && enabled && !eventSourceRef.current && !isUnmountingRef.current) {
+      // Use a longer timeout to prevent rapid reconnections during navigation
+      const connectionTimer = setTimeout(() => {
+        if (!isUnmountingRef.current && effectiveRealtime && enabled && !eventSourceRef.current) {
+          connectToNotificationStream();
+        }
+      }, 1500); // 1.5 second delay to allow navigation to settle
+
+      // Add event listeners for better navigation handling
+      document.addEventListener('visibilitychange', handleVisibilityChange);
+      window.addEventListener('beforeunload', handleBeforeUnload);
+
+      return () => {
+        clearTimeout(connectionTimer);
+        isUnmountingRef.current = true;
+        document.removeEventListener('visibilitychange', handleVisibilityChange);
+        window.removeEventListener('beforeunload', handleBeforeUnload);
+        cleanupConnection();
+      };
+    } else if (!effectiveRealtime) {
+      // SSE disabled by context (e.g., during navigation), clean up connection
+      cleanupConnection();
+    }
+
+    // Add event listeners even when not connecting
     document.addEventListener('visibilitychange', handleVisibilityChange);
     window.addEventListener('beforeunload', handleBeforeUnload);
 
@@ -306,37 +328,7 @@ export function useNotifications(options: UseNotificationsOptions = {}) {
       window.removeEventListener('beforeunload', handleBeforeUnload);
       cleanupConnection();
     };
-  }, [
-    connectToNotificationStream,
-    cleanupConnection,
-    effectiveRealtime,
-    enabled,
-  ]);
-
-  // Effect to handle SSE enable/disable state changes
-  useEffect(() => {
-    if (!effectiveRealtime) {
-      // SSE disabled by context (e.g., during navigation), clean up connection
-      cleanupConnection();
-    } else if (
-      effectiveRealtime &&
-      enabled &&
-      !eventSourceRef.current &&
-      !isUnmountingRef.current
-    ) {
-      // SSE re-enabled, reconnect if needed
-      const timer = setTimeout(() => {
-        connectToNotificationStream();
-      }, 300); // Short delay to avoid rapid state changes
-
-      return () => clearTimeout(timer);
-    }
-  }, [
-    effectiveRealtime,
-    enabled,
-    connectToNotificationStream,
-    cleanupConnection,
-  ]);
+  }, [effectiveRealtime, enabled]); // Simplified dependency array
 
   // Helper functions
   const markAsRead = useCallback(
