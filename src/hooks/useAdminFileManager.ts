@@ -3,6 +3,8 @@
 
 import { useState } from 'react';
 import { toast } from 'sonner';
+import { useMutation } from '@tanstack/react-query';
+import { ApiClient } from '@/lib/api/client';
 import { useDeleteFile, useDeleteFiles } from '@/hooks';
 import type { AdminFileData } from '@/types';
 
@@ -19,8 +21,47 @@ export function useAdminFileManager(initialFiles: AdminFileData[]) {
   const deleteFileMutation = useDeleteFile();
   const deleteFilesMutation = useDeleteFiles();
 
+  // TanStack Query mutation for file download (better error handling)
+  const downloadFileMutation = useMutation({
+    mutationFn: async (filename: string) => {
+      // Use fetch for downloads since ApiClient expects JSON responses
+      // but we need to handle blob responses for file downloads
+      const response = await fetch(`/api/files/${filename}`);
+      if (!response.ok) {
+        throw new Error(`Failed to download file: ${response.status} ${response.statusText}`);
+      }
+      return { response, filename };
+    },
+    onSuccess: async (data) => {
+      const { response, filename } = data;
+      try {
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+        toast.success('File downloaded successfully');
+      } catch (error) {
+        console.error('Download processing failed:', error);
+        toast.error('Failed to process downloaded file');
+      }
+    },
+    onError: (error) => {
+      console.error('Download failed:', error);
+      toast.error('Failed to download file. Please try again.');
+    },
+    retry: 2,
+    retryDelay: 1000,
+  });
+
   const isLoading =
-    deleteFileMutation.isPending || deleteFilesMutation.isPending;
+    deleteFileMutation.isPending || 
+    deleteFilesMutation.isPending || 
+    downloadFileMutation.isPending;
 
   const filteredFiles = localFiles.filter(
     (file) =>
@@ -64,23 +105,10 @@ export function useAdminFileManager(initialFiles: AdminFileData[]) {
 
   const handleDownloadFile = async (filename: string) => {
     try {
-      const response = await fetch(`/api/files/${filename}`);
-      if (response.ok) {
-        const blob = await response.blob();
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = filename;
-        document.body.appendChild(a);
-        a.click();
-        window.URL.revokeObjectURL(url);
-        document.body.removeChild(a);
-        toast.success('File downloaded successfully');
-      } else {
-        throw new Error('Failed to download file');
-      }
-    } catch {
-      toast.error('Failed to download file. Please try again.');
+      await downloadFileMutation.mutateAsync(filename);
+    } catch (error) {
+      // Error is already handled in the mutation
+      console.error('Download operation failed:', error);
     }
   };
 

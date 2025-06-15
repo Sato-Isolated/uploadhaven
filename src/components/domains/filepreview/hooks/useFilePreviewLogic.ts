@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useEffect } from 'react';
 import { useParams } from 'next/navigation';
+import { useLocale } from 'next-intl';
 import { useFilePreview } from '@/hooks/useFilePreview';
 import { toast } from 'sonner';
 import type { ClientFileData } from '@/types';
@@ -32,7 +33,9 @@ export interface UseFilePreviewLogicReturn {
 
 export function useFilePreviewLogic(): UseFilePreviewLogicReturn {
   const params = useParams();
+  const locale = useLocale();
   const shortUrl = params.shortUrl as string;
+  
   // Local state
   const [fileInfo, setFileInfo] = useState<ClientFileData | null>(null);
   const [passwordRequired, setPasswordRequired] = useState(false);
@@ -68,7 +71,7 @@ export function useFilePreviewLogic(): UseFilePreviewLogicReturn {
       try {
         setPasswordLoading(true);
 
-        const response = await fetch(`/s/${shortUrl}/verify`, {
+        const response = await fetch(`/${locale}/s/${shortUrl}/verify`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ password }),
@@ -89,7 +92,7 @@ export function useFilePreviewLogic(): UseFilePreviewLogicReturn {
         setPasswordLoading(false);
       }
     },
-    [password, shortUrl]
+    [password, shortUrl, locale]
   );
 
   // File download handler
@@ -99,7 +102,7 @@ export function useFilePreviewLogic(): UseFilePreviewLogicReturn {
 
       // Create download URL with verification if needed
       const downloadUrl = passwordRequired
-        ? `/s/${shortUrl}?verified=${Date.now()}`
+        ? `/${locale}/s/${shortUrl}?verified=${Date.now()}`
         : `/api/download/${shortUrl}`;
 
       // Create a temporary link to trigger download
@@ -115,14 +118,14 @@ export function useFilePreviewLogic(): UseFilePreviewLogicReturn {
     } finally {
       setDownloading(false);
     }
-  }, [passwordRequired, shortUrl, fileInfo?.originalName]);
+  }, [passwordRequired, shortUrl, fileInfo?.originalName, locale]);
 
   // Share link copy handler
   const copyShareLink = useCallback(() => {
-    const shareUrl = `${window.location.origin}/s/${shortUrl}`;
+    const shareUrl = `${window.location.origin}/${locale}/s/${shortUrl}`;
     navigator.clipboard.writeText(shareUrl);
     toast.success('Share link copied to clipboard!');
-  }, [shortUrl]);
+  }, [locale, shortUrl]);
 
   // Derived state for file expiration
   const isFileExpired = fileInfo?.expiresAt

@@ -1,0 +1,172 @@
+'use client';
+
+import { useState } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
+import { Button } from '@/components/ui/button';
+import { useTranslations } from 'next-intl';
+import { Keyboard, X } from 'lucide-react';
+import { useKeyboardLayoutDetection } from '@/lib/keyboard';
+
+interface KeyboardShortcutsModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+export function KeyboardShortcutsModal({ isOpen, onClose }: KeyboardShortcutsModalProps) {
+  const t = useTranslations('FilePreview');
+  const keyboardLayout = useKeyboardLayoutDetection();
+  
+  const shortcuts = keyboardLayout.shortcuts;
+  const formatKeys = (keys: string): string => {
+    return keys.split(' / ').map(key => {
+      // Format special keys for display
+      switch (key.trim()) {
+        case ' ': 
+        case 'Space': 
+        case 'Espace': 
+        case 'Leertaste': 
+          return 'Space';
+        case '↑': return '↑';
+        case '↓': return '↓';
+        case '←': return '←';
+        case '→': return '→';
+        default: return key.toUpperCase();
+      }
+    }).join(' / ');
+  };
+
+  if (!isOpen) return null;
+
+  return (
+    <AnimatePresence>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4"
+        onClick={onClose}
+      >
+        <motion.div
+          initial={{ scale: 0.9, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          exit={{ scale: 0.9, opacity: 0 }}
+          transition={{ type: "spring", damping: 25, stiffness: 300 }}
+          className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl p-6 w-full max-w-md max-h-[80vh] overflow-y-auto"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
+                <Keyboard className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+              </div>
+              <div>
+                <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+                  {t('keyboardShortcuts')}
+                </h2>                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  {keyboardLayout.detectionMethod === 'language-fallback' && keyboardLayout.confidence < 0.5 ? (
+                    'Detecting layout...'
+                  ) : (
+                    t('layoutDetected', { layout: keyboardLayout.layout.toUpperCase() })
+                  )}
+                </p>
+              </div>
+            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onClose}
+              className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+            >
+              <X className="w-4 h-4" />
+            </Button>
+          </div>          <div className="space-y-3">
+            {Object.entries(shortcuts).map(([action, keys]) => (
+              <motion.div
+                key={action}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.1 }}
+                className="flex items-center justify-between py-2 px-3 rounded-lg bg-gray-50 dark:bg-gray-800/50 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+              >
+                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  {t(`shortcuts.${action}`, { 
+                    defaultValue: action 
+                  })}
+                </span>
+                <div className="flex items-center gap-1">
+                  {formatKeys(keys).split(' / ').map((key, index, array) => (
+                    <div key={index} className="flex items-center">
+                      <kbd className="px-2 py-1 text-xs font-semibold text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded shadow-sm">
+                        {key}
+                      </kbd>
+                      {index < array.length - 1 && (
+                        <span className="mx-1 text-xs text-gray-400">/</span>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </motion.div>
+            ))}
+            
+            {/* Additional shortcuts */}
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.15 }}
+              className="flex items-center justify-between py-2 px-3 rounded-lg bg-gray-50 dark:bg-gray-800/50 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+            >
+              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                {t('shortcuts.reset')}
+              </span>
+              <kbd className="px-2 py-1 text-xs font-semibold text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded shadow-sm">
+                R
+              </kbd>
+            </motion.div>
+            
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.2 }}
+              className="flex items-center justify-between py-2 px-3 rounded-lg bg-gray-50 dark:bg-gray-800/50 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+            >
+              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                {t('shortcuts.seek', { percentage: '10-90' })}
+              </span>
+              <div className="flex items-center gap-1">
+                <kbd className="px-2 py-1 text-xs font-semibold text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded shadow-sm">
+                  1-9
+                </kbd>
+              </div>
+            </motion.div>
+          </div>          <div className="mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
+            <p className="text-xs text-gray-500 dark:text-gray-400 text-center">
+              {keyboardLayout.layout.toUpperCase()} keyboard layout detected
+              <span className="ml-2">
+                ({Math.round(keyboardLayout.confidence * 100)}% confidence, {keyboardLayout.detectionMethod})
+              </span>
+            </p>
+          </div>
+        </motion.div>
+      </motion.div>
+    </AnimatePresence>
+  );
+}
+
+export function KeyboardShortcutsButton() {
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <>
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={() => setIsOpen(true)}
+        className="text-white/80 hover:text-white hover:bg-white/20"
+        title="Keyboard Shortcuts"
+      >
+        <Keyboard className="w-4 h-4" />
+      </Button>
+      <KeyboardShortcutsModal isOpen={isOpen} onClose={() => setIsOpen(false)} />
+    </>
+  );
+}

@@ -4,7 +4,7 @@ import { motion } from 'motion/react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { CheckCircle, AlertCircle, X, Copy, Key } from 'lucide-react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import type { UploadedFile } from '@/components/domains/upload/fileuploader/types';
 import {
   getFileType,
@@ -25,6 +25,7 @@ export function UploadedFilesList({
 }: UploadedFilesListProps) {
   const t = useTranslations('Dashboard');
   const tCommon = useTranslations('Common');
+  const locale = useLocale();
 
   const handleCopyToClipboard = async (url: string, label?: string) => {
     const success = await copyToClipboard(url);
@@ -146,7 +147,7 @@ export function UploadedFilesList({
                   size="sm"
                   onClick={() =>
                     handleCopyToClipboard(
-                      `${window.location.origin}/s/${file.shortUrl}`,
+                      `${window.location.origin}/${locale}/s/${file.shortUrl}`,
                       t('shareLink')
                     )
                   }

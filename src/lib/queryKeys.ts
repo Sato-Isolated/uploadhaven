@@ -65,6 +65,7 @@ export const queryKeys = {
   securityLogs: (filters?: Record<string, unknown>) =>
     [...queryKeys.security(), 'logs', filters] as const,
   securityScan: () => [...queryKeys.security(), 'scan'] as const,
+  securityFiles: () => [...queryKeys.security(), 'files'] as const,
 
   // Stats domain
   stats: () => [...queryKeys.all, 'stats'] as const,
@@ -82,6 +83,10 @@ export const queryKeys = {
   realtime: () => [...queryKeys.all, 'realtime'] as const,
   realtimeStats: () => [...queryKeys.realtime(), 'stats'] as const,
   realtimeActivities: () => [...queryKeys.realtime(), 'activities'] as const,
+
+  // Development tools domain (dev-only)
+  dev: () => [...queryKeys.all, 'dev'] as const,
+  translationCheck: () => [...queryKeys.dev(), 'translation-check'] as const,
 } as const;
 
 import type { QueryClient } from '@tanstack/react-query';

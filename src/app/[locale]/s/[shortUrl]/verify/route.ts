@@ -6,7 +6,7 @@ import { rateLimit, rateLimitConfigs } from '@/lib/rateLimit';
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: Promise<{ shortUrl: string }> }
+  { params }: { params: Promise<{ locale: string; shortUrl: string }> }
 ) {
   try {
     await connectDB();

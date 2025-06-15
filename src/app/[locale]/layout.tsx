@@ -23,11 +23,6 @@ const geistMono = Geist_Mono({
   subsets: ['latin'],
 });
 
-export const metadata: Metadata = {
-  title: 'UploadHaven',
-  description: 'Simple file uploader, built with Next.js and ShadCN',
-};
-
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
 }
@@ -52,24 +47,23 @@ export default async function LocaleLayout({
   const messages = await getMessages();
 
   return (
-    <html lang={locale} suppressHydrationWarning>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        <ThemeProvider>
-          <QueryProvider>
-            <NotificationProvider>
-              <NavigationSSEManager />
-              <PrefetchProvider>
-                <NextIntlClientProvider messages={messages} locale={locale}>
-                  <QueryErrorBoundary>{children}</QueryErrorBoundary>
-                </NextIntlClientProvider>
-              </PrefetchProvider>
-            </NotificationProvider>
-            <Toaster />
-          </QueryProvider>
-        </ThemeProvider>
-      </body>
-    </html>
+    <div 
+      lang={locale} 
+      className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+    >
+      <ThemeProvider>
+        <QueryProvider>
+          <NotificationProvider>
+            <NavigationSSEManager />
+            <PrefetchProvider>
+              <NextIntlClientProvider messages={messages} locale={locale}>
+                <QueryErrorBoundary>{children}</QueryErrorBoundary>
+              </NextIntlClientProvider>
+            </PrefetchProvider>
+          </NotificationProvider>
+          <Toaster />
+        </QueryProvider>
+      </ThemeProvider>
+    </div>
   );
 }

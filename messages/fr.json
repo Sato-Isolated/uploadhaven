@@ -125,13 +125,30 @@
     "filePreviewAndDownload": "Aperçu et Téléchargement de Fichier",
     "poweredByUploadHaven": "Propulsé par UploadHaven - Partage de Fichiers Sécurisé",
     "secureDownload": "Téléchargement Sécurisé",
-    "fileScannedSafe": "Ce fichier a été analysé et est sûr à télécharger.",
-    "audioNotSupported": "Votre navigateur ne prend pas en charge la lecture audio.",
+    "fileScannedSafe": "Ce fichier a été analysé et est sûr à télécharger.",    "audioNotSupported": "Votre navigateur ne prend pas en charge la lecture audio.",
     "videoNotSupported": "Votre navigateur ne prend pas en charge la lecture vidéo.",
     "loadingFileInformation": "Chargement des informations du fichier...",
     "loadingContent": "Chargement du contenu...",
     "errorLoadingContent": "Erreur lors du chargement du contenu",
-    "noContentAvailable": "Aucun contenu disponible"
+    "noContentAvailable": "Aucun contenu disponible",
+    "backToDashboard": "Retour au Tableau de Bord",
+    "backToHome": "Retour à l'Accueil",
+    "keyboardShortcuts": "Raccourcis Clavier",
+    "keyboardLayout": "Disposition Clavier",
+    "layoutDetected": "Disposition Détectée : {layout}",
+    "shortcuts": {
+      "playPause": "Lecture/Pause",
+      "mute": "Muet",
+      "fullscreen": "Plein Écran",
+      "volumeUp": "Volume +",
+      "volumeDown": "Volume -",
+      "seekForward": "Avancer",
+      "seekBackward": "Reculer",
+      "speedUp": "Accélérer",
+      "speedDown": "Ralentir",
+      "reset": "Réinitialiser",
+      "seek": "Aller à {percentage}%"
+    }
   },
   "Dashboard": {
     "title": "Tableau de Bord",

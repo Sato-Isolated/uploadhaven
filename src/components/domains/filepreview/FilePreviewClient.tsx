@@ -11,6 +11,8 @@ import { FilePreviewHeader } from './components/FilePreviewHeader';
 import { FilePreviewDetails } from './components/FilePreviewDetails';
 import { FilePreviewActions } from './components/FilePreviewActions';
 import { FilePreviewSecurityNotice } from './components/FilePreviewSecurityNotice';
+import { FilePreviewNavigation } from './components/FilePreviewNavigation';
+import { FilePreviewLayout } from './components/FilePreviewLayout';
 import {
   ImagePreview,
   VideoPreview,
@@ -91,48 +93,33 @@ export default function FilePreviewClient() {
 
   // Main content
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
-      <div className="mx-auto max-w-2xl pt-8">
-        {/* Header */}
-        <div className="mb-8 text-center">
-          <h1 className="mb-2 text-3xl font-bold text-gray-900">
-            {tHome('title')}
-          </h1>
-          <p className="text-gray-600">{t('filePreviewAndDownload')}</p>
-        </div>
+    <FilePreviewLayout>
+      {/* Main Card */}
+      <Card className="shadow-xl">
+        <FilePreviewHeader fileInfo={fileInfo} isExpired={isFileExpired} />
 
-        {/* Main Card */}
-        <Card className="shadow-xl">
-          <FilePreviewHeader fileInfo={fileInfo} isExpired={isFileExpired} />
+        <CardContent className="space-y-6">
+          <FilePreviewDetails fileInfo={fileInfo} isExpired={isFileExpired} />
 
-          <CardContent className="space-y-6">
-            <FilePreviewDetails fileInfo={fileInfo} isExpired={isFileExpired} />
+          {/* File Content Preview */}
+          {!isFileExpired && (
+            <div className="rounded-lg bg-gray-50 p-4">
+              {renderFilePreview(fileInfo)}
+            </div>
+          )}
 
-            {/* File Content Preview */}
-            {!isFileExpired && (
-              <div className="rounded-lg bg-gray-50 p-4">
-                {renderFilePreview(fileInfo)}
-              </div>
-            )}
+          <Separator />
 
-            <Separator />
+          <FilePreviewActions
+            isExpired={isFileExpired}
+            downloading={downloading}
+            onDownload={handleDownload}
+            onCopyShareLink={copyShareLink}
+          />
 
-            <FilePreviewActions
-              isExpired={isFileExpired}
-              downloading={downloading}
-              onDownload={handleDownload}
-              onCopyShareLink={copyShareLink}
-            />
-
-            <FilePreviewSecurityNotice />
-          </CardContent>
-        </Card>
-
-        {/* Footer */}
-        <div className="mt-8 text-center text-sm text-gray-500">
-          <p>{t('poweredByUploadHaven')}</p>
-        </div>
-      </div>
-    </div>
+          <FilePreviewSecurityNotice />
+        </CardContent>
+      </Card>
+    </FilePreviewLayout>
   );
 }

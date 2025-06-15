@@ -2,6 +2,9 @@
 
 import { useState, useCallback } from 'react';
 import { toast } from 'sonner';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { ApiClient } from '@/lib/api/client';
+import { queryKeys } from '@/lib/queryKeys';
 import { detectSuspiciousActivity, logSecurityEvent } from '@/lib/security';
 import type {
   ScanType,
@@ -45,6 +48,8 @@ export type UseSecurityScanningReturn = SecurityScanningState &
  * Extracts complex scanning logic from SecurityScanModal component
  */
 export function useSecurityScanning(): UseSecurityScanningReturn {
+  const queryClient = useQueryClient();
+  
   // State management
   const [isScanning, setIsScanning] = useState(false);
   const [scanProgress, setScanProgress] = useState(0);
@@ -56,42 +61,75 @@ export function useSecurityScanning(): UseSecurityScanningReturn {
   const [currentFileIndex, setCurrentFileIndex] = useState(0);
   const [virusTotalRequestsUsed, setVirusTotalRequestsUsed] = useState(0);
 
-  // API operations
-  const fetchFilesList = useCallback(async () => {
-    const response = await fetch('/api/security/files');
-    if (!response.ok) {
-      throw new Error('Failed to fetch files list');
-    }
-    return response.json();
-  }, []);
+  // TanStack Query for fetching files list
+  const { data: filesData } = useQuery({
+    queryKey: queryKeys.securityFiles(),
+    queryFn: async () => {
+      return ApiClient.get<{ files: Array<{ name: string }> }>('/api/security/files');
+    },
+    staleTime: 30 * 1000, // 30 seconds
+    retry: 3,
+    enabled: false, // Only fetch when needed
+  });
 
-  const scanSingleFile = useCallback(async (fileName: string) => {
-    const response = await fetch('/api/security/scan/file', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
+  // TanStack Query mutation for scanning single file
+  const scanSingleFileMutation = useMutation({
+    mutationFn: async (fileName: string) => {
+      return ApiClient.post<{ scanResult?: MalwareScanResult; quotaStatus?: QuotaStatus }>(
+        '/api/security/scan/file',
+        { fileName }
+      );
+    },
+    onError: (error) => {
+      console.error('Failed to scan file:', error);
+      toast.error('Failed to scan file');
+    },
+    retry: 2,
+    retryDelay: 1000,
+  });
+
+  // TanStack Query mutation for scanning uploaded file
+  const scanUploadedFileMutation = useMutation({
+    mutationFn: async (file: File) => {
+      const formData = new FormData();
+      formData.append('file', file);
+      
+      return ApiClient.uploadFile<{ scanResult?: MalwareScanResult; quotaStatus?: QuotaStatus }>(
+        '/api/security/scan',
+        formData
+      );
+    },
+    onSuccess: (data) => {
+      // Invalidate security-related queries after successful scan
+      queryClient.invalidateQueries({ queryKey: queryKeys.security() });
+    },
+    onError: (error) => {
+      console.error('File scan failed:', error);
+      toast.error('File scan failed');
+    },
+    retry: 2,
+    retryDelay: 1000,
+  });
+
+  // Fetch files list function using query refetch
+  const fetchFilesList = useCallback(async () => {
+    const result = await queryClient.fetchQuery({
+      queryKey: queryKeys.securityFiles(),
+      queryFn: async () => {
+        return ApiClient.get<{ files: Array<{ name: string }> }>('/api/security/files');
       },
-      body: JSON.stringify({ fileName }),
     });
-    if (!response.ok) {
-      throw new Error('Failed to scan file');
-    }
-    return response.json();
-  }, []);
+    return result;
+  }, [queryClient]);
+
+  // Wrapper functions for mutations
+  const scanSingleFile = useCallback(async (fileName: string) => {
+    return scanSingleFileMutation.mutateAsync(fileName);
+  }, [scanSingleFileMutation]);
 
   const scanUploadedFile = useCallback(async (file: File) => {
-    const formData = new FormData();
-    formData.append('file', file);
-
-    const response = await fetch('/api/security/scan', {
-      method: 'POST',
-      body: formData,
-    });
-    if (!response.ok) {
-      throw new Error('File scan failed');
-    }
-    return response.json();
-  }, []);
+    return scanUploadedFileMutation.mutateAsync(file);
+  }, [scanUploadedFileMutation]);
 
   // Main scan execution logic
   const startScan = useCallback(async () => {

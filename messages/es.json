@@ -135,13 +135,30 @@
     "filePreviewAndDownload": "Vista Previa y Descarga de Archivo",
     "poweredByUploadHaven": "Impulsado por UploadHaven - Compartir Archivos Seguro",
     "secureDownload": "Descarga Segura",
-    "fileScannedSafe": "Este archivo ha sido escaneado y es seguro para descargar.",
-    "audioNotSupported": "Tu navegador no soporta la reproducción de audio.",
+    "fileScannedSafe": "Este archivo ha sido escaneado y es seguro para descargar.",    "audioNotSupported": "Tu navegador no soporta la reproducción de audio.",
     "videoNotSupported": "Tu navegador no soporta la reproducción de video.",
     "loadingFileInformation": "Cargando información del archivo...",
     "loadingContent": "Cargando contenido...",
     "errorLoadingContent": "Error al cargar el contenido",
-    "noContentAvailable": "No hay contenido disponible"
+    "noContentAvailable": "No hay contenido disponible",
+    "backToDashboard": "Volver al Panel",
+    "backToHome": "Volver al Inicio",
+    "keyboardShortcuts": "Atajos de Teclado",
+    "keyboardLayout": "Distribución de Teclado",
+    "layoutDetected": "Distribución Detectada: {layout}",
+    "shortcuts": {
+      "playPause": "Reproducir/Pausar",
+      "mute": "Silenciar",
+      "fullscreen": "Pantalla Completa",
+      "volumeUp": "Subir Volumen",
+      "volumeDown": "Bajar Volumen",
+      "seekForward": "Avanzar",
+      "seekBackward": "Retroceder",
+      "speedUp": "Acelerar",
+      "speedDown": "Desacelerar",
+      "reset": "Reiniciar",
+      "seek": "Ir al {percentage}%"
+    }
   },
   "Dashboard": {
     "title": "Panel de Control",

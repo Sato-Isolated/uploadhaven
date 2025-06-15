@@ -3,17 +3,121 @@
 import { useState, useCallback } from 'react';
 import { toast } from 'sonner';
 import { useTranslations } from 'next-intl';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { ApiClient } from '@/lib/api/client';
+import { queryKeys } from '@/lib/queryKeys';
 import type { FileUploadOptions, FileDeleteOptions } from '@/types';
 
 /**
  * Custom hook for file operations including upload, delete, and management.
  * Consolidates file handling logic used across FileUploader, AdminFileManager, etc.
+ * Now uses TanStack Query for proper caching, state management, and invalidation.
  */
 export function useFileOperations() {
   const t = useTranslations('Upload');
+  const queryClient = useQueryClient();
   const [uploading, setUploading] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
+  // TanStack Query mutation for file upload
+  const uploadFileMutation = useMutation({
+    mutationFn: async (data: {
+      file: File;
+      options?: FileUploadOptions & {
+        expiration?: string;
+        password?: string;
+        userId?: string;
+      };
+    }) => {
+      const { file, options = {} } = data;
+      const formData = new FormData();
+      formData.append('file', file);
+
+      if (options.expiration) {
+        formData.append('expiration', options.expiration);
+      }
+
+      if (options.password) {
+        formData.append('password', options.password);
+      }
+
+      if (options.userId) {
+        formData.append('userId', options.userId);
+      }
+
+      return ApiClient.uploadFile('/api/upload', formData);
+    },
+    onSuccess: (result, variables) => {
+      toast.success(t('fileUploadedSuccessfully'));
+      variables.options?.onSuccess?.(result);
+      
+      // Invalidate relevant queries
+      queryClient.invalidateQueries({ queryKey: queryKeys.files() });
+      queryClient.invalidateQueries({ queryKey: queryKeys.stats() });
+      queryClient.invalidateQueries({ queryKey: queryKeys.userStats() });
+    },
+    onError: (error, variables) => {
+      const errorMessage = error instanceof Error ? error.message : t('uploadFailed');
+      toast.error(errorMessage);
+      variables.options?.onError?.(errorMessage);
+    },
+    retry: 2,
+    retryDelay: 1000,
+  });
+
+  // TanStack Query mutation for single file deletion
+  const deleteFileMutation = useMutation({
+    mutationFn: async (data: { filename: string; options?: FileDeleteOptions }) => {
+      const { filename, options = {} } = data;
+      return ApiClient.post('/api/bulk-delete', {
+        filenames: [filename],
+      });
+    },
+    onSuccess: (result, variables) => {
+      toast.success(t('fileDeletedSuccessfully'));
+      variables.options?.onSuccess?.();
+      
+      // Invalidate relevant queries
+      queryClient.invalidateQueries({ queryKey: queryKeys.files() });
+      queryClient.invalidateQueries({ queryKey: queryKeys.stats() });
+      queryClient.invalidateQueries({ queryKey: queryKeys.userStats() });
+    },
+    onError: (error, variables) => {
+      const errorMessage = error instanceof Error ? error.message : t('deleteFailed');
+      toast.error(errorMessage);
+      variables.options?.onError?.(errorMessage);
+    },
+    retry: 2,
+    retryDelay: 1000,
+  });
+
+  // TanStack Query mutation for multiple files deletion
+  const deleteMultipleFilesMutation = useMutation({
+    mutationFn: async (data: { filenames: string[]; options?: FileDeleteOptions }) => {
+      const { filenames, options = {} } = data;
+      return ApiClient.post<{ success: boolean; deletedCount: number }>('/api/bulk-delete', {
+        filenames,
+      });
+    },
+    onSuccess: (result, variables) => {
+      toast.success(t('successfullyDeletedFiles', { count: result.deletedCount }));
+      variables.options?.onSuccess?.();
+      
+      // Invalidate relevant queries
+      queryClient.invalidateQueries({ queryKey: queryKeys.files() });
+      queryClient.invalidateQueries({ queryKey: queryKeys.stats() });
+      queryClient.invalidateQueries({ queryKey: queryKeys.userStats() });
+    },
+    onError: (error, variables) => {
+      const errorMessage = error instanceof Error ? error.message : t('bulkDeleteFailed');
+      toast.error(errorMessage);
+      variables.options?.onError?.(errorMessage);
+    },
+    retry: 2,
+    retryDelay: 1000,
+  });
+
+  // Wrapper functions that use the mutations
   const uploadFile = useCallback(
     async (
       file: File,
@@ -24,127 +128,40 @@ export function useFileOperations() {
       } = {}
     ) => {
       setUploading(true);
-
       try {
-        const formData = new FormData();
-        formData.append('file', file);
-
-        if (options.expiration) {
-          formData.append('expiration', options.expiration);
-        }
-
-        if (options.password) {
-          formData.append('password', options.password);
-        }
-
-        if (options.userId) {
-          formData.append('userId', options.userId);
-        }
-
-        const response = await fetch('/api/upload', {
-          method: 'POST',
-          body: formData,
-        });
-
-        const result = await response.json();
-
-        if (!response.ok || !result.success) {
-          throw new Error(result.error || t('uploadFailed'));
-        }
-
-        toast.success(t('fileUploadedSuccessfully'));
-        options.onSuccess?.(result);
-
+        const result = await uploadFileMutation.mutateAsync({ file, options });
         return result;
-      } catch (error) {
-        const errorMessage =
-          error instanceof Error ? error.message : t('uploadFailed');
-        toast.error(errorMessage);
-        options.onError?.(errorMessage);
-        throw error;
       } finally {
         setUploading(false);
       }
     },
-    []
+    [uploadFileMutation]
   );
 
   const deleteFile = useCallback(
     async (filename: string, options: FileDeleteOptions = {}) => {
       setDeleting(true);
-
       try {
-        const response = await fetch('/api/bulk-delete', {
-          method: 'DELETE',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            filenames: [filename],
-          }),
-        });
-
-        const result = await response.json();
-
-        if (!result.success) {
-          throw new Error(result.error || t('deleteFailed'));
-        }
-
-        toast.success(t('fileDeletedSuccessfully'));
-        options.onSuccess?.();
-
+        const result = await deleteFileMutation.mutateAsync({ filename, options });
         return result;
-      } catch (error) {
-        const errorMessage =
-          error instanceof Error ? error.message : t('deleteFailed');
-        toast.error(errorMessage);
-        options.onError?.(errorMessage);
-        throw error;
       } finally {
         setDeleting(false);
       }
     },
-    []
+    [deleteFileMutation]
   );
 
   const deleteMultipleFiles = useCallback(
     async (filenames: string[], options: FileDeleteOptions = {}) => {
       setDeleting(true);
-
       try {
-        const response = await fetch('/api/bulk-delete', {
-          method: 'DELETE',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            filenames,
-          }),
-        });
-
-        const result = await response.json();
-
-        if (!result.success) {
-          throw new Error(result.error || t('bulkDeleteFailed'));
-        }
-
-        toast.success(
-          t('successfullyDeletedFiles', { count: result.deletedCount })
-        );
-        options.onSuccess?.();
-
+        const result = await deleteMultipleFilesMutation.mutateAsync({ filenames, options });
         return result;
-      } catch (error) {
-        const errorMessage =
-          error instanceof Error ? error.message : t('bulkDeleteFailed');
-        toast.error(errorMessage);
-        options.onError?.(errorMessage);
-        throw error;
       } finally {
         setDeleting(false);
       }
     },
-    []
+    [deleteMultipleFilesMutation]
   );
 
   const validateFile = useCallback(
@@ -172,15 +189,23 @@ export function useFileOperations() {
 
       return { valid: true };
     },
-    []
+    [t]
   );
 
   return {
-    uploading,
-    deleting,
+    // Loading states (backward compatibility)
+    uploading: uploading || uploadFileMutation.isPending,
+    deleting: deleting || deleteFileMutation.isPending || deleteMultipleFilesMutation.isPending,
+    
+    // Core operations
     uploadFile,
     deleteFile,
     deleteMultipleFiles,
     validateFile,
+    
+    // Direct access to mutations for advanced usage
+    uploadFileMutation,
+    deleteFileMutation,
+    deleteMultipleFilesMutation,
   };
 }
