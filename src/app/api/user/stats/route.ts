@@ -29,10 +29,10 @@ export async function GET(_request: NextRequest) {
       { $group: { _id: null, totalSize: { $sum: '$size' } } },
     ]);
 
-    // Get files by visibility
-    const visibilityStats = await File.aggregate([
+    // Get password protection stats
+    const passwordStats = await File.aggregate([
       { $match: { userId } },
-      { $group: { _id: '$visibility', count: { $sum: 1 } } },
+      { $group: { _id: '$isPasswordProtected', count: { $sum: 1 } } },
     ]);
 
     // Get files by type (based on mimeType)
@@ -108,12 +108,12 @@ export async function GET(_request: NextRequest) {
         totalSize: totalSize[0]?.totalSize || 0,
         recentUploads,
         expiringSoon,
-        visibility: visibilityStats.reduce(
+        passwordProtection: passwordStats.reduce(
           (acc, stat) => {
-            acc[stat._id] = stat.count;
+            acc[stat._id ? 'protected' : 'unprotected'] = stat.count;
             return acc;
           },
-          {} as Record<string, number>
+          { protected: 0, unprotected: 0 } as Record<string, number>
         ),
         fileTypes: typeStats.map((stat) => ({
           type: stat._id,

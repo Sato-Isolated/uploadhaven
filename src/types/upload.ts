@@ -111,7 +111,6 @@ export interface ExtendedFile {
   expiresAt?: string;
   userId?: string;
   isPasswordProtected?: boolean;
-  visibility?: string;
 }
 
 /**

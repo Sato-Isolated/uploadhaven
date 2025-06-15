@@ -754,19 +754,18 @@ Get statistics for the authenticated user.
   success: boolean
   stats: {
     totalFiles: number
-    totalDownloads: number
     totalSize: number
-    averageFileSize: number
-    uploadsThisWeek: number
-    downloadsThisWeek: number
-    mostDownloadedFile?: {
-      filename: string
-      originalName: string
-      downloads: number
+    recentUploads: number
+    expiringSoon: number
+    passwordProtection: {
+      protected: number
+      unprotected: number
     }
-    fileTypeBreakdown: Record<string, number>
-    storageUsed: number
-    storageLimit: number
+    fileTypes: Array<{
+      type: string
+      count: number
+      size: number
+    }>
   }
 }
 ```
