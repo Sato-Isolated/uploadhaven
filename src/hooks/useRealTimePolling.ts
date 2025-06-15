@@ -101,21 +101,4 @@ export function useRealTimeFiles(userId?: string) {
   });
 }
 
-/**
- * Composite hook for all real-time data
- */
-export function useRealTimeData(userId?: string) {
-  const stats = useRealTimeStats();
-  const activities = useRealTimeActivities();
-  const files = useRealTimeFiles(userId);
 
-  return {
-    stats: stats.data,
-    activities: activities.data,
-    files: files.data,
-    isLoading: stats.isLoading || activities.isLoading || files.isLoading,
-    error: stats.error || activities.error || files.error,
-    // Combined connection status
-    isConnected: !stats.isError && !activities.isError && !files.isError,
-  };
-}

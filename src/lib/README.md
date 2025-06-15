@@ -205,25 +205,6 @@ export function validateFileAdvanced(file: File): ValidationResult {
 }
 ```
 
-**Date & Time Utils**
-```typescript
-// Relative time formatting
-export function formatRelativeTime(date: Date): string {
-  const now = new Date();
-  const diff = now.getTime() - date.getTime();
-  
-  const seconds = Math.floor(diff / 1000);
-  const minutes = Math.floor(seconds / 60);
-  const hours = Math.floor(minutes / 60);
-  const days = Math.floor(hours / 24);
-  
-  if (days > 0) return `${days} day${days > 1 ? 's' : ''} ago`;
-  if (hours > 0) return `${hours} hour${hours > 1 ? 's' : ''} ago`;
-  if (minutes > 0) return `${minutes} minute${minutes > 1 ? 's' : ''} ago`;
-  return 'Just now';
-}
-```
-
 **Security Utils**
 ```typescript
 // Client IP detection
@@ -360,19 +341,8 @@ export class ApiClient {
 ### 🔔 Notifications (`notifications/`)
 
 **Real-Time Notification System**
-```typescript
-// notifications/sse.ts
-export function createSSEConnection(userId: string) {
-  const eventSource = new EventSource(`/api/events?userId=${userId}`);
-  
-  eventSource.onmessage = (event) => {
-    const notification = JSON.parse(event.data);
-    toast(notification.message, { type: notification.type });
-  };
-  
-  return eventSource;
-}
-```
+
+The notifications system uses TanStack Query for efficient polling-based real-time updates, providing a more reliable alternative to Server-Sent Events for the Next.js environment.
 
 ## 🎯 Configuration Patterns
 

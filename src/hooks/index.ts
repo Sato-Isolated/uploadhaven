@@ -40,7 +40,6 @@ export {
   useRealTimeActivities,
   useRealTimeStats,
   useRealTimeFiles,
-  useRealTimeData,
 } from './useRealTimePolling';
 
 export type {
