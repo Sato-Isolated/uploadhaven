@@ -25,9 +25,6 @@ export { FilePreviewClient } from './filepreview';
 export { default as SecurityPanel } from './security/panel';
 export { default as SecurityScanModal } from './security/SecurityScanModal';
 
-// Stats Domain
-export { default as StatsPanel } from './stats/panel';
-
 // Upload Domain
 export { default as FileUploader } from './upload/fileuploader';
 
