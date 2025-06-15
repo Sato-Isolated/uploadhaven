@@ -66,9 +66,27 @@ export function KeyboardShortcutsModal({ isOpen, onClose }: KeyboardShortcutsMod
                   {keyboardLayout.detectionMethod === 'language-fallback' && keyboardLayout.confidence < 0.5 ? (
                     'Detecting layout...'
                   ) : (
-                    t('layoutDetected', { layout: keyboardLayout.layout.toUpperCase() })
+                    <>
+                      {t('layoutDetected', { layout: keyboardLayout.layout.toUpperCase() })}
+                      <span className="ml-2 text-xs">
+                        ({Math.round(keyboardLayout.confidence * 100)}% confidence)
+                      </span>
+                    </>
                   )}
                 </p>
+                <div className="mt-1 flex items-center gap-2">
+                  <div className={`w-2 h-2 rounded-full ${
+                    keyboardLayout.confidence > 0.8 ? 'bg-green-500' : 
+                    keyboardLayout.confidence > 0.5 ? 'bg-yellow-500' : 'bg-red-500'
+                  }`} />
+                  <span className="text-xs text-gray-400">
+                    {keyboardLayout.detectionMethod === 'keyboard-api' 
+                      ? 'Hardware API' 
+                      : keyboardLayout.detectionMethod === 'key-testing' 
+                        ? 'Real-time testing' 
+                        : 'Language fallback'}
+                  </span>
+                </div>
               </div>
             </div>
             <Button

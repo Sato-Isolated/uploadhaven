@@ -236,6 +236,40 @@ export function getLayoutSpecificKey(layout: string, baseKey: string): string {
 // Helper function to check if a key event matches a logical key in the current layout
 export function isKeyMatch(event: KeyboardEvent, logicalKey: string, layout: string): boolean {
   const actualKey = event.key.toLowerCase();
-  const expectedKey = getLayoutSpecificKey(layout, logicalKey.toLowerCase());
-  return actualKey === expectedKey || actualKey === logicalKey.toLowerCase();
+  const logicalKeyLower = logicalKey.toLowerCase();
+  
+  // Direct match first
+  if (actualKey === logicalKeyLower) {
+    return true;
+  }
+  
+  // Layout-specific mappings
+  const keyMappings: Record<string, Record<string, string[]>> = {
+    azerty: {
+      'm': [',', '?'], // M key produces comma in AZERTY
+      'q': ['a'],      // Q key produces A in AZERTY
+      'a': ['q'],      // A key produces Q in AZERTY
+      'w': ['z'],      // W key produces Z in AZERTY
+    },
+    qwertz: {
+      'y': ['z'],      // Y key produces Z in QWERTZ
+      'z': ['y'],      // Z key produces Y in QWERTZ
+    }
+  };
+  
+  // Check layout-specific mappings
+  const layoutMappings = keyMappings[layout];
+  if (layoutMappings && layoutMappings[logicalKeyLower]) {
+    return layoutMappings[logicalKeyLower].includes(actualKey);
+  }
+  
+  // Check reverse mappings (if user pressed the physical key that produces the logical key)
+  if (layout === 'azerty') {
+    // In AZERTY, pressing physical M produces comma, so if user wants 'mute' and presses comma, it should work
+    if (logicalKeyLower === 'm' && (actualKey === ',' || actualKey === '?')) {
+      return true;
+    }
+  }
+  
+  return false;
 }

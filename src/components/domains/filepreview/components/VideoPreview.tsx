@@ -209,12 +209,8 @@ export default function VideoPreview({ file }: VideoPreviewProps) {
     return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
   }, []);
 
-  // Keyboard shortcuts with layout detection
+  // Keyboard shortcuts with improved detection
   useEffect(() => {
-    if (keyboardLayout.detectionMethod === 'language-fallback' && keyboardLayout.confidence < 0.5) {
-      return; // Wait for better detection
-    }
-    
     const handleKeyPress = (event: KeyboardEvent) => {
       if (!videoRef.current || showSettings) return;
       
@@ -225,66 +221,111 @@ export default function VideoPreview({ file }: VideoPreviewProps) {
         return;
       }
       
-      // Use the improved key matching system
-      if (event.key === ' ' || isKeyMatch(event, 'k', keyboardLayout.layout)) {
+      // Debug logging to help troubleshoot (console only)
+      console.debug('Key pressed:', {
+        key: event.key,
+        code: event.code,
+        layout: keyboardLayout.layout,
+        confidence: keyboardLayout.confidence
+      });
+      
+      let handled = false;
+      
+      // Space or K for play/pause (universal)
+      if (event.key === ' ' || event.key.toLowerCase() === 'k') {
         event.preventDefault();
         togglePlayPause();
-      } else if (isKeyMatch(event, 'm', keyboardLayout.layout)) {
+        handled = true;
+      }
+      // Mute - handle both direct key and layout-specific
+      else if (event.key.toLowerCase() === 'm' || 
+               (keyboardLayout.layout === 'azerty' && (event.key === ',' || event.key === '?'))) {
         event.preventDefault();
         toggleMute();
-      } else if (isKeyMatch(event, 'f', keyboardLayout.layout)) {
+        handled = true;
+      }
+      // Fullscreen
+      else if (event.key.toLowerCase() === 'f') {
         event.preventDefault();
         toggleFullscreen();
-      } else if (event.key === 'ArrowUp') {
+        handled = true;
+      }
+      // Volume controls (arrow keys are universal)
+      else if (event.key === 'ArrowUp') {
         event.preventDefault();
         if (videoRef.current) {
           const newVolume = Math.min(1, volume + 0.1);
           handleVolumeChange([newVolume]);
         }
-      } else if (event.key === 'ArrowDown') {
+        handled = true;
+      }
+      else if (event.key === 'ArrowDown') {
         event.preventDefault();
         if (videoRef.current) {
           const newVolume = Math.max(0, volume - 0.1);
           handleVolumeChange([newVolume]);
         }
-      } else if (event.key === 'ArrowRight' || isKeyMatch(event, 'l', keyboardLayout.layout)) {
+        handled = true;
+      }
+      // Seek forward
+      else if (event.key === 'ArrowRight' || event.key.toLowerCase() === 'l') {
         event.preventDefault();
         skipForward();
-      } else if (event.key === 'ArrowLeft' || isKeyMatch(event, 'j', keyboardLayout.layout)) {
+        handled = true;
+      }
+      // Seek backward  
+      else if (event.key === 'ArrowLeft' || event.key.toLowerCase() === 'j') {
         event.preventDefault();
         skipBackward();
-      } else if (isKeyMatch(event, 'r', keyboardLayout.layout)) {
+        handled = true;
+      }
+      // Reset
+      else if (event.key.toLowerCase() === 'r') {
         event.preventDefault();
         resetVideo();
-      } else if (/^[0-9]$/.test(event.key)) {
+        handled = true;
+      }
+      // Number keys for seeking to percentage
+      else if (/^[0-9]$/.test(event.key)) {
         event.preventDefault();
         const percentage = parseInt(event.key) * 10;
         if (videoRef.current && duration) {
           videoRef.current.currentTime = (percentage / 100) * duration;
         }
-      } else if (event.key === '>' || event.key === '.') {
+        handled = true;
+      }
+      // Speed controls
+      else if (event.key === '>' || event.key === '.') {
         event.preventDefault();
         const newRate = Math.min(2, playbackRate + 0.25);
         handlePlaybackRateChange(newRate);
-      } else if (event.key === '<' || event.key === ',') {
+        handled = true;
+      }
+      else if (event.key === '<' || event.key === ',') {
         event.preventDefault();
         const newRate = Math.max(0.25, playbackRate - 0.25);
         handlePlaybackRateChange(newRate);
+        handled = true;
+      }
+      
+      if (handled) {
+        console.debug('Keyboard shortcut handled successfully');
       }
     };
 
-    document.addEventListener('keydown', handleKeyPress);
-    return () => document.removeEventListener('keydown', handleKeyPress);
+    // Use capture phase for better event handling
+    document.addEventListener('keydown', handleKeyPress, { passive: false, capture: true });
+    
+    return () => {
+      document.removeEventListener('keydown', handleKeyPress, { capture: true });
+    };
   }, [
     keyboardLayout.layout,
-    keyboardLayout.detectionMethod,
     keyboardLayout.confidence,
-    isPlaying, 
-    currentTime, 
-    duration, 
-    volume, 
-    playbackRate,
     showSettings, 
+    volume,
+    duration,
+    playbackRate,
     togglePlayPause, 
     skipBackward, 
     skipForward, 
