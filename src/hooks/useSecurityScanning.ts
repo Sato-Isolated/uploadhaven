@@ -3,9 +3,9 @@
 import { useState, useCallback } from 'react';
 import { toast } from 'sonner';
 import { detectSuspiciousActivity, logSecurityEvent } from '@/lib/security';
-import type { ScanResult } from '@/types';
 import type {
   ScanType,
+  ScanResult,
   ScannedFile,
   MalwareScanResult,
   QuotaStatus,
@@ -336,6 +336,7 @@ export function useSecurityScanning(): UseSecurityScanningReturn {
   const resetScan = useCallback(() => {
     setIsScanning(false);
     setScanProgress(0);
+    setSelectedScanType('quick');
     setScanResults([]);
     setCurrentScanStep('');
     setScannedFiles([]);
