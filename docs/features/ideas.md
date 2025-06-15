@@ -29,7 +29,7 @@ A comprehensive collection of ideas and potential features for UploadHaven's evo
 ### 🔥 High Priority (Core Features)
 
 #### 🧪 Testing & Quality
-- [ ] **Complete testing framework (Jest + RTL)**
+- [ ] **Complete testing framework (Vitest + RTL)**
   - Unit tests for all hooks and utilities
   - Component tests with React Testing Library
   - Integration tests for APIs

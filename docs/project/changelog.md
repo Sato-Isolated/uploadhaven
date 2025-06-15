@@ -224,7 +224,7 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ### [1.1.0] - Planned
 
 - [ ] **Testing Framework Implementation**
-  - [ ] Jest testing framework setup and configuration
+  - [ ] Vitest testing framework setup and configuration
   - [ ] Unit tests for API endpoints and utilities
   - [ ] Component testing with React Testing Library
   - [ ] Integration tests for file upload/download workflows

@@ -100,7 +100,7 @@ UploadHaven follows a modern full-stack architecture built on Next.js 15 with th
 - **Package Manager**: pnpm (with workspace support)
 - **Linting**: ESLint + Prettier
 - **Type Checking**: TypeScript strict mode
-- **Testing**: Jest + React Testing Library (planned)
+- **Testing**: Vitest + React Testing Library (configured)
 - **Documentation**: OpenAPI/Swagger
 
 ### External Services
@@ -827,17 +827,17 @@ export const saveSecurityEvent = async (eventData: {
 
 ## Testing
 
-> **Note**: Comprehensive testing framework is planned for the next major release
+> **Note**: Vitest testing framework is configured and ready for test implementation
 
 ### Planned Testing Strategy
 
-UploadHaven will implement a comprehensive testing strategy using Jest and React Testing Library:
+UploadHaven implements a comprehensive testing strategy using Vitest and React Testing Library:
 
-#### Testing Stack (Next Release)
-- **Unit Testing**: Jest + React Testing Library
-- **Integration Testing**: Jest + Supertest for API testing
+#### Testing Stack (Configured)
+- **Unit Testing**: Vitest + React Testing Library
+- **Integration Testing**: Vitest + Supertest for API testing
 - **E2E Testing**: Playwright or Cypress (Future Release)
-- **Performance Testing**: Jest + custom benchmarks
+- **Performance Testing**: Vitest + custom benchmarks
 - **Security Testing**: Automated vulnerability scanning
 
 ### Future Test Structure
@@ -852,7 +852,7 @@ src/test/
 │   ├── sample-files/    # Test upload files
 │   └── mock-data/       # Database fixtures
 ├── setup/              # Test setup and configuration
-│   ├── jest.config.js   # Jest configuration
+│   ├── vitest.config.ts # Vitest configuration
 │   ├── test-utils.tsx   # Testing utilities
 │   └── db-setup.ts      # Test database setup
 ├── unit/               # Unit tests
@@ -1022,7 +1022,7 @@ describe('Security Scanner', () => {
 
 ```bash
 # Install testing dependencies (Next Release)
-pnpm add -D jest @types/jest @testing-library/react @testing-library/jest-dom @testing-library/user-event supertest
+pnpm add -D vitest @vitest/ui @testing-library/react @testing-library/jest-dom @testing-library/user-event supertest
 
 # Run all tests
 pnpm test

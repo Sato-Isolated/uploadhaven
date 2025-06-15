@@ -135,7 +135,7 @@ pnpm test FileUploader.test.tsx
 
 ```typescript
 // Example test file structure
-import { describe, it, expect } from '@jest/globals'
+import { describe, it, expect } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import { FileUploader } from './FileUploader'
 
