@@ -53,9 +53,9 @@ export function ScanProgress({
             className="flex items-center gap-2"
           >
             <Play className="h-4 w-4" />
-            {t('start')}{' '}
+            {t('start')}
             {selectedScanType.charAt(0).toUpperCase() +
-              selectedScanType.slice(1)}{' '}
+              selectedScanType.slice(1)}
             {t('scan')}
           </Button>
 

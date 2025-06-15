@@ -103,7 +103,7 @@ export default function FilePreviewClient() {
 
           {/* File Content Preview */}
           {!isFileExpired && (
-            <div className="rounded-lg bg-gray-50 p-4">
+            <div className="rounded-lg bg-gray-50 p-4 dark:bg-gray-800">
               {renderFilePreview(fileInfo)}
             </div>
           )}

@@ -69,7 +69,7 @@ export default function DashboardHeader({ userName }: DashboardHeaderProps) {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.5, duration: 0.6 }}
               >
-                {tDashboard('welcomeBack')}{' '}
+                {tDashboard('welcomeBack')}
                 <span className="font-semibold text-gray-800 dark:text-gray-200">
                   {userName}
                 </span>

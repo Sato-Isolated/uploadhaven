@@ -22,13 +22,12 @@ export function FilePreviewNavigation() {
       router.push(`/${locale}`);
     }
   };
-
   return (
-    <div className="mb-6">
+    <div>
       <Button
-        variant="ghost"
+        variant="outline"
         onClick={handleGoBack}
-        className="flex items-center gap-2 text-gray-600 hover:text-gray-900"
+        className="flex items-center gap-2 border-gray-300 bg-white text-gray-600 hover:bg-gray-50 hover:text-gray-900 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-gray-100"
       >
         <ArrowLeft className="h-4 w-4" />
         {session?.user ? (

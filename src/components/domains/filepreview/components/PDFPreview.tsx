@@ -11,7 +11,7 @@ export default function PDFPreview({ file }: PDFPreviewProps) {
   return (
     <motion.iframe
       src={file.url}
-      className="h-[500px] w-full rounded shadow-lg"
+      className="h-[500px] w-full rounded shadow-lg dark:shadow-gray-700/30"
       title={file.originalName}
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}

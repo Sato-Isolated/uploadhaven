@@ -71,7 +71,7 @@ export default function FileCard({
               <span className="font-medium">{formatFileSize(file.size)}</span>
               <span>•</span>
               <span>
-                {tFiles('uploaded')}{' '}
+                {tFiles('uploaded')}
                 {formatDistanceToNow(new Date(file.uploadDate), {
                   addSuffix: true,
                 })}
@@ -80,7 +80,10 @@ export default function FileCard({
                 <>
                   <span>•</span>
                   <span className="font-medium text-blue-600 dark:text-blue-400">
-                    {file.downloadCount} {file.downloadCount === 1 ? tFiles('download') : tFiles('downloads')}
+                    {file.downloadCount}
+                    {file.downloadCount === 1
+                      ? tFiles('download')
+                      : tFiles('downloads')}
                   </span>
                 </>
               )}

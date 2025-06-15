@@ -82,7 +82,7 @@ export function TopFilesSection({
                       </p>
                     </div>
                     <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                      {formatFileSize(file.size)} • {t('uploaded')}{' '}
+                      {formatFileSize(file.size)} • {t('uploaded')}
                       {new Date(file.uploadDate).toLocaleDateString()}
                     </p>
                   </div>

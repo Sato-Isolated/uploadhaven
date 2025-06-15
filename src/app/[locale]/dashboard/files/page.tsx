@@ -120,9 +120,9 @@ export default async function UserFilesPage() {
                         {file.originalName}
                       </CardTitle>
                       <CardDescription>
-                        {t('uploaded')}{' '}
-                        {new Date(file.uploadDate).toLocaleDateString()} •{' '}
-                        {(file.size / 1024 / 1024).toFixed(2)} MB •{' '}
+                        {t('uploaded')}
+                        {new Date(file.uploadDate).toLocaleDateString()} •
+                        {(file.size / 1024 / 1024).toFixed(2)} MB •
                         {file.downloadCount} {t('downloads')}
                       </CardDescription>
                     </div>
@@ -147,7 +147,7 @@ export default async function UserFilesPage() {
                         {t('type')}: {file.mimeType}
                       </span>
                       <span>
-                        {t('expires')}:{' '}
+                        {t('expires')}:
                         {new Date(file.expiresAt).toLocaleDateString()}
                       </span>
                       {/* Visibility indicator removed - all files use security by obscurity */}
