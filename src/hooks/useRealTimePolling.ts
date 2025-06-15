@@ -8,26 +8,6 @@ import { queryKeys } from '@/lib/queryKeys';
 import type { ActivityEvent } from '@/types';
 
 /**
- * Real-time stats with smart polling
- */
-export function useRealTimeStats() {
-  return useQuery({
-    queryKey: queryKeys.stats(),
-    queryFn: async () => {
-      const response = await fetch('/api/stats');
-      if (!response.ok) throw new Error('Failed to fetch stats');
-      return response.json();
-    },
-    // Polling every 30 seconds for stats
-    refetchInterval: 30 * 1000,
-    // Only poll when window is focused
-    refetchIntervalInBackground: false,
-    // Consider data stale after 25 seconds to ensure fresh data
-    staleTime: 25 * 1000,
-  });
-}
-
-/**
  * Real-time activities with smart polling
  * Compatible with WebSocket interface
  */
@@ -79,26 +59,6 @@ export function useRealTimeActivities() {
     activityCount,
     resetActivityCount,
   };
-}
-
-/**
- * Real-time file updates with smart polling
- */
-export function useRealTimeFiles(userId?: string) {
-  return useQuery({
-    queryKey: queryKeys.files(),
-    queryFn: async () => {
-      const url = userId ? `/api/files?userId=${userId}` : '/api/files';
-      const response = await fetch(url);
-      if (!response.ok) throw new Error('Failed to fetch files');
-      return response.json();
-    },
-    // Poll every 20 seconds for file changes
-    refetchInterval: 20 * 1000,
-    refetchIntervalInBackground: false,
-    staleTime: 15 * 1000,
-    enabled: !!userId, // Only poll if userId is provided
-  });
 }
 
 

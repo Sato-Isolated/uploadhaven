@@ -217,12 +217,6 @@ export function getClientIP(request: NextRequest): string {
   return 'unknown';
 }
 
-// Generate secure random strings
-export function generateSecureId(length: number = 12): string {
-  return nanoid(length);
-}
-```
-
 ### 📡 Query Management (`queryKeys.ts`)
 
 **TanStack Query Key Management**
@@ -387,16 +381,6 @@ export class AppError extends Error {
     this.name = 'AppError';
   }
 }
-
-export function handleServiceError(error: unknown): AppError {
-  if (error instanceof AppError) return error;
-  
-  return new AppError(
-    error instanceof Error ? error.message : 'Unknown error',
-    500
-  );
-}
-```
 
 ## 🧪 Testing Library Functions
 

@@ -38,8 +38,6 @@ export { useNotifications } from './useNotifications';
 // Real-time hooks using polling (preferred approach)
 export {
   useRealTimeActivities,
-  useRealTimeStats,
-  useRealTimeFiles,
 } from './useRealTimePolling';
 
 export type {
