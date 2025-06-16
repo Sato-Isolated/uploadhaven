@@ -1,6 +1,6 @@
 import { motion } from 'motion/react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { formatFileSize } from '@/lib/utils';
+import { formatFileSize } from '@/lib/core/utils';
 import {
   Database,
   HardDrive,

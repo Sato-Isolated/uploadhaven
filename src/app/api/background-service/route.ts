@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
+import { auth } from '@/lib/auth/auth';
 import { headers } from 'next/headers';
 import {
   getBackgroundServicesStatus,
   triggerManualCleanup,
   triggerInstantExpiration,
-} from '@/lib/startup';
+} from '@/lib/background/startup';
 
 export async function GET() {
   try {

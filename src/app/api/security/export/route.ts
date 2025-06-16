@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
-import connectDB from '@/lib/mongodb';
-import { getRecentSecurityEvents } from '@/lib/models';
+import connectDB from '@/lib/database/mongodb';
+import { getRecentSecurityEvents } from '@/lib/database/models';
 
 interface SecurityEventExport {
   id: string;

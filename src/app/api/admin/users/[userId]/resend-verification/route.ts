@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import connectDB from '@/lib/mongodb';
-import { User, saveSecurityEvent } from '@/lib/models';
+import connectDB from '@/lib/database/mongodb';
+import { User, saveSecurityEvent } from '@/lib/database/models';
 import { headers } from 'next/headers';
 
 export async function POST(

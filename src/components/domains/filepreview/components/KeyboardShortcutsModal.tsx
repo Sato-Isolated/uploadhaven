@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Button } from '@/components/ui/button';
 import { useTranslations } from 'next-intl';
 import { Keyboard, X } from 'lucide-react';
-import { useKeyboardLayoutDetection } from '@/lib/keyboard';
+import { useKeyboardLayoutDetection } from '@/lib/ui/keyboard';
 
 interface KeyboardShortcutsModalProps {
   isOpen: boolean;

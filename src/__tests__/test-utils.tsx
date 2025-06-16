@@ -6,7 +6,6 @@
 import React from 'react';
 import { render, RenderOptions } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { vi } from 'vitest';
 
 // Create a new QueryClient for each test to avoid state leakage
 const createTestQueryClient = () =>

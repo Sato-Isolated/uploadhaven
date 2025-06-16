@@ -6,7 +6,7 @@
  * This is the recommended configuration for most deployments.
  */
 
-import { generateSecurePassword } from '../src/lib/encryption';
+import { generateSecurePassword } from '../src/lib/encryption/encryption';
 import { writeFileSync, readFileSync, existsSync } from 'fs';
 import { join } from 'path';
 

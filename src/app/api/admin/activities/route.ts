@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import connectDB from '@/lib/mongodb';
-import { SecurityEvent } from '@/lib/models';
+import connectDB from '@/lib/database/mongodb';
+import { SecurityEvent } from '@/lib/database/models';
 
 // GET /api/admin/activities - Get recent activities
 export async function GET(request: NextRequest) {

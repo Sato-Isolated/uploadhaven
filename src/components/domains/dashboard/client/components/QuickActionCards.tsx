@@ -9,7 +9,6 @@ import { Files, TrendingUp } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
 export default function QuickActionCards() {
-  const t = useTranslations('FileUploader');
   const tDashboard = useTranslations('Dashboard');
 
   const quickActions = [

@@ -16,7 +16,6 @@ export function FilePreviewActions({
   onCopyShareLink,
 }: FilePreviewActionsProps) {
   const t = useTranslations('FilePreview');
-  const tCommon = useTranslations('Common');
 
   return (
     <div className="space-y-3">

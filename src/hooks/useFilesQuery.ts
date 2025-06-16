@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ApiClient } from '@/lib/api/client';
-import { queryKeys } from '@/lib/queryKeys';
+import { queryKeys } from '@/lib/core/queryKeys';
 import { toast } from 'sonner';
 import { useTranslations } from 'next-intl';
 import type { ClientFileData } from '@/types';

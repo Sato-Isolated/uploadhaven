@@ -4,8 +4,8 @@ import { useState, useCallback } from 'react';
 import { toast } from 'sonner';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ApiClient } from '@/lib/api/client';
-import { queryKeys } from '@/lib/queryKeys';
-import { detectSuspiciousActivity, logSecurityEvent } from '@/lib/security';
+import { queryKeys } from '@/lib/core/queryKeys';
+import { detectSuspiciousActivity, logSecurityEvent } from '@/lib/core/security';
 import type {
   ScanType,
   ScanResult,
@@ -60,9 +60,8 @@ export function useSecurityScanning(): UseSecurityScanningReturn {
   const [totalFilesToScan, setTotalFilesToScan] = useState(0);
   const [currentFileIndex, setCurrentFileIndex] = useState(0);
   const [virusTotalRequestsUsed, setVirusTotalRequestsUsed] = useState(0);
-
   // TanStack Query for fetching files list
-  const { data: filesData } = useQuery({
+  useQuery({
     queryKey: queryKeys.securityFiles(),
     queryFn: async () => {
       return ApiClient.get<{ files: Array<{ name: string }> }>(
@@ -100,8 +99,7 @@ export function useSecurityScanning(): UseSecurityScanningReturn {
         scanResult?: MalwareScanResult;
         quotaStatus?: QuotaStatus;
       }>('/api/security/scan', formData);
-    },
-    onSuccess: (data) => {
+    },    onSuccess: () => {
       // Invalidate security-related queries after successful scan
       queryClient.invalidateQueries({ queryKey: queryKeys.security() });
     },

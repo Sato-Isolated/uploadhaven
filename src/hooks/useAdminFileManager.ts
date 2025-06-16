@@ -4,7 +4,6 @@
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { useMutation } from '@tanstack/react-query';
-import { ApiClient } from '@/lib/api/client';
 import { useDeleteFile, useDeleteFiles } from '@/hooks';
 import type { AdminFileData } from '@/types';
 

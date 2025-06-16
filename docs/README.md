@@ -31,6 +31,8 @@ Complete reference for developers integrating with UploadHaven.
 Information about current features and future development.
 
 - **[File Encryption System](features/file-encryption.md)** - 🔒 Comprehensive encryption documentation
+- **[Performance Optimizations](features/performance-optimizations.md)** - ⚡ Advanced performance features ⭐ NEW
+- **[Thumbnail Encryption](features/thumbnail-encryption.md)** - 🖼️ Encrypted preview generation
 - **[Security Features](features/security.md)** - Privacy and security implementation
 - **[Usage Guide](features/usage.md)** - How to use UploadHaven effectively
 - **[Feature Roadmap](features/roadmap.md)** - Development phases and timeline

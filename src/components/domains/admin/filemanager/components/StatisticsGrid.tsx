@@ -7,7 +7,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { formatFileSize } from '@/lib/utils';
+import { formatFileSize } from '@/lib/core/utils';
 import { Database, HardDrive, TrendingUp, Users } from 'lucide-react';
 import type { AdminFileData } from '@/types';
 import type { Statistic } from '../types';

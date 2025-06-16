@@ -4,7 +4,7 @@
 
 import { motion } from 'motion/react';
 import { useTranslations } from 'next-intl';
-import { formatFileSize } from '@/lib/utils';
+import { formatFileSize } from '@/lib/core/utils';
 import type { FileHandlerProps } from '@/types';
 
 type FileDetailsProps = Pick<FileHandlerProps, 'file'>;

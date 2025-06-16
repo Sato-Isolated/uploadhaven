@@ -1,18 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
 import path from 'path';
-import connectDB from '@/lib/mongodb';
+import connectDB from '@/lib/database/mongodb';
 import {
   File,
   incrementDownloadCount,
   saveSecurityEvent,
   saveNotification,
-} from '@/lib/models';
-import { checkFileExpiration } from '@/lib/startup';
+} from '@/lib/database/models';
+import { checkFileExpiration } from '@/lib/background/startup';
 import {
   readAndDecryptFile,
   getContentLength,
   logDecryptionActivity,
-} from '@/lib/file-decryption';
+} from '@/lib/encryption/file-decryption';
 
 export async function GET(
   request: NextRequest,

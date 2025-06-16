@@ -8,7 +8,7 @@ export async function register() {
   if (process.env.NEXT_RUNTIME === 'nodejs') {
     try {
       // Dynamic import to avoid loading on the client
-      const { initializeBackgroundServices } = await import('@/lib/startup'); // Server starting - initializing background services
+      const { initializeBackgroundServices } = await import('@/lib/background/startup'); // Server starting - initializing background services
       await initializeBackgroundServices();
       // Background services initialized successfully
     } catch {

@@ -5,7 +5,7 @@
 import { motion } from 'motion/react';
 import { CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { FileText } from 'lucide-react';
-import { formatFileSize } from '@/lib/utils';
+import { formatFileSize } from '@/lib/core/utils';
 import type { FileManagerHeaderProps } from '../types';
 import { useTranslations } from 'next-intl';
 
@@ -14,7 +14,6 @@ export default function FileManagerHeader({
   totalSize,
 }: FileManagerHeaderProps) {
   const t = useTranslations('Stats');
-  const tDashboard = useTranslations('Dashboard');
 
   return (
     <CardHeader className="pb-6">

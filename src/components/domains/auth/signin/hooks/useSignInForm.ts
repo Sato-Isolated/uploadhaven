@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { signIn, useSession } from '@/lib/auth-client';
+import { signIn, useSession } from '@/lib/auth/auth-client';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { useAsyncOperation } from '@/hooks';

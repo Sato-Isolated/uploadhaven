@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import connectDB from '@/lib/mongodb';
-import { saveSecurityEvent } from '@/lib/models';
-import { getClientIP } from '@/lib/utils';
+import connectDB from '@/lib/database/mongodb';
+import { saveSecurityEvent } from '@/lib/database/models';
+import { getClientIP } from '@/lib/core/utils';
 
 export async function POST(request: NextRequest) {
   try {

@@ -5,7 +5,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 // Mock next-intl middleware
 vi.mock('next-intl/middleware', () => ({
   default: vi.fn(() => {
-    return (request: NextRequest) => {
+    return () => {
       return NextResponse.next();
     };
   }),

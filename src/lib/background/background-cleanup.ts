@@ -1,5 +1,5 @@
-import connectDB from '@/lib/mongodb';
-import { File, saveSecurityEvent } from '@/lib/models';
+import connectDB from '@/lib/database/mongodb';
+import { File, saveSecurityEvent } from '@/lib/database/models';
 import { unlink } from 'fs/promises';
 import path from 'path';
 import type { CleanupStats } from '@/types';

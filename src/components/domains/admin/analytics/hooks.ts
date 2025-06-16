@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { ApiClient } from '@/lib/api/client';
-import { queryKeys } from '@/lib/queryKeys';
+import { queryKeys } from '@/lib/core/queryKeys';
 import { AdminAnalytics } from './utils';
 
 type TimeRange = '24h' | '7d' | '30d' | '90d';

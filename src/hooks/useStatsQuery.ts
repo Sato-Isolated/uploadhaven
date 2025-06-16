@@ -2,7 +2,7 @@
 // Uses fetch API instead of ApiClient to avoid compilation issues
 // filepath: c:\Users\ismys\Documents\GitHub\uploadhaven\src\hooks\useStatsQuery.ts
 import { useQuery } from '@tanstack/react-query';
-import { queryKeys } from '@/lib/queryKeys';
+import { queryKeys } from '@/lib/core/queryKeys';
 import { UserStats } from '@/types/stats';
 
 interface StatsResponse {

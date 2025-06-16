@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-import connectDB from '@/lib/mongodb';
+import connectDB from '@/lib/database/mongodb';
 import {
   File,
   User,
   getSecurityStats,
   getRecentSecurityEvents,
-} from '@/lib/models';
+} from '@/lib/database/models';
 
 export async function GET(request: NextRequest) {
   try {

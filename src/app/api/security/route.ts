@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import connectDB from '@/lib/mongodb';
+import connectDB from '@/lib/database/mongodb';
 import {
   getSecurityStats,
   getRecentSecurityEvents,
   SecurityEvent,
-} from '@/lib/models';
+} from '@/lib/database/models';
 
 interface SecurityEventDocument {
   _id: { toString(): string };

@@ -9,7 +9,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { formatFileSize } from '@/lib/utils';
+import { formatFileSize } from '@/lib/core/utils';
 import type { AdminFileData } from '@/types';
 import { formatDate, getFileTypeIcon } from '../utils';
 

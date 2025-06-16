@@ -1,6 +1,6 @@
 import { nanoid } from 'nanoid';
-import connectDB from './mongodb';
-import { File } from './models';
+import connectDB from '@/lib/database/mongodb';
+import { File } from '@/lib/database/models';
 
 // Generate a unique short URL for file sharing (SERVER ONLY)
 export async function generateShortUrl(customAlias?: string): Promise<string> {

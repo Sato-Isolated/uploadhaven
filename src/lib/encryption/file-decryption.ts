@@ -3,15 +3,18 @@
  *
  * Provides utility functions for decrypting files in API routes
  * when serving files for preview or download.
+ * Now includes performance-optimized decryption for large files.
  */
 
 import { readFile } from 'fs/promises';
-import { decryptFile } from '@/lib/encryption';
-import { getDefaultEncryptionPassword } from '@/lib/encryption-config';
-import type { IFile } from '@/lib/models';
+import { decryptFile } from './encryption';
+import { PerformanceDecryption, PERFORMANCE_CONFIG } from './performance-encryption';
+import { getDefaultEncryptionPassword } from './encryption-config';
+import type { IFile } from '@/lib/database/models';
 
 /**
  * Reads and decrypts a file if it's encrypted
+ * Uses performance-optimized decryption for large files
  */
 export async function readAndDecryptFile(
   filePath: string,
@@ -24,7 +27,8 @@ export async function readAndDecryptFile(
 
   // Read the file from disk
   const fileBuffer = await readFile(filePath);
-  console.log(`   File size on disk: ${fileBuffer.length} bytes`);
+  const fileSizeOnDisk = fileBuffer.length;
+  console.log(`   File size on disk: ${fileSizeOnDisk} bytes`);
 
   // If file is not encrypted, return as-is
   if (!fileDoc.isEncrypted || !fileDoc.encryptionMetadata) {
@@ -47,12 +51,30 @@ export async function readAndDecryptFile(
       `   → Metadata: ${JSON.stringify(fileDoc.encryptionMetadata, null, 2)}`
     );
 
-    // Decrypt the file using the encryption metadata
-    const decryptedBuffer = await decryptFile(
-      fileBuffer,
-      encryptionPassword,
-      fileDoc.encryptionMetadata
-    );
+    // Choose decryption method based on file size
+    const usePerformanceDecryption = fileSizeOnDisk >= PERFORMANCE_CONFIG.STREAM_THRESHOLD;
+    
+    let decryptedBuffer: Buffer;
+    
+    if (usePerformanceDecryption) {
+      console.log('   🚀 Using performance-optimized decryption for large file...');
+      
+      // Use performance-optimized decryption for large files
+      decryptedBuffer = await PerformanceDecryption.decryptFileOptimized(
+        fileBuffer,
+        encryptionPassword,
+        fileDoc.encryptionMetadata
+      );
+    } else {
+      console.log('   📄 Using standard decryption for small file...');
+      
+      // Use standard decryption for smaller files
+      decryptedBuffer = await decryptFile(
+        fileBuffer,
+        encryptionPassword,
+        fileDoc.encryptionMetadata
+      );
+    }
 
     console.log(
       `   ✅ Decryption successful! Size: ${decryptedBuffer.length} bytes`

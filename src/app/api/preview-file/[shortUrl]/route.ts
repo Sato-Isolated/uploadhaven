@@ -1,14 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
-import connectDB from '@/lib/mongodb';
-import { File, saveSecurityEvent } from '@/lib/models';
-import { checkFileExpiration } from '@/lib/startup';
+import connectDB from '@/lib/database/mongodb';
+import { File, saveSecurityEvent } from '@/lib/database/models';
+import { checkFileExpiration } from '@/lib/background/startup';
 import path from 'path';
-import { getClientIP } from '@/lib/utils';
+import { getClientIP } from '@/lib/core/utils';
 import {
   readAndDecryptFile,
   getContentLength,
   logDecryptionActivity,
-} from '@/lib/file-decryption';
+} from '@/lib/encryption/file-decryption';
 
 /**
  * GET /api/preview-file/[shortUrl]

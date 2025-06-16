@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
+import { auth } from '@/lib/auth/auth';
 import { headers } from 'next/headers';
-import connectDB from '@/lib/mongodb';
-import { File, SecurityEvent } from '@/lib/models';
+import connectDB from '@/lib/database/mongodb';
+import { File, SecurityEvent } from '@/lib/database/models';
 
 export async function GET(request: NextRequest) {
   try {

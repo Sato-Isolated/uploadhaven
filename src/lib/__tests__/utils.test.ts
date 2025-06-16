@@ -7,7 +7,7 @@ import {
   formatFileSize,
   getClientIP,
   validateFileAdvanced,
-} from '../utils';
+} from '../core/utils';
 import { NextRequest } from 'next/server';
 import bcrypt from 'bcryptjs';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';

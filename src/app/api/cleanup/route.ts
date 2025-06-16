@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { triggerManualCleanup } from '@/lib/startup';
+import { triggerManualCleanup } from '@/lib/background/startup';
 
 export async function POST() {
   try {

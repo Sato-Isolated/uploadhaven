@@ -5,7 +5,7 @@
  * will be encrypted when uploaded.
  */
 
-import { shouldEncryptFile, getEncryptionConfig, validateSecuredSetup } from '../src/lib/encryption-config';
+import { shouldEncryptFile, getEncryptionConfig, validateSecuredSetup } from '../src/lib/encryption/encryption-config';
 
 console.log('🔍 Testing File Encryption Configuration');
 console.log('========================================\n');

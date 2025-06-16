@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createFileExpirationNotifications } from '@/lib/notifications/security-notifications';
-import connectDB from '@/lib/mongodb';
+import connectDB from '@/lib/database/mongodb';
 
 /**
  * Background job endpoint for creating file expiration notifications

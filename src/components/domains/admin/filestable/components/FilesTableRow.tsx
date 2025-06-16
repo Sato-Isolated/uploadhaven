@@ -1,7 +1,7 @@
 import { motion } from 'motion/react';
 import { Badge } from '@/components/ui/badge';
 import { TrendingUp } from 'lucide-react';
-import { formatFileSize } from '@/lib/utils';
+import { formatFileSize } from '@/lib/core/utils';
 import { formatDate } from '@/components/domains/admin/filemanager/utils';
 import { FilesTableFileCell } from './FilesTableFileCell';
 import { FilesTableOwnerCell } from './FilesTableOwnerCell';

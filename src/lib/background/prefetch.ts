@@ -1,5 +1,5 @@
 import { QueryClient } from '@tanstack/react-query';
-import { queryKeys, TimeRange } from '@/lib/queryKeys';
+import { queryKeys, TimeRange } from '@/lib/core/queryKeys';
 import { ApiClient } from '@/lib/api/client';
 
 /**

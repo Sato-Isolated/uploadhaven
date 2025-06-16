@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { renderHook, act } from '@testing-library/react';
+import { renderHook } from '@testing-library/react';
 import { useFilePreview, useTextPreview } from '../useFilePreview';
 
 // Mock dependencies
@@ -15,7 +15,7 @@ vi.mock('@/lib/queryKeys', () => ({
 }));
 
 import { useQuery } from '@tanstack/react-query';
-import { queryKeys } from '@/lib/queryKeys';
+import { queryKeys } from '@/lib/core/queryKeys';
 
 describe('useTextPreview', () => {
   const mockUseQuery = {

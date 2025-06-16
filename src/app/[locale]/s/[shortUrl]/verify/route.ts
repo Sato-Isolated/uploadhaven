@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import connectDB from '@/lib/mongodb';
-import { File, saveSecurityEvent } from '@/lib/models';
-import { verifyPassword } from '@/lib/utils';
-import { rateLimit, rateLimitConfigs } from '@/lib/rateLimit';
+import connectDB from '@/lib/database/mongodb';
+import { File, saveSecurityEvent } from '@/lib/database/models';
+import { verifyPassword } from '@/lib/core/utils';
+import { rateLimit, rateLimitConfigs } from '@/lib/core/rateLimit';
 
 export async function POST(
   request: NextRequest,

@@ -1,6 +1,6 @@
 #!/usr/bin/env tsx
-import connectDB from '@/lib/mongodb';
-import { User, File, SecurityEvent, Notification } from '@/lib/models';
+import connectDB from '@/lib/database/mongodb';
+import { User, File, SecurityEvent, Notification } from '@/lib/database/models';
 
 /**
  * Database migration script for UploadHaven

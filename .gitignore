@@ -44,5 +44,17 @@ next-env.d.ts
 /uploads/*
 !/uploads/.gitkeep
 
+# local development tools
+/tools/bin/
+/tools/*.zip
+.env.tools
+
+# thumbnail cache
+/cache/
+
+# local test files
+/test-files
+/test-output
+/test-performance
 /public
 /.github

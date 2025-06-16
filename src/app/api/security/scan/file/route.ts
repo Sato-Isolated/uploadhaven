@@ -2,9 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import MalwareScanner from '@/lib/server/malware-scanner';
 import path from 'path';
 import { readFile } from 'fs/promises';
-import { logSecurityEvent } from '@/lib/security';
-import connectDB from '@/lib/mongodb';
-import { saveNotification, File } from '@/lib/models';
+import { logSecurityEvent } from '@/lib/core/security';
+import connectDB from '@/lib/database/mongodb';
+import { saveNotification, File } from '@/lib/database/models';
 
 export async function POST(request: NextRequest) {
   try {

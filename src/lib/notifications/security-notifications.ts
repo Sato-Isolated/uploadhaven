@@ -3,7 +3,7 @@
  * Handles automatic notification creation for security events
  */
 
-import { saveNotification } from '@/lib/models';
+import { saveNotification } from '@/lib/database/models';
 import type { SecurityEventType, SecuritySeverity } from '@/types/events';
 
 interface SecurityNotificationData {
@@ -272,7 +272,7 @@ export async function createFileExpirationNotifications(
   try {
     // This would typically be called by a background job
     // Import here to avoid circular dependencies
-    const { File } = await import('@/lib/models');
+    const { File } = await import('@/lib/database/models');
 
     // Find files expiring in the next 24 hours
     const tomorrow = new Date();

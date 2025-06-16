@@ -3,8 +3,7 @@ import {
   logSecurityEvent,
   scanFile,
   detectSuspiciousActivity,
-} from '../security';
-import type { SecurityEvent, SecurityStats } from '../security';
+} from '../core/security';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 // Mock localStorage for testing
@@ -111,11 +110,9 @@ describe('Security Functions', () => {
     it('should return events in chronological order (newest first)', () => {
       // Clear existing events by getting a fresh logger state
       const event1 = logSecurityEvent('rate_limit', 'First event', 'medium');
-      const event2 = logSecurityEvent('invalid_file', 'Second event', 'high');
-
-      const events = securityLogger.getEvents();
-      const eventIndex1 = events.findIndex((e) => e.id === event1.id);
-      const eventIndex2 = events.findIndex((e) => e.id === event2.id);
+      const event2 = logSecurityEvent('invalid_file', 'Second event', 'high');      const events = securityLogger.getEvents();
+      const eventIndex1 = events.findIndex((e: any) => e.id === event1.id);
+      const eventIndex2 = events.findIndex((e: any) => e.id === event2.id);
 
       // Newer events should come first (lower index)
       expect(eventIndex2).toBeLessThan(eventIndex1);

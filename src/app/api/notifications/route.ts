@@ -1,14 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
+import { auth } from '@/lib/auth/auth';
 import { headers } from 'next/headers';
-import connectDB from '@/lib/mongodb';
+import connectDB from '@/lib/database/mongodb';
 import {
   getNotificationsForUser,
   markNotificationAsRead,
   markAllNotificationsAsRead,
   deleteNotification,
   getNotificationStats,
-} from '@/lib/models';
+} from '@/lib/database/models';
 
 /**
  * GET /api/notifications

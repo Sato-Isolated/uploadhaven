@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import connectDB from '@/lib/mongodb';
-import { User, File, saveSecurityEvent } from '@/lib/models';
+import connectDB from '@/lib/database/mongodb';
+import { User, File, saveSecurityEvent } from '@/lib/database/models';
 import { headers } from 'next/headers';
 import { unlink } from 'fs/promises';
 import path from 'path';

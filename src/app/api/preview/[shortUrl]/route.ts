@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import connectDB from '@/lib/mongodb';
-import { File, saveSecurityEvent } from '@/lib/models';
-import { checkFileExpiration } from '@/lib/startup';
+import connectDB from '@/lib/database/mongodb';
+import { File, saveSecurityEvent } from '@/lib/database/models';
+import { checkFileExpiration } from '@/lib/background/startup';
 
 export async function GET(
   request: NextRequest,

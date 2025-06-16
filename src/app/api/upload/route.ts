@@ -3,24 +3,34 @@ import { writeFile, mkdir } from 'fs/promises';
 import path from 'path';
 import { nanoid } from 'nanoid';
 import { z } from 'zod';
-import { rateLimit, rateLimitConfigs } from '@/lib/rateLimit';
-import connectDB from '@/lib/mongodb';
+import { rateLimit, rateLimitConfigs } from '@/lib/core/rateLimit';
+import connectDB from '@/lib/database/mongodb';
 import {
   saveFileMetadata,
   saveSecurityEvent,
   saveNotification,
   User,
-} from '@/lib/models';
-import { auth } from '@/lib/auth';
+} from '@/lib/database/models';
+import { auth } from '@/lib/auth/auth';
 import { headers } from 'next/headers';
-import { generateShortUrl } from '@/lib/server-utils';
-import { buildShortUrl, hashPassword, validatePassword } from '@/lib/utils';
-import { encryptFile, generateSecurePassword } from '@/lib/encryption';
+import { generateShortUrl } from '@/lib/core/server-utils';
+import { buildShortUrl, hashPassword, validatePassword } from '@/lib/core/utils';
+import { encryptFile, generateSecurePassword } from '@/lib/encryption/encryption';
 import {
   shouldEncryptFile,
   getDefaultEncryptionPassword,
   areUserPasswordsAllowed,
-} from '@/lib/encryption-config';
+} from '@/lib/encryption/encryption-config';
+import {
+  generateEncryptedThumbnail,
+  thumbnailCache,
+} from '@/lib/encryption/thumbnail-encryption';
+import { 
+  PerformanceEncryption, 
+  PerformanceMetrics,
+  PERFORMANCE_CONFIG 
+} from '@/lib/encryption/performance-encryption';
+import type { IFile } from '@/types/database';
 
 const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100MB
 const ALLOWED_TYPES = [
@@ -298,16 +308,41 @@ export async function POST(request: NextRequest) {
       }
 
       try {
-        console.log('🔒 Encrypting file:', file.name);
-        const encryptionResult = await encryptFile(
-          buffer,
-          encryptionPasswordToUse
-        );
+        console.log('� Starting performance-optimized encryption:', file.name);
+        const timer = PerformanceMetrics.startTiming('file-encryption');
+        
+        // Determine if we should use performance optimizations
+        const useOptimizations = file.size >= PERFORMANCE_CONFIG.STREAM_THRESHOLD || 
+                                file.size >= PERFORMANCE_CONFIG.COMPRESSION_THRESHOLD;
+        
+        let encryptionResult;
+        
+        if (useOptimizations) {
+          console.log(`📊 File size: ${file.size} bytes - using performance optimizations`);
+          encryptionResult = await PerformanceEncryption.encryptFileOptimized(
+            buffer,
+            encryptionPasswordToUse,
+            {
+              mimeType: file.type,
+              enableCompression: true,
+              useParallel: file.size >= PERFORMANCE_CONFIG.PARALLEL_THRESHOLD,
+            }
+          );
+        } else {
+          console.log(`📄 File size: ${file.size} bytes - using standard encryption`);
+          encryptionResult = await encryptFile(
+            buffer,
+            encryptionPasswordToUse
+          );
+        }
+        
         buffer = Buffer.from(encryptionResult.encryptedBuffer);
         encryptionMetadata = encryptionResult.metadata;
-        console.log('✓ File encrypted successfully');
+        timer.end(file.size);
+        
+        console.log('✅ File encrypted successfully with performance optimizations');
       } catch (encryptionError) {
-        console.error('Encryption error:', encryptionError);
+        console.error('❌ Performance encryption error:', encryptionError);
         await saveSecurityEvent({
           type: 'encryption_error',
           ip: clientIP,
@@ -431,6 +466,105 @@ export async function POST(request: NextRequest) {
       }
     } // File saved successfully
 
+    // Generate encrypted thumbnail if supported
+    if (isThumbnailSupported(file.type)) {
+      try {
+        console.log('🖼️ Generating encrypted thumbnail for:', file.name);
+        const thumbnailResult = await generateEncryptedThumbnail(
+          savedFile as IFile,
+          buffer, // Pass the (possibly encrypted) buffer
+          file.type
+        );
+        
+        if (thumbnailResult) {
+          // Cache the encrypted thumbnail
+          await thumbnailCache.store(
+            savedFile._id.toString(),
+            shortId,
+            thumbnailResult.thumbnailBuffer,
+            thumbnailResult.metadata
+          );
+          console.log('✓ Encrypted thumbnail generated and cached');
+        }
+      } catch (thumbnailError) {
+        console.error('Failed to generate encrypted thumbnail:', thumbnailError);
+        // Don't fail the upload if thumbnail generation fails
+        await saveSecurityEvent({
+          type: 'thumbnail_generation_error',
+          ip: clientIP,
+          details: `Thumbnail generation failed for: ${file.name} - ${thumbnailError instanceof Error ? thumbnailError.message : 'Unknown error'}`,
+          severity: 'medium',
+          userAgent,
+          filename: file.name,
+          fileSize: file.size,
+          fileType: file.type,
+          userId: session?.user?.id || undefined,
+        });
+      }
+    }
+
+    // Update lastActivity for authenticated users
+    if (session?.user) {
+      try {
+        await User.findByIdAndUpdate(session.user.id, {
+          lastActivity: new Date(),
+        });
+      } catch (error) {
+        console.error('Failed to update user lastActivity:', error);
+      }
+    } // Log successful upload
+    await saveSecurityEvent({
+      type: shouldEncrypt ? 'encryption_success' : 'file_upload',
+      ip: clientIP,
+      details: shouldEncrypt
+        ? `File uploaded and encrypted successfully: ${file.name}`
+        : `File uploaded successfully: ${file.name}`,
+      severity: 'low',
+      userAgent,
+      filename: file.name,
+      fileSize: file.size,
+      fileType: file.type,
+      userId: session?.user?.id || undefined,
+      metadata: shouldEncrypt
+        ? {
+            encrypted: true,
+            algorithm: encryptionMetadata?.algorithm,
+            originalSize: file.size,
+            encryptedSize: buffer.length,
+          }
+        : undefined,
+    });
+
+    // Create notification for authenticated users
+    if (session?.user?.id) {
+      try {
+        await saveNotification({
+          userId: session.user.id,
+          type: 'file_upload_complete',
+          title: 'File Upload Complete',
+          message: `Your file "${file.name}" has been uploaded successfully and is ready to share`,
+          priority: 'normal',
+          relatedFileId: savedFile._id.toString(),
+          actionUrl: shareableUrl,
+          metadata: {
+            filename: file.name,
+            fileSize: file.size,
+            fileType: file.type,
+            shareableUrl,
+            isPasswordProtected,
+            isEncrypted: shouldEncrypt,
+            expiresAt: expiresAt.toISOString(),
+          },
+        });
+      } catch (notificationError) {
+        console.error(
+          'Failed to create upload notification:',
+          notificationError
+        );
+        // Don't fail the upload if notification creation fails
+      }
+    } // File saved successfully
+
     return NextResponse.json({
       success: true,
       url: fileUrl,
@@ -489,6 +623,15 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
+}
+
+// Check if file type supports thumbnail generation
+function isThumbnailSupported(mimeType: string): boolean {
+  return (
+    mimeType.startsWith('image/') ||
+    mimeType.startsWith('video/') ||
+    mimeType === 'application/pdf'
+  );
 }
 
 // Handle other HTTP methods

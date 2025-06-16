@@ -37,10 +37,10 @@ vi.mock('@/lib/utils', () => ({
 }));
 
 import { useTranslations } from 'next-intl';
-import { useSession } from '@/lib/auth-client';
+import { useSession } from '@/lib/auth/auth-client';
 import { toast } from 'sonner';
-import { scanFile } from '@/lib/security';
-import { validateFileAdvanced } from '@/lib/utils';
+import { scanFile } from '@/lib/core/security';
+import { validateFileAdvanced } from '@/lib/core/utils';
 
 describe('useDashboardUpload', () => {
   const mockT = vi.fn((key: string) => key);

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import MalwareScanner from '@/lib/server/malware-scanner';
 import { writeFile, mkdir } from 'fs/promises';
 import path from 'path';
-import { logSecurityEvent } from '@/lib/security';
+import { logSecurityEvent } from '@/lib/core/security';
 
 export async function POST(request: NextRequest) {
   try {

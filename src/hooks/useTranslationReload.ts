@@ -6,7 +6,7 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
 import { ApiClient } from '@/lib/api/client';
-import { queryKeys } from '@/lib/queryKeys';
+import { queryKeys } from '@/lib/core/queryKeys';
 
 /**
  * Custom hook to reload translations during changes

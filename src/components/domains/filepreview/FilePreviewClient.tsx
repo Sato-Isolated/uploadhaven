@@ -11,7 +11,6 @@ import { FilePreviewHeader } from './components/FilePreviewHeader';
 import { FilePreviewDetails } from './components/FilePreviewDetails';
 import { FilePreviewActions } from './components/FilePreviewActions';
 import { FilePreviewSecurityNotice } from './components/FilePreviewSecurityNotice';
-import { FilePreviewNavigation } from './components/FilePreviewNavigation';
 import { FilePreviewLayout } from './components/FilePreviewLayout';
 import {
   ImagePreview,
@@ -23,11 +22,8 @@ import {
 } from './index';
 import { getFileTypeInfo } from './utils/filePreview';
 import type { FilePreviewData } from '@/types';
-import { useTranslations } from 'next-intl';
 
 export default function FilePreviewClient() {
-  const t = useTranslations('FilePreview');
-  const tHome = useTranslations('Home');
   const {
     fileInfo,
     passwordRequired,

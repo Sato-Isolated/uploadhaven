@@ -1,13 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
-import connectDB from '@/lib/mongodb';
-import { File, saveSecurityEvent } from '@/lib/models';
-import { checkFileExpiration } from '@/lib/startup';
+import connectDB from '@/lib/database/mongodb';
+import { File, saveSecurityEvent } from '@/lib/database/models';
+import { checkFileExpiration } from '@/lib/background/startup';
 import path from 'path';
 import { readFile } from 'fs/promises';
-import sharp from 'sharp';
-
-const THUMBNAIL_SIZE = 200; // 200x200 pixels
-const THUMBNAIL_QUALITY = 80;
+import {
+  generateEncryptedThumbnail,
+  decryptThumbnail,
+  thumbnailCache,
+} from '@/lib/encryption/thumbnail-encryption';
+import type { IFile } from '@/types/database';
+import { readAndDecryptFile } from '@/lib/encryption/file-decryption';
 
 export async function GET(
   request: NextRequest,
@@ -87,14 +90,62 @@ export async function GET(
     }
 
     try {
-      // Generate thumbnail based on file type
-      const thumbnailBuffer = await generateThumbnail(fileDoc, mimeType);
+      // Check cache first
+      const cachedThumbnail = await thumbnailCache.retrieve(
+        fileDoc._id.toString(),
+        fileDoc.shortUrl
+      );
+
+      let thumbnailBuffer: Buffer;
+
+      if (cachedThumbnail) {
+        console.log('📦 Using cached encrypted thumbnail');
+        // Decrypt the cached thumbnail
+        thumbnailBuffer = await decryptThumbnail(
+          cachedThumbnail.thumbnailBuffer,
+          cachedThumbnail.metadata
+        );
+      } else {
+        console.log('🔄 Generating new encrypted thumbnail');
+        // Generate new thumbnail
+        const filePath = path.join(
+          process.cwd(),
+          process.env.NODE_ENV === 'production'
+            ? '/var/data/uploads'
+            : 'public/uploads',
+          fileDoc.filename
+        );
+
+        const sourceBuffer = fileDoc.isEncrypted
+          ? await readAndDecryptFile(filePath, fileDoc as IFile)
+          : await readFile(filePath);
+
+        const thumbnailResult = await generateEncryptedThumbnail(
+          fileDoc as IFile,
+          sourceBuffer,
+          fileDoc.mimeType
+        );
+
+        // Cache the encrypted thumbnail
+        await thumbnailCache.store(
+          fileDoc._id.toString(),
+          fileDoc.shortUrl,
+          thumbnailResult.thumbnailBuffer,
+          thumbnailResult.metadata
+        );
+
+        // Decrypt for serving
+        thumbnailBuffer = await decryptThumbnail(
+          thumbnailResult.thumbnailBuffer,
+          thumbnailResult.metadata
+        );
+      }
 
       // Log successful thumbnail request
       await saveSecurityEvent({
         type: 'file_download',
         ip: clientIP,
-        details: `Thumbnail generated for: ${fileDoc.originalName}`,
+        details: `Encrypted thumbnail served for: ${fileDoc.originalName}`,
         severity: 'low',
         userAgent,
         filename: fileDoc.filename,
@@ -134,58 +185,4 @@ function isThumbnailSupported(mimeType: string): boolean {
     mimeType.startsWith('video/') ||
     mimeType === 'application/pdf'
   );
-}
-
-// Generate thumbnail based on file type
-async function generateThumbnail(
-  fileDoc: { filename: string },
-  mimeType: string
-): Promise<Buffer> {
-  const uploadsDir =
-    process.env.NODE_ENV === 'production'
-      ? '/var/data/uploads'
-      : 'public/uploads';
-  // Note: fileDoc.filename already contains the full path from uploads directory (e.g., "public/VavyFxmDJd.jpg")
-  const filePath = path.join(process.cwd(), uploadsDir, fileDoc.filename);
-
-  if (mimeType.startsWith('image/')) {
-    // Generate image thumbnail
-    const imageBuffer = await readFile(filePath);
-    return await sharp(imageBuffer)
-      .resize(THUMBNAIL_SIZE, THUMBNAIL_SIZE, {
-        fit: 'cover',
-        position: 'center',
-      })
-      .webp({ quality: THUMBNAIL_QUALITY })
-      .toBuffer();
-  } else if (mimeType.startsWith('video/')) {
-    // For video files, we'll create a placeholder for now
-    // In production, you might want to use ffmpeg to extract video frames
-    return await generatePlaceholderThumbnail('🎥', '#8B5CF6');
-  } else if (mimeType === 'application/pdf') {
-    // For PDF files, create a placeholder
-    // In production, you might want to use pdf2pic or similar
-    return await generatePlaceholderThumbnail('📄', '#EF4444');
-  } else {
-    throw new Error('Unsupported file type for thumbnail generation');
-  }
-}
-
-// Generate placeholder thumbnail with icon and color
-async function generatePlaceholderThumbnail(
-  emoji: string,
-  bgColor: string
-): Promise<Buffer> {
-  const svg = `
-    <svg width="${THUMBNAIL_SIZE}" height="${THUMBNAIL_SIZE}" xmlns="http://www.w3.org/2000/svg">
-      <rect width="100%" height="100%" fill="${bgColor}" rx="8"/>
-      <text x="50%" y="50%" font-size="60" text-anchor="middle" dominant-baseline="central" fill="white">
-        ${emoji}
-      </text>
-    </svg>
-  `;
-
-  return await sharp(Buffer.from(svg))
-    .webp({ quality: THUMBNAIL_QUALITY })
-    .toBuffer();
 }

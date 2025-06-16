@@ -1,18 +1,17 @@
-import { auth } from '@/lib/auth';
+import { auth } from '@/lib/auth/auth';
 import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
-import connectDB from '@/lib/mongodb';
-import { File } from '@/lib/models';
+import connectDB from '@/lib/database/mongodb';
+import { File } from '@/lib/database/models';
 import DeleteFileButton from '@/components/domains/ui/buttons/DeleteFileButton';
 import CopyLinkButton from '@/components/domains/ui/buttons/CopyLinkButton';
 import { getTranslations } from 'next-intl/server';
@@ -26,7 +25,6 @@ import {
   Calendar,
   HardDrive,
   Home,
-  Grid3x3,
   List,
 } from 'lucide-react';
 

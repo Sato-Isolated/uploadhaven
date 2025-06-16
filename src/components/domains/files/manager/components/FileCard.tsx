@@ -3,7 +3,7 @@
 'use client';
 
 import { motion } from 'motion/react';
-import { formatFileSize } from '@/lib/utils';
+import { formatFileSize } from '@/lib/core/utils';
 import { formatDistanceToNow } from 'date-fns';
 import FileActionButtons from './FileActionButtons';
 import FileThumbnail from './FileThumbnail';

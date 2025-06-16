@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { headers } from 'next/headers';
-import { auth } from '@/lib/auth';
-import { saveSecurityEvent, User } from '@/lib/models';
+import { auth } from '@/lib/auth/auth';
+import { saveSecurityEvent, User } from '@/lib/database/models';
 
 export async function POST(request: NextRequest) {
   try {

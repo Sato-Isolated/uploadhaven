@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useState } from 'react';
-import { useSession } from '@/lib/auth-client';
+import { useSession } from '@/lib/auth/auth-client';
 import { toast } from 'sonner';
 import { nanoid } from 'nanoid';
 import { useTranslations } from 'next-intl';
@@ -16,8 +16,8 @@ import {
   getFileType,
   saveFileToLocalStorage,
 } from '@/components/domains/upload/fileuploader/utils';
-import { scanFile, logSecurityEvent } from '@/lib/security';
-import { validateFileAdvanced } from '@/lib/utils';
+import { scanFile, logSecurityEvent } from '@/lib/core/security';
+import { validateFileAdvanced } from '@/lib/core/utils';
 
 export function useDashboardUpload() {
   const t = useTranslations('Upload');

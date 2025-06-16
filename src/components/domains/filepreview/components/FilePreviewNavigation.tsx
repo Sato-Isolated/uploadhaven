@@ -3,12 +3,11 @@
 import { Button } from '@/components/ui/button';
 import { Home, LayoutDashboard, ArrowLeft } from 'lucide-react';
 import { useTranslations, useLocale } from 'next-intl';
-import { useSession } from '@/lib/auth-client';
+import { useSession } from '@/lib/auth/auth-client';
 import { useRouter } from 'next/navigation';
 
 export function FilePreviewNavigation() {
   const t = useTranslations('FilePreview');
-  const tCommon = useTranslations('Common');
   const locale = useLocale();
   const router = useRouter();
   const { data: session } = useSession();

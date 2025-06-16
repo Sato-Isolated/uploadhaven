@@ -1,8 +1,8 @@
 #!/usr/bin/env tsx
-import connectDB from '@/lib/mongodb';
-import { User } from '@/lib/models';
-import { File } from '@/lib/models';
-import { SecurityEvent } from '@/lib/models';
+import connectDB from '@/lib/database/mongodb';
+import { User } from '@/lib/database/models';
+import { File } from '@/lib/database/models';
+import { SecurityEvent } from '@/lib/database/models';
 import bcrypt from 'bcryptjs';
 import { nanoid } from 'nanoid';
 

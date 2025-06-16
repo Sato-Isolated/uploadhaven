@@ -18,7 +18,7 @@ import {
 } from 'lucide-react';
 import type { FilePreviewData, BaseComponentProps } from '@/types';
 import { useTranslations } from 'next-intl';
-import { useKeyboardLayoutDetection, isKeyMatch } from '@/lib/keyboard';
+import { useKeyboardLayoutDetection } from '@/lib/ui/keyboard';
 import { KeyboardShortcutsButton } from './KeyboardShortcutsModal';
 
 interface VideoPreviewProps extends BaseComponentProps {

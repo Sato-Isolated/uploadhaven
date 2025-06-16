@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import connectDB from '@/lib/mongodb';
-import { File, saveSecurityEvent } from '@/lib/models';
+import connectDB from '@/lib/database/mongodb';
+import { File, saveSecurityEvent } from '@/lib/database/models';
 import { headers } from 'next/headers';
 import { unlink } from 'fs/promises';
 import path from 'path';
-import { auth } from '@/lib/auth';
+import { auth } from '@/lib/auth/auth';
 
 export async function DELETE(
   request: NextRequest,

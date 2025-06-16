@@ -1,14 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import path from 'path';
 import fs from 'fs/promises';
-import { rateLimit, rateLimitConfigs } from '@/lib/rateLimit';
-import connectDB from '@/lib/mongodb';
+import { rateLimit, rateLimitConfigs } from '@/lib/core/rateLimit';
+import connectDB from '@/lib/database/mongodb';
 import {
   getFileMetadata,
   incrementDownloadCount,
   saveSecurityEvent,
   User,
-} from '@/lib/models';
+} from '@/lib/database/models';
 
 export async function GET(
   request: NextRequest,

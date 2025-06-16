@@ -3,7 +3,7 @@
 import { createContext, useContext, useEffect, useMemo } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { usePathname } from 'next/navigation';
-import { PrefetchManager } from '@/lib/prefetch';
+import { PrefetchManager } from '@/lib/background/prefetch';
 
 interface PrefetchContextType {
   prefetchManager: PrefetchManager;

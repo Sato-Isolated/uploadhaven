@@ -1,7 +1,7 @@
-import { auth } from '@/lib/auth';
+import { auth } from '@/lib/auth/auth';
 import { headers } from 'next/headers';
-import connectDB from '@/lib/mongodb';
-import { Notification } from '@/lib/models';
+import connectDB from '@/lib/database/mongodb';
+import { Notification } from '@/lib/database/models';
 
 /**
  * GET /api/notifications/stream

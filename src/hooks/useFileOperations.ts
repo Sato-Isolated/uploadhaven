@@ -5,7 +5,7 @@ import { toast } from 'sonner';
 import { useTranslations } from 'next-intl';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { ApiClient } from '@/lib/api/client';
-import { queryKeys } from '@/lib/queryKeys';
+import { queryKeys } from '@/lib/core/queryKeys';
 import type { FileUploadOptions, FileDeleteOptions } from '@/types';
 
 /**
@@ -70,9 +70,8 @@ export function useFileOperations() {
   const deleteFileMutation = useMutation({
     mutationFn: async (data: {
       filename: string;
-      options?: FileDeleteOptions;
-    }) => {
-      const { filename, options = {} } = data;
+      options?: FileDeleteOptions;    }) => {
+      const { filename } = data;
       return ApiClient.post('/api/bulk-delete', {
         filenames: [filename],
       });
@@ -100,9 +99,8 @@ export function useFileOperations() {
   const deleteMultipleFilesMutation = useMutation({
     mutationFn: async (data: {
       filenames: string[];
-      options?: FileDeleteOptions;
-    }) => {
-      const { filenames, options = {} } = data;
+      options?: FileDeleteOptions;    }) => {
+      const { filenames } = data;
       return ApiClient.post<{ success: boolean; deletedCount: number }>(
         '/api/bulk-delete',
         {
