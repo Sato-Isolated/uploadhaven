@@ -29,9 +29,22 @@ export type FileType =
 export type FileUploadStatus =
   | 'scanning'
   | 'uploading'
+  | 'encrypting'
   | 'completed'
   | 'error'
   | 'threat_detected';
+
+/**
+ * Encryption metadata structure
+ */
+export interface EncryptionMetadata {
+  salt: string; // base64 encoded salt for key derivation
+  iv: string; // base64 encoded initialization vector
+  tag: string; // base64 encoded authentication tag
+  algorithm: string; // encryption algorithm used (e.g., 'aes-256-gcm')
+  iterations: number; // PBKDF2 iterations for key derivation
+  encryptedSize: number; // size of encrypted file data
+}
 
 /**
  * Base file data structure - shared properties across all file interfaces
@@ -45,6 +58,7 @@ export interface BaseFileData {
   readonly uploadDate: string;
   readonly downloadCount: number;
   readonly type: FileType;
+  readonly isEncrypted: boolean;
 }
 
 // =============================================================================
@@ -151,6 +165,9 @@ export interface IFile {
   readonly isAnonymous: boolean;
   readonly password?: string; // hashed password for protected files
   readonly isPasswordProtected: boolean;
+  readonly isEncrypted: boolean;
+  readonly encryptionMetadata?: EncryptionMetadata;
+  readonly previewEncryptionMetadata?: EncryptionMetadata;
   readonly createdAt: Date;
   readonly updatedAt: Date;
 }
@@ -201,6 +218,7 @@ export function toClientFileData(dbFile: IFile): ClientFileData {
     type: getFileTypeFromMimeType(dbFile.mimeType),
     expiresAt: dbFile.expiresAt?.toISOString() || null,
     shortUrl: dbFile.shortUrl,
+    isEncrypted: dbFile.isEncrypted || false,
   };
 }
 
@@ -224,6 +242,7 @@ export function toAdminFileData(
     userId: dbFile.userId,
     userName: userName,
     isAnonymous: dbFile.isAnonymous,
+    isEncrypted: dbFile.isEncrypted || false,
   };
 }
 

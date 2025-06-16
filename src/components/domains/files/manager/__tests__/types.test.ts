@@ -78,7 +78,8 @@ describe('FileManager Types', () => {
   });
 
   describe('Component Props Interfaces', () => {
-    it('should have correct FileCardProps structure', () => {      const mockFile: FileInfo = {
+    it('should have correct FileCardProps structure', () => {
+      const mockFile: FileInfo = {
         id: 'test-file-id',
         name: 'test.txt',
         originalName: 'test.txt',
@@ -89,6 +90,7 @@ describe('FileManager Types', () => {
         downloadCount: 0,
         expiresAt: '2024-01-02T00:00:00Z',
         shortUrl: 'https://short.ly/abc123',
+        isEncrypted: false,
       };
 
       const props: FileCardProps = {
@@ -166,7 +168,9 @@ describe('FileManager Types', () => {
 
   describe('Function Type Validation', () => {
     it('should validate getExpirationStatus function signature', () => {
-      const getExpirationStatus = (expiresAt?: string | null): ExpirationStatus => ({
+      const getExpirationStatus = (
+        expiresAt?: string | null
+      ): ExpirationStatus => ({
         text: 'Test',
         variant: 'secondary',
         expired: false,
@@ -243,8 +247,15 @@ describe('FileManager Types', () => {
         'other',
       ];
 
-      supportedTypes.forEach(type => {
-        expect(['image', 'video', 'audio', 'document', 'archive', 'other']).toContain(type);
+      supportedTypes.forEach((type) => {
+        expect([
+          'image',
+          'video',
+          'audio',
+          'document',
+          'archive',
+          'other',
+        ]).toContain(type);
       });
     });
   });

@@ -37,7 +37,9 @@ export default function EmptyState() {
                 <FileText className="h-6 w-6 text-white" />
               </div>
               <div>
-                <CardTitle className="text-xl">{tStats('fileManager')}</CardTitle>
+                <CardTitle className="text-xl">
+                  {tStats('fileManager')}
+                </CardTitle>
                 <CardDescription className="text-base">
                   {tFiles('manageFiles')}
                 </CardDescription>

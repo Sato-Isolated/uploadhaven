@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { readFile } from 'fs/promises';
 import path from 'path';
 import connectDB from '@/lib/mongodb';
 import {
@@ -9,6 +8,11 @@ import {
   saveNotification,
 } from '@/lib/models';
 import { checkFileExpiration } from '@/lib/startup';
+import {
+  readAndDecryptFile,
+  getContentLength,
+  logDecryptionActivity,
+} from '@/lib/file-decryption';
 
 export async function GET(
   request: NextRequest,
@@ -117,15 +121,18 @@ export async function GET(
     );
 
     try {
-      // Read file
-      const fileBuffer = await readFile(filePath);
+      // Read and decrypt file if necessary
+      const fileBuffer = await readAndDecryptFile(filePath, fileDoc);
+
+      // Log decryption activity if file was encrypted
+      logDecryptionActivity(fileDoc, 'download', clientIP, userAgent);
 
       // Increment download count
       await incrementDownloadCount(fileDoc.filename); // Log successful download
       await saveSecurityEvent({
         type: 'file_download',
         ip: clientIP,
-        details: `File downloaded: ${fileDoc.originalName}`,
+        details: `File downloaded: ${fileDoc.originalName}${fileDoc.isEncrypted ? ' (decrypted)' : ''}`,
         severity: 'low',
         userAgent,
         filename: fileDoc.filename,
@@ -148,6 +155,7 @@ export async function GET(
               downloadTime: new Date(),
               fileSize: fileDoc.size,
               mimeType: fileDoc.mimeType,
+              wasEncrypted: fileDoc.isEncrypted || false,
             },
           });
         } catch (notificationError) {
@@ -164,7 +172,7 @@ export async function GET(
         status: 200,
         headers: {
           'Content-Type': fileDoc.mimeType,
-          'Content-Length': fileDoc.size.toString(),
+          'Content-Length': getContentLength(fileDoc).toString(),
           'Content-Disposition': `attachment; filename="${fileDoc.originalName}"`,
           'Cache-Control': 'private, no-cache, no-store, must-revalidate',
           Pragma: 'no-cache',

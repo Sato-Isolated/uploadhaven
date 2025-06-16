@@ -23,7 +23,7 @@ export function AnalyticsHeader({
   description,
 }: AnalyticsHeaderProps) {
   const t = useTranslations('Admin');
-  
+
   return (
     <div className="flex items-center justify-between">
       <div>

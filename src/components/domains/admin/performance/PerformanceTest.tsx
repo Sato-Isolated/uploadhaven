@@ -30,7 +30,7 @@ interface PerformanceMetrics {
 
 export function PerformanceTest() {
   const t = useTranslations('Admin');
-  
+
   const [metrics, setMetrics] = useState<PerformanceMetrics>({
     queryCount: 0,
     cacheHits: 0,
@@ -180,9 +180,7 @@ export function PerformanceTest() {
           <Zap className="h-5 w-5" />
           {t('performanceMonitorTitle')}
         </CardTitle>
-        <CardDescription>
-          {t('performanceMonitorDescription')}
-        </CardDescription>
+        <CardDescription>{t('performanceMonitorDescription')}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
         {/* Real-time Status */}
@@ -204,7 +202,9 @@ export function PerformanceTest() {
               </div>
               {activityCount > 0 && (
                 <div className="mt-2">
-                  <Badge variant="secondary">{t('newEventsCount', { count: activityCount })}</Badge>
+                  <Badge variant="secondary">
+                    {t('newEventsCount', { count: activityCount })}
+                  </Badge>
                 </div>
               )}
             </CardContent>
@@ -215,7 +215,9 @@ export function PerformanceTest() {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Activity className="h-4 w-4 text-blue-500" />
-                  <span className="text-sm font-medium">{t('activeQueries')}</span>
+                  <span className="text-sm font-medium">
+                    {t('activeQueries')}
+                  </span>
                 </div>
                 <Badge variant="outline">{metrics.queryCount}</Badge>
               </div>
@@ -227,7 +229,9 @@ export function PerformanceTest() {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <CheckCircle className="h-4 w-4 text-green-500" />
-                  <span className="text-sm font-medium">{t('cacheEfficiency')}</span>
+                  <span className="text-sm font-medium">
+                    {t('cacheEfficiency')}
+                  </span>
                 </div>
                 <Badge variant="outline">{cacheEfficiency.toFixed(1)}%</Badge>
               </div>
@@ -242,19 +246,25 @@ export function PerformanceTest() {
             <div className="text-2xl font-bold text-green-600">
               {metrics.cacheHits}
             </div>
-            <div className="text-muted-foreground text-sm">{t('cacheHits')}</div>
+            <div className="text-muted-foreground text-sm">
+              {t('cacheHits')}
+            </div>
           </div>
           <div className="rounded-lg border p-4 text-center">
             <div className="text-2xl font-bold text-red-600">
               {metrics.cacheMisses}
             </div>
-            <div className="text-muted-foreground text-sm">{t('cacheMisses')}</div>
+            <div className="text-muted-foreground text-sm">
+              {t('cacheMisses')}
+            </div>
           </div>
           <div className="rounded-lg border p-4 text-center">
             <div className="text-2xl font-bold text-blue-600">
               {metrics.totalQueries}
             </div>
-            <div className="text-muted-foreground text-sm">{t('totalQueries')}</div>
+            <div className="text-muted-foreground text-sm">
+              {t('totalQueries')}
+            </div>
           </div>
           <div className="rounded-lg border p-4 text-center">
             <div className="text-2xl font-bold text-purple-600">
@@ -262,7 +272,9 @@ export function PerformanceTest() {
                 ? `${metrics.avgResponseTime.toFixed(0)}ms`
                 : '-'}
             </div>
-            <div className="text-muted-foreground text-sm">{t('avgResponse')}</div>
+            <div className="text-muted-foreground text-sm">
+              {t('avgResponse')}
+            </div>
           </div>
         </div>
 

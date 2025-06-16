@@ -62,7 +62,9 @@ export function QuotaStatusDisplay({
                 {t('requestsRemaining', { count: quotaStatus.remaining })}
               </span>
               <span className="text-xs text-gray-500">
-                {t('resetsAt', { time: new Date(quotaStatus.resetsAt).toLocaleTimeString() })}
+                {t('resetsAt', {
+                  time: new Date(quotaStatus.resetsAt).toLocaleTimeString(),
+                })}
               </span>
             </div>
 
@@ -77,7 +79,9 @@ export function QuotaStatusDisplay({
 
             <div className="text-xs text-gray-500">
               <p>
-                {t('enhancedMalwareDetection', { count: quotaStatus?.remaining || 500 })}
+                {t('enhancedMalwareDetection', {
+                  count: quotaStatus?.remaining || 500,
+                })}
               </p>
             </div>
           </div>

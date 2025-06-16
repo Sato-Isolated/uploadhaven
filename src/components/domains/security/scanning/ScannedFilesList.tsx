@@ -123,7 +123,8 @@ function ScannedFileItem({ file }: ScannedFileItemProps) {
                     {t('antivirusEngineResults')}
                   </span>
                   <span className="text-gray-500">
-                    {file.scanResult?.engineResults?.length || 0} {t('enginesAnalyzed')}
+                    {file.scanResult?.engineResults?.length || 0}{' '}
+                    {t('enginesAnalyzed')}
                   </span>
                 </div>
 
@@ -176,7 +177,7 @@ export function ScannedFilesList({
   totalFilesToScan,
 }: ScannedFilesListProps) {
   const t = useTranslations('Security');
-  
+
   if (scannedFiles.length === 0) return null;
 
   const completedScans = scannedFiles.filter(

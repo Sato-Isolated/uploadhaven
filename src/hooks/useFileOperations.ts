@@ -50,14 +50,15 @@ export function useFileOperations() {
     onSuccess: (result, variables) => {
       toast.success(t('fileUploadedSuccessfully'));
       variables.options?.onSuccess?.(result);
-      
+
       // Invalidate relevant queries
       queryClient.invalidateQueries({ queryKey: queryKeys.files() });
       queryClient.invalidateQueries({ queryKey: queryKeys.stats() });
       queryClient.invalidateQueries({ queryKey: queryKeys.userStats() });
     },
     onError: (error, variables) => {
-      const errorMessage = error instanceof Error ? error.message : t('uploadFailed');
+      const errorMessage =
+        error instanceof Error ? error.message : t('uploadFailed');
       toast.error(errorMessage);
       variables.options?.onError?.(errorMessage);
     },
@@ -67,7 +68,10 @@ export function useFileOperations() {
 
   // TanStack Query mutation for single file deletion
   const deleteFileMutation = useMutation({
-    mutationFn: async (data: { filename: string; options?: FileDeleteOptions }) => {
+    mutationFn: async (data: {
+      filename: string;
+      options?: FileDeleteOptions;
+    }) => {
       const { filename, options = {} } = data;
       return ApiClient.post('/api/bulk-delete', {
         filenames: [filename],
@@ -76,14 +80,15 @@ export function useFileOperations() {
     onSuccess: (result, variables) => {
       toast.success(t('fileDeletedSuccessfully'));
       variables.options?.onSuccess?.();
-      
+
       // Invalidate relevant queries
       queryClient.invalidateQueries({ queryKey: queryKeys.files() });
       queryClient.invalidateQueries({ queryKey: queryKeys.stats() });
       queryClient.invalidateQueries({ queryKey: queryKeys.userStats() });
     },
     onError: (error, variables) => {
-      const errorMessage = error instanceof Error ? error.message : t('deleteFailed');
+      const errorMessage =
+        error instanceof Error ? error.message : t('deleteFailed');
       toast.error(errorMessage);
       variables.options?.onError?.(errorMessage);
     },
@@ -93,23 +98,32 @@ export function useFileOperations() {
 
   // TanStack Query mutation for multiple files deletion
   const deleteMultipleFilesMutation = useMutation({
-    mutationFn: async (data: { filenames: string[]; options?: FileDeleteOptions }) => {
+    mutationFn: async (data: {
+      filenames: string[];
+      options?: FileDeleteOptions;
+    }) => {
       const { filenames, options = {} } = data;
-      return ApiClient.post<{ success: boolean; deletedCount: number }>('/api/bulk-delete', {
-        filenames,
-      });
+      return ApiClient.post<{ success: boolean; deletedCount: number }>(
+        '/api/bulk-delete',
+        {
+          filenames,
+        }
+      );
     },
     onSuccess: (result, variables) => {
-      toast.success(t('successfullyDeletedFiles', { count: result.deletedCount }));
+      toast.success(
+        t('successfullyDeletedFiles', { count: result.deletedCount })
+      );
       variables.options?.onSuccess?.();
-      
+
       // Invalidate relevant queries
       queryClient.invalidateQueries({ queryKey: queryKeys.files() });
       queryClient.invalidateQueries({ queryKey: queryKeys.stats() });
       queryClient.invalidateQueries({ queryKey: queryKeys.userStats() });
     },
     onError: (error, variables) => {
-      const errorMessage = error instanceof Error ? error.message : t('bulkDeleteFailed');
+      const errorMessage =
+        error instanceof Error ? error.message : t('bulkDeleteFailed');
       toast.error(errorMessage);
       variables.options?.onError?.(errorMessage);
     },
@@ -142,7 +156,10 @@ export function useFileOperations() {
     async (filename: string, options: FileDeleteOptions = {}) => {
       setDeleting(true);
       try {
-        const result = await deleteFileMutation.mutateAsync({ filename, options });
+        const result = await deleteFileMutation.mutateAsync({
+          filename,
+          options,
+        });
         return result;
       } finally {
         setDeleting(false);
@@ -155,7 +172,10 @@ export function useFileOperations() {
     async (filenames: string[], options: FileDeleteOptions = {}) => {
       setDeleting(true);
       try {
-        const result = await deleteMultipleFilesMutation.mutateAsync({ filenames, options });
+        const result = await deleteMultipleFilesMutation.mutateAsync({
+          filenames,
+          options,
+        });
         return result;
       } finally {
         setDeleting(false);
@@ -195,14 +215,17 @@ export function useFileOperations() {
   return {
     // Loading states (backward compatibility)
     uploading: uploading || uploadFileMutation.isPending,
-    deleting: deleting || deleteFileMutation.isPending || deleteMultipleFilesMutation.isPending,
-    
+    deleting:
+      deleting ||
+      deleteFileMutation.isPending ||
+      deleteMultipleFilesMutation.isPending,
+
     // Core operations
     uploadFile,
     deleteFile,
     deleteMultipleFiles,
     validateFile,
-    
+
     // Direct access to mutations for advanced usage
     uploadFileMutation,
     deleteFileMutation,

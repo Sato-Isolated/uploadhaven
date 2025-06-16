@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import { useSecurityScanning } from '../useSecurityScanning';
+import { TestWrapper } from '../../__tests__/test-utils';
 
 // Mock dependencies
 vi.mock('sonner', () => ({
@@ -30,7 +31,9 @@ describe('useSecurityScanning', () => {
   });
 
   it('should initialize with default state', () => {
-    const { result } = renderHook(() => useSecurityScanning());
+    const { result } = renderHook(() => useSecurityScanning(), {
+      wrapper: TestWrapper,
+    });
 
     expect(result.current.isScanning).toBe(false);
     expect(result.current.scanProgress).toBe(0);
@@ -44,7 +47,9 @@ describe('useSecurityScanning', () => {
   });
 
   it('should provide all required interface methods', () => {
-    const { result } = renderHook(() => useSecurityScanning());
+    const { result } = renderHook(() => useSecurityScanning(), {
+      wrapper: TestWrapper,
+    });
 
     expect(typeof result.current.setSelectedScanType).toBe('function');
     expect(typeof result.current.startScan).toBe('function');
@@ -56,7 +61,9 @@ describe('useSecurityScanning', () => {
   });
 
   it('should update selected scan type', () => {
-    const { result } = renderHook(() => useSecurityScanning());
+    const { result } = renderHook(() => useSecurityScanning(), {
+      wrapper: TestWrapper,
+    });
 
     act(() => {
       result.current.setSelectedScanType('full');
@@ -66,7 +73,11 @@ describe('useSecurityScanning', () => {
   });
 
   it('should reset scan state', () => {
-    const { result } = renderHook(() => useSecurityScanning());    // Set some state first
+    const { result } = renderHook(() => useSecurityScanning(), {
+      wrapper: TestWrapper,
+    });
+
+    // Set some state first
     act(() => {
       result.current.setSelectedScanType('full');
     });
@@ -88,30 +99,45 @@ describe('useSecurityScanning', () => {
 
   describe('fetchFilesList', () => {
     it('should fetch files list successfully', async () => {
-      const mockFiles = { files: [{ name: 'test1.txt' }, { name: 'test2.jpg' }] };
-      
+      const mockFiles = {
+        files: [{ name: 'test1.txt' }, { name: 'test2.jpg' }],
+      };
+
       (global.fetch as any).mockResolvedValue({
         ok: true,
         json: () => Promise.resolve(mockFiles),
       });
 
-      const { result } = renderHook(() => useSecurityScanning());
+      const { result } = renderHook(() => useSecurityScanning(), {
+        wrapper: TestWrapper,
+      });
 
       await act(async () => {
         const response = await result.current.fetchFilesList();
         expect(response).toEqual(mockFiles);
       });
 
-      expect(global.fetch).toHaveBeenCalledWith('/api/security/files');
+      expect(global.fetch).toHaveBeenCalledWith(
+        'http://localhost:3000/api/security/files',
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          cache: 'no-store',
+        }
+      );
     });
-
     it('should handle fetch files list error', async () => {
       (global.fetch as any).mockResolvedValue({
         ok: false,
         status: 500,
+        json: () => Promise.resolve({ error: 'Failed to fetch files list' }),
       });
 
-      const { result } = renderHook(() => useSecurityScanning());
+      const { result } = renderHook(() => useSecurityScanning(), {
+        wrapper: TestWrapper,
+      });
 
       await act(async () => {
         await expect(result.current.fetchFilesList()).rejects.toThrow(
@@ -123,42 +149,49 @@ describe('useSecurityScanning', () => {
 
   describe('scanSingleFile', () => {
     it('should scan a single file successfully', async () => {
-      const mockScanResult = { 
-        scanResult: { 
-          safe: true, 
-          threat: null, 
-          scannedAt: new Date().toISOString() 
-        } 
+      const mockScanResult = {
+        scanResult: {
+          safe: true,
+          threat: null,
+          scannedAt: new Date().toISOString(),
+        },
       };
-      
+
       (global.fetch as any).mockResolvedValue({
         ok: true,
         json: () => Promise.resolve(mockScanResult),
       });
 
-      const { result } = renderHook(() => useSecurityScanning());
+      const { result } = renderHook(() => useSecurityScanning(), {
+        wrapper: TestWrapper,
+      });
 
       await act(async () => {
         const response = await result.current.scanSingleFile('test.txt');
         expect(response).toEqual(mockScanResult);
       });
-
-      expect(global.fetch).toHaveBeenCalledWith('/api/security/scan/file', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ fileName: 'test.txt' }),
-      });
+      expect(global.fetch).toHaveBeenCalledWith(
+        'http://localhost:3000/api/security/scan/file',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          cache: 'no-store',
+          body: JSON.stringify({ fileName: 'test.txt' }),
+        }
+      );
     });
-
     it('should handle single file scan error', async () => {
       (global.fetch as any).mockResolvedValue({
         ok: false,
         status: 500,
+        json: () => Promise.resolve({ error: 'Failed to scan file' }),
       });
 
-      const { result } = renderHook(() => useSecurityScanning());
+      const { result } = renderHook(() => useSecurityScanning(), {
+        wrapper: TestWrapper,
+      });
 
       await act(async () => {
         await expect(result.current.scanSingleFile('test.txt')).rejects.toThrow(
@@ -170,43 +203,49 @@ describe('useSecurityScanning', () => {
 
   describe('scanUploadedFile', () => {
     it('should scan an uploaded file successfully', async () => {
-      const mockScanResult = { 
-        scanResult: { 
-          safe: true, 
-          threat: null 
+      const mockScanResult = {
+        scanResult: {
+          safe: true,
+          threat: null,
         },
-        quotaStatus: { 
-          used: 1, 
-          limit: 500 
-        }
+        quotaStatus: {
+          used: 1,
+          limit: 500,
+        },
       };
-      
+
       (global.fetch as any).mockResolvedValue({
         ok: true,
         json: () => Promise.resolve(mockScanResult),
       });
 
-      const { result } = renderHook(() => useSecurityScanning());
+      const { result } = renderHook(() => useSecurityScanning(), {
+        wrapper: TestWrapper,
+      });
       const file = new File(['content'], 'test.txt', { type: 'text/plain' });
 
       await act(async () => {
         const response = await result.current.scanUploadedFile(file);
         expect(response).toEqual(mockScanResult);
       });
-
-      expect(global.fetch).toHaveBeenCalledWith('/api/security/scan', {
-        method: 'POST',
-        body: expect.any(FormData),
-      });
+      expect(global.fetch).toHaveBeenCalledWith(
+        'http://localhost:3000/api/security/scan',
+        {
+          method: 'POST',
+          body: expect.any(FormData),
+        }
+      );
     });
-
     it('should handle uploaded file scan error', async () => {
       (global.fetch as any).mockResolvedValue({
         ok: false,
         status: 500,
+        json: () => Promise.resolve({ error: 'File scan failed' }),
       });
 
-      const { result } = renderHook(() => useSecurityScanning());
+      const { result } = renderHook(() => useSecurityScanning(), {
+        wrapper: TestWrapper,
+      });
       const file = new File(['content'], 'test.txt', { type: 'text/plain' });
 
       await act(async () => {
@@ -218,13 +257,15 @@ describe('useSecurityScanning', () => {
 
     it('should create FormData correctly for file upload', async () => {
       const mockScanResult = { scanResult: { safe: true } };
-      
+
       (global.fetch as any).mockResolvedValue({
         ok: true,
         json: () => Promise.resolve(mockScanResult),
       });
 
-      const { result } = renderHook(() => useSecurityScanning());
+      const { result } = renderHook(() => useSecurityScanning(), {
+        wrapper: TestWrapper,
+      });
       const file = new File(['content'], 'test.txt', { type: 'text/plain' });
 
       await act(async () => {
@@ -233,13 +274,17 @@ describe('useSecurityScanning', () => {
 
       const fetchCall = (global.fetch as any).mock.calls[0];
       const formData = fetchCall[1].body;
-      
+
       expect(formData).toBeInstanceOf(FormData);
       expect(formData.get('file')).toBe(file);
     });
   });
-  describe('startScan', () => {    it('should not start scan if already scanning', async () => {
-      const { result } = renderHook(() => useSecurityScanning());
+
+  describe('startScan', () => {
+    it('should not start scan if already scanning', async () => {
+      const { result } = renderHook(() => useSecurityScanning(), {
+        wrapper: TestWrapper,
+      });
 
       // Start first scan
       act(() => {
@@ -253,8 +298,12 @@ describe('useSecurityScanning', () => {
 
       // Should be scanning (first scan should be active)
       expect(result.current.isScanning).toBe(true);
-    });it('should set scanning state when starting', () => {
-      const { result } = renderHook(() => useSecurityScanning());
+    });
+
+    it('should set scanning state when starting', () => {
+      const { result } = renderHook(() => useSecurityScanning(), {
+        wrapper: TestWrapper,
+      });
 
       // Mock successful files fetch
       (global.fetch as any).mockResolvedValue({
@@ -274,7 +323,9 @@ describe('useSecurityScanning', () => {
 
   describe('stopScan', () => {
     it('should stop scanning and reset progress', () => {
-      const { result } = renderHook(() => useSecurityScanning());
+      const { result } = renderHook(() => useSecurityScanning(), {
+        wrapper: TestWrapper,
+      });
 
       act(() => {
         result.current.stopScan();
@@ -283,10 +334,13 @@ describe('useSecurityScanning', () => {
       expect(result.current.isScanning).toBe(false);
       expect(result.current.scanProgress).toBe(0);
       expect(result.current.currentScanStep).toBe('');
-    });  });
+    });
+  });
 
   it('should maintain correct state structure', () => {
-    const { result } = renderHook(() => useSecurityScanning());
+    const { result } = renderHook(() => useSecurityScanning(), {
+      wrapper: TestWrapper,
+    });
 
     // Verify hook rendered properly
     expect(result.current).not.toBeNull();
@@ -313,7 +367,9 @@ describe('useSecurityScanning', () => {
   });
 
   it('should handle scan type changes correctly', () => {
-    const { result } = renderHook(() => useSecurityScanning());
+    const { result } = renderHook(() => useSecurityScanning(), {
+      wrapper: TestWrapper,
+    });
 
     // Verify hook rendered properly
     expect(result.current).not.toBeNull();

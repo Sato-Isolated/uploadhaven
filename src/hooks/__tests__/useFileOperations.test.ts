@@ -3,6 +3,7 @@
 import { renderHook, act } from '@testing-library/react';
 import { useFileOperations } from '../useFileOperations';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { TestWrapper } from '../../__tests__/test-utils';
 
 // Mock next-intl
 vi.mock('next-intl', () => ({
@@ -21,7 +22,8 @@ vi.mock('sonner', () => ({
 global.fetch = vi.fn();
 
 describe('useFileOperations', () => {
-  beforeEach(() => {    vi.clearAllMocks();
+  beforeEach(() => {
+    vi.clearAllMocks();
     (global.fetch as any).mockClear();
   });
 
@@ -33,24 +35,32 @@ describe('useFileOperations', () => {
       };
       (global.fetch as any).mockResolvedValue(mockResponse);
 
-      const { result } = renderHook(() => useFileOperations());
+      const { result } = renderHook(() => useFileOperations(), {
+        wrapper: TestWrapper,
+      });
 
-      const file = new File(['test content'], 'test.txt', { type: 'text/plain' });
+      const file = new File(['test content'], 'test.txt', {
+        type: 'text/plain',
+      });
       const onSuccess = vi.fn();
 
       let uploadResult: any;
       await act(async () => {
         uploadResult = await result.current.uploadFile(file, { onSuccess });
       });
-
-      expect(global.fetch).toHaveBeenCalledWith('/api/upload', {
-        method: 'POST',
-        body: expect.any(FormData),
+      expect(global.fetch).toHaveBeenCalledWith(
+        'http://localhost:3000/api/upload',
+        {
+          method: 'POST',
+          body: expect.any(FormData),
+        }
+      );
+      expect(onSuccess).toHaveBeenCalledWith({
+        success: true,
+        file: 'test.txt',
       });
-      expect(onSuccess).toHaveBeenCalledWith({ success: true, file: 'test.txt' });
       expect(uploadResult).toEqual({ success: true, file: 'test.txt' });
     });
-
     it('should handle upload failure', async () => {
       const mockResponse = {
         ok: false,
@@ -58,9 +68,13 @@ describe('useFileOperations', () => {
       };
       (global.fetch as any).mockResolvedValue(mockResponse);
 
-      const { result } = renderHook(() => useFileOperations());
+      const { result } = renderHook(() => useFileOperations(), {
+        wrapper: TestWrapper,
+      });
 
-      const file = new File(['test content'], 'test.txt', { type: 'text/plain' });
+      const file = new File(['test content'], 'test.txt', {
+        type: 'text/plain',
+      });
       const onError = vi.fn();
 
       await act(async () => {
@@ -73,7 +87,6 @@ describe('useFileOperations', () => {
 
       expect(onError).toHaveBeenCalledWith('Upload failed');
     });
-
     it('should include optional parameters in upload', async () => {
       const mockResponse = {
         ok: true,
@@ -81,9 +94,13 @@ describe('useFileOperations', () => {
       };
       (global.fetch as any).mockResolvedValue(mockResponse);
 
-      const { result } = renderHook(() => useFileOperations());
+      const { result } = renderHook(() => useFileOperations(), {
+        wrapper: TestWrapper,
+      });
 
-      const file = new File(['test content'], 'test.txt', { type: 'text/plain' });
+      const file = new File(['test content'], 'test.txt', {
+        type: 'text/plain',
+      });
 
       await act(async () => {
         await result.current.uploadFile(file, {
@@ -108,36 +125,43 @@ describe('useFileOperations', () => {
       };
       (global.fetch as any).mockResolvedValue(mockResponse);
 
-      const { result } = renderHook(() => useFileOperations());
+      const { result } = renderHook(() => useFileOperations(), {
+        wrapper: TestWrapper,
+      });
 
       const onSuccess = vi.fn();
 
       let deleteResult: any;
       await act(async () => {
-        deleteResult = await result.current.deleteFile('test.txt', { onSuccess });
+        deleteResult = await result.current.deleteFile('test.txt', {
+          onSuccess,
+        });
       });
-
-      expect(global.fetch).toHaveBeenCalledWith('/api/bulk-delete', {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          filenames: ['test.txt'],
-        }),
-      });
+      expect(global.fetch).toHaveBeenCalledWith(
+        'http://localhost:3000/api/bulk-delete',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          cache: 'no-store',
+          body: JSON.stringify({
+            filenames: ['test.txt'],
+          }),
+        }
+      );
       expect(onSuccess).toHaveBeenCalled();
       expect(deleteResult).toEqual({ success: true });
     });
-
     it('should handle delete failure', async () => {
       const mockResponse = {
-        ok: true,
+        ok: false,
         json: () => Promise.resolve({ success: false, error: 'Delete failed' }),
       };
       (global.fetch as any).mockResolvedValue(mockResponse);
-
-      const { result } = renderHook(() => useFileOperations());
+      const { result } = renderHook(() => useFileOperations(), {
+        wrapper: TestWrapper,
+      });
 
       const onError = vi.fn();
 
@@ -160,25 +184,32 @@ describe('useFileOperations', () => {
         json: () => Promise.resolve({ success: true, deletedCount: 2 }),
       };
       (global.fetch as any).mockResolvedValue(mockResponse);
-
-      const { result } = renderHook(() => useFileOperations());
+      const { result } = renderHook(() => useFileOperations(), {
+        wrapper: TestWrapper,
+      });
 
       const onSuccess = vi.fn();
 
       let deleteResult: any;
       await act(async () => {
-        deleteResult = await result.current.deleteMultipleFiles(['file1.txt', 'file2.txt'], { onSuccess });
+        deleteResult = await result.current.deleteMultipleFiles(
+          ['file1.txt', 'file2.txt'],
+          { onSuccess }
+        );
       });
-
-      expect(global.fetch).toHaveBeenCalledWith('/api/bulk-delete', {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          filenames: ['file1.txt', 'file2.txt'],
-        }),
-      });
+      expect(global.fetch).toHaveBeenCalledWith(
+        'http://localhost:3000/api/bulk-delete',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          cache: 'no-store',
+          body: JSON.stringify({
+            filenames: ['file1.txt', 'file2.txt'],
+          }),
+        }
+      );
       expect(onSuccess).toHaveBeenCalled();
       expect(deleteResult).toEqual({ success: true, deletedCount: 2 });
     });
@@ -186,21 +217,26 @@ describe('useFileOperations', () => {
 
   describe('validateFile', () => {
     it('should validate allowed file types', () => {
-      const { result } = renderHook(() => useFileOperations());
+      const { result } = renderHook(() => useFileOperations(), {
+        wrapper: TestWrapper,
+      });
 
       const validFile = new File(['test'], 'test.txt', { type: 'text/plain' });
       const validation = result.current.validateFile(validFile);
 
       expect(validation.valid).toBe(true);
       expect(validation.error).toBeUndefined();
-    });    it('should reject files that are too large', () => {
-      const { result } = renderHook(() => useFileOperations());
+    });
+    it('should reject files that are too large', () => {
+      const { result } = renderHook(() => useFileOperations(), {
+        wrapper: TestWrapper,
+      });
 
       // Create a mock file with size property (instead of creating actual large content)
       const largeFile = new File(['test'], 'large.txt', { type: 'text/plain' });
       Object.defineProperty(largeFile, 'size', {
         value: 101 * 1024 * 1024, // 101MB
-        writable: false
+        writable: false,
       });
 
       const validation = result.current.validateFile(largeFile);
@@ -208,11 +244,14 @@ describe('useFileOperations', () => {
       expect(validation.valid).toBe(false);
       expect(validation.error).toBe('fileSizeMustBeLess');
     });
-
     it('should reject disallowed file types', () => {
-      const { result } = renderHook(() => useFileOperations());
+      const { result } = renderHook(() => useFileOperations(), {
+        wrapper: TestWrapper,
+      });
 
-      const invalidFile = new File(['test'], 'test.exe', { type: 'application/x-executable' });
+      const invalidFile = new File(['test'], 'test.exe', {
+        type: 'application/x-executable',
+      });
       const validation = result.current.validateFile(invalidFile);
 
       expect(validation.valid).toBe(false);
@@ -224,11 +263,15 @@ describe('useFileOperations', () => {
     it('should track uploading state', async () => {
       const mockResponse = {
         ok: true,
-        json: () => new Promise(resolve => setTimeout(() => resolve({ success: true }), 100)),
+        json: () =>
+          new Promise((resolve) =>
+            setTimeout(() => resolve({ success: true }), 100)
+          ),
       };
       (global.fetch as any).mockResolvedValue(mockResponse);
-
-      const { result } = renderHook(() => useFileOperations());
+      const { result } = renderHook(() => useFileOperations(), {
+        wrapper: TestWrapper,
+      });
 
       expect(result.current.uploading).toBe(false);
 
@@ -241,7 +284,7 @@ describe('useFileOperations', () => {
       expect(result.current.uploading).toBe(true);
 
       await act(async () => {
-        await new Promise(resolve => setTimeout(resolve, 150));
+        await new Promise((resolve) => setTimeout(resolve, 150));
       });
 
       expect(result.current.uploading).toBe(false);
@@ -250,11 +293,15 @@ describe('useFileOperations', () => {
     it('should track deleting state', async () => {
       const mockResponse = {
         ok: true,
-        json: () => new Promise(resolve => setTimeout(() => resolve({ success: true }), 100)),
+        json: () =>
+          new Promise((resolve) =>
+            setTimeout(() => resolve({ success: true }), 100)
+          ),
       };
       (global.fetch as any).mockResolvedValue(mockResponse);
-
-      const { result } = renderHook(() => useFileOperations());
+      const { result } = renderHook(() => useFileOperations(), {
+        wrapper: TestWrapper,
+      });
 
       expect(result.current.deleting).toBe(false);
 
@@ -265,7 +312,7 @@ describe('useFileOperations', () => {
       expect(result.current.deleting).toBe(true);
 
       await act(async () => {
-        await new Promise(resolve => setTimeout(resolve, 150));
+        await new Promise((resolve) => setTimeout(resolve, 150));
       });
 
       expect(result.current.deleting).toBe(false);

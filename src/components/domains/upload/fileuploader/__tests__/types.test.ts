@@ -39,7 +39,7 @@ describe('FileUploader Types and Constants', () => {
   describe('getExpirationOptions', () => {
     it('should transform expiration values with translation function', () => {
       const mockTranslate = (key: string) => `translated-${key}`;
-      
+
       const options = getExpirationOptions(mockTranslate);
 
       expect(options).toEqual([
@@ -58,7 +58,7 @@ describe('FileUploader Types and Constants', () => {
           '24h': '24 heures',
           '7d': '7 jours',
           '30d': '30 jours',
-          'never': 'jamais',
+          never: 'jamais',
         };
         return translations[key] || key;
       };
@@ -90,7 +90,7 @@ describe('FileUploader Types and Constants', () => {
       const mockTranslate = (key: string) => `translated-${key}`;
       const options = getExpirationOptions(mockTranslate);
 
-      const values = options.map(option => option.value);
+      const values = options.map((option) => option.value);
       expect(values).toEqual(['1h', '24h', '7d', '30d', 'never']);
     });
 
@@ -108,7 +108,9 @@ describe('FileUploader Types and Constants', () => {
 
   describe('File Type Coverage', () => {
     it('should cover common image formats', () => {
-      const imageTypes = ALLOWED_TYPES.filter(type => type.startsWith('image/'));
+      const imageTypes = ALLOWED_TYPES.filter((type) =>
+        type.startsWith('image/')
+      );
       expect(imageTypes).toContain('image/jpeg');
       expect(imageTypes).toContain('image/png');
       expect(imageTypes).toContain('image/gif');
@@ -116,8 +118,8 @@ describe('FileUploader Types and Constants', () => {
     });
 
     it('should cover document formats', () => {
-      const documentTypes = ALLOWED_TYPES.filter(type => 
-        type === 'text/plain' || type === 'application/pdf'
+      const documentTypes = ALLOWED_TYPES.filter(
+        (type) => type === 'text/plain' || type === 'application/pdf'
       );
       expect(documentTypes).toContain('text/plain');
       expect(documentTypes).toContain('application/pdf');
@@ -142,7 +144,7 @@ describe('FileUploader Types and Constants', () => {
         'application/javascript',
       ];
 
-      dangerousTypes.forEach(type => {
+      dangerousTypes.forEach((type) => {
         expect(ALLOWED_TYPES).not.toContain(type);
       });
     });

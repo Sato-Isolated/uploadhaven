@@ -1,6 +1,10 @@
 import { renderHook } from '@testing-library/react';
-import { useTranslationReload, useTranslationPolling } from '../useTranslationReload';
+import {
+  useTranslationReload,
+  useTranslationPolling,
+} from '../useTranslationReload';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { TestWrapper } from '../../__tests__/test-utils';
 
 // Mock next/navigation
 const mockRefresh = vi.fn();
@@ -31,14 +35,14 @@ describe('useTranslationReload', () => {
 
   it('should not setup WebSocket in production', () => {
     vi.stubEnv('NODE_ENV', 'production');
-    
+
     const { result } = renderHook(() => useTranslationReload());
     expect(result.current).toBeUndefined();
   });
   it('should handle WebSocket errors gracefully', () => {
     // Mock WebSocket constructor to simulate error
     const originalWebSocket = global.WebSocket;
-    
+
     global.WebSocket = vi.fn().mockImplementation(() => ({
       onmessage: null,
       onerror: null,
@@ -50,9 +54,9 @@ describe('useTranslationReload', () => {
     })) as any;
 
     const { unmount } = renderHook(() => useTranslationReload());
-    
+
     expect(() => unmount()).not.toThrow();
-    
+
     // Restore original WebSocket
     global.WebSocket = originalWebSocket;
   });
@@ -67,29 +71,36 @@ describe('useTranslationPolling', () => {
   afterEach(() => {
     vi.useRealTimers();
   });
-
   it('should initialize with default interval', () => {
-    const { result } = renderHook(() => useTranslationPolling());
+    const { result } = renderHook(() => useTranslationPolling(), {
+      wrapper: TestWrapper,
+    });
     expect(result.current).toBeUndefined();
   });
 
   it('should initialize with custom interval', () => {
-    const { result } = renderHook(() => useTranslationPolling(5000));
+    const { result } = renderHook(() => useTranslationPolling(5000), {
+      wrapper: TestWrapper,
+    });
     expect(result.current).toBeUndefined();
   });
 
   it('should clean up on unmount', () => {
-    const { unmount } = renderHook(() => useTranslationPolling(1000));
-    
+    const { unmount } = renderHook(() => useTranslationPolling(1000), {
+      wrapper: TestWrapper,
+    });
+
     expect(() => unmount()).not.toThrow();
   });
 
   it('should handle polling interval correctly', () => {
-    renderHook(() => useTranslationPolling(1000));
-    
+    renderHook(() => useTranslationPolling(1000), {
+      wrapper: TestWrapper,
+    });
+
     // Fast-forward time
     vi.advanceTimersByTime(1000);
-    
+
     // Should not throw any errors
     expect(true).toBe(true);
   });

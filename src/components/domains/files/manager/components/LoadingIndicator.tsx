@@ -39,7 +39,9 @@ export default function LoadingIndicator() {
                 <RefreshCw className="h-6 w-6 text-white" />
               </motion.div>
               <div>
-                <CardTitle className="text-xl">{tStats('fileManager')}</CardTitle>
+                <CardTitle className="text-xl">
+                  {tStats('fileManager')}
+                </CardTitle>
                 <CardDescription className="text-base">
                   {tStats('loadingFiles')}
                 </CardDescription>

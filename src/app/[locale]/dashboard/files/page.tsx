@@ -16,18 +16,18 @@ import { File } from '@/lib/models';
 import DeleteFileButton from '@/components/domains/ui/buttons/DeleteFileButton';
 import CopyLinkButton from '@/components/domains/ui/buttons/CopyLinkButton';
 import { getTranslations } from 'next-intl/server';
-import { 
-  FileText, 
-  Image, 
-  Video, 
-  Music, 
-  FileIcon, 
-  Download, 
+import {
+  FileText,
+  Image,
+  Video,
+  Music,
+  FileIcon,
+  Download,
   Calendar,
   HardDrive,
   Home,
   Grid3x3,
-  List
+  List,
 } from 'lucide-react';
 
 // Function to get file icon based on mime type
@@ -108,16 +108,21 @@ export default async function UserFilesPage() {
                 {t('myFiles')}
               </h1>
               <p className="mt-2 text-lg text-gray-600 dark:text-gray-300">
-                {t('manageFiles')} • {files.length} {files.length === 1 ? 'fichier' : 'fichiers'}
+                {t('manageFiles')} • {files.length}{' '}
+                {files.length === 1 ? 'fichier' : 'fichiers'}
               </p>
             </div>
             <div className="flex items-center gap-3">
               <Link href="/dashboard">
-                <Button variant="outline" className="flex items-center gap-2 border-gray-300 bg-white text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700">
+                <Button
+                  variant="outline"
+                  className="flex items-center gap-2 border-gray-300 bg-white text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
+                >
                   <List className="h-4 w-4" />
                   {t('backToDashboard')}
                 </Button>
-              </Link>              <Link href="/dashboard">
+              </Link>{' '}
+              <Link href="/dashboard">
                 <Button className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600">
                   <Home className="h-4 w-4" />
                   {tNavigation('home')}
@@ -142,7 +147,8 @@ export default async function UserFilesPage() {
                 </h3>
                 <p className="mb-6 text-gray-600 dark:text-gray-400">
                   {t('startByUploading')}
-                </p>                <Link href="/dashboard">
+                </p>{' '}
+                <Link href="/dashboard">
                   <Button className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600">
                     <Home className="h-4 w-4" />
                     {tNavigation('home')}
@@ -156,9 +162,12 @@ export default async function UserFilesPage() {
             {files.map((file: UserFileData) => {
               const IconComponent = getFileIcon(file.mimeType);
               const isExpired = new Date(file.expiresAt) < new Date();
-              
+
               return (
-                <Card key={file._id} className="group overflow-hidden transition-all hover:shadow-lg">
+                <Card
+                  key={file._id}
+                  className="group overflow-hidden transition-all hover:shadow-lg"
+                >
                   <CardHeader className="pb-3">
                     <div className="flex items-start gap-3">
                       <div className="flex-shrink-0">
@@ -171,19 +180,25 @@ export default async function UserFilesPage() {
                           {file.originalName}
                         </CardTitle>
                         <div className="mt-1 flex items-center gap-2">
-                          <Badge variant="secondary" className="text-xs bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200">
+                          <Badge
+                            variant="secondary"
+                            className="bg-gray-100 text-xs text-gray-800 dark:bg-gray-700 dark:text-gray-200"
+                          >
                             {getFileTypeLabel(file.mimeType)}
                           </Badge>
                           {isExpired && (
-                            <Badge variant="destructive" className="text-xs bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300">
-                              Expiré
+                            <Badge
+                              variant="destructive"
+                              className="bg-red-100 text-xs text-red-800 dark:bg-red-900/30 dark:text-red-300"
+                            >
+                              Expired
                             </Badge>
                           )}
                         </div>
                       </div>
                     </div>
                   </CardHeader>
-                  
+
                   <CardContent className="space-y-4">
                     {/* File Stats */}
                     <div className="grid grid-cols-2 gap-4 text-sm">
@@ -197,7 +212,9 @@ export default async function UserFilesPage() {
                       </div>
                       <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
                         <Calendar className="h-4 w-4" />
-                        <span>{new Date(file.uploadDate).toLocaleDateString()}</span>
+                        <span>
+                          {new Date(file.uploadDate).toLocaleDateString()}
+                        </span>
                       </div>
                       <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
                         <Calendar className="h-4 w-4" />
@@ -206,13 +223,13 @@ export default async function UserFilesPage() {
                         </span>
                       </div>
                     </div>
-                    
+
                     {/* Actions */}
                     <div className="flex items-center gap-2 pt-2">
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        className="flex-1 border-gray-300 bg-white text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700" 
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="flex-1 border-gray-300 bg-white text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
                         asChild
                         disabled={isExpired}
                       >

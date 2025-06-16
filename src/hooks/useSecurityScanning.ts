@@ -49,7 +49,7 @@ export type UseSecurityScanningReturn = SecurityScanningState &
  */
 export function useSecurityScanning(): UseSecurityScanningReturn {
   const queryClient = useQueryClient();
-  
+
   // State management
   const [isScanning, setIsScanning] = useState(false);
   const [scanProgress, setScanProgress] = useState(0);
@@ -65,7 +65,9 @@ export function useSecurityScanning(): UseSecurityScanningReturn {
   const { data: filesData } = useQuery({
     queryKey: queryKeys.securityFiles(),
     queryFn: async () => {
-      return ApiClient.get<{ files: Array<{ name: string }> }>('/api/security/files');
+      return ApiClient.get<{ files: Array<{ name: string }> }>(
+        '/api/security/files'
+      );
     },
     staleTime: 30 * 1000, // 30 seconds
     retry: 3,
@@ -75,10 +77,10 @@ export function useSecurityScanning(): UseSecurityScanningReturn {
   // TanStack Query mutation for scanning single file
   const scanSingleFileMutation = useMutation({
     mutationFn: async (fileName: string) => {
-      return ApiClient.post<{ scanResult?: MalwareScanResult; quotaStatus?: QuotaStatus }>(
-        '/api/security/scan/file',
-        { fileName }
-      );
+      return ApiClient.post<{
+        scanResult?: MalwareScanResult;
+        quotaStatus?: QuotaStatus;
+      }>('/api/security/scan/file', { fileName });
     },
     onError: (error) => {
       console.error('Failed to scan file:', error);
@@ -93,11 +95,11 @@ export function useSecurityScanning(): UseSecurityScanningReturn {
     mutationFn: async (file: File) => {
       const formData = new FormData();
       formData.append('file', file);
-      
-      return ApiClient.uploadFile<{ scanResult?: MalwareScanResult; quotaStatus?: QuotaStatus }>(
-        '/api/security/scan',
-        formData
-      );
+
+      return ApiClient.uploadFile<{
+        scanResult?: MalwareScanResult;
+        quotaStatus?: QuotaStatus;
+      }>('/api/security/scan', formData);
     },
     onSuccess: (data) => {
       // Invalidate security-related queries after successful scan
@@ -116,20 +118,28 @@ export function useSecurityScanning(): UseSecurityScanningReturn {
     const result = await queryClient.fetchQuery({
       queryKey: queryKeys.securityFiles(),
       queryFn: async () => {
-        return ApiClient.get<{ files: Array<{ name: string }> }>('/api/security/files');
+        return ApiClient.get<{ files: Array<{ name: string }> }>(
+          '/api/security/files'
+        );
       },
     });
     return result;
   }, [queryClient]);
 
   // Wrapper functions for mutations
-  const scanSingleFile = useCallback(async (fileName: string) => {
-    return scanSingleFileMutation.mutateAsync(fileName);
-  }, [scanSingleFileMutation]);
+  const scanSingleFile = useCallback(
+    async (fileName: string) => {
+      return scanSingleFileMutation.mutateAsync(fileName);
+    },
+    [scanSingleFileMutation]
+  );
 
-  const scanUploadedFile = useCallback(async (file: File) => {
-    return scanUploadedFileMutation.mutateAsync(file);
-  }, [scanUploadedFileMutation]);
+  const scanUploadedFile = useCallback(
+    async (file: File) => {
+      return scanUploadedFileMutation.mutateAsync(file);
+    },
+    [scanUploadedFileMutation]
+  );
 
   // Main scan execution logic
   const startScan = useCallback(async () => {

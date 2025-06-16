@@ -3,17 +3,17 @@
 // filepath: c:\Users\ismys\Documents\GitHub\uploadhaven\src\hooks\useStatsQuery.ts
 import { useQuery } from '@tanstack/react-query';
 import { queryKeys } from '@/lib/queryKeys';
-import { Stats } from '@/components/domains/stats/panel/types';
+import { UserStats } from '@/types/stats';
 
 interface StatsResponse {
   success: boolean;
-  stats: Stats;
+  stats: UserStats;
 }
 
 export function useStatsQuery() {
   return useQuery({
     queryKey: queryKeys.stats(),
-    queryFn: async (): Promise<Stats> => {
+    queryFn: async (): Promise<UserStats> => {
       const response = await fetch('/api/stats');
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);

@@ -1,6 +1,7 @@
 # Components Architecture
 
-UploadHaven uses a **Domain-Driven Design (DDD)** approach for component organization, where each domain represents a specific business capability.
+UploadHaven uses a **Domain-Driven Design (DDD)** approach for component organization, where each
+domain represents a specific business capability.
 
 ## 📁 Structure Overview
 
@@ -8,7 +9,7 @@ UploadHaven uses a **Domain-Driven Design (DDD)** approach for component organiz
 components/
 ├── domains/               # Business domain components
 │   ├── auth/             # Authentication domain
-│   ├── upload/           # File upload domain  
+│   ├── upload/           # File upload domain
 │   ├── filepreview/      # File preview domain
 │   ├── dashboard/        # User dashboard domain
 │   ├── admin/            # Administrative domain
@@ -47,11 +48,13 @@ domains/[domain]/
 Handles user authentication and account management.
 
 **Components:**
+
 - `SignInForm` - User login interface
 - `SignUpForm` - User registration interface
 - Form components with validation and error handling
 
 **Key Features:**
+
 - Better Auth integration
 - Form validation with real-time feedback
 - Responsive design with motion animations
@@ -61,6 +64,7 @@ Handles user authentication and account management.
 Core file upload functionality with drag & drop interface.
 
 **Components:**
+
 - `FileUploader` - Main upload interface
 - `DashboardUploadArea` - Dashboard-specific upload
 - `DropzoneArea` - Drag & drop zone
@@ -68,6 +72,7 @@ Core file upload functionality with drag & drop interface.
 - `UploadSettings` - Expiration and password settings
 
 **Key Features:**
+
 - Drag & drop file upload
 - Real-time progress tracking
 - File validation and security scanning
@@ -78,6 +83,7 @@ Core file upload functionality with drag & drop interface.
 File preview and display system supporting multiple file types.
 
 **Components:**
+
 - `FilePreviewClient` - Main preview container
 - `ImagePreview` - Image file preview
 - `VideoPreview` - Video file preview
@@ -86,6 +92,7 @@ File preview and display system supporting multiple file types.
 - `AudioPreview` - Audio file preview
 
 **Key Features:**
+
 - Multi-format file preview
 - Password-protected file access
 - Download and sharing actions
@@ -96,12 +103,14 @@ File preview and display system supporting multiple file types.
 User dashboard with file management and analytics.
 
 **Components:**
+
 - `DashboardClient` - Main dashboard layout
 - `DashboardHeader` - Navigation and actions
 - `QuickActionCards` - Quick access buttons
 - `ClientUserStats` - User statistics display
 
 **Key Features:**
+
 - Real-time file statistics
 - Quick upload access
 - User activity tracking
@@ -112,6 +121,7 @@ User dashboard with file management and analytics.
 Administrative interface for system management.
 
 **Components:**
+
 - `AdminDashboard` - Main admin interface
 - `AdminFileManager` - File management tools
 - `UserManagement` - User administration
@@ -119,6 +129,7 @@ Administrative interface for system management.
 - `PerformanceTest` - System performance monitoring
 
 **Key Features:**
+
 - System statistics and monitoring
 - User and file management
 - Bulk operations
@@ -130,6 +141,7 @@ Administrative interface for system management.
 Security scanning and threat detection system.
 
 **Components:**
+
 - `SecurityScanModal` - Security scanning interface
 - `SecurityPanel` - Security status overview
 - `SecurityEventsList` - Security event history
@@ -137,6 +149,7 @@ Security scanning and threat detection system.
 - `ScanResults` - Scan result display
 
 **Key Features:**
+
 - Automatic malware scanning
 - VirusTotal integration
 - Security event logging
@@ -147,12 +160,14 @@ Security scanning and threat detection system.
 Usage analytics and reporting system.
 
 **Components:**
+
 - `UserAnalytics` - User-specific analytics
 - `AnalyticsOverview` - System-wide analytics
 - `TrendsChart` - Data visualization
 - `TopFilesSection` - Popular files display
 
 **Key Features:**
+
 - Download tracking
 - Usage trends
 - File popularity metrics
@@ -186,7 +201,7 @@ FileUploader.Header = FileUploaderHeader;
 export default function Component() {
   // Business logic in custom hooks
   const { state, actions } = useDomainLogic();
-  
+
   return (
     <motion.div>
       {/* Presentation logic only */}
@@ -227,7 +242,7 @@ export default function Component() {
 Base components from ShadCN/UI with customizations:
 
 - **Form Controls** - Input, Button, Select, Checkbox
-- **Layout** - Card, Dialog, Tabs, Separator  
+- **Layout** - Card, Dialog, Tabs, Separator
 - **Feedback** - Toast, Progress, Badge, Alert
 - **Navigation** - Breadcrumb, Pagination
 

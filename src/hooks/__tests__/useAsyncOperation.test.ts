@@ -52,9 +52,12 @@ describe('useAsyncOperation', () => {
   it('should set loading state during execution', async () => {
     const { result } = renderHook(() => useAsyncOperation());
     let resolvePromise: () => void;
-    const mockAsyncFn = vi.fn(() => new Promise<void>((resolve) => {
-      resolvePromise = resolve;
-    }));
+    const mockAsyncFn = vi.fn(
+      () =>
+        new Promise<void>((resolve) => {
+          resolvePromise = resolve;
+        })
+    );
 
     // Start the async operation
     act(() => {
@@ -101,7 +104,9 @@ describe('useAsyncOperation', () => {
   it('should not call onSuccess when operation fails', async () => {
     const onSuccess = vi.fn();
     const onError = vi.fn();
-    const { result } = renderHook(() => useAsyncOperation({ onSuccess, onError }));
+    const { result } = renderHook(() =>
+      useAsyncOperation({ onSuccess, onError })
+    );
     const error = new Error('Test error');
     const mockAsyncFn = vi.fn().mockRejectedValue(error);
 

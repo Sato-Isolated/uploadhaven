@@ -47,6 +47,24 @@ export interface IFile {
   isAnonymous: boolean;
   password?: string; // hashed password for protected files
   isPasswordProtected: boolean;
+  // Encryption fields
+  isEncrypted: boolean;
+  encryptionMetadata?: {
+    salt: string; // base64 encoded salt for key derivation
+    iv: string; // base64 encoded initialization vector
+    tag: string; // base64 encoded authentication tag
+    algorithm: string; // encryption algorithm used (e.g., 'aes-256-gcm')
+    iterations: number; // PBKDF2 iterations for key derivation
+    encryptedSize: number; // size of encrypted file data
+  };
+  // Preview encryption (for Phase 2)
+  previewEncryptionMetadata?: {
+    salt: string;
+    iv: string;
+    tag: string;
+    algorithm: string;
+    iterations: number;
+  };
   createdAt: Date;
   updatedAt: Date;
 }

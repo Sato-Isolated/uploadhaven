@@ -1,6 +1,7 @@
 # Next.js App Router Documentation
 
-This directory contains the Next.js 15 App Router structure for UploadHaven, implementing a modern file-based routing system with comprehensive API endpoints and page layouts.
+This directory contains the Next.js 15 App Router structure for UploadHaven, implementing a modern
+file-based routing system with comprehensive API endpoints and page layouts.
 
 ## 📁 Directory Structure
 
@@ -53,14 +54,17 @@ app/
 
 ### 📄 Page Structure
 
-UploadHaven follows Next.js 15 App Router conventions with clear separation between public and authenticated areas:
+UploadHaven follows Next.js 15 App Router conventions with clear separation between public and
+authenticated areas:
 
 #### **Public Pages**
+
 - **`page.tsx`** - Landing page with file upload interface and information panels
 - **`auth/`** - Authentication flows (sign-in, sign-up, password reset)
 - **`s/[shortId]/`** - Public short URL redirects for file sharing
 
 #### **Protected Pages**
+
 - **`dashboard/`** - User dashboard with file management and analytics
 - **`admin/`** - Administrative interface (role-based access)
 - **`performance/`** - Performance testing and monitoring tools
@@ -85,6 +89,7 @@ const protectedRoutes = ['/dashboard', '/admin'];
 APIs are organized by domain and functionality:
 
 #### **Core File Operations**
+
 ```typescript
 // File Management
 POST   /api/upload              # File upload with security scanning
@@ -98,6 +103,7 @@ POST   /api/cleanup             # System cleanup operations
 ```
 
 #### **User Operations**
+
 ```typescript
 // User Files
 GET    /api/user/files          # User's file list with pagination
@@ -109,6 +115,7 @@ GET    /api/analytics/user      # User analytics and usage patterns
 ```
 
 #### **Admin Operations**
+
 ```typescript
 // Admin Dashboard
 GET    /api/admin/users         # User management
@@ -121,6 +128,7 @@ POST   /api/background-service  # Background service controls
 ```
 
 #### **Security & Monitoring**
+
 ```typescript
 // Security Scanning
 POST   /api/security/scan/bulk  # Bulk malware scanning
@@ -133,6 +141,7 @@ GET    /api/events/recent       # Recent events
 ```
 
 #### **Authentication (Better Auth)**
+
 ```typescript
 // Authentication Flow
 POST   /api/auth/signin         # User sign-in
@@ -144,11 +153,13 @@ GET    /api/auth/session        # Session validation
 ### 🔐 Authentication & Authorization
 
 #### **Session Management**
+
 - **Better Auth Integration** - Modern authentication with session management
 - **Middleware Protection** - Route-level authentication checks
 - **Role-Based Access** - Admin vs. user permissions
 
 #### **Security Features**
+
 - **Rate Limiting** - Request throttling per endpoint
 - **File Scanning** - Malware detection on uploads
 - **Event Logging** - Security event tracking
@@ -378,4 +389,5 @@ API: { requests: 100, windowMs: 60 * 1000 }
 3. **Event Logging** - Comprehensive security event tracking
 4. **Access Control** - Role-based permissions and middleware protection
 
-This App Router structure provides a solid foundation for UploadHaven's file sharing capabilities while maintaining security, performance, and user experience standards.
+This App Router structure provides a solid foundation for UploadHaven's file sharing capabilities
+while maintaining security, performance, and user experience standards.

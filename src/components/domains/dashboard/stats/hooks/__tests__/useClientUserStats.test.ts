@@ -31,9 +31,7 @@ describe('useClientUserStats', () => {
 
   it('should initialize with correct authentication state when session exists', () => {
     const session = { user: { id: '123', email: 'test@example.com' } };
-    const { result } = renderHook(() =>
-      useClientUserStats('user123', session)
-    );
+    const { result } = renderHook(() => useClientUserStats('user123', session));
 
     expect(result.current.isAuthenticated).toBe(true);
     expect(result.current.stats).toEqual(mockStatsData);
@@ -51,9 +49,7 @@ describe('useClientUserStats', () => {
 
   it('should handle unauthenticated state when session has no user', () => {
     const session = {};
-    const { result } = renderHook(() =>
-      useClientUserStats('user123', session)
-    );
+    const { result } = renderHook(() => useClientUserStats('user123', session));
 
     expect(result.current.isAuthenticated).toBe(false);
     expect(useUserStats).toHaveBeenCalledWith(undefined);
@@ -79,9 +75,7 @@ describe('useClientUserStats', () => {
     });
 
     const session = { user: { id: '123' } };
-    const { result } = renderHook(() =>
-      useClientUserStats('user123', session)
-    );
+    const { result } = renderHook(() => useClientUserStats('user123', session));
 
     expect(result.current.loading).toBe(true);
   });
@@ -94,9 +88,7 @@ describe('useClientUserStats', () => {
     });
 
     const session = { user: { id: '123' } };
-    const { result } = renderHook(() =>
-      useClientUserStats('user123', session)
-    );
+    const { result } = renderHook(() => useClientUserStats('user123', session));
 
     expect(result.current.error).toBe(error);
   });
@@ -108,21 +100,18 @@ describe('useClientUserStats', () => {
     });
 
     const session = { user: { id: '123' } };
-    const { result } = renderHook(() =>
-      useClientUserStats('user123', session)
-    );
+    const { result } = renderHook(() => useClientUserStats('user123', session));
 
     expect(result.current.stats).toBeUndefined();
   });
 
   it('should provide fetchStats function from useUserStats refetch', () => {
     const session = { user: { id: '123' } };
-    const { result } = renderHook(() =>
-      useClientUserStats('user123', session)
-    );
+    const { result } = renderHook(() => useClientUserStats('user123', session));
 
     expect(result.current.fetchStats).toBe(mockUseUserStats.refetch);
-  });  it('should handle authentication state changes', () => {
+  });
+  it('should handle authentication state changes', () => {
     // Test unauthenticated state
     const { result: result1 } = renderHook(() =>
       useClientUserStats('user123', undefined)
@@ -146,19 +135,22 @@ describe('useClientUserStats', () => {
 
   it('should provide consistent interface', () => {
     const session = { user: { id: '123' } };
-    const { result } = renderHook(() =>
-      useClientUserStats('user123', session)
-    );
+    const { result } = renderHook(() => useClientUserStats('user123', session));
 
     // Check return type interface
     expect(typeof result.current.isAuthenticated).toBe('boolean');
     expect(typeof result.current.loading).toBe('boolean');
     expect(typeof result.current.fetchStats).toBe('function');
-    
+
     // stats can be UserStats or undefined
-    expect(result.current.stats === undefined || typeof result.current.stats === 'object').toBe(true);
-    
+    expect(
+      result.current.stats === undefined ||
+        typeof result.current.stats === 'object'
+    ).toBe(true);
+
     // error can be Error or null
-    expect(result.current.error === null || result.current.error instanceof Error).toBe(true);
+    expect(
+      result.current.error === null || result.current.error instanceof Error
+    ).toBe(true);
   });
 });

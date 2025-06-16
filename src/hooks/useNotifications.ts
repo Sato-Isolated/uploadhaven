@@ -263,7 +263,7 @@ export function useNotifications(options: UseNotificationsOptions = {}) {
       console.error('❌ Failed to connect to notification stream:', error);
       setConnectionError('Failed to connect to notification stream');
     }
-  }, [effectiveRealtime, queryClient, maxReconnectAttempts]);  // Consolidated effect to handle SSE connection state
+  }, [effectiveRealtime, queryClient, maxReconnectAttempts]); // Consolidated effect to handle SSE connection state
   useEffect(() => {
     isUnmountingRef.current = false;
 
@@ -294,10 +294,20 @@ export function useNotifications(options: UseNotificationsOptions = {}) {
     };
 
     // Main connection logic with debouncing
-    if (effectiveRealtime && enabled && !eventSourceRef.current && !isUnmountingRef.current) {
+    if (
+      effectiveRealtime &&
+      enabled &&
+      !eventSourceRef.current &&
+      !isUnmountingRef.current
+    ) {
       // Use a longer timeout to prevent rapid reconnections during navigation
       const connectionTimer = setTimeout(() => {
-        if (!isUnmountingRef.current && effectiveRealtime && enabled && !eventSourceRef.current) {
+        if (
+          !isUnmountingRef.current &&
+          effectiveRealtime &&
+          enabled &&
+          !eventSourceRef.current
+        ) {
           connectToNotificationStream();
         }
       }, 1500); // 1.5 second delay to allow navigation to settle
@@ -309,7 +319,10 @@ export function useNotifications(options: UseNotificationsOptions = {}) {
       return () => {
         clearTimeout(connectionTimer);
         isUnmountingRef.current = true;
-        document.removeEventListener('visibilitychange', handleVisibilityChange);
+        document.removeEventListener(
+          'visibilitychange',
+          handleVisibilityChange
+        );
         window.removeEventListener('beforeunload', handleBeforeUnload);
         cleanupConnection();
       };

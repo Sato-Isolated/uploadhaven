@@ -1,6 +1,7 @@
 # UploadHaven - Source Code Architecture
 
-This document provides a comprehensive overview of the UploadHaven source code architecture and organizational patterns.
+This document provides a comprehensive overview of the UploadHaven source code architecture and
+organizational patterns.
 
 ## 📁 Project Structure
 
@@ -68,7 +69,7 @@ Centralized TypeScript definitions:
 components/domains/[domain]/
 ├── index.tsx              # Main component
 ├── components/            # Domain-specific components
-├── hooks/                 # Domain-specific hooks  
+├── hooks/                 # Domain-specific hooks
 ├── types.ts              # Domain-specific types
 └── utils.ts              # Domain-specific utilities
 ```
@@ -160,7 +161,7 @@ interface ComponentProps extends BaseComponentProps {
 
 export default function Component({ prop }: ComponentProps) {
   const { state, actions } = useCustomHook();
-  
+
   return (
     <motion.div>
       {/* JSX */}

@@ -7,7 +7,7 @@ import { Activity } from 'lucide-react';
 
 export default function ActivityLoader() {
   const t = useTranslations('Activity');
-  
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}

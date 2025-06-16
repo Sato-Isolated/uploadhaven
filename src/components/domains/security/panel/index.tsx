@@ -49,11 +49,7 @@ export default function SecurityPanel() {
     exportLogsMutation.mutate();
   };
   const clearSecurityLogs = () => {
-    if (
-      !confirm(
-        t('clearLogsConfirmation')
-      )
-    ) {
+    if (!confirm(t('clearLogsConfirmation'))) {
       return;
     }
 

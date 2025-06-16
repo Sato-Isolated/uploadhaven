@@ -232,7 +232,9 @@ describe('useSignUpForm', () => {
 
       expect(mockEvent.preventDefault).toHaveBeenCalled();
       expect(result.current.error).toBe('pleaseMeetPasswordRequirements');
-      expect(toast.error).toHaveBeenCalledWith('pleaseMeetPasswordRequirements');
+      expect(toast.error).toHaveBeenCalledWith(
+        'pleaseMeetPasswordRequirements'
+      );
       expect(mockExecute).not.toHaveBeenCalled();
     });
 
@@ -350,7 +352,9 @@ describe('useSignUpForm', () => {
     expect(typeof result.current.setConfirmPassword).toBe('function');
     expect(typeof result.current.setName).toBe('function');
     expect(typeof result.current.togglePasswordVisibility).toBe('function');
-    expect(typeof result.current.toggleConfirmPasswordVisibility).toBe('function');
+    expect(typeof result.current.toggleConfirmPasswordVisibility).toBe(
+      'function'
+    );
     expect(typeof result.current.handleSignUp).toBe('function');
   });
 });

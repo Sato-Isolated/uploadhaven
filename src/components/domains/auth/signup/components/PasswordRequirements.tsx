@@ -15,7 +15,7 @@ export function PasswordRequirements({
   passwordValidations,
 }: PasswordRequirementsProps) {
   const t = useTranslations('Auth');
-  
+
   if (!password) return null;
 
   return (

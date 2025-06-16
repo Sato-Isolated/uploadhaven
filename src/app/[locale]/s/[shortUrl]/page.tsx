@@ -9,7 +9,7 @@ type Props = {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;
   setRequestLocale(locale);
-  
+
   const t = await getTranslations('FilePreview');
 
   return {
@@ -21,6 +21,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function FilePreviewPage({ params }: Props) {
   const { locale } = await params;
   setRequestLocale(locale);
-  
+
   return <FilePreviewClient />;
 }

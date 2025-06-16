@@ -24,7 +24,7 @@ export function FilesTableActions({
   onDeleteFile,
 }: FilesTableActionsProps) {
   const t = useTranslations('Admin');
-  
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>

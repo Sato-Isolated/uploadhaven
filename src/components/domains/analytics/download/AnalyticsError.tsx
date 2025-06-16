@@ -17,7 +17,7 @@ export default function AnalyticsError({
   className = '',
 }: AnalyticsErrorProps) {
   const t = useTranslations('Common');
-  
+
   return (
     <Card className={`p-6 ${className}`}>
       <div className="space-y-4 text-center">

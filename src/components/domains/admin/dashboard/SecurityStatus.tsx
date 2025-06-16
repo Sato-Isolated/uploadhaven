@@ -32,7 +32,7 @@ export default function SecurityStatus({
   loading,
 }: SecurityStatusProps) {
   const t = useTranslations('Admin');
-  
+
   return (
     <motion.div
       initial={{ opacity: 0, x: 20 }}

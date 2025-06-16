@@ -15,6 +15,12 @@ import { auth } from '@/lib/auth';
 import { headers } from 'next/headers';
 import { generateShortUrl } from '@/lib/server-utils';
 import { buildShortUrl, hashPassword, validatePassword } from '@/lib/utils';
+import { encryptFile, generateSecurePassword } from '@/lib/encryption';
+import {
+  shouldEncryptFile,
+  getDefaultEncryptionPassword,
+  areUserPasswordsAllowed,
+} from '@/lib/encryption-config';
 
 const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100MB
 const ALLOWED_TYPES = [
@@ -138,6 +144,10 @@ export async function POST(request: NextRequest) {
     const userId = formData.get('userId') as string;
     const password = (formData.get('password') as string) || null;
     const autoGenerateKey = formData.get('autoGenerateKey') === 'true';
+    // New encryption fields
+    const requestEncryption = formData.get('requestEncryption') === 'true';
+    const encryptionPassword =
+      (formData.get('encryptionPassword') as string) || null;
 
     // Form fields extracted successfully
 
@@ -250,9 +260,72 @@ export async function POST(request: NextRequest) {
     const uploadsDir = path.join(process.cwd(), 'public', 'uploads', subDir);
     await mkdir(uploadsDir, { recursive: true });
 
-    // Convert file to buffer and save
+    // Convert file to buffer
     const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
+    let buffer = Buffer.from(bytes);
+
+    // Determine if file should be encrypted
+    const shouldEncrypt = shouldEncryptFile(
+      file.size,
+      file.type,
+      requestEncryption
+    );
+    let encryptionMetadata:
+      | {
+          salt: string;
+          iv: string;
+          tag: string;
+          algorithm: string;
+          iterations: number;
+        }
+      | undefined = undefined;
+    let encryptionPasswordToUse: string | undefined;
+
+    if (shouldEncrypt) {
+      // Determine encryption password - Secured mode only uses system password
+      if (encryptionPassword && areUserPasswordsAllowed()) {
+        encryptionPasswordToUse = encryptionPassword;
+      } else {
+        // Secured mode: always use system password
+        encryptionPasswordToUse = getDefaultEncryptionPassword();
+        if (!encryptionPasswordToUse) {
+          // Generate a secure password if none is configured (fallback)
+          encryptionPasswordToUse = generateSecurePassword(32);
+          console.warn(
+            '⚠️  No default encryption password set - generated temporary password'
+          );
+        }
+      }
+
+      try {
+        console.log('🔒 Encrypting file:', file.name);
+        const encryptionResult = await encryptFile(
+          buffer,
+          encryptionPasswordToUse
+        );
+        buffer = Buffer.from(encryptionResult.encryptedBuffer);
+        encryptionMetadata = encryptionResult.metadata;
+        console.log('✓ File encrypted successfully');
+      } catch (encryptionError) {
+        console.error('Encryption error:', encryptionError);
+        await saveSecurityEvent({
+          type: 'encryption_error',
+          ip: clientIP,
+          details: `File encryption failed: ${encryptionError instanceof Error ? encryptionError.message : 'Unknown error'}`,
+          severity: 'high',
+          userAgent,
+          filename: file.name,
+          fileSize: file.size,
+          fileType: file.type,
+          userId: session?.user?.id || undefined,
+        });
+
+        return NextResponse.json(
+          { success: false, error: 'File encryption failed' },
+          { status: 500 }
+        );
+      }
+    }
 
     const filePath = path.join(uploadsDir, fileName);
     await writeFile(filePath, buffer); // Generate file URL (include the subdirectory)
@@ -282,6 +355,14 @@ export async function POST(request: NextRequest) {
       // Visibility removed - all files use security by obscurity
       password: hashedPassword,
       isPasswordProtected,
+      // Encryption metadata
+      isEncrypted: shouldEncrypt,
+      encryptionMetadata: encryptionMetadata
+        ? {
+            ...encryptionMetadata,
+            encryptedSize: buffer.length, // Size of encrypted data
+          }
+        : undefined,
       scanResult: {
         safe: true, // This would be updated by actual file scanning
         scanDate: new Date(),
@@ -299,15 +380,25 @@ export async function POST(request: NextRequest) {
       }
     } // Log successful upload
     await saveSecurityEvent({
-      type: 'file_upload',
+      type: shouldEncrypt ? 'encryption_success' : 'file_upload',
       ip: clientIP,
-      details: `File uploaded successfully: ${file.name}`,
+      details: shouldEncrypt
+        ? `File uploaded and encrypted successfully: ${file.name}`
+        : `File uploaded successfully: ${file.name}`,
       severity: 'low',
       userAgent,
       filename: file.name,
       fileSize: file.size,
       fileType: file.type,
       userId: session?.user?.id || undefined,
+      metadata: shouldEncrypt
+        ? {
+            encrypted: true,
+            algorithm: encryptionMetadata?.algorithm,
+            originalSize: file.size,
+            encryptedSize: buffer.length,
+          }
+        : undefined,
     });
 
     // Create notification for authenticated users
@@ -327,6 +418,7 @@ export async function POST(request: NextRequest) {
             fileType: file.type,
             shareableUrl,
             isPasswordProtected,
+            isEncrypted: shouldEncrypt,
             expiresAt: expiresAt.toISOString(),
           },
         });
@@ -349,9 +441,22 @@ export async function POST(request: NextRequest) {
       type: file.type,
       expiresAt: expiresAt.toISOString(),
       generatedKey: generatedKey, // Include the generated key if one was created
+      isEncrypted: shouldEncrypt,
+      encryptionPassword:
+        shouldEncrypt &&
+        encryptionPasswordToUse !== getDefaultEncryptionPassword()
+          ? encryptionPasswordToUse
+          : undefined, // Only return user-provided encryption password
       metadata: {
         id: savedFile._id,
         uploadDate: savedFile.uploadDate,
+        encryptionInfo: shouldEncrypt
+          ? {
+              algorithm: encryptionMetadata?.algorithm,
+              originalSize: file.size,
+              encryptedSize: buffer.length,
+            }
+          : undefined,
       },
     });
   } catch (error) {

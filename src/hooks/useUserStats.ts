@@ -4,7 +4,7 @@ import { queryKeys } from '@/lib/queryKeys';
 import type { UserStats } from '@/types';
 
 /**
- * Hook pour récupérer les statistiques utilisateur avec auto-refresh
+ * Hook to retrieve user statistics with auto-refresh
  * Compatible avec l'API /api/user/stats qui retourne { success: boolean, stats: UserStats }
  */
 export function useUserStats(userId?: string) {
@@ -19,6 +19,6 @@ export function useUserStats(userId?: string) {
     },
     staleTime: 2 * 60 * 1000, // 2 minutes
     refetchInterval: 5 * 60 * 1000, // Auto-refresh toutes les 5 minutes
-    refetchOnWindowFocus: true, // Rafraîchir quand on revient sur l'onglet
+    refetchOnWindowFocus: true, // Refresh when returning to the tab
   });
 }

@@ -39,7 +39,7 @@ export default function SecurityStatsGrid({
   isLoading,
 }: SecurityStatsGridProps) {
   const t = useTranslations('Security');
-  
+
   if (isLoading) {
     return (
       <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">

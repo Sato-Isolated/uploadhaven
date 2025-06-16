@@ -69,7 +69,7 @@ describe('useTextPreview', () => {
   it('should handle text content fetching', async () => {
     const url = 'https://example.com/file.txt';
     const mockText = 'Sample text content';
-    
+
     global.fetch = vi.fn().mockResolvedValue({
       ok: true,
       text: () => Promise.resolve(mockText),
@@ -79,11 +79,11 @@ describe('useTextPreview', () => {
 
     const queryCall = (useQuery as any).mock.calls[0][0];
     const result = await queryCall.queryFn();
-
     expect(global.fetch).toHaveBeenCalledWith(url, {
       method: 'GET',
       headers: {
         Accept: 'text/plain, text/html, text/markdown, text/*, */*',
+        'Cache-Control': 'no-cache',
       },
     });
     expect(result).toBe(mockText);
@@ -91,7 +91,7 @@ describe('useTextPreview', () => {
 
   it('should handle fetch errors', async () => {
     const url = 'https://example.com/file.txt';
-    
+
     global.fetch = vi.fn().mockResolvedValue({
       ok: false,
       statusText: 'Not Found',
@@ -100,7 +100,7 @@ describe('useTextPreview', () => {
     renderHook(() => useTextPreview(url));
 
     const queryCall = (useQuery as any).mock.calls[0][0];
-    
+
     await expect(queryCall.queryFn()).rejects.toThrow(
       'Failed to fetch text content: Not Found'
     );
@@ -184,7 +184,7 @@ describe('useFilePreview', () => {
         type: 'text/plain',
       },
     };
-    
+
     global.fetch = vi.fn().mockResolvedValue({
       ok: true,
       json: () => Promise.resolve(mockResponse),
@@ -206,7 +206,7 @@ describe('useFilePreview', () => {
 
   it('should handle API errors', async () => {
     const shortUrl = 'abc123';
-    
+
     global.fetch = vi.fn().mockResolvedValue({
       ok: false,
       statusText: 'File not found',
@@ -215,7 +215,7 @@ describe('useFilePreview', () => {
     renderHook(() => useFilePreview(shortUrl));
 
     const queryCall = (useQuery as any).mock.calls[0][0];
-    
+
     await expect(queryCall.queryFn()).rejects.toThrow(
       'Failed to fetch file metadata: File not found'
     );
@@ -227,7 +227,7 @@ describe('useFilePreview', () => {
       success: false,
       passwordRequired: true,
     };
-    
+
     global.fetch = vi.fn().mockResolvedValue({
       ok: true,
       json: () => Promise.resolve(mockResponse),
@@ -248,7 +248,7 @@ describe('useFilePreview', () => {
       success: false,
       error: 'File has expired',
     };
-    
+
     global.fetch = vi.fn().mockResolvedValue({
       ok: true,
       json: () => Promise.resolve(mockResponse),

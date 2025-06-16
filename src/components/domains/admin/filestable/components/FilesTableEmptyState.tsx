@@ -4,7 +4,7 @@ import { FileText } from 'lucide-react';
 
 export function FilesTableEmptyState() {
   const t = useTranslations('Admin');
-  
+
   return (
     <motion.div
       className="py-16 text-center"

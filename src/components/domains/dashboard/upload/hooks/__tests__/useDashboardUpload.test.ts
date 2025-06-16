@@ -52,7 +52,10 @@ describe('useDashboardUpload', () => {
     vi.clearAllMocks();
     (useTranslations as any).mockReturnValue(mockT);
     (useSession as any).mockReturnValue(mockSession);
-    (validateFileAdvanced as any).mockResolvedValue({ isValid: true, errors: [] });
+    (validateFileAdvanced as any).mockResolvedValue({
+      isValid: true,
+      errors: [],
+    });
     (scanFile as any).mockResolvedValue({ safe: true });
   });
 
@@ -183,9 +186,11 @@ describe('useDashboardUpload', () => {
     it('should reject files that are too large', async () => {
       const { result } = renderHook(() => useDashboardUpload());
 
-      // Create a file that exceeds MAX_FILE_SIZE (100MB)
-      const largeFile = new File(['x'.repeat(100 * 1024 * 1024 + 1)], 'large.txt', {
-        type: 'text/plain',
+      // Create a mock file with size property (instead of creating actual large content)
+      const largeFile = new File(['test'], 'large.txt', { type: 'text/plain' });
+      Object.defineProperty(largeFile, 'size', {
+        value: 101 * 1024 * 1024, // 101MB
+        writable: false,
       });
 
       await act(async () => {

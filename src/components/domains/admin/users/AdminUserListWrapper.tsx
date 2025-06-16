@@ -115,14 +115,10 @@ export default function AdminUserListWrapper({
         handleUserAction(userId, action)
       );
       await Promise.all(promises);
-      toast.success(
-        t('bulkActionSuccess', { action, count: userIds.length })
-      );
+      toast.success(t('bulkActionSuccess', { action, count: userIds.length }));
     } catch {
       // Bulk action error
-      toast.error(
-        t('bulkActionPartialFailure')
-      );
+      toast.error(t('bulkActionPartialFailure'));
     }
   };
 

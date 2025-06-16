@@ -1,4 +1,9 @@
-import { securityLogger, logSecurityEvent, scanFile, detectSuspiciousActivity } from '../security';
+import {
+  securityLogger,
+  logSecurityEvent,
+  scanFile,
+  detectSuspiciousActivity,
+} from '../security';
 import type { SecurityEvent, SecurityStats } from '../security';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
@@ -15,7 +20,8 @@ Object.defineProperty(window, 'localStorage', {
   writable: true,
 });
 
-describe('Security Functions', () => {  beforeEach(() => {
+describe('Security Functions', () => {
+  beforeEach(() => {
     vi.clearAllMocks();
     mockLocalStorage.getItem.mockReturnValue('[]');
   });
@@ -26,7 +32,8 @@ describe('Security Functions', () => {  beforeEach(() => {
   describe('logSecurityEvent', () => {
     it('should log a security event with all required fields', () => {
       const initialEvents = securityLogger.getEvents();
-      const initialCount = initialEvents.length;      const loggedEvent = logSecurityEvent(
+      const initialCount = initialEvents.length;
+      const loggedEvent = logSecurityEvent(
         'rate_limit',
         'Rate limit exceeded',
         'medium',
@@ -70,16 +77,17 @@ describe('Security Functions', () => {  beforeEach(() => {
     });
 
     it('should use default severity when not provided', () => {
-      const loggedEvent = logSecurityEvent(
-        'large_file',
-        'Large file uploaded'
-      );
+      const loggedEvent = logSecurityEvent('large_file', 'Large file uploaded');
 
       expect(loggedEvent.severity).toBe('low');
     });
 
     it('should save events to localStorage', () => {
-      logSecurityEvent('malware_detected', 'Malware detected in upload', 'critical');
+      logSecurityEvent(
+        'malware_detected',
+        'Malware detected in upload',
+        'critical'
+      );
 
       expect(mockLocalStorage.setItem).toHaveBeenCalledWith(
         'securityEvents',
@@ -106,8 +114,8 @@ describe('Security Functions', () => {  beforeEach(() => {
       const event2 = logSecurityEvent('invalid_file', 'Second event', 'high');
 
       const events = securityLogger.getEvents();
-      const eventIndex1 = events.findIndex(e => e.id === event1.id);
-      const eventIndex2 = events.findIndex(e => e.id === event2.id);
+      const eventIndex1 = events.findIndex((e) => e.id === event1.id);
+      const eventIndex2 = events.findIndex((e) => e.id === event2.id);
 
       // Newer events should come first (lower index)
       expect(eventIndex2).toBeLessThan(eventIndex1);
@@ -137,11 +145,8 @@ describe('Security Functions', () => {  beforeEach(() => {
   });
 
   describe('scanFile', () => {
-    const createMockFile = (
-      name: string,
-      size: number,
-      type: string
-    ): File => {      return {
+    const createMockFile = (name: string, size: number, type: string): File => {
+      return {
         name,
         size,
         type,
@@ -162,7 +167,11 @@ describe('Security Functions', () => {  beforeEach(() => {
     });
 
     it('should detect malicious file names', async () => {
-      const file = createMockFile('virus.exe', 1024, 'application/octet-stream');
+      const file = createMockFile(
+        'virus.exe',
+        1024,
+        'application/octet-stream'
+      );
       const result = await scanFile(file);
 
       // The current implementation is a placeholder, so we expect it to be safe
@@ -179,7 +188,7 @@ describe('Security Functions', () => {  beforeEach(() => {
 
     it('should detect high activity from same IP', () => {
       const ip = '192.168.1.100';
-      
+
       // Log many events from the same IP
       for (let i = 0; i < 12; i++) {
         logSecurityEvent('rate_limit', `Event ${i}`, 'medium', { ip });
@@ -190,7 +199,8 @@ describe('Security Functions', () => {  beforeEach(() => {
     });
   });
 
-  describe('event listeners', () => {    it('should notify listeners when events are logged', () => {
+  describe('event listeners', () => {
+    it('should notify listeners when events are logged', () => {
       const mockListener = vi.fn();
       securityLogger.addEventListener(mockListener);
 
@@ -199,7 +209,8 @@ describe('Security Functions', () => {  beforeEach(() => {
       expect(mockListener).toHaveBeenCalledWith(event);
 
       securityLogger.removeEventListener(mockListener);
-    });    it('should remove event listeners correctly', () => {
+    });
+    it('should remove event listeners correctly', () => {
       const mockListener = vi.fn();
       securityLogger.addEventListener(mockListener);
       securityLogger.removeEventListener(mockListener);

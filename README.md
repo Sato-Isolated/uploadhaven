@@ -19,8 +19,9 @@ A modern, privacy-first file sharing platform that focuses on simplicity and sec
 ## ✨ Key Features
 
 - 📁 **Drag & Drop Upload** - Instant file sharing
+- 🔒 **Automatic Encryption** - All files encrypted with AES-256-GCM
 - ⏰ **Auto-Expiration** - Files delete automatically (15min - 7 days)
-- 🔒 **Security Scanning** - Malware detection built-in
+- �️ **Security Scanning** - Malware detection built-in
 - 📱 **Mobile Optimized** - Works perfectly on all devices
 - 🔗 **Instant Links** - Share files immediately
 - 🕵️ **Anonymous Mode** - No tracking, no accounts needed
@@ -51,6 +52,7 @@ Visit `http://localhost:3000` and start sharing files! 🎉
 | **[⚙️ Development](docs/development/)** | Setup, contributing, and development workflow |
 | **[🔌 API Reference](docs/api/)** | Complete API documentation and examples |
 | **[🎯 Features](docs/features/)** | Roadmap, ideas, and feature documentation |
+| **[🔒 Encryption](docs/features/file-encryption.md)** | Complete encryption system documentation |
 | **[📋 Project Info](docs/project/)** | Technical details, changelog, and architecture |
 
 ## 🛠️ Tech Stack
@@ -84,11 +86,13 @@ See the [Installation Guide](docs/getting-started/installation.md) for detailed 
 
 ## 🔐 Security
 
+- **File encryption** with AES-256-GCM algorithm
 - **Malware scanning** for all uploads
 - **File type validation** and size limits
 - **Rate limiting** to prevent abuse
 - **No permanent storage** - files auto-delete
 - **Password protection** for sensitive files
+- **Transparent decryption** for previews and downloads
 
 Report security issues in [GitHub Issues](https://github.com/Sato-Isolated/uploadhaven/issues)
 

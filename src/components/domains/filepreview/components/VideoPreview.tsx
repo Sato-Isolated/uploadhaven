@@ -4,17 +4,17 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import { motion } from 'motion/react';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
-import { 
-  Play, 
-  Pause, 
-  Volume2, 
-  VolumeX, 
-  Maximize, 
+import {
+  Play,
+  Pause,
+  Volume2,
+  VolumeX,
+  Maximize,
   Minimize,
   SkipBack,
   SkipForward,
   RotateCcw,
-  Settings
+  Settings,
 } from 'lucide-react';
 import type { FilePreviewData, BaseComponentProps } from '@/types';
 import { useTranslations } from 'next-intl';
@@ -30,7 +30,7 @@ export default function VideoPreview({ file }: VideoPreviewProps) {
   const keyboardLayout = useKeyboardLayoutDetection();
   const videoRef = useRef<HTMLVideoElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  
+
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
@@ -206,31 +206,34 @@ export default function VideoPreview({ file }: VideoPreviewProps) {
     };
 
     document.addEventListener('fullscreenchange', handleFullscreenChange);
-    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+    return () =>
+      document.removeEventListener('fullscreenchange', handleFullscreenChange);
   }, []);
 
   // Keyboard shortcuts with improved detection
   useEffect(() => {
     const handleKeyPress = (event: KeyboardEvent) => {
       if (!videoRef.current || showSettings) return;
-      
+
       // Ignore key events when user is typing in an input
-      if (event.target instanceof HTMLInputElement || 
-          event.target instanceof HTMLTextAreaElement || 
-          (event.target as HTMLElement)?.contentEditable === 'true') {
+      if (
+        event.target instanceof HTMLInputElement ||
+        event.target instanceof HTMLTextAreaElement ||
+        (event.target as HTMLElement)?.contentEditable === 'true'
+      ) {
         return;
       }
-      
+
       // Debug logging to help troubleshoot (console only)
       console.debug('Key pressed:', {
         key: event.key,
         code: event.code,
         layout: keyboardLayout.layout,
-        confidence: keyboardLayout.confidence
+        confidence: keyboardLayout.confidence,
       });
-      
+
       let handled = false;
-      
+
       // Space or K for play/pause (universal)
       if (event.key === ' ' || event.key.toLowerCase() === 'k') {
         event.preventDefault();
@@ -238,8 +241,11 @@ export default function VideoPreview({ file }: VideoPreviewProps) {
         handled = true;
       }
       // Mute - handle both direct key and layout-specific
-      else if (event.key.toLowerCase() === 'm' || 
-               (keyboardLayout.layout === 'azerty' && (event.key === ',' || event.key === '?'))) {
+      else if (
+        event.key.toLowerCase() === 'm' ||
+        (keyboardLayout.layout === 'azerty' &&
+          (event.key === ',' || event.key === '?'))
+      ) {
         event.preventDefault();
         toggleMute();
         handled = true;
@@ -258,8 +264,7 @@ export default function VideoPreview({ file }: VideoPreviewProps) {
           handleVolumeChange([newVolume]);
         }
         handled = true;
-      }
-      else if (event.key === 'ArrowDown') {
+      } else if (event.key === 'ArrowDown') {
         event.preventDefault();
         if (videoRef.current) {
           const newVolume = Math.max(0, volume - 0.1);
@@ -273,7 +278,7 @@ export default function VideoPreview({ file }: VideoPreviewProps) {
         skipForward();
         handled = true;
       }
-      // Seek backward  
+      // Seek backward
       else if (event.key === 'ArrowLeft' || event.key.toLowerCase() === 'j') {
         event.preventDefault();
         skipBackward();
@@ -300,46 +305,50 @@ export default function VideoPreview({ file }: VideoPreviewProps) {
         const newRate = Math.min(2, playbackRate + 0.25);
         handlePlaybackRateChange(newRate);
         handled = true;
-      }
-      else if (event.key === '<' || event.key === ',') {
+      } else if (event.key === '<' || event.key === ',') {
         event.preventDefault();
         const newRate = Math.max(0.25, playbackRate - 0.25);
         handlePlaybackRateChange(newRate);
         handled = true;
       }
-      
+
       if (handled) {
         console.debug('Keyboard shortcut handled successfully');
       }
     };
 
     // Use capture phase for better event handling
-    document.addEventListener('keydown', handleKeyPress, { passive: false, capture: true });
-    
+    document.addEventListener('keydown', handleKeyPress, {
+      passive: false,
+      capture: true,
+    });
+
     return () => {
-      document.removeEventListener('keydown', handleKeyPress, { capture: true });
+      document.removeEventListener('keydown', handleKeyPress, {
+        capture: true,
+      });
     };
   }, [
     keyboardLayout.layout,
     keyboardLayout.confidence,
-    showSettings, 
+    showSettings,
     volume,
     duration,
     playbackRate,
-    togglePlayPause, 
-    skipBackward, 
-    skipForward, 
-    toggleMute, 
-    toggleFullscreen, 
-    resetVideo, 
+    togglePlayPause,
+    skipBackward,
+    skipForward,
+    toggleMute,
+    toggleFullscreen,
+    resetVideo,
     handleVolumeChange,
-    handlePlaybackRateChange
+    handlePlaybackRateChange,
   ]);
 
   // Auto-hide controls
   useEffect(() => {
     let timeout: NodeJS.Timeout;
-    
+
     const resetTimeout = () => {
       clearTimeout(timeout);
       setShowControls(true);
@@ -369,7 +378,7 @@ export default function VideoPreview({ file }: VideoPreviewProps) {
   return (
     <motion.div
       ref={containerRef}
-      className={`relative rounded-lg overflow-hidden bg-black shadow-lg ${
+      className={`relative overflow-hidden rounded-lg bg-black shadow-lg ${
         isFullscreen ? 'fixed inset-0 z-50' : 'max-w-full'
       }`}
       initial={{ opacity: 0, scale: 0.9 }}
@@ -382,7 +391,7 @@ export default function VideoPreview({ file }: VideoPreviewProps) {
       <video
         ref={videoRef}
         src={file.url}
-        className={`w-full ${isFullscreen ? 'h-screen' : 'max-h-[500px]'} object-contain cursor-pointer`}
+        className={`w-full ${isFullscreen ? 'h-screen' : 'max-h-[500px]'} cursor-pointer object-contain`}
         preload="metadata"
         onLoadedMetadata={handleLoadedMetadata}
         onTimeUpdate={handleTimeUpdate}
@@ -403,20 +412,20 @@ export default function VideoPreview({ file }: VideoPreviewProps) {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
         >
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white"></div>
+          <div className="h-12 w-12 animate-spin rounded-full border-b-2 border-white"></div>
         </motion.div>
       )}
 
       {/* Custom Controls */}
       <motion.div
-        className={`absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 to-transparent p-4 ${
+        className={`absolute right-0 bottom-0 left-0 bg-gradient-to-t from-black/90 to-transparent p-4 ${
           showControls ? 'opacity-100' : 'opacity-0'
         } transition-opacity duration-300`}
         initial={{ y: 20 }}
         animate={{ y: showControls ? 0 : 20 }}
       >
         {/* Progress Bar */}
-        <div className="mb-4 relative">
+        <div className="relative mb-4">
           <Slider
             value={[currentTime]}
             max={duration || 100}
@@ -426,7 +435,7 @@ export default function VideoPreview({ file }: VideoPreviewProps) {
             onPointerDown={handleProgressChangeStart}
             className="w-full cursor-pointer"
           />
-          <div className="flex justify-between text-xs text-white/80 mt-1">
+          <div className="mt-1 flex justify-between text-xs text-white/80">
             <span>{formatTime(currentTime)}</span>
             <span>{formatTime(duration)}</span>
           </div>
@@ -435,7 +444,7 @@ export default function VideoPreview({ file }: VideoPreviewProps) {
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="absolute -top-10 left-1/2 transform -translate-x-1/2 bg-black/90 text-white text-xs px-2 py-1 rounded pointer-events-none"
+              className="pointer-events-none absolute -top-10 left-1/2 -translate-x-1/2 transform rounded bg-black/90 px-2 py-1 text-xs text-white"
             >
               {formatTime(currentTime)}
             </motion.div>
@@ -454,7 +463,7 @@ export default function VideoPreview({ file }: VideoPreviewProps) {
             >
               <SkipBack className="h-4 w-4" />
             </Button>
-            
+
             <Button
               variant="ghost"
               size="sm"
@@ -462,9 +471,13 @@ export default function VideoPreview({ file }: VideoPreviewProps) {
               className="text-white hover:bg-white/20"
               title="Play/Pause (Espace)"
             >
-              {isPlaying ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
+              {isPlaying ? (
+                <Pause className="h-5 w-5" />
+              ) : (
+                <Play className="h-5 w-5" />
+              )}
             </Button>
-            
+
             <Button
               variant="ghost"
               size="sm"
@@ -480,7 +493,7 @@ export default function VideoPreview({ file }: VideoPreviewProps) {
               size="sm"
               onClick={resetVideo}
               className="text-white hover:bg-white/20"
-              title="Redémarrer (R)"
+              title="Restart (R)"
             >
               <RotateCcw className="h-4 w-4" />
             </Button>
@@ -496,7 +509,11 @@ export default function VideoPreview({ file }: VideoPreviewProps) {
                 className="text-white hover:bg-white/20"
                 title="Muet/Son (M)"
               >
-                {isMuted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+                {isMuted ? (
+                  <VolumeX className="h-4 w-4" />
+                ) : (
+                  <Volume2 className="h-4 w-4" />
+                )}
               </Button>
               <div className="w-20">
                 <Slider
@@ -516,26 +533,30 @@ export default function VideoPreview({ file }: VideoPreviewProps) {
                 size="sm"
                 onClick={() => setShowSettings(!showSettings)}
                 className="text-white hover:bg-white/20"
-                title="Paramètres"
+                title="Settings"
               >
                 <Settings className="h-4 w-4" />
               </Button>
-              
+
               {showSettings && (
                 <motion.div
-                  className="absolute bottom-full right-0 mb-2 bg-black/90 rounded-lg p-3 min-w-[150px]"
+                  className="absolute right-0 bottom-full mb-2 min-w-[150px] rounded-lg bg-black/90 p-3"
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 10 }}
                 >
-                  <div className="text-white text-sm mb-2">Vitesse de lecture</div>
+                  <div className="mb-2 text-sm text-white">
+                    Vitesse de lecture
+                  </div>
                   <div className="space-y-1">
-                    {[0.5, 0.75, 1, 1.25, 1.5, 2].map(rate => (
+                    {[0.5, 0.75, 1, 1.25, 1.5, 2].map((rate) => (
                       <button
                         key={rate}
                         onClick={() => handlePlaybackRateChange(rate)}
-                        className={`block w-full text-left text-sm px-2 py-1 rounded hover:bg-white/20 ${
-                          playbackRate === rate ? 'bg-white/30 text-white' : 'text-white/80'
+                        className={`block w-full rounded px-2 py-1 text-left text-sm hover:bg-white/20 ${
+                          playbackRate === rate
+                            ? 'bg-white/30 text-white'
+                            : 'text-white/80'
                         }`}
                       >
                         {rate}x
@@ -555,9 +576,13 @@ export default function VideoPreview({ file }: VideoPreviewProps) {
               size="sm"
               onClick={toggleFullscreen}
               className="text-white hover:bg-white/20"
-              title="Plein écran (F)"
+              title="Fullscreen (F)"
             >
-              {isFullscreen ? <Minimize className="h-4 w-4" /> : <Maximize className="h-4 w-4" />}
+              {isFullscreen ? (
+                <Minimize className="h-4 w-4" />
+              ) : (
+                <Maximize className="h-4 w-4" />
+              )}
             </Button>
           </div>
         </div>
@@ -566,20 +591,17 @@ export default function VideoPreview({ file }: VideoPreviewProps) {
       {/* Loading/Play overlay */}
       {!isPlaying && !isLoading && (
         <motion.div
-          className="absolute inset-0 flex items-center justify-center bg-black/30 cursor-pointer"
+          className="absolute inset-0 flex cursor-pointer items-center justify-center bg-black/30"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           onClick={togglePlayPause}
         >
-          <motion.div
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-          >
+          <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
             <Button
               variant="ghost"
               size="lg"
-              className="text-white hover:bg-white/20 p-6 rounded-full"
+              className="rounded-full p-6 text-white hover:bg-white/20"
             >
               <Play className="h-12 w-12" />
             </Button>
@@ -590,18 +612,30 @@ export default function VideoPreview({ file }: VideoPreviewProps) {
       {/* Keyboard shortcuts hint */}
       {showControls && (
         <motion.div
-          className="absolute top-4 right-4 text-xs text-white/60 bg-black/50 px-3 py-2 rounded-lg max-w-[200px]"
+          className="absolute top-4 right-4 max-w-[200px] rounded-lg bg-black/50 px-3 py-2 text-xs text-white/60"
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
           exit={{ opacity: 0, x: 20 }}
         >
           <div className="space-y-1">
-            <div><strong>Espace:</strong> Play/Pause</div>
-            <div><strong>← →:</strong> ±10s</div>
-            <div><strong>↑ ↓:</strong> Volume</div>
-            <div><strong>M:</strong> Muet</div>
-            <div><strong>F:</strong> Plein écran</div>
-            <div><strong>R:</strong> Redémarrer</div>
+            <div>
+              <strong>Espace:</strong> Play/Pause
+            </div>
+            <div>
+              <strong>← →:</strong> ±10s
+            </div>
+            <div>
+              <strong>↑ ↓:</strong> Volume
+            </div>
+            <div>
+              <strong>M:</strong> Muet
+            </div>{' '}
+            <div>
+              <strong>F:</strong> Fullscreen
+            </div>
+            <div>
+              <strong>R:</strong> Restart
+            </div>
           </div>
         </motion.div>
       )}

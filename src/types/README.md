@@ -1,7 +1,7 @@
-
 # TypeScript Types Documentation
 
-UploadHaven uses a **centralized type system** to ensure consistency and type safety across the entire application. All types are organized by domain and exported from a single source of truth.
+UploadHaven uses a **centralized type system** to ensure consistency and type safety across the
+entire application. All types are organized by domain and exported from a single source of truth.
 
 ## 📁 Type System Structure
 
@@ -24,13 +24,17 @@ types/
 ## 🎯 Type Architecture Principles
 
 ### 1. **Single Source of Truth**
+
 All types are imported from `@/types`:
+
 ```typescript
 import type { ClientFileData, ApiResponse, SecurityEvent } from '@/types';
 ```
 
 ### 2. **Hierarchical Type Design**
+
 Base types are extended for specific use cases:
+
 ```typescript
 // Base file data
 interface BaseFileData {
@@ -46,7 +50,7 @@ interface ClientFileData extends BaseFileData {
   readonly expiresAt?: string | null;
 }
 
-// Admin-specific file data  
+// Admin-specific file data
 interface AdminFileData extends BaseFileData {
   readonly userId?: string;
   readonly userName?: string;
@@ -55,7 +59,9 @@ interface AdminFileData extends BaseFileData {
 ```
 
 ### 3. **Domain-Specific Organization**
+
 Types are grouped by business domain:
+
 - **File Management** (`file.ts`) - Core file operations
 - **Security** (`security.ts`) - Scanning and threats
 - **Authentication** (`auth.ts`) - Users and sessions
@@ -110,6 +116,7 @@ export interface UploadedFile {
 ```
 
 **Type Guards & Utilities:**
+
 ```typescript
 // Type safety helpers
 export function isClientFileData(obj: unknown): obj is ClientFileData;
@@ -146,11 +153,14 @@ export interface VirusTotalResponse {
         undetected: number;
         harmless: number;
       };
-      last_analysis_results: Record<string, {
-        category: string;
-        engine_name: string;
-        result: string | null;
-      }>;
+      last_analysis_results: Record<
+        string,
+        {
+          category: string;
+          engine_name: string;
+          result: string | null;
+        }
+      >;
     };
   };
 }
@@ -304,12 +314,7 @@ export interface SecurityStats {
 File upload system types:
 
 ```typescript
-export type FileUploadStatus = 
-  | 'scanning' 
-  | 'uploading' 
-  | 'completed' 
-  | 'error' 
-  | 'threat_detected';
+export type FileUploadStatus = 'scanning' | 'uploading' | 'completed' | 'error' | 'threat_detected';
 
 export interface FileUploadOptions {
   onSuccess?: (result: unknown) => void;
@@ -443,7 +448,7 @@ export async function GET(request: NextRequest): Promise<Response> {
     success: true,
     data: files,
   };
-  
+
   return Response.json(response);
 }
 ```
@@ -456,7 +461,7 @@ function processFileData(data: unknown): ClientFileData {
   if (!isClientFileData(data)) {
     throw new Error('Invalid file data structure');
   }
-  
+
   return data; // TypeScript knows this is ClientFileData
 }
 ```
@@ -507,6 +512,7 @@ export type ComponentWithData<T> = BaseComponentProps & {
 ## 📚 Best Practices
 
 ### 1. **Readonly Properties**
+
 ```typescript
 // Use readonly for immutable data
 export interface FileData {
@@ -517,6 +523,7 @@ export interface FileData {
 ```
 
 ### 2. **Strict Typing**
+
 ```typescript
 // Use literal types for constrained values
 export type FileStatus = 'uploading' | 'completed' | 'error';
@@ -524,6 +531,7 @@ export type UserRole = 'user' | 'admin';
 ```
 
 ### 3. **Generic Types**
+
 ```typescript
 // Use generics for reusable patterns
 export interface DataResponse<T> {
@@ -536,6 +544,7 @@ export interface DataResponse<T> {
 ```
 
 ### 4. **Type Assertions with Guards**
+
 ```typescript
 // Always use type guards instead of direct assertions
 if (isClientFileData(data)) {
@@ -545,6 +554,7 @@ if (isClientFileData(data)) {
 ```
 
 ### 5. **Extending Base Types**
+
 ```typescript
 // Build type hierarchies logically
 interface BaseEntity {
@@ -591,13 +601,14 @@ describe('Type Guards', () => {
 ## 🔗 Integration Examples
 
 ### Component Integration
+
 ```typescript
 import type { ClientFileData, UseModalReturn } from '@/types';
 
 export default function FileManager() {
   const modal: UseModalReturn = useModal();
   const files: ClientFileData[] = useFiles();
-  
+
   return (
     <div>
       {files.map((file: ClientFileData) => (
@@ -609,6 +620,7 @@ export default function FileManager() {
 ```
 
 ### API Integration
+
 ```typescript
 import type { ApiResponse, ClientFileData } from '@/types';
 
@@ -617,13 +629,13 @@ export async function uploadFile(file: File): Promise<ClientFileData> {
     method: 'POST',
     body: formData,
   });
-  
+
   const result: ApiResponse<ClientFileData> = await response.json();
-  
+
   if (!result.success || !result.data) {
     throw new Error(result.error || 'Upload failed');
   }
-  
+
   return result.data;
 }
 ```

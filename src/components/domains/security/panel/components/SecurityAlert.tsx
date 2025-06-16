@@ -18,7 +18,10 @@ function formatFileSize(bytes?: number, t?: (key: string) => string): string {
   return Math.round((bytes / Math.pow(1024, i)) * 100) / 100 + ' ' + sizes[i];
 }
 
-function getEventTypeDisplay(type: string, t: (key: string) => string): { label: string; color: string } {
+function getEventTypeDisplay(
+  type: string,
+  t: (key: string) => string
+): { label: string; color: string } {
   const types = {
     rate_limit: {
       label: t('rateLimitExceeded'),
@@ -71,7 +74,7 @@ export default function SecurityAlert({
 }: SecurityAlertProps) {
   const t = useTranslations('Security');
   const tAdmin = useTranslations('Admin');
-  
+
   const isHighPriority =
     event.severity === 'critical' || event.severity === 'high';
 
@@ -164,7 +167,9 @@ export default function SecurityAlert({
                   event.details?.fileSize && (
                     <div className="flex items-center gap-1 text-gray-600 dark:text-gray-400">
                       <span className="font-medium">{t('sizeLabel')}:</span>
-                      <span>{formatFileSize(event.details.fileSize, tAdmin)}</span>
+                      <span>
+                        {formatFileSize(event.details.fileSize, tAdmin)}
+                      </span>
                     </div>
                   )}
 

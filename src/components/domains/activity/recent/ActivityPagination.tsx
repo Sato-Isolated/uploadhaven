@@ -20,7 +20,7 @@ export default function ActivityPagination({
   onPageChange,
 }: ActivityPaginationProps) {
   const t = useTranslations('Activity');
-  
+
   if (pagination.totalPages <= 1) {
     return null;
   }
@@ -35,8 +35,11 @@ export default function ActivityPagination({
       <div className="text-sm text-gray-500 dark:text-gray-400">
         {t('showingActivities', {
           start: (pagination.page - 1) * pagination.limit + 1,
-          end: Math.min(pagination.page * pagination.limit, pagination.totalCount),
-          total: pagination.totalCount
+          end: Math.min(
+            pagination.page * pagination.limit,
+            pagination.totalCount
+          ),
+          total: pagination.totalCount,
         })}
       </div>
 
@@ -53,7 +56,10 @@ export default function ActivityPagination({
         </Button>
 
         <span className="rounded-md bg-blue-100 px-3 py-1 text-sm font-medium text-blue-800 dark:bg-blue-900 dark:text-blue-200">
-          {t('pageOfTotal', { current: pagination.page, total: pagination.totalPages })}
+          {t('pageOfTotal', {
+            current: pagination.page,
+            total: pagination.totalPages,
+          })}
         </span>
 
         <Button

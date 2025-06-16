@@ -61,7 +61,7 @@ export function ScanResults({ scanResults }: ScanResultsProps) {
           {t('scanResultsSummary', {
             total: scanResults.length,
             threats: threatsCount,
-            warnings: warningsCount
+            warnings: warningsCount,
           })}
         </CardDescription>
       </CardHeader>

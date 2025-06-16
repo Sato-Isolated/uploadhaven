@@ -30,6 +30,9 @@ Complete reference for developers integrating with UploadHaven.
 
 Information about current features and future development.
 
+- **[File Encryption System](features/file-encryption.md)** - 🔒 Comprehensive encryption documentation
+- **[Security Features](features/security.md)** - Privacy and security implementation
+- **[Usage Guide](features/usage.md)** - How to use UploadHaven effectively
 - **[Feature Roadmap](features/roadmap.md)** - Development phases and timeline
 - **[Ideas Board](features/ideas.md)** - Community ideas and suggestions
 
@@ -46,7 +49,8 @@ Technical details and project governance.
 
 1. [Quick Start Guide](getting-started/quick-start.md) - Get up and running
 2. [Basic Usage](features/usage.md) - How to upload and share files
-3. [Security Features](features/security.md) - Understanding privacy and security
+3. [File Encryption](features/file-encryption.md) - 🔒 Understanding automatic encryption
+4. [Security Features](features/security.md) - Understanding privacy and security
 
 ### For Developers
 
@@ -134,6 +138,7 @@ Found an error or want to improve the docs?
 UploadHaven is built on simple principles:
 
 - **Simplicity first** - Upload → Link → Share
+- **Security by default** - 🔒 Automatic file encryption
 - **Privacy by design** - Minimal data collection
 - **Ephemeral by nature** - Temporary file sharing only
 - **Open source forever** - Always free and transparent

@@ -15,7 +15,7 @@ export function FilesTableHeader({
   onSelectAll,
 }: FilesTableHeaderProps) {
   const t = useTranslations('Admin');
-  
+
   return (
     <>
       <CardHeader className="border-b border-gray-200/50 bg-gradient-to-r from-gray-50/50 to-gray-100/50 dark:border-gray-700/50 dark:from-gray-800/50 dark:to-gray-900/50">

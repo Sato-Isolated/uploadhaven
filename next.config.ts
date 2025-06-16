@@ -4,11 +4,10 @@ import createNextIntlPlugin from 'next-intl/plugin';
 const withNextIntl = createNextIntlPlugin();
 
 const nextConfig: NextConfig = {
-  serverExternalPackages: ['mongoose'],
-  // Activer le hot reload pour les fichiers de traduction
+  serverExternalPackages: ['mongoose'],  // Enable hot reload for translation files
   webpack: (config, { dev }) => {
     if (dev) {
-      // Surveiller les fichiers de traduction pour le hot reload
+      // Watch translation files for hot reload
       config.watchOptions = {
         ...config.watchOptions,
         ignored: /node_modules/,

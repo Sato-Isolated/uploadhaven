@@ -36,9 +36,7 @@ export { useClientUserStats } from '../components/domains/dashboard/stats/hooks/
 export { useSecurityScanModal } from '../components/domains/security/hooks/useSecurityScanModal';
 export { useNotifications } from './useNotifications';
 // Real-time hooks using polling (preferred approach)
-export {
-  useRealTimeActivities,
-} from './useRealTimePolling';
+export { useRealTimeActivities } from './useRealTimePolling';
 
 export type {
   ApiState,

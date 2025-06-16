@@ -9,23 +9,23 @@ import { ApiClient } from '@/lib/api/client';
 import { queryKeys } from '@/lib/queryKeys';
 
 /**
- * Hook personnalisé pour recharger les traductions lors des changements
- * En développement, ce hook peut être utilisé pour forcer le rechargement
- * des traductions sans redémarrer le serveur
+ * Custom hook to reload translations during changes
+ * In development, this hook can be used to force reloading
+ * of translations without restarting the server
  */
 export function useTranslationReload() {
   const router = useRouter();
 
   useEffect(() => {
     if (process.env.NODE_ENV === 'development') {
-      // Écouter les événements de hot reload personnalisés
+      // Listen for custom hot reload events
       const handleTranslationUpdate = () => {
-        console.log('🔄 Rechargement des traductions...');
-        // Forcer le rechargement de la page en développement
+        console.log('🔄 Reloading translations...');
+        // Force page reload in development
         router.refresh();
       };
 
-      // Écouter les changements via WebSocket (si configuré)
+      // Listen for changes via WebSocket (if configured)
       if (typeof window !== 'undefined' && 'WebSocket' in window) {
         const ws = new WebSocket('ws://localhost:3001/translation-reload');
 
@@ -76,23 +76,35 @@ export function useTranslationPolling(intervalMs: number = 2000) {
   useEffect(() => {
     if (process.env.NODE_ENV === 'development' && translationData) {
       // Store the previous lastModified value
-      const storedLastModified = sessionStorage.getItem('translation-last-modified');
-      const previousLastModified = storedLastModified ? parseInt(storedLastModified, 10) : null;
+      const storedLastModified = sessionStorage.getItem(
+        'translation-last-modified'
+      );
+      const previousLastModified = storedLastModified
+        ? parseInt(storedLastModified, 10)
+        : null;
 
-      if (previousLastModified && translationData.lastModified > previousLastModified) {
-        console.log('📝 Traductions mises à jour, rechargement...');
+      if (
+        previousLastModified &&
+        translationData.lastModified > previousLastModified
+      ) {
+        console.log('📝 Translations updated, reloading...');
         router.refresh();
       }
 
       // Update stored value
-      sessionStorage.setItem('translation-last-modified', translationData.lastModified.toString());
+      sessionStorage.setItem(
+        'translation-last-modified',
+        translationData.lastModified.toString()
+      );
     }
   }, [translationData, router]);
 
   // Handle errors silently (dev tool shouldn't be disruptive)
   useEffect(() => {
     if (isError && process.env.NODE_ENV === 'development') {
-      console.debug('Translation polling unavailable (this is normal if API endpoint does not exist)');
+      console.debug(
+        'Translation polling unavailable (this is normal if API endpoint does not exist)'
+      );
     }
   }, [isError]);
 }

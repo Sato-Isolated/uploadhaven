@@ -20,11 +20,7 @@ export default function DeleteFileButton({
   const t = useTranslations('Common');
 
   const handleDelete = async () => {
-    if (
-      !confirm(
-        t('deleteFileConfirmation', { fileName })
-      )
-    ) {
+    if (!confirm(t('deleteFileConfirmation', { fileName }))) {
       return;
     }
 

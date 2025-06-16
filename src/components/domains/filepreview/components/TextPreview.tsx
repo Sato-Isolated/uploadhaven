@@ -11,7 +11,7 @@ interface TextPreviewProps extends BaseComponentProps {
 
 export default function TextPreview({ file }: TextPreviewProps) {
   const t = useTranslations('FilePreview');
-  
+
   // Use TanStack Query for better caching and error handling
   const {
     data: textContent,

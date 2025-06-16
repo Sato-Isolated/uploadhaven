@@ -26,10 +26,13 @@ export function useTextPreview(
   return useQuery({
     queryKey: queryKeys.filePreview(url),
     queryFn: async (): Promise<string> => {
+      console.log('🔍 useTextPreview - Fetching from URL:', url);
+
       const response = await fetch(url, {
         method: 'GET',
         headers: {
           Accept: 'text/plain, text/html, text/markdown, text/*, */*',
+          'Cache-Control': 'no-cache',
         },
       });
 
@@ -38,11 +41,17 @@ export function useTextPreview(
       }
 
       const text = await response.text();
+      console.log(
+        '📄 useTextPreview - Content preview:',
+        text.substring(0, 100) + (text.length > 100 ? '...' : '')
+      );
+      console.log('📊 useTextPreview - Content length:', text.length);
+
       return text;
     },
     enabled: enabled && !!url,
-    staleTime: 5 * 60 * 1000, // 5 minutes - text content rarely changes
-    gcTime: 30 * 60 * 1000, // 30 minutes (previously cacheTime)
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 30 * 60 * 1000, // 30 minutes
     retry: 2,
     retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 5000),
   });

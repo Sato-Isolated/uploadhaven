@@ -35,7 +35,7 @@ export function useFilePreviewLogic(): UseFilePreviewLogicReturn {
   const params = useParams();
   const locale = useLocale();
   const shortUrl = params.shortUrl as string;
-  
+
   // Local state
   const [fileInfo, setFileInfo] = useState<ClientFileData | null>(null);
   const [passwordRequired, setPasswordRequired] = useState(false);

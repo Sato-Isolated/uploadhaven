@@ -5,7 +5,7 @@ import { Card, CardContent } from '@/components/ui/card';
 
 export function AnalyticsEmptyState() {
   const t = useTranslations('Admin');
-  
+
   return (
     <Card>
       <CardContent className="pt-6">

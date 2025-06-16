@@ -1,9 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import {
-  getFileType,
-  copyToClipboard,
-  saveFileToLocalStorage,
-} from '../utils';
+import { getFileType, copyToClipboard, saveFileToLocalStorage } from '../utils';
 
 // Mock localStorage
 const mockLocalStorage = {
@@ -94,7 +90,9 @@ describe('FileUploader Utils', () => {
 
       const result = await copyToClipboard('https://example.com');
 
-      expect(mockClipboard.writeText).toHaveBeenCalledWith('https://example.com');
+      expect(mockClipboard.writeText).toHaveBeenCalledWith(
+        'https://example.com'
+      );
       expect(result).toEqual({
         success: true,
         message: 'URL copied to clipboard!',
@@ -126,7 +124,10 @@ describe('FileUploader Utils', () => {
     it('should handle clipboard write failures with custom label', async () => {
       mockClipboard.writeText.mockRejectedValue(new Error('Permission denied'));
 
-      const result = await copyToClipboard('https://example.com', 'Custom Label');
+      const result = await copyToClipboard(
+        'https://example.com',
+        'Custom Label'
+      );
 
       expect(result).toEqual({
         success: false,

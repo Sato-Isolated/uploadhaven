@@ -3,8 +3,12 @@ import connectDB from '@/lib/mongodb';
 import { File, saveSecurityEvent } from '@/lib/models';
 import { checkFileExpiration } from '@/lib/startup';
 import path from 'path';
-import { readFile } from 'fs/promises';
 import { getClientIP } from '@/lib/utils';
+import {
+  readAndDecryptFile,
+  getContentLength,
+  logDecryptionActivity,
+} from '@/lib/file-decryption';
 
 /**
  * GET /api/preview-file/[shortUrl]
@@ -101,14 +105,38 @@ export async function GET(
     );
 
     try {
-      // Read file (NO download count increment for preview)
-      const fileBuffer = await readFile(filePath);
+      // Debug: Log file information
+      console.log('🔍 PREVIEW DEBUG - File Info:');
+      console.log(`   Original name: ${fileDoc.originalName}`);
+      console.log(`   Filename: ${fileDoc.filename}`);
+      console.log(`   Is encrypted: ${fileDoc.isEncrypted}`);
+      console.log(
+        `   Has encryption metadata: ${!!fileDoc.encryptionMetadata}`
+      );
+      if (fileDoc.encryptionMetadata) {
+        console.log(`   Algorithm: ${fileDoc.encryptionMetadata.algorithm}`);
+        console.log(`   Has salt: ${!!fileDoc.encryptionMetadata.salt}`);
+        console.log(`   Has IV: ${!!fileDoc.encryptionMetadata.iv}`);
+        console.log(`   Has tag: ${!!fileDoc.encryptionMetadata.tag}`);
+      }
+
+      // Read and decrypt file if necessary
+      const fileBuffer = await readAndDecryptFile(filePath, fileDoc);
+
+      console.log(`📄 Buffer info after decryption:`);
+      console.log(`   Size: ${fileBuffer.length} bytes`);
+      console.log(
+        `   First 50 chars: ${fileBuffer.toString('utf8', 0, 50).replace(/\n/g, '\\n')}`
+      );
+
+      // Log decryption activity if file was encrypted
+      logDecryptionActivity(fileDoc, 'preview', clientIP, userAgent);
 
       // Log successful preview (NOT download)
       await saveSecurityEvent({
         type: 'file_preview', // Different event type
         ip: clientIP,
-        details: `File previewed: ${fileDoc.originalName}`,
+        details: `File previewed: ${fileDoc.originalName}${fileDoc.isEncrypted ? ' (decrypted)' : ''}`,
         severity: 'low',
         userAgent,
         filename: fileDoc.filename,
@@ -121,8 +149,8 @@ export async function GET(
         status: 200,
         headers: {
           'Content-Type': fileDoc.mimeType,
-          'Content-Length': fileDoc.size.toString(),
-          'Cache-Control': 'public, max-age=3600', // Cache for 1 hour
+          'Content-Length': getContentLength(fileDoc).toString(),
+          'Cache-Control': 'public, max-age=1800', // Cache for 30 minutes
           'Content-Disposition': `inline; filename="${fileDoc.originalName}"`, // inline for preview
         },
       });

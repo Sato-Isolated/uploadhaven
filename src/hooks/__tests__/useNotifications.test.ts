@@ -53,7 +53,7 @@ describe('useNotifications', () => {
     (useQuery as any).mockReturnValue(mockQuery);
     (useMutation as any).mockReturnValue(mockMutation);
     (useQueryClient as any).mockReturnValue(mockQueryClient);
-    (useNotificationContext as any).mockReturnValue(mockNotificationContext);    // Mock EventSource
+    (useNotificationContext as any).mockReturnValue(mockNotificationContext); // Mock EventSource
     (global as any).EventSource = vi.fn().mockImplementation(() => ({
       addEventListener: vi.fn(),
       removeEventListener: vi.fn(),
@@ -70,7 +70,10 @@ describe('useNotifications', () => {
     // Check that useQuery was called with correct parameters for notifications
     expect(useQuery).toHaveBeenCalledWith(
       expect.objectContaining({
-        queryKey: ['notifications', { limit: 50, includeRead: true, type: undefined }],
+        queryKey: [
+          'notifications',
+          { limit: 50, includeRead: true, type: undefined },
+        ],
         queryFn: expect.any(Function),
         enabled: true,
         staleTime: 30000,
@@ -114,7 +117,7 @@ describe('useNotifications', () => {
     });
 
     const options = { realtime: true };
-    renderHook(() => useNotifications(options));    // Should not create EventSource when SSE is disabled
+    renderHook(() => useNotifications(options)); // Should not create EventSource when SSE is disabled
     expect((global as any).EventSource).not.toHaveBeenCalled();
   });
 
@@ -163,10 +166,11 @@ describe('useNotifications', () => {
 
     global.fetch = vi.fn().mockResolvedValue({
       ok: true,
-      json: () => Promise.resolve({
-        notifications: mockNotifications,
-        stats: { total: 2, unread: 1 },
-      }),
+      json: () =>
+        Promise.resolve({
+          notifications: mockNotifications,
+          stats: { total: 2, unread: 1 },
+        }),
     });
 
     renderHook(() => useNotifications());
@@ -194,7 +198,7 @@ describe('useNotifications', () => {
     renderHook(() => useNotifications());
 
     const queryCall = (useQuery as any).mock.calls[0][0];
-    
+
     await expect(queryCall.queryFn()).rejects.toThrow(
       'Failed to fetch notifications: 500'
     );
@@ -228,11 +232,11 @@ describe('useNotifications', () => {
   it('should handle different notification types', () => {
     const notificationTypes = ['upload', 'security', 'system', 'user'];
 
-    notificationTypes.forEach(type => {
+    notificationTypes.forEach((type) => {
       vi.clearAllMocks();
-      
+
       renderHook(() => useNotifications({ type }));
-      
+
       expect(useQuery).toHaveBeenCalled();
     });
   });
@@ -253,10 +257,11 @@ describe('useNotifications', () => {
     renderHook(() => useNotifications());
 
     expect(useMutation).toHaveBeenCalled();
-    
+
     const mutationCall = (useMutation as any).mock.calls[0][0];
     expect(mutationCall).toHaveProperty('mutationFn');
-  });  it('should invalidate queries after successful mutations', async () => {
+  });
+  it('should invalidate queries after successful mutations', async () => {
     const mockMutationWithSuccess = {
       ...mockMutation,
       mutate: vi.fn(),
@@ -273,7 +278,7 @@ describe('useNotifications', () => {
     renderHook(() => useNotifications());
 
     // Wait for onSuccess to be called
-    await new Promise(resolve => setTimeout(resolve, 10));
+    await new Promise((resolve) => setTimeout(resolve, 10));
 
     expect(mockQueryClient.invalidateQueries).toHaveBeenCalled();
   });
@@ -281,11 +286,11 @@ describe('useNotifications', () => {
   it('should handle notification limits correctly', () => {
     const limits = [10, 25, 50, 100];
 
-    limits.forEach(limit => {
+    limits.forEach((limit) => {
       vi.clearAllMocks();
-      
+
       renderHook(() => useNotifications({ limit }));
-      
+
       expect(useQuery).toHaveBeenCalledWith(
         expect.objectContaining({
           enabled: true,
@@ -297,7 +302,7 @@ describe('useNotifications', () => {
     renderHook(() => useNotifications());
 
     const queryCall = (useQuery as any).mock.calls[0][0];
-    
+
     expect(queryCall.staleTime).toBeGreaterThan(0);
     expect(queryCall.staleTime).toBe(30000); // 30 seconds
     // refetchInterval can be undefined for real-time notifications
@@ -307,10 +312,11 @@ describe('useNotifications', () => {
   it('should handle empty notifications response', async () => {
     global.fetch = vi.fn().mockResolvedValue({
       ok: true,
-      json: () => Promise.resolve({
-        notifications: [],
-        stats: { total: 0, unread: 0 },
-      }),
+      json: () =>
+        Promise.resolve({
+          notifications: [],
+          stats: { total: 0, unread: 0 },
+        }),
     });
 
     renderHook(() => useNotifications());
@@ -320,7 +326,8 @@ describe('useNotifications', () => {
 
     expect(result.notifications).toEqual([]);
     expect(result.stats.total).toBe(0);
-  });  it('should provide consistent interface', () => {
+  });
+  it('should provide consistent interface', () => {
     const { result } = renderHook(() => useNotifications());
 
     // Should return the correct interface structure with specific values
@@ -328,21 +335,21 @@ describe('useNotifications', () => {
       // Data
       notifications: [],
       stats: undefined,
-      
+
       // Loading states
       isLoading: false,
       isConnected: false,
       connectionError: null,
-      
+
       // Error states
       error: null,
-      
+
       // Actions
       markAsRead: expect.any(Function),
       markAllAsRead: expect.any(Function),
       deleteNotification: expect.any(Function),
       refetch: expect.any(Function),
-      
+
       // Mutation states
       isMarkingAsRead: undefined,
       isMarkingAllAsRead: undefined,

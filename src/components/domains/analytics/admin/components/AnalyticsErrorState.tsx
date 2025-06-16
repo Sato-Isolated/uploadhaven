@@ -14,11 +14,13 @@ export function AnalyticsErrorState({
   onRetry,
 }: AnalyticsErrorStateProps) {
   const t = useTranslations('Admin');
-  
+
   return (
     <Card className="border-red-200 bg-red-50">
       <CardContent className="pt-6">
-        <p className="text-red-600">{t('analyticsError', { message: error.message })}</p>
+        <p className="text-red-600">
+          {t('analyticsError', { message: error.message })}
+        </p>
         <Button onClick={onRetry} className="mt-4" variant="outline">
           {t('retry')}
         </Button>

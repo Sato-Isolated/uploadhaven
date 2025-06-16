@@ -17,7 +17,9 @@ export function FilePreviewLayout({
   const tHome = useTranslations('Home');
   const t = useTranslations('FilePreview');
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4 dark:from-gray-900 dark:to-gray-800">      <div className="mx-auto max-w-6xl pt-8">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4 dark:from-gray-900 dark:to-gray-800">
+      {' '}
+      <div className="mx-auto max-w-6xl pt-8">
         {/* Top navigation and controls */}
         <div className="mb-6 flex items-center justify-between">
           <FilePreviewNavigation />

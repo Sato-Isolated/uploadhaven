@@ -120,6 +120,26 @@ const fileSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    // Encryption fields
+    isEncrypted: {
+      type: Boolean,
+      default: false,
+    },
+    encryptionMetadata: {
+      salt: String,
+      iv: String,
+      tag: String,
+      algorithm: String,
+      iterations: Number,
+      encryptedSize: Number,
+    },
+    previewEncryptionMetadata: {
+      salt: String,
+      iv: String,
+      tag: String,
+      algorithm: String,
+      iterations: Number,
+    },
   },
   {
     timestamps: true,
@@ -149,6 +169,10 @@ const securityEventSchema = new mongoose.Schema(
         'user_logout',
         'user_role_changed',
         'system_maintenance',
+        'encryption_error', // New event type for encryption errors
+        'decryption_error', // New event type for decryption errors
+        'encryption_success', // New event type for successful encryption
+        'decryption_success', // New event type for successful decryption
       ],
       required: true,
     },
@@ -321,6 +345,23 @@ export const saveFileMetadata = async (fileData: {
   // Visibility removed - all files use security by obscurity
   password?: string; // hashed password
   isPasswordProtected?: boolean;
+  // Encryption fields
+  isEncrypted?: boolean;
+  encryptionMetadata?: {
+    salt: string;
+    iv: string;
+    tag: string;
+    algorithm: string;
+    iterations: number;
+    encryptedSize: number;
+  };
+  previewEncryptionMetadata?: {
+    salt: string;
+    iv: string;
+    tag: string;
+    algorithm: string;
+    iterations: number;
+  };
 }) => {
   try {
     const file = new File(fileData);

@@ -6,7 +6,7 @@ describe('FileManager Utilities', () => {
     it('should provide correct icon types for each file category', () => {
       const iconTypes = {
         image: 'Image',
-        video: 'Film', 
+        video: 'Film',
         audio: 'Music',
         document: 'FileText',
         archive: 'Archive',
@@ -14,15 +14,22 @@ describe('FileManager Utilities', () => {
       };
 
       // Test that all file types have corresponding icon mappings
-      Object.keys(iconTypes).forEach(type => {
+      Object.keys(iconTypes).forEach((type) => {
         expect(iconTypes[type as keyof typeof iconTypes]).toBeTruthy();
         expect(typeof iconTypes[type as keyof typeof iconTypes]).toBe('string');
       });
     });
 
     it('should cover all supported file types', () => {
-      const supportedTypes = ['image', 'video', 'audio', 'document', 'archive', 'other'];
-      
+      const supportedTypes = [
+        'image',
+        'video',
+        'audio',
+        'document',
+        'archive',
+        'other',
+      ];
+
       expect(supportedTypes).toHaveLength(6);
       expect(supportedTypes).toContain('image');
       expect(supportedTypes).toContain('video');
@@ -125,9 +132,9 @@ describe('FileManager Utilities', () => {
     it('should construct correct API URLs', () => {
       const origin = 'https://test.com';
       const filename = 'test-file.txt';
-      
+
       const expectedUrl = `${origin}/api/files/${filename}`;
-      
+
       expect(expectedUrl).toBe('https://test.com/api/files/test-file.txt');
     });
 
@@ -140,7 +147,7 @@ describe('FileManager Utilities', () => {
         'file.with.dots.zip',
       ];
 
-      specialFilenames.forEach(filename => {
+      specialFilenames.forEach((filename) => {
         const url = `${origin}/api/files/${filename}`;
         expect(url).toContain(origin);
         expect(url).toContain(filename);
@@ -165,7 +172,7 @@ describe('FileManager Utilities', () => {
       };
 
       const origin = 'https://example.com';
-      
+
       const previewData = {
         filename: fileInfo.name,
         originalName: fileInfo.originalName,
@@ -236,7 +243,8 @@ describe('FileManager Utilities', () => {
     });
   });
 
-  describe('Error Handling', () => {    it('should handle clipboard API failures gracefully', async () => {
+  describe('Error Handling', () => {
+    it('should handle clipboard API failures gracefully', async () => {
       const mockClipboardWrite = (text: string) => {
         // Simulate clipboard write
         if (text.length > 0) {

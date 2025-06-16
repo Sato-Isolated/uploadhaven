@@ -78,7 +78,10 @@ describe('Utility Functions', () => {
 
         const result = await verifyPassword('password123', 'hashedPassword');
 
-        expect(mockedBcrypt.compare).toHaveBeenCalledWith('password123', 'hashedPassword');
+        expect(mockedBcrypt.compare).toHaveBeenCalledWith(
+          'password123',
+          'hashedPassword'
+        );
         expect(result).toBe(true);
       });
 
@@ -131,7 +134,8 @@ describe('Utility Functions', () => {
   });
 
   describe('getClientIP', () => {
-    it('should extract IP from x-forwarded-for header', () => {      const mockRequest = {
+    it('should extract IP from x-forwarded-for header', () => {
+      const mockRequest = {
         headers: {
           get: vi.fn().mockImplementation((header: string) => {
             if (header === 'x-forwarded-for') return '192.168.1.1, 10.0.0.1';
@@ -144,7 +148,8 @@ describe('Utility Functions', () => {
       expect(result).toBe('192.168.1.1');
     });
 
-    it('should extract IP from x-real-ip header when x-forwarded-for is not available', () => {      const mockRequest = {
+    it('should extract IP from x-real-ip header when x-forwarded-for is not available', () => {
+      const mockRequest = {
         headers: {
           get: vi.fn().mockImplementation((header: string) => {
             if (header === 'x-real-ip') return '192.168.1.2';
@@ -157,7 +162,8 @@ describe('Utility Functions', () => {
       expect(result).toBe('192.168.1.2');
     });
 
-    it('should fallback to localhost when no IP headers are present', () => {      const mockRequest = {
+    it('should fallback to localhost when no IP headers are present', () => {
+      const mockRequest = {
         headers: {
           get: vi.fn().mockReturnValue(null),
         },
@@ -169,14 +175,11 @@ describe('Utility Functions', () => {
   });
 
   describe('validateFileAdvanced', () => {
-    const createMockFile = (
-      name: string,
-      size: number,
-      type: string
-    ): File => {
+    const createMockFile = (name: string, size: number, type: string): File => {
       return {
         name,
-        size,        type,
+        size,
+        type,
         lastModified: Date.now(),
         arrayBuffer: vi.fn(),
         slice: vi.fn(),
@@ -186,43 +189,67 @@ describe('Utility Functions', () => {
     };
 
     it('should validate normal files successfully', () => {
-      const file = createMockFile('document.pdf', 1024 * 1024, 'application/pdf');
+      const file = createMockFile(
+        'document.pdf',
+        1024 * 1024,
+        'application/pdf'
+      );
       const result = validateFileAdvanced(file);
-      
+
       expect(result.isValid).toBe(true);
       expect(result.errors).toHaveLength(0);
     });
 
     it('should reject files that exceed size limit', () => {
-      const file = createMockFile('largefile.pdf', 101 * 1024 * 1024, 'application/pdf');
+      const file = createMockFile(
+        'largefile.pdf',
+        101 * 1024 * 1024,
+        'application/pdf'
+      );
       const result = validateFileAdvanced(file);
-      
+
       expect(result.isValid).toBe(false);
       expect(result.errors).toContain('File size exceeds 100 MB limit');
     });
 
     it('should reject suspicious file types', () => {
-      const file = createMockFile('malware.exe', 1024, 'application/x-msdownload');
+      const file = createMockFile(
+        'malware.exe',
+        1024,
+        'application/x-msdownload'
+      );
       const result = validateFileAdvanced(file);
-      
+
       expect(result.isValid).toBe(false);
-      expect(result.errors).toContain('File type not allowed for security reasons');
+      expect(result.errors).toContain(
+        'File type not allowed for security reasons'
+      );
     });
 
     it('should reject files with suspicious extensions', () => {
-      const file = createMockFile('script.exe', 1024, 'application/octet-stream');
+      const file = createMockFile(
+        'script.exe',
+        1024,
+        'application/octet-stream'
+      );
       const result = validateFileAdvanced(file);
-      
+
       expect(result.isValid).toBe(false);
       expect(result.errors).toContain('File extension not allowed');
     });
 
     it('should warn about large files', () => {
-      const file = createMockFile('largefile.pdf', 15 * 1024 * 1024, 'application/pdf');
+      const file = createMockFile(
+        'largefile.pdf',
+        15 * 1024 * 1024,
+        'application/pdf'
+      );
       const result = validateFileAdvanced(file);
-      
+
       expect(result.isValid).toBe(true);
-      expect(result.warnings).toContain('Large file size may impact upload performance');
+      expect(result.warnings).toContain(
+        'Large file size may impact upload performance'
+      );
     });
   });
 });

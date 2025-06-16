@@ -39,9 +39,7 @@ export function FileScanner({
           <FileText className="h-5 w-5" />
           {t('fileScanner')}
         </CardTitle>
-        <CardDescription>
-          {t('uploadAndScanFiles')}
-        </CardDescription>
+        <CardDescription>{t('uploadAndScanFiles')}</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
@@ -67,13 +65,9 @@ export function FileScanner({
               <div className="space-y-2">
                 <FileText className="mx-auto h-8 w-8 text-gray-400" />
                 <p className="text-sm text-gray-600 dark:text-gray-400">
-                  {isFileScanning
-                    ? t('scanningFile')
-                    : t('clickToSelectFile')}
+                  {isFileScanning ? t('scanningFile') : t('clickToSelectFile')}
                 </p>
-                <p className="text-xs text-gray-500">
-                  {t('fileConstraints')}
-                </p>
+                <p className="text-xs text-gray-500">{t('fileConstraints')}</p>
               </div>
             </label>
           </div>
@@ -98,8 +92,8 @@ export function FileScanner({
                       <div>
                         <p className="text-sm font-medium">{result.fileName}</p>
                         <p className="text-xs text-gray-500">
-                          {(result.fileSize / 1024).toFixed(1)} {t('fileSizeKb')} •
-                          {result.scanResult.source}
+                          {(result.fileSize / 1024).toFixed(1)}{' '}
+                          {t('fileSizeKb')} •{result.scanResult.source}
                         </p>
                       </div>
                     </div>

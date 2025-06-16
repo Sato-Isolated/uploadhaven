@@ -15,10 +15,10 @@ export function FilePreviewNavigation() {
 
   const handleGoBack = () => {
     if (session?.user) {
-      // Si l'utilisateur est connecté, retourner au dashboard
+      // If user is logged in, return to dashboard
       router.push(`/${locale}/dashboard`);
     } else {
-      // Si non connecté, retourner à la homepage
+      // If not connected, return to homepage
       router.push(`/${locale}`);
     }
   };

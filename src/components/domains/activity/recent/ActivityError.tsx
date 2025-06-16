@@ -12,7 +12,7 @@ interface ActivityErrorProps extends BaseComponentProps {
 
 export default function ActivityError({ error }: ActivityErrorProps) {
   const t = useTranslations('Activity');
-  
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}

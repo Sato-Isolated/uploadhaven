@@ -40,7 +40,7 @@ export default function ActivityContent({
   onPageChange,
 }: ActivityContentProps) {
   const t = useTranslations('Activity');
-  
+
   if (!activities.length) {
     return <ActivityEmpty />;
   }

@@ -24,7 +24,7 @@ export default function ActivityHeader({
   onSeverityFilterChange,
 }: ActivityHeaderProps) {
   const t = useTranslations('Activity');
-  
+
   return (
     <CardHeader>
       <CardTitle className="flex items-center gap-2">
@@ -51,7 +51,9 @@ export default function ActivityHeader({
             {realtimeConnected ? (
               <>
                 <Wifi className="h-3 w-3 text-green-500" />
-                <span className="text-green-600 dark:text-green-400">{t('live')}</span>
+                <span className="text-green-600 dark:text-green-400">
+                  {t('live')}
+                </span>
               </>
             ) : (
               <>

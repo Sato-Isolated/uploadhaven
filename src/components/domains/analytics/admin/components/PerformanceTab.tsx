@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 
 export function PerformanceTab() {
   const t = useTranslations('Admin');
-  
+
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
@@ -18,11 +18,15 @@ export function PerformanceTab() {
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <span>{t('databaseConnection')}</span>
-                <Badge className="bg-green-100 text-green-800">{t('healthy')}</Badge>
+                <Badge className="bg-green-100 text-green-800">
+                  {t('healthy')}
+                </Badge>
               </div>
               <div className="flex items-center justify-between">
                 <span>{t('fileStorage')}</span>
-                <Badge className="bg-green-100 text-green-800">{t('available')}</Badge>
+                <Badge className="bg-green-100 text-green-800">
+                  {t('available')}
+                </Badge>
               </div>
               <div className="flex items-center justify-between">
                 <span>{t('apiResponseTime')}</span>

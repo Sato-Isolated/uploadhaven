@@ -13,7 +13,7 @@ export function FilesTableOwnerCell({
   userName,
 }: FilesTableOwnerCellProps) {
   const t = useTranslations('Admin');
-  
+
   if (isAnonymous) {
     return (
       <Badge

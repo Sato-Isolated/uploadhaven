@@ -15,7 +15,7 @@ vi.mock('sonner', () => ({
 
 vi.mock('@/lib/auth-client', () => ({
   useSession: vi.fn(() => ({
-    data: { user: { id: 'test-user-id' } }
+    data: { user: { id: 'test-user-id' } },
   })),
 }));
 
@@ -34,7 +34,9 @@ vi.mock('@/lib/utils', () => ({
 
 vi.mock('../utils', () => ({
   getFileType: vi.fn(() => 'document'),
-  copyToClipboard: vi.fn(() => Promise.resolve({ success: true, message: 'Copied!' })),
+  copyToClipboard: vi.fn(() =>
+    Promise.resolve({ success: true, message: 'Copied!' })
+  ),
   saveFileToLocalStorage: vi.fn(),
 }));
 
@@ -62,15 +64,16 @@ describe('useFileUploader', () => {
     vi.clearAllMocks();
     mockFetch.mockResolvedValue({
       ok: true,
-      json: () => Promise.resolve({
-        success: true,
-        data: {
-          id: 'test-file-id',
-          url: 'https://example.com/file/test-file-id',
-          shortUrl: 'https://short.ly/abc123',
-          expiresAt: '2024-01-01T00:00:00Z',
-        },
-      }),
+      json: () =>
+        Promise.resolve({
+          success: true,
+          data: {
+            id: 'test-file-id',
+            url: 'https://example.com/file/test-file-id',
+            shortUrl: 'https://short.ly/abc123',
+            expiresAt: '2024-01-01T00:00:00Z',
+          },
+        }),
     });
   });
 
@@ -156,17 +159,23 @@ describe('useFileUploader', () => {
       const { result } = renderHook(() => useFileUploader());
 
       await act(async () => {
-        await result.current.handleCopyToClipboard('https://example.com', 'Test URL');
+        await result.current.handleCopyToClipboard(
+          'https://example.com',
+          'Test URL'
+        );
       });
 
-      expect(toast.success).toHaveBeenCalledWith('Test URL copied to clipboard!');
-    });    it('should handle clipboard copy failure', async () => {
+      expect(toast.success).toHaveBeenCalledWith(
+        'Test URL copied to clipboard!'
+      );
+    });
+    it('should handle clipboard copy failure', async () => {
       // Test that the function handles errors gracefully
       const { result } = renderHook(() => useFileUploader());
 
       // The function should exist and be callable
       expect(typeof result.current.handleCopyToClipboard).toBe('function');
-      
+
       // Test that it can be called without throwing
       await act(async () => {
         await result.current.handleCopyToClipboard('https://example.com');

@@ -9,7 +9,7 @@ interface UserStatsErrorStateProps {
 
 export function UserStatsErrorState({ error }: UserStatsErrorStateProps) {
   const t = useTranslations('Errors');
-  
+
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.9 }}

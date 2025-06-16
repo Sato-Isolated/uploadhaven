@@ -28,7 +28,9 @@ export function useAdminFileManager(initialFiles: AdminFileData[]) {
       // but we need to handle blob responses for file downloads
       const response = await fetch(`/api/files/${filename}`);
       if (!response.ok) {
-        throw new Error(`Failed to download file: ${response.status} ${response.statusText}`);
+        throw new Error(
+          `Failed to download file: ${response.status} ${response.statusText}`
+        );
       }
       return { response, filename };
     },
@@ -59,8 +61,8 @@ export function useAdminFileManager(initialFiles: AdminFileData[]) {
   });
 
   const isLoading =
-    deleteFileMutation.isPending || 
-    deleteFilesMutation.isPending || 
+    deleteFileMutation.isPending ||
+    deleteFilesMutation.isPending ||
     downloadFileMutation.isPending;
 
   const filteredFiles = localFiles.filter(
