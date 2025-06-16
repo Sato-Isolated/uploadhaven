@@ -25,7 +25,7 @@ import {
   Download, 
   Calendar,
   HardDrive,
-  Upload,
+  Home,
   Grid3x3,
   List
 } from 'lucide-react';
@@ -95,6 +95,7 @@ export default async function UserFilesPage() {
   )) as unknown as UserFileData[];
 
   const t = await getTranslations('Files');
+  const tNavigation = await getTranslations('Navigation');
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
@@ -116,11 +117,10 @@ export default async function UserFilesPage() {
                   <List className="h-4 w-4" />
                   {t('backToDashboard')}
                 </Button>
-              </Link>
-              <Link href="/">
+              </Link>              <Link href="/dashboard">
                 <Button className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600">
-                  <Upload className="h-4 w-4" />
-                  {t('uploadNewFile')}
+                  <Home className="h-4 w-4" />
+                  {tNavigation('home')}
                 </Button>
               </Link>
             </div>
@@ -142,11 +142,10 @@ export default async function UserFilesPage() {
                 </h3>
                 <p className="mb-6 text-gray-600 dark:text-gray-400">
                   {t('startByUploading')}
-                </p>
-                <Link href="/">
+                </p>                <Link href="/dashboard">
                   <Button className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600">
-                    <Upload className="h-4 w-4" />
-                    {t('uploadFiles')}
+                    <Home className="h-4 w-4" />
+                    {tNavigation('home')}
                   </Button>
                 </Link>
               </div>

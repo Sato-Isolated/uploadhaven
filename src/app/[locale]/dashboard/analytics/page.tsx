@@ -19,7 +19,7 @@ export default async function UserAnalyticsPage() {
   const t = await getTranslations('Analytics');
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8 flex items-center justify-between">
@@ -32,7 +32,7 @@ export default async function UserAnalyticsPage() {
             </p>
           </div>
           <Link href="/dashboard">
-            <Button variant="outline" className="flex items-center gap-2">
+            <Button variant="outline" className="flex items-center gap-2 border-gray-300 bg-white text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700">
               <ArrowLeft className="h-4 w-4" />
               {t('backToDashboard')}
             </Button>

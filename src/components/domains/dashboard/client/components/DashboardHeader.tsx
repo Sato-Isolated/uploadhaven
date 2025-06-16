@@ -8,7 +8,7 @@ import Link from 'next/link';
 import SignOutButton from '@/components/domains/auth/SignOutButton';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
 import { NotificationDropdown } from '@/components/domains/notifications/NotificationDropdown';
-import { Upload, User, ArrowRight } from 'lucide-react';
+import { Home, User, ArrowRight } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
 interface DashboardHeaderProps {
@@ -16,7 +16,7 @@ interface DashboardHeaderProps {
 }
 
 export default function DashboardHeader({ userName }: DashboardHeaderProps) {
-  const t = useTranslations('FileUploader');
+  const tNavigation = useTranslations('Navigation');
   const tDashboard = useTranslations('Dashboard');
 
   return (
@@ -93,8 +93,8 @@ export default function DashboardHeader({ userName }: DashboardHeaderProps) {
             transition={{ type: 'spring', stiffness: 300 }}
           >
             <Button className="h-11 border-0 bg-gradient-to-r from-blue-600 to-purple-600 px-6 text-white shadow-lg hover:from-blue-700 hover:to-purple-700">
-              <Upload className="mr-2 h-5 w-5" />
-              {t('uploadFiles')}
+              <Home className="mr-2 h-5 w-5" />
+              {tNavigation('home')}
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           </motion.div>

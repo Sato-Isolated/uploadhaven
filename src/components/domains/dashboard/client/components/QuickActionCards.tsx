@@ -5,7 +5,7 @@
 import { motion } from 'motion/react';
 import { Card, CardContent } from '@/components/ui/card';
 import Link from 'next/link';
-import { Files, Cloud, TrendingUp } from 'lucide-react';
+import { Files, TrendingUp } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
 export default function QuickActionCards() {
@@ -13,14 +13,6 @@ export default function QuickActionCards() {
   const tDashboard = useTranslations('Dashboard');
 
   const quickActions = [
-    {
-      title: t('uploadFiles'),
-      description: t('dragDropOrClick'),
-      icon: Cloud,
-      href: '/',
-      gradient: 'from-blue-500 to-cyan-500',
-      bgGradient: 'from-blue-50 to-cyan-50 dark:from-blue-950 dark:to-cyan-950',
-    },
     {
       title: tDashboard('myFiles'),
       description: tDashboard('viewAndManageFiles'),
@@ -43,7 +35,7 @@ export default function QuickActionCards() {
 
   return (
     <motion.div
-      className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-3"
+      className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-2"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.6, duration: 0.6 }}
