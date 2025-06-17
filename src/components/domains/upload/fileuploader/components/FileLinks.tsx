@@ -84,24 +84,7 @@ export default function FileLinks({ file, onCopyToClipboard }: FileLinksProps) {
               <ExternalLink className="h-3 w-3" />
             </Button>
           </motion.div>
-        </motion.div>
-      )}
-
-      {/* Direct URL indicator */}
-      {file.url && file.shortUrl && (
-        <motion.div
-          className="text-muted-foreground flex items-center space-x-2 text-xs"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.8 }}
-        >
-          <File className="h-3 w-3 flex-shrink-0" />
-          <span className="truncate">
-            Direct: {file.url.replace(/^https?:\/\//, '').substring(0, 40)}
-            ...
-          </span>
-        </motion.div>
-      )}
+        </motion.div>      )}
     </motion.div>
   );
 }

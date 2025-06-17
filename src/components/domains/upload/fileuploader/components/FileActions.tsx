@@ -47,26 +47,7 @@ export default function FileActions({
               <Link2 className="mr-1 h-3 w-3" />
               {t('copyLink')}
             </Button>
-          </motion.div>
-        )}
-        {file.status === 'completed' && file.url && (
-          <motion.div
-            key={`direct-url-${file.id}`}
-            initial={{ opacity: 0, x: 10 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.4 }}
-          >
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => onCopyToClipboard(file.url!, t('directUrl'))}
-              className="border-blue-200 hover:bg-blue-50 dark:border-blue-800 dark:hover:bg-blue-950"
-            >
-              <Copy className="mr-1 h-3 w-3" />
-              {t('direct')}
-            </Button>
-          </motion.div>
-        )}
+          </motion.div>        )}
       </AnimatePresence>
       {/* Remove button */}
       <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>

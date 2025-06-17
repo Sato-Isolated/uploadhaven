@@ -78,11 +78,11 @@ describe('FileManager Types', () => {
   });
 
   describe('Component Props Interfaces', () => {
-    it('should have correct FileCardProps structure', () => {
-      const mockFile: FileInfo = {
+    it('should have correct FileCardProps structure', () => {      const mockFile: FileInfo = {
         id: 'test-file-id',
         name: 'test.txt',
         originalName: 'test.txt',
+        originalType: 'text/plain',
         mimeType: 'text/plain',
         size: 1024,
         type: 'document',
@@ -91,6 +91,7 @@ describe('FileManager Types', () => {
         expiresAt: '2024-01-02T00:00:00Z',
         shortUrl: 'https://short.ly/abc123',
         isEncrypted: false,
+        isZeroKnowledge: false,
       };
 
       const props: FileCardProps = {

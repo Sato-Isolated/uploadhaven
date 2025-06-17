@@ -34,13 +34,28 @@ export function getFileTypeInfo(file: FilePreviewData | null): FileTypeInfo {
         )
       )
     : false;
-  const isPdf = file.type === 'application/pdf' || false;
+  const isPdf = 
+    file.type === 'application/pdf' || 
+    Boolean(file.originalName.match(/\.pdf$/i)) || 
+    false;
   const isCode =
     Boolean(
       file.originalName.match(
         /\.(js|ts|tsx|jsx|py|java|cpp|c|cs|php|rb|go|rs|swift|kt|dart|vue|svelte)$/i
       )
     ) || false;
+
+  // Debug logging for file type detection
+  console.log('🔍 FILE TYPE DETECTION:', {
+    filename: file.originalName,
+    type: file.type,
+    isPdf,
+    isImage,
+    isVideo,
+    isAudio,
+    isText,
+    isCode,
+  });
 
   return {
     isImage,

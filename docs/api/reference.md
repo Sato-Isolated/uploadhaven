@@ -11,13 +11,70 @@ Production: https://your-domain.com
 
 ## Authentication
 
-UploadHaven uses session-based authentication with better-auth. Most endpoints require authentication via session cookies.
+UploadHaven uses session-based authentication with better-auth. Most endpoints require
+authentication via session cookies.
 
 ### Authentication Flow
 
 1. **Sign Up**: `POST /api/auth/signup`
 2. **Sign In**: `POST /api/auth/signin`
 3. **Sign Out**: `POST /api/auth/signout`
+
+---
+
+## 🚀 Quick Reference
+
+### Essential Endpoints
+
+#### Upload File
+
+```bash
+POST /api/upload
+Content-Type: multipart/form-data
+
+curl -X POST http://localhost:3000/api/upload \
+  -F "file=@document.pdf" \
+  -F "expiresIn=24h"
+```
+
+#### Get File Info
+
+```bash
+GET /api/file/:shortUrl
+
+curl http://localhost:3000/api/file/abc123xyz
+```
+
+#### Download File
+
+```bash
+GET /f/:shortUrl
+
+curl -o downloaded-file http://localhost:3000/f/abc123xyz
+```
+
+### Response Format
+
+All API responses follow this structure:
+
+```typescript
+{
+  success: boolean
+  data?: any
+  error?: string
+  message?: string
+}
+```
+
+### Error Codes
+
+- `400` - Bad Request (invalid parameters)
+- `401` - Unauthorized (authentication required)
+- `403` - Forbidden (insufficient permissions)
+- `404` - Not Found (file/resource not found)
+- `413` - Payload Too Large (file size exceeded)
+- `429` - Too Many Requests (rate limit exceeded)
+- `500` - Internal Server Error
 
 ---
 
@@ -34,6 +91,7 @@ Upload a new file to the platform.
 **Content-Type**: `multipart/form-data`
 
 **Request Body**:
+
 ```typescript
 {
   file: File                    // Required: File to upload
@@ -45,6 +103,7 @@ Upload a new file to the platform.
 ```
 
 **Response**:
+
 ```typescript
 {
   success: boolean
@@ -69,16 +128,18 @@ Upload a new file to the platform.
 
 **Performance Optimizations** ⭐ NEW:
 
-The upload API automatically applies advanced performance optimizations based on file characteristics:
+The upload API automatically applies advanced performance optimizations based on file
+characteristics:
 
 - **Files <100MB**: Standard encryption (optimal for speed)
-- **Files 100MB-500MB**: Streaming encryption (constant memory usage)  
+- **Files 100MB-500MB**: Streaming encryption (constant memory usage)
 - **Files >500MB**: Batch processing (maximum throughput up to 1.29 GB/s)
 - **Compression**: Automatically applied to text files (up to 99.7% reduction)
 - **Format Intelligence**: Videos/images skip compression (saves 30+ seconds)
 - **Key Caching**: LRU cache with >90% hit rate for repeated operations
 
 **Example Response with Performance Metadata**:
+
 ```json
 {
   "success": true,
@@ -99,11 +160,13 @@ The upload API automatically applies advanced performance optimizations based on
 }
 ```
 
-> ⚠️ **Performance Note**: Throughput values shown are from test environment (AMD Ryzen 7 5800X + NVMe SSD). 
-> VPS environments will typically show 20-400 MB/s depending on hardware configuration.
-> The optimization benefits (memory efficiency, intelligent processing) apply regardless of hardware.
+> ⚠️ **Performance Note**: Throughput values shown are from test environment (AMD Ryzen 7 5800X +
+> NVMe SSD). VPS environments will typically show 20-400 MB/s depending on hardware configuration.
+> The optimization benefits (memory efficiency, intelligent processing) apply regardless of
+> hardware.
 
 **Example**:
+
 ```bash
 curl -X POST \
   -F "file=@document.pdf" \
@@ -123,12 +186,14 @@ Download a file using its short URL.
 **Authentication**: Not required (public access)
 
 **Parameters**:
+
 - `shortUrl` (path): Short URL identifier
 - `verified` (query): Verification token for password-protected files
 
 **Response**: File binary data with appropriate headers
 
 **Headers**:
+
 ```
 Content-Type: [file MIME type]
 Content-Length: [file size]
@@ -137,6 +202,7 @@ Cache-Control: private, no-cache
 ```
 
 **Example**:
+
 ```bash
 curl -O http://localhost:3000/api/download/abc123
 ```
@@ -152,12 +218,14 @@ Preview a file without counting as a download.
 **Authentication**: Not required
 
 **Parameters**:
+
 - `shortUrl` (path): Short URL identifier
 - `password` (query): Password for protected files
 
 **Response**: File binary data for preview
 
 **Headers**:
+
 ```
 Content-Type: [file MIME type]
 Content-Disposition: inline; filename="[original filename]"
@@ -175,10 +243,12 @@ Get a thumbnail for supported file types.
 **Authentication**: Not required
 
 **Parameters**:
+
 - `shortUrl` (path): Short URL identifier
 - `password` (query): Password for protected files
 
 **Supported File Types**:
+
 - Images: JPEG, PNG, GIF, WebP
 - Videos: MP4 (placeholder)
 - Documents: PDF (placeholder)
@@ -196,34 +266,36 @@ Get files uploaded by the authenticated user.
 **Authentication**: Required
 
 **Query Parameters**:
+
 - `page` (number): Page number (default: 1)
 - `limit` (number): Items per page (default: 10)
 - `sortBy` (string): Sort field (default: "uploadDate")
 - `sortOrder` (string): "asc" | "desc" (default: "desc")
 
 **Response**:
+
 ```typescript
 {
-  success: boolean
+  success: boolean;
   files: Array<{
-    _id: string
-    filename: string
-    shortUrl: string
-    originalName: string
-    mimeType: string
-    size: number
-    uploadDate: string
-    expiresAt: string
-    downloadCount: number
-    isPasswordProtected: boolean
-  }>
+    _id: string;
+    filename: string;
+    shortUrl: string;
+    originalName: string;
+    mimeType: string;
+    size: number;
+    uploadDate: string;
+    expiresAt: string;
+    downloadCount: number;
+    isPasswordProtected: boolean;
+  }>;
   pagination: {
-    page: number
-    limit: number
-    total: number
-    pages: number
-    hasNext: boolean
-    hasPrev: boolean
+    page: number;
+    limit: number;
+    total: number;
+    pages: number;
+    hasNext: boolean;
+    hasPrev: boolean;
   }
 }
 ```
@@ -239,13 +311,15 @@ Delete a file (only by owner or admin).
 **Authentication**: Required
 
 **Parameters**:
+
 - `filename` (path): File identifier
 
 **Response**:
+
 ```typescript
 {
-  success: boolean
-  message: string
+  success: boolean;
+  message: string;
 }
 ```
 
@@ -260,6 +334,7 @@ Delete multiple files at once.
 **Authentication**: Required
 
 **Request Body**:
+
 ```typescript
 {
   filenames: string[]          // Array of filenames to delete
@@ -267,6 +342,7 @@ Delete multiple files at once.
 ```
 
 **Response**:
+
 ```typescript
 {
   success: boolean
@@ -289,47 +365,50 @@ Get notifications for the authenticated user.
 **Authentication**: Required
 
 **Query Parameters**:
+
 - `limit` (number): Max notifications to return (default: 50)
 - `includeRead` (boolean): Include read notifications (default: true)
 - `type` (string): Filter by notification type
 - `stats` (boolean): Return only statistics (default: false)
 
 **Response**:
+
 ```typescript
 {
-  success: boolean
+  success: boolean;
   notifications: Array<{
-    id: string
-    userId: string
-    type: string
-    title: string
-    message: string
-    isRead: boolean
-    priority: "low" | "normal" | "high" | "urgent"
-    relatedFileId?: string
-    actionUrl?: string
-    actionLabel?: string
-    createdAt: string
-    metadata?: Record<string, any>
-  }>
-  count: number
+    id: string;
+    userId: string;
+    type: string;
+    title: string;
+    message: string;
+    isRead: boolean;
+    priority: 'low' | 'normal' | 'high' | 'urgent';
+    relatedFileId?: string;
+    actionUrl?: string;
+    actionLabel?: string;
+    createdAt: string;
+    metadata?: Record<string, any>;
+  }>;
+  count: number;
 }
 ```
 
 **Statistics Response** (when `stats=true`):
+
 ```typescript
 {
-  success: boolean
+  success: boolean;
   stats: {
-    total: number
-    unread: number
+    total: number;
+    unread: number;
     byPriority: {
-      low: number
-      normal: number
-      high: number
-      urgent: number
+      low: number;
+      normal: number;
+      high: number;
+      urgent: number;
     }
-    byType: Record<string, number>
+    byType: Record<string, number>;
   }
 }
 ```
@@ -347,16 +426,18 @@ Connect to real-time notification stream.
 **Protocol**: Server-Sent Events (SSE)
 
 **Event Types**:
+
 - `connected`: Connection established
 - `notification`: New notification received
 
 **Example Connection**:
+
 ```javascript
 const eventSource = new EventSource('/api/notifications/stream');
 
 eventSource.onmessage = (event) => {
   const data = JSON.parse(event.data);
-  
+
   if (data.type === 'notification') {
     console.log('New notification:', data.data);
   }
@@ -374,6 +455,7 @@ Mark notifications as read or perform other actions.
 **Authentication**: Required
 
 **Request Body**:
+
 ```typescript
 {
   notificationId?: string      // Specific notification ID
@@ -382,6 +464,7 @@ Mark notifications as read or perform other actions.
 ```
 
 **Response**:
+
 ```typescript
 {
   success: boolean
@@ -404,13 +487,15 @@ Delete a specific notification.
 **Authentication**: Required
 
 **Query Parameters**:
+
 - `id` (string): Notification ID to delete
 
 **Response**:
+
 ```typescript
 {
-  success: boolean
-  message: string
+  success: boolean;
+  message: string;
 }
 ```
 
@@ -427,13 +512,15 @@ Scan a file for malware and security threats.
 **Authentication**: Required
 
 **Request Body**:
+
 ```typescript
 {
-  fileName: string             // Filename to scan
+  fileName: string; // Filename to scan
 }
 ```
 
 **Response**:
+
 ```typescript
 {
   fileName: string
@@ -466,6 +553,7 @@ Scan multiple files for security threats.
 **Authentication**: Required (Admin only)
 
 **Request Body**:
+
 ```typescript
 {
   filenames?: string[]         // Specific files (optional)
@@ -474,18 +562,19 @@ Scan multiple files for security threats.
 ```
 
 **Response**:
+
 ```typescript
 {
-  success: boolean
-  totalFiles: number
-  scannedFiles: number
-  threatsFound: number
+  success: boolean;
+  totalFiles: number;
+  scannedFiles: number;
+  threatsFound: number;
   results: Array<{
-    filename: string
-    result: "clean" | "malicious" | "suspicious" | "error"
-    threatName?: string
-    error?: string
-  }>
+    filename: string;
+    result: 'clean' | 'malicious' | 'suspicious' | 'error';
+    threatName?: string;
+    error?: string;
+  }>;
 }
 ```
 
@@ -500,6 +589,7 @@ Get security events and logs.
 **Authentication**: Required (Admin only)
 
 **Query Parameters**:
+
 - `page` (number): Page number
 - `limit` (number): Items per page
 - `type` (string): Filter by event type
@@ -508,22 +598,23 @@ Get security events and logs.
 - `endDate` (string): Filter to date
 
 **Response**:
+
 ```typescript
 {
-  success: boolean
+  success: boolean;
   events: Array<{
-    _id: string
-    type: string
-    timestamp: string
-    ip: string
-    details: string
-    severity: "low" | "medium" | "high"
-    userAgent?: string
-    filename?: string
-    userId?: string
-    metadata?: Record<string, any>
-  }>
-  pagination: PaginationData
+    _id: string;
+    type: string;
+    timestamp: string;
+    ip: string;
+    details: string;
+    severity: 'low' | 'medium' | 'high';
+    userAgent?: string;
+    filename?: string;
+    userId?: string;
+    metadata?: Record<string, any>;
+  }>;
+  pagination: PaginationData;
 }
 ```
 
@@ -538,6 +629,7 @@ Export security logs in various formats.
 **Authentication**: Required (Admin only)
 
 **Query Parameters**:
+
 - `format` (string): "json" | "csv" (default: "json")
 - `startDate` (string): Start date filter
 - `endDate` (string): End date filter
@@ -558,29 +650,30 @@ Get analytics data for the authenticated user.
 **Authentication**: Required
 
 **Response**:
+
 ```typescript
 {
-  success: boolean
+  success: boolean;
   analytics: {
-    totalUploads: number
-    totalDownloads: number
-    totalSize: number
-    storageUsed: number
+    totalUploads: number;
+    totalDownloads: number;
+    totalSize: number;
+    storageUsed: number;
     uploadTrend: Array<{
-      date: string
-      count: number
-    }>
+      date: string;
+      count: number;
+    }>;
     downloadTrend: Array<{
-      date: string
-      count: number
-    }>
+      date: string;
+      count: number;
+    }>;
     topFiles: Array<{
-      filename: string
-      originalName: string
-      downloads: number
-      size: number
-    }>
-    fileTypes: Record<string, number>
+      filename: string;
+      originalName: string;
+      downloads: number;
+      size: number;
+    }>;
+    fileTypes: Record<string, number>;
   }
 }
 ```
@@ -596,38 +689,39 @@ Get system-wide analytics (admin only).
 **Authentication**: Required (Admin only)
 
 **Response**:
+
 ```typescript
 {
-  success: boolean
+  success: boolean;
   analytics: {
-    totalUsers: number
-    totalFiles: number
-    totalDownloads: number
-    totalStorage: number
-    activeUsers: number
+    totalUsers: number;
+    totalFiles: number;
+    totalDownloads: number;
+    totalStorage: number;
+    activeUsers: number;
     userGrowth: Array<{
-      date: string
-      count: number
-    }>
+      date: string;
+      count: number;
+    }>;
     uploadActivity: Array<{
-      date: string
-      uploads: number
-      downloads: number
-    }>
+      date: string;
+      uploads: number;
+      downloads: number;
+    }>;
     storageUsage: Array<{
-      date: string
-      size: number
-    }>
+      date: string;
+      size: number;
+    }>;
     topUsers: Array<{
-      userId: string
-      email: string
-      uploads: number
-      downloads: number
-    }>
+      userId: string;
+      email: string;
+      uploads: number;
+      downloads: number;
+    }>;
     securityEvents: {
-      total: number
-      bySeverity: Record<string, number>
-      recent: Array<SecurityEvent>
+      total: number;
+      bySeverity: Record<string, number>;
+      recent: Array<SecurityEvent>;
     }
   }
 }
@@ -646,6 +740,7 @@ Get list of all users (admin only).
 **Authentication**: Required (Admin only)
 
 **Query Parameters**:
+
 - `page` (number): Page number
 - `limit` (number): Items per page
 - `search` (string): Search by email or name
@@ -653,23 +748,24 @@ Get list of all users (admin only).
 - `status` (string): Filter by status
 
 **Response**:
+
 ```typescript
 {
-  success: boolean
+  success: boolean;
   users: Array<{
-    _id: string
-    name: string
-    email: string
-    role: "user" | "admin"
-    emailVerified: boolean
-    lastActivity: string
-    createdAt: string
+    _id: string;
+    name: string;
+    email: string;
+    role: 'user' | 'admin';
+    emailVerified: boolean;
+    lastActivity: string;
+    createdAt: string;
     _count?: {
-      files: number
-      downloads: number
-    }
-  }>
-  pagination: PaginationData
+      files: number;
+      downloads: number;
+    };
+  }>;
+  pagination: PaginationData;
 }
 ```
 
@@ -684,9 +780,10 @@ Change a user's role (admin only).
 **Authentication**: Required (Admin only)
 
 **Request Body**:
+
 ```typescript
 {
-  role: "user" | "admin"
+  role: 'user' | 'admin';
 }
 ```
 
@@ -701,6 +798,7 @@ Delete a user account (admin only).
 **Authentication**: Required (Admin only)
 
 **Response**:
+
 ```typescript
 {
   success: boolean
@@ -720,6 +818,7 @@ Send system-wide notifications (admin only).
 **Authentication**: Required (Admin only)
 
 **Request Body**:
+
 ```typescript
 {
   title: string
@@ -731,20 +830,21 @@ Send system-wide notifications (admin only).
 ```
 
 **Response**:
+
 ```typescript
 {
-  success: boolean
-  message: string
+  success: boolean;
+  message: string;
   stats: {
-    totalUsers: number
-    successful: number
-    failed: number
+    totalUsers: number;
+    successful: number;
+    failed: number;
   }
   notification: {
-    title: string
-    message: string
-    priority: string
-    targetUsers: string
+    title: string;
+    message: string;
+    priority: string;
+    targetUsers: string;
   }
 }
 ```
@@ -762,18 +862,19 @@ Get general system statistics.
 **Authentication**: Optional (some data requires admin)
 
 **Response**:
+
 ```typescript
 {
-  success: boolean
+  success: boolean;
   stats: {
-    totalFiles: number
-    totalDownloads: number
-    totalUsers: number          // Admin only
-    totalStorage: number
-    recentUploads: number       // Last 24h
-    recentDownloads: number     // Last 24h
-    averageFileSize: number
-    popularFileTypes: Record<string, number>
+    totalFiles: number;
+    totalDownloads: number;
+    totalUsers: number; // Admin only
+    totalStorage: number;
+    recentUploads: number; // Last 24h
+    recentDownloads: number; // Last 24h
+    averageFileSize: number;
+    popularFileTypes: Record<string, number>;
   }
 }
 ```
@@ -789,23 +890,24 @@ Get statistics for the authenticated user.
 **Authentication**: Required
 
 **Response**:
+
 ```typescript
 {
-  success: boolean
+  success: boolean;
   stats: {
-    totalFiles: number
-    totalSize: number
-    recentUploads: number
-    expiringSoon: number
+    totalFiles: number;
+    totalSize: number;
+    recentUploads: number;
+    expiringSoon: number;
     passwordProtection: {
-      protected: number
-      unprotected: number
+      protected: number;
+      unprotected: number;
     }
     fileTypes: Array<{
-      type: string
-      count: number
-      size: number
-    }>
+      type: string;
+      count: number;
+      size: number;
+    }>;
   }
 }
 ```
@@ -823,28 +925,30 @@ Get activity events (uploads, downloads, etc.).
 **Authentication**: Required
 
 **Query Parameters**:
+
 - `page` (number): Page number
 - `limit` (number): Items per page
 - `type` (string): Filter by event type
 - `userId` (string): Filter by user (admin only)
 
 **Response**:
+
 ```typescript
 {
-  success: boolean
+  success: boolean;
   activities: Array<{
-    _id: string
-    type: string
-    timestamp: string
-    details: string
-    ip: string
-    userAgent?: string
-    filename?: string
-    fileSize?: number
-    fileType?: string
-    userId?: string
-  }>
-  pagination: PaginationData
+    _id: string;
+    type: string;
+    timestamp: string;
+    details: string;
+    ip: string;
+    userAgent?: string;
+    filename?: string;
+    fileSize?: number;
+    fileType?: string;
+    userId?: string;
+  }>;
+  pagination: PaginationData;
 }
 ```
 
@@ -861,12 +965,13 @@ Remove expired files from the system.
 **Authentication**: Required (Admin only)
 
 **Response**:
+
 ```typescript
 {
-  success: boolean
-  deletedFiles: number
-  freedSpace: number          // Bytes freed
-  message: string
+  success: boolean;
+  deletedFiles: number;
+  freedSpace: number; // Bytes freed
+  message: string;
 }
 ```
 
@@ -881,22 +986,23 @@ Get status of background services.
 **Authentication**: Required (Admin only)
 
 **Response**:
+
 ```typescript
 {
-  success: boolean
+  success: boolean;
   services: {
     cleanup: {
-      status: "running" | "stopped" | "error"
-      lastRun: string
-      nextRun: string
+      status: 'running' | 'stopped' | 'error';
+      lastRun: string;
+      nextRun: string;
     }
     notifications: {
-      status: "running" | "stopped" | "error"
-      activeConnections: number
+      status: 'running' | 'stopped' | 'error';
+      activeConnections: number;
     }
     security: {
-      status: "running" | "stopped" | "error"
-      lastScan: string
+      status: 'running' | 'stopped' | 'error';
+      lastScan: string;
     }
   }
 }
@@ -909,6 +1015,7 @@ Get status of background services.
 All endpoints may return these error responses:
 
 ### 400 Bad Request
+
 ```typescript
 {
   success: false
@@ -918,47 +1025,52 @@ All endpoints may return these error responses:
 ```
 
 ### 401 Unauthorized
+
 ```typescript
 {
-  success: false
-  error: "Unauthorized"
+  success: false;
+  error: 'Unauthorized';
 }
 ```
 
 ### 403 Forbidden
+
 ```typescript
 {
-  success: false
-  error: "Insufficient permissions"
+  success: false;
+  error: 'Insufficient permissions';
 }
 ```
 
 ### 404 Not Found
+
 ```typescript
 {
-  success: false
-  error: "Resource not found"
+  success: false;
+  error: 'Resource not found';
 }
 ```
 
 ### 429 Too Many Requests
+
 ```typescript
 {
-  success: false
-  error: "Rate limit exceeded"
+  success: false;
+  error: 'Rate limit exceeded';
   rateLimit: {
-    limit: number
-    remaining: number
-    reset: string
+    limit: number;
+    remaining: number;
+    reset: string;
   }
 }
 ```
 
 ### 500 Internal Server Error
+
 ```typescript
 {
-  success: false
-  error: "Internal server error"
+  success: false;
+  error: 'Internal server error';
 }
 ```
 
@@ -974,6 +1086,7 @@ API endpoints are protected by rate limiting:
 - **Admin API**: 200 requests per 15 minutes
 
 Rate limit headers are included in responses:
+
 ```
 X-RateLimit-Limit: 100
 X-RateLimit-Remaining: 95
@@ -989,6 +1102,7 @@ X-RateLimit-Reset: 2025-06-12T10:30:00.000Z
 Real-time events sent via Server-Sent Events:
 
 #### Connection Event
+
 ```json
 {
   "type": "connected",
@@ -999,6 +1113,7 @@ Real-time events sent via Server-Sent Events:
 ```
 
 #### Notification Event
+
 ```json
 {
   "type": "notification",
@@ -1027,17 +1142,20 @@ Real-time events sent via Server-Sent Events:
 class UploadHavenClient {
   constructor(private baseUrl: string) {}
 
-  async uploadFile(file: File, options?: {
-    expiration?: string;
-    password?: string;
-  }) {
+  async uploadFile(
+    file: File,
+    options?: {
+      expiration?: string;
+      password?: string;
+    }
+  ) {
     const formData = new FormData();
     formData.append('file', file);
-    
+
     if (options?.expiration) {
       formData.append('expiration', options.expiration);
     }
-    
+
     if (options?.password) {
       formData.append('password', options.password);
     }
@@ -1057,7 +1175,7 @@ class UploadHavenClient {
 
   connectToNotifications(onNotification: (notification: any) => void) {
     const eventSource = new EventSource(`${this.baseUrl}/api/notifications/stream`);
-    
+
     eventSource.onmessage = (event) => {
       const data = JSON.parse(event.data);
       if (data.type === 'notification') {
@@ -1075,7 +1193,7 @@ const client = new UploadHavenClient('http://localhost:3000');
 // Upload file
 const result = await client.uploadFile(file, {
   expiration: '24h',
-  password: 'secret123'
+  password: 'secret123',
 });
 
 // Connect to notifications
@@ -1105,13 +1223,15 @@ A Postman collection is available for testing all API endpoints:
 }
 ```
 
-Download the collection: [UploadHaven.postman_collection.json](./UploadHaven.postman_collection.json)
+Download the collection:
+[UploadHaven.postman_collection.json](./UploadHaven.postman_collection.json)
 
 ---
 
 ## Changelog
 
 ### v2.0.0 (Current)
+
 - ✅ Real-time notifications via SSE
 - ✅ Comprehensive security scanning
 - ✅ Admin management panel
@@ -1120,6 +1240,7 @@ Download the collection: [UploadHaven.postman_collection.json](./UploadHaven.pos
 - ✅ Bulk operations
 
 ### v1.0.0
+
 - ✅ Basic file upload/download
 - ✅ User authentication
 - ✅ File sharing with short URLs

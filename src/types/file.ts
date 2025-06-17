@@ -53,12 +53,24 @@ export interface BaseFileData {
   readonly id: string;
   readonly name: string;
   readonly originalName: string;
+  readonly originalType: string; // Original MIME type before encryption
   readonly size: number;
   readonly mimeType: string;
   readonly uploadDate: string;
   readonly downloadCount: number;
   readonly type: FileType;
   readonly isEncrypted: boolean;
+  // Zero-Knowledge encryption fields
+  readonly isZeroKnowledge: boolean;
+  readonly zkMetadata?: {
+    algorithm: string;
+    iv: string;
+    salt: string;
+    iterations: number;
+    encryptedSize: number;
+    uploadTimestamp: number;
+    keyHint?: 'password' | 'embedded';
+  };
 }
 
 // =============================================================================
@@ -148,6 +160,7 @@ export interface IFile {
   readonly filename: string;
   readonly shortUrl: string;
   readonly originalName: string;
+  readonly originalType: string; // Original MIME type before encryption
   readonly mimeType: string;
   readonly size: number;
   readonly uploadDate: Date;
@@ -168,6 +181,17 @@ export interface IFile {
   readonly isEncrypted: boolean;
   readonly encryptionMetadata?: EncryptionMetadata;
   readonly previewEncryptionMetadata?: EncryptionMetadata;
+  // Zero-Knowledge encryption fields
+  readonly isZeroKnowledge: boolean;
+  readonly zkMetadata?: {
+    algorithm: string;
+    iv: string;
+    salt: string;
+    iterations: number;
+    encryptedSize: number;
+    uploadTimestamp: number;
+    keyHint?: 'password' | 'embedded';
+  };
   readonly createdAt: Date;
   readonly updatedAt: Date;
 }
@@ -211,14 +235,17 @@ export function toClientFileData(dbFile: IFile): ClientFileData {
     id: dbFile._id,
     name: dbFile.filename,
     originalName: dbFile.originalName,
+    originalType: dbFile.originalType,
     size: dbFile.size,
     mimeType: dbFile.mimeType,
     uploadDate: dbFile.uploadDate.toISOString(),
     downloadCount: dbFile.downloadCount,
-    type: getFileTypeFromMimeType(dbFile.mimeType),
+    type: getFileTypeFromMimeType(dbFile.originalType || dbFile.mimeType), // Use original type for ZK files
     expiresAt: dbFile.expiresAt?.toISOString() || null,
     shortUrl: dbFile.shortUrl,
     isEncrypted: dbFile.isEncrypted || false,
+    isZeroKnowledge: dbFile.isZeroKnowledge || false,
+    zkMetadata: dbFile.zkMetadata,
   };
 }
 
@@ -233,16 +260,19 @@ export function toAdminFileData(
     id: dbFile._id,
     name: dbFile.filename,
     originalName: dbFile.originalName,
+    originalType: dbFile.originalType,
     size: dbFile.size,
     mimeType: dbFile.mimeType,
     uploadDate: dbFile.uploadDate.toISOString(),
     downloadCount: dbFile.downloadCount,
-    type: getFileTypeFromMimeType(dbFile.mimeType),
+    type: getFileTypeFromMimeType(dbFile.originalType || dbFile.mimeType), // Use original type for ZK files
     expiresAt: dbFile.expiresAt?.toISOString() || null,
     userId: dbFile.userId,
     userName: userName,
     isAnonymous: dbFile.isAnonymous,
     isEncrypted: dbFile.isEncrypted || false,
+    isZeroKnowledge: dbFile.isZeroKnowledge || false,
+    zkMetadata: dbFile.zkMetadata,
   };
 }
 

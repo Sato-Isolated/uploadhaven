@@ -3,6 +3,7 @@
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { useTranslations } from 'next-intl';
+import { useOrigin } from '@/hooks/useOrigin';
 
 interface CopyLinkButtonProps {
   filename: string;
@@ -14,9 +15,14 @@ export default function CopyLinkButton({
   className,
 }: CopyLinkButtonProps) {
   const t = useTranslations('Dashboard');
+  const origin = useOrigin();
 
   const handleCopyLink = () => {
-    const link = `${window.location.origin}/api/files/${filename}`;
+    if (!origin) {
+      toast.error('Unable to copy link - origin not available');
+      return;
+    }
+    const link = `${origin}/api/files/${filename}`;
     navigator.clipboard.writeText(link);
     toast.success(t('linkCopiedToClipboard', { label: t('link') }));
   };

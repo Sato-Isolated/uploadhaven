@@ -76,11 +76,14 @@ export async function GET(
         { success: false, error: 'File has expired', expired: true },
         { status: 410 }
       );
-    }
-
-    // Check if file is password protected
+    }    // Check if file is password protected
     if (fileDoc.isPasswordProtected) {
       // Return that password is required
+      // For ZK files, try to get original type from zkMetadata
+      const originalType = fileDoc.isZeroKnowledge && fileDoc.zkMetadata 
+        ? (fileDoc.zkMetadata as { originalType?: string }).originalType || fileDoc.mimeType
+        : fileDoc.mimeType;
+        
       return NextResponse.json({
         success: true,
         passwordRequired: true,
@@ -90,6 +93,10 @@ export async function GET(
           mimeType: fileDoc.mimeType,
           uploadDate: fileDoc.uploadDate,
           isPasswordProtected: true,
+          // ZK fields for client-side encryption handling
+          isZeroKnowledge: fileDoc.isZeroKnowledge || false,
+          originalType: originalType,
+          zkMetadata: fileDoc.zkMetadata,
         },
       });
     }
@@ -104,9 +111,12 @@ export async function GET(
       filename: fileDoc.filename,
       fileSize: fileDoc.size,
       fileType: fileDoc.mimeType,
-    });
-
-    // Return file information
+    });    // Return file information
+    // For ZK files, try to get original type from zkMetadata
+    const originalType = fileDoc.isZeroKnowledge && fileDoc.zkMetadata 
+      ? (fileDoc.zkMetadata as { originalType?: string }).originalType || fileDoc.mimeType
+      : fileDoc.mimeType;
+      
     return NextResponse.json({
       success: true,
       passwordRequired: false,
@@ -119,6 +129,10 @@ export async function GET(
         expiresAt: fileDoc.expiresAt,
         downloadCount: fileDoc.downloadCount || 0,
         isPasswordProtected: fileDoc.isPasswordProtected || false,
+        // ZK fields for client-side encryption handling
+        isZeroKnowledge: fileDoc.isZeroKnowledge || false,
+        originalType: originalType,
+        zkMetadata: fileDoc.zkMetadata,
       },
     });
   } catch (error) {

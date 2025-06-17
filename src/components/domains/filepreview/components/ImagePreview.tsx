@@ -14,7 +14,17 @@ export default function ImagePreview({ file }: ImagePreviewProps) {
   const [imageError, setImageError] = useState(false);
   const t = useTranslations('Stats');
 
+  // Debug: Log image preview info
+  console.log('🖼️ IMAGE PREVIEW DEBUG:', {
+    filename: file.filename,
+    originalName: file.originalName,
+    type: file.type,
+    url: file.url,
+    urlType: file.url?.startsWith('blob:') ? 'blob' : 'api',
+  });
+
   if (imageError) {
+    console.log('❌ IMAGE ERROR: Failed to load image');
     return (
       <div className="space-y-4 text-center">
         <div className="text-6xl text-gray-300">🖼️</div>

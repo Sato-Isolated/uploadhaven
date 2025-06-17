@@ -5,6 +5,7 @@
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { useFiles, useDeleteFile } from '@/hooks';
+import { useOrigin } from '@/hooks/useOrigin';
 import {
   FileText,
   Image as ImageIcon,
@@ -22,6 +23,7 @@ import { useTranslations } from 'next-intl';
 
 export default function FileManager({ className = '' }: FileManagerProps) {
   const t = useTranslations('Files');
+  const origin = useOrigin();
   const [previewFile, setPreviewFile] = useState<FilePreviewData | null>(null);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   // Use TanStack Query for better performance and caching
@@ -46,15 +48,22 @@ export default function FileManager({ className = '' }: FileManagerProps) {
         return <FileText className="h-4 w-4" />;
     }
   };
-
   const copyLink = (filename: string) => {
-    const url = `${window.location.origin}/api/files/${filename}`;
+    if (!origin) {
+      toast.error('Unable to copy link - origin not available');
+      return;
+    }
+    const url = `${origin}/api/files/${filename}`;
     navigator.clipboard.writeText(url);
     toast.success(t('linkCopied'));
   };
 
   const downloadFile = (filename: string) => {
-    const url = `${window.location.origin}/api/files/${filename}`;
+    if (!origin) {
+      toast.error('Unable to download - origin not available');
+      return;
+    }
+    const url = `${origin}/api/files/${filename}`;
     window.open(url, '_blank');
   };
   const deleteFile = async (filename: string) => {
@@ -116,14 +125,17 @@ export default function FileManager({ className = '' }: FileManagerProps) {
       };
     }
   };
-
   const openPreview = (file: FileInfo) => {
+    if (!origin) {
+      toast.error('Unable to preview - origin not available');
+      return;
+    }
     setPreviewFile({
       filename: file.name,
       originalName: file.originalName,
       type: file.mimeType,
       size: file.size,
-      url: `${window.location.origin}/api/files/${file.name}`,
+      url: `${origin}/api/files/${file.name}`,
     });
     setIsPreviewOpen(true);
   };

@@ -14,8 +14,11 @@ import {
 import { auth } from '@/lib/auth/auth';
 import { headers } from 'next/headers';
 import { generateShortUrl } from '@/lib/core/server-utils';
-import { buildShortUrl, hashPassword, validatePassword } from '@/lib/core/utils';
-import { encryptFile, generateSecurePassword } from '@/lib/encryption/encryption';
+import { hashPassword, validatePassword } from '@/lib/core/utils';
+import {
+  encryptFile,
+  generateSecurePassword,
+} from '@/lib/encryption/encryption';
 import {
   shouldEncryptFile,
   getDefaultEncryptionPassword,
@@ -25,10 +28,10 @@ import {
   generateEncryptedThumbnail,
   thumbnailCache,
 } from '@/lib/encryption/thumbnail-encryption';
-import { 
-  PerformanceEncryption, 
+import {
+  PerformanceEncryption,
   PerformanceMetrics,
-  PERFORMANCE_CONFIG 
+  PERFORMANCE_CONFIG,
 } from '@/lib/encryption/performance-encryption';
 import type { IFile } from '@/types/database';
 
@@ -43,6 +46,7 @@ const ALLOWED_TYPES = [
   'application/zip',
   'video/mp4',
   'audio/mpeg',
+  'application/octet-stream', // Allow encrypted blobs for ZK uploads
 ];
 
 const uploadSchema = z.object({
@@ -87,7 +91,9 @@ export async function POST(request: NextRequest) {
     } catch {
       // Session error, continuing without session
       session = null;
-    } // Get client IP and user agent
+    }
+
+    // Get client IP and user agent
     const clientIP =
       request.headers.get('x-forwarded-for') ||
       request.headers.get('x-real-ip') ||
@@ -159,9 +165,7 @@ export async function POST(request: NextRequest) {
     const encryptionPassword =
       (formData.get('encryptionPassword') as string) || null;
 
-    // Form fields extracted successfully
-
-    // Handle password protection or auto-generate key
+    // Handle password protection or auto-generate key (separate from ZK encryption)
     let hashedPassword: string | undefined = undefined;
     let isPasswordProtected = false;
     let generatedKey: string | undefined = undefined;
@@ -231,34 +235,73 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
-    // Expiration valid
+    // Expiration valid    // Check for Zero-Knowledge metadata first
+    const zkMetadataStr = formData.get('zkMetadata') as string;
+    const isZeroKnowledgeFlag = formData.get('isZeroKnowledge') === 'true';
+    const zkEncryptionKey = formData.get('zkEncryptionKey') as string;
+    let zkMetadata: {
+      iv: string;
+      salt: string;
+      iterations?: number;
+      originalName: string;
+      originalType: string;
+      originalSize: string;
+      encryptionKey?: string;
+    } | null = null;
+    let isZeroKnowledge = false;
 
-    // Validate file
+    if (zkMetadataStr || isZeroKnowledgeFlag) {
+      try {
+        zkMetadata = zkMetadataStr ? JSON.parse(zkMetadataStr) : {};
+        isZeroKnowledge = true;
+        // Zero-Knowledge upload detected
+      } catch (error) {
+        console.error('Failed to parse ZK metadata:', error);
+      }
+    }
+
+    // Validate file (with special handling for ZK uploads)
     // Starting file validation
-    const validation = uploadSchema.safeParse({ file });
+    let validation;
+    if (isZeroKnowledge) {
+      // For ZK uploads, we need to validate the original file type from metadata
+      const originalType = zkMetadata?.originalType;
+      if (originalType && !ALLOWED_TYPES.includes(originalType)) {
+        validation = {
+          success: false,
+          error: { issues: [{ message: 'Original file type not allowed' }] },
+        };
+      } else {
+        // ZK files are always application/octet-stream, which we allow
+        validation = { success: true };
+      }
+    } else {
+      // Regular validation for non-ZK uploads
+      validation = uploadSchema.safeParse({ file });
+    }
     // File validation completed
 
     if (!validation.success) {
       // File validation failed
+      const errorMessage =
+        validation.error?.issues?.[0]?.message || 'File validation failed';
       await saveSecurityEvent({
         type: 'invalid_file',
         ip: clientIP,
-        details: `File validation failed: ${validation.error.issues[0].message}`,
+        details: `File validation failed: ${errorMessage}`,
         severity: 'medium',
         userAgent,
         filename: file.name,
         fileSize: file.size,
         fileType: file.type,
       });
-
       return NextResponse.json(
-        { success: false, error: validation.error.issues[0].message },
+        { success: false, error: errorMessage },
         { status: 400 }
       );
     }
-    console.log('✓ File validation passed');
-
-    console.log('=== UPLOAD API DEBUG: VALIDATIONS COMPLETE ==='); // Get file extension
+    // File validation passed
+    // Validations complete// Get file extension
     const fileExtension = path.extname(file.name) || '';
 
     // Generate unique filename
@@ -272,14 +315,10 @@ export async function POST(request: NextRequest) {
 
     // Convert file to buffer
     const bytes = await file.arrayBuffer();
-    let buffer = Buffer.from(bytes);
-
-    // Determine if file should be encrypted
-    const shouldEncrypt = shouldEncryptFile(
-      file.size,
-      file.type,
-      requestEncryption
-    );
+    let buffer = Buffer.from(bytes); // Determine if file should be encrypted (skip for ZK uploads as they're already encrypted)
+    const shouldEncrypt =
+      !isZeroKnowledge &&
+      shouldEncryptFile(file.size, file.type, requestEncryption);
     let encryptionMetadata:
       | {
           salt: string;
@@ -291,7 +330,18 @@ export async function POST(request: NextRequest) {
       | undefined = undefined;
     let encryptionPasswordToUse: string | undefined;
 
-    if (shouldEncrypt) {
+    // Handle Zero-Knowledge uploads (already encrypted client-side)
+    if (isZeroKnowledge && zkMetadata) {
+      // Processing Zero-Knowledge upload - file already encrypted client-side
+      // Use ZK metadata directly, no server-side encryption needed
+      encryptionMetadata = {
+        salt: zkMetadata.salt,
+        iv: zkMetadata.iv,
+        tag: '', // Will be handled differently for ZK uploads
+        algorithm: 'aes-256-gcm',
+        iterations: zkMetadata.iterations || 100000,
+      };
+    } else if (shouldEncrypt) {
       // Determine encryption password - Secured mode only uses system password
       if (encryptionPassword && areUserPasswordsAllowed()) {
         encryptionPasswordToUse = encryptionPassword;
@@ -308,17 +358,18 @@ export async function POST(request: NextRequest) {
       }
 
       try {
-        console.log('� Starting performance-optimized encryption:', file.name);
+        // Starting performance-optimized encryption
         const timer = PerformanceMetrics.startTiming('file-encryption');
-        
+
         // Determine if we should use performance optimizations
-        const useOptimizations = file.size >= PERFORMANCE_CONFIG.STREAM_THRESHOLD || 
-                                file.size >= PERFORMANCE_CONFIG.COMPRESSION_THRESHOLD;
-        
+        const useOptimizations =
+          file.size >= PERFORMANCE_CONFIG.STREAM_THRESHOLD ||
+          file.size >= PERFORMANCE_CONFIG.COMPRESSION_THRESHOLD;
+
         let encryptionResult;
-        
+
         if (useOptimizations) {
-          console.log(`📊 File size: ${file.size} bytes - using performance optimizations`);
+          // File size: using performance optimizations
           encryptionResult = await PerformanceEncryption.encryptFileOptimized(
             buffer,
             encryptionPasswordToUse,
@@ -329,18 +380,15 @@ export async function POST(request: NextRequest) {
             }
           );
         } else {
-          console.log(`📄 File size: ${file.size} bytes - using standard encryption`);
-          encryptionResult = await encryptFile(
-            buffer,
-            encryptionPasswordToUse
-          );
+          // File size: using standard encryption
+          encryptionResult = await encryptFile(buffer, encryptionPasswordToUse);
         }
-        
+
         buffer = Buffer.from(encryptionResult.encryptedBuffer);
         encryptionMetadata = encryptionResult.metadata;
         timer.end(file.size);
-        
-        console.log('✅ File encrypted successfully with performance optimizations');
+
+        // File encrypted successfully with performance optimizations
       } catch (encryptionError) {
         console.error('❌ Performance encryption error:', encryptionError);
         await saveSecurityEvent({
@@ -373,9 +421,15 @@ export async function POST(request: NextRequest) {
     const expiresAt =
       expirationHours > 0
         ? new Date(Date.now() + expirationHours * 60 * 60 * 1000)
-        : new Date(Date.now() + 365 * 24 * 60 * 60 * 1000); // 1 year for "never"    // Generate unique short URL
-    const shortId = await generateShortUrl();
-    const shareableUrl = buildShortUrl(shortId); // Save file metadata to MongoDB
+        : new Date(Date.now() + 365 * 24 * 60 * 60 * 1000); // 1 year for "never"    // Generate unique short URL with ZK support - ALWAYS include ZK encryption key
+    const zkData = {
+      key: zkEncryptionKey,
+      keyHint: 'random' as const,
+    };
+
+    const shareableUrl = await generateShortUrl(undefined, zkData);
+    // Extract shortId from the generated URL for DB storage
+    const shortId = shareableUrl.split('/s/')[1]?.split('#')[0] || shareableUrl; // Save file metadata to MongoDB with Zero-Knowledge metadata
     const savedFile = await saveFileMetadata({
       filename: `${subDir}/${fileName}`, // Include subdirectory in filename for proper file location
       shortUrl: shortId,
@@ -389,8 +443,24 @@ export async function POST(request: NextRequest) {
       isAnonymous: !session?.user?.id,
       // Visibility removed - all files use security by obscurity
       password: hashedPassword,
-      isPasswordProtected,
-      // Encryption metadata
+      isPasswordProtected, // Zero-Knowledge metadata (files are stored encrypted but will be decrypted client-side)
+      isZeroKnowledge: isZeroKnowledge,      zkMetadata:
+        isZeroKnowledge && zkMetadata
+          ? {
+              algorithm: 'AES-GCM',
+              iv: zkMetadata.iv,
+              salt: zkMetadata.salt,
+              iterations: zkMetadata.iterations || 100000,
+              encryptedSize: buffer.length,
+              uploadTimestamp: Date.now(),
+              keyHint: zkMetadata.encryptionKey ? 'embedded' : 'password',
+              // Include original file metadata for client-side handling
+              originalType: zkMetadata.originalType,
+              originalName: zkMetadata.originalName,
+              originalSize: zkMetadata.originalSize,
+            }
+          : undefined,
+      // Legacy encryption metadata (still encrypt server-side for backward compatibility)
       isEncrypted: shouldEncrypt,
       encryptionMetadata: encryptionMetadata
         ? {
@@ -469,13 +539,13 @@ export async function POST(request: NextRequest) {
     // Generate encrypted thumbnail if supported
     if (isThumbnailSupported(file.type)) {
       try {
-        console.log('🖼️ Generating encrypted thumbnail for:', file.name);
+        // Generating encrypted thumbnail
         const thumbnailResult = await generateEncryptedThumbnail(
           savedFile as IFile,
           buffer, // Pass the (possibly encrypted) buffer
           file.type
         );
-        
+
         if (thumbnailResult) {
           // Cache the encrypted thumbnail
           await thumbnailCache.store(
@@ -484,10 +554,13 @@ export async function POST(request: NextRequest) {
             thumbnailResult.thumbnailBuffer,
             thumbnailResult.metadata
           );
-          console.log('✓ Encrypted thumbnail generated and cached');
+          // Encrypted thumbnail generated and cached
         }
       } catch (thumbnailError) {
-        console.error('Failed to generate encrypted thumbnail:', thumbnailError);
+        console.error(
+          'Failed to generate encrypted thumbnail:',
+          thumbnailError
+        );
         // Don't fail the upload if thumbnail generation fails
         await saveSecurityEvent({
           type: 'thumbnail_generation_error',
@@ -574,7 +647,8 @@ export async function POST(request: NextRequest) {
       size: file.size,
       type: file.type,
       expiresAt: expiresAt.toISOString(),
-      generatedKey: generatedKey, // Include the generated key if one was created
+      generatedKey: generatedKey, // Include the generated password key if one was created
+      zkEncryptionKey: zkEncryptionKey, // Include the ZK encryption key for client-side use
       isEncrypted: shouldEncrypt,
       encryptionPassword:
         shouldEncrypt &&

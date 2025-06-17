@@ -5,7 +5,6 @@ import { useSession } from '@/lib/auth/auth-client';
 import { toast } from 'sonner';
 import { nanoid } from 'nanoid';
 import { useTranslations } from 'next-intl';
-
 // Import types and utilities
 import type { UploadedFile } from '@/components/domains/upload/fileuploader/types';
 import {
@@ -19,6 +18,12 @@ import {
 import { scanFile, logSecurityEvent } from '@/lib/core/security';
 import { validateFileAdvanced } from '@/lib/core/utils';
 
+// Import ZK encryption
+import {
+  createZKEncryptedBlob,
+  generateEncryptionKey,
+} from '@/lib/encryption/client-encryption';
+
 export function useDashboardUpload() {
   const t = useTranslations('Upload');
   const [files, setFiles] = useState<UploadedFile[]>([]);
@@ -26,13 +31,41 @@ export function useDashboardUpload() {
   const [isPasswordProtected, setIsPasswordProtected] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const { data: session } = useSession();
-
   const uploadFile = useCallback(
     async (uploadedFile: UploadedFile) => {
       try {
+        // Step 1: Generate ZK encryption key
+        const encryptionKey = generateEncryptionKey(32);
+
+        // Step 2: Encrypt file client-side
+        const { encryptedBlob, metadata } = await createZKEncryptedBlob(
+          uploadedFile.file,
+          encryptionKey
+        );
+
+        console.log('🔐 File encrypted client-side:', {
+          originalSize: uploadedFile.file.size,
+          encryptedSize: encryptedBlob.size,
+          encryptionKey: encryptionKey.substring(0, 8) + '...', // Log partial key for debugging
+        }); // Step 3: Prepare form data with encrypted blob and ZK metadata
         const formData = new FormData();
-        formData.append('file', uploadedFile.file);
+        formData.append('file', encryptedBlob, uploadedFile.file.name);
         formData.append('expiration', expiration);
+
+        // Add ZK metadata in the format expected by the API
+        formData.append('isZeroKnowledge', 'true');
+        formData.append('zkEncryptionKey', encryptionKey);
+        formData.append(
+          'zkMetadata',
+          JSON.stringify({
+            iv: metadata.iv,
+            salt: metadata.salt,
+            iterations: metadata.iterations.toString(),
+            originalName: metadata.originalName,
+            originalType: metadata.originalType,
+            originalSize: metadata.originalSize.toString(),
+          })
+        );
 
         if (isPasswordProtected) {
           formData.append('autoGenerateKey', 'true');
@@ -51,19 +84,21 @@ export function useDashboardUpload() {
               )
             );
           }
-        };
-
-        xhr.onload = () => {
+        };        xhr.onload = () => {
           if (xhr.status === 200) {
             const response = JSON.parse(xhr.responseText);
+
+            // Use the server-generated share URL directly (it already contains the encryption key)
+            const shareLink = response.shortUrl || response.url;
+
             setFiles((prev) =>
               prev.map((f) =>
                 f.id === uploadedFile.id
                   ? {
                       ...f,
                       status: 'completed',
-                      url: response.downloadUrl,
-                      shortUrl: response.shortUrl,
+                      url: shareLink, // Use the complete share link from server
+                      shortUrl: shareLink,
                       generatedKey: response.generatedKey,
                     }
                   : f

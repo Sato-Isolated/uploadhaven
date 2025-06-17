@@ -6,6 +6,7 @@ import { useTranslations } from 'next-intl';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { ApiClient } from '@/lib/api/client';
 import { queryKeys } from '@/lib/core/queryKeys';
+import { uploadFileZK } from '@/lib/upload/zk-upload-utils';
 import type { FileUploadOptions, FileDeleteOptions } from '@/types';
 
 /**
@@ -18,7 +19,6 @@ export function useFileOperations() {
   const queryClient = useQueryClient();
   const [uploading, setUploading] = useState(false);
   const [deleting, setDeleting] = useState(false);
-
   // TanStack Query mutation for file upload
   const uploadFileMutation = useMutation({
     mutationFn: async (data: {
@@ -30,22 +30,19 @@ export function useFileOperations() {
       };
     }) => {
       const { file, options = {} } = data;
-      const formData = new FormData();
-      formData.append('file', file);
 
-      if (options.expiration) {
-        formData.append('expiration', options.expiration);
+      // Use ZK upload instead of old API
+      const result = await uploadFileZK(file, {
+        expiration: options.expiration,
+        password: options.password,
+        autoGenerateKey: options.password ? false : undefined,
+      });
+
+      if (!result.success) {
+        throw new Error(result.error || 'Upload failed');
       }
 
-      if (options.password) {
-        formData.append('password', options.password);
-      }
-
-      if (options.userId) {
-        formData.append('userId', options.userId);
-      }
-
-      return ApiClient.uploadFile('/api/upload', formData);
+      return result.data;
     },
     onSuccess: (result, variables) => {
       toast.success(t('fileUploadedSuccessfully'));
@@ -70,7 +67,8 @@ export function useFileOperations() {
   const deleteFileMutation = useMutation({
     mutationFn: async (data: {
       filename: string;
-      options?: FileDeleteOptions;    }) => {
+      options?: FileDeleteOptions;
+    }) => {
       const { filename } = data;
       return ApiClient.post('/api/bulk-delete', {
         filenames: [filename],
@@ -99,7 +97,8 @@ export function useFileOperations() {
   const deleteMultipleFilesMutation = useMutation({
     mutationFn: async (data: {
       filenames: string[];
-      options?: FileDeleteOptions;    }) => {
+      options?: FileDeleteOptions;
+    }) => {
       const { filenames } = data;
       return ApiClient.post<{ success: boolean; deletedCount: number }>(
         '/api/bulk-delete',

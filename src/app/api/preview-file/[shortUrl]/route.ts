@@ -105,31 +105,51 @@ export async function GET(
     );
 
     try {
-      // Debug: Log file information
-      console.log('🔍 PREVIEW DEBUG - File Info:');
-      console.log(`   Original name: ${fileDoc.originalName}`);
-      console.log(`   Filename: ${fileDoc.filename}`);
-      console.log(`   Is encrypted: ${fileDoc.isEncrypted}`);
-      console.log(
-        `   Has encryption metadata: ${!!fileDoc.encryptionMetadata}`
-      );
-      if (fileDoc.encryptionMetadata) {
-        console.log(`   Algorithm: ${fileDoc.encryptionMetadata.algorithm}`);
-        console.log(`   Has salt: ${!!fileDoc.encryptionMetadata.salt}`);
-        console.log(`   Has IV: ${!!fileDoc.encryptionMetadata.iv}`);
-        console.log(`   Has tag: ${!!fileDoc.encryptionMetadata.tag}`);
-      }
+      let fileBuffer: Buffer;
 
-      // Read and decrypt file if necessary
-      const fileBuffer = await readAndDecryptFile(filePath, fileDoc);
+      // Handle Zero-Knowledge files differently
+      if (fileDoc.isZeroKnowledge) {
+        // For ZK files, serve the encrypted blob as-is for client-side decryption
+        // Note: Preview for ZK files requires client-side decryption
+        const fs = await import('fs/promises');
+        fileBuffer = await fs.readFile(filePath); // Serving Zero-Knowledge encrypted blob for preview
 
-      console.log(`📄 Buffer info after decryption:`);
-      console.log(`   Size: ${fileBuffer.length} bytes`);
-      console.log(
-        `   First 50 chars: ${fileBuffer.toString('utf8', 0, 50).replace(/\n/g, '\\n')}`
-      );
+        // Log ZK file preview (NOT download)
+        await saveSecurityEvent({
+          type: 'file_preview',
+          ip: clientIP,
+          details: `Zero-Knowledge file previewed: ${fileDoc.originalName} (encrypted blob)`,
+          severity: 'low',
+          userAgent,
+          filename: fileDoc.filename,
+          fileSize: fileDoc.size,
+          fileType: fileDoc.mimeType,
+          metadata: {
+            zeroKnowledge: true,
+            algorithm: fileDoc.zkMetadata?.algorithm,
+            keyType: fileDoc.zkMetadata?.keyHint,
+          },
+        });
 
-      // Log decryption activity if file was encrypted
+        // Return encrypted blob with ZK-specific headers for preview
+        return new NextResponse(fileBuffer, {
+          status: 200,
+          headers: {
+            'Content-Type': 'application/octet-stream', // Always binary for ZK files
+            'Content-Length': fileBuffer.length.toString(),
+            'Cache-Control': 'public, max-age=1800', // Cache for 30 minutes
+            'Content-Disposition': `inline; filename="${fileDoc.originalName}"`, // inline for preview
+            'X-ZK-Encrypted': 'true',
+            'X-ZK-Algorithm': fileDoc.zkMetadata?.algorithm || 'unknown',
+            'X-ZK-IV': fileDoc.zkMetadata?.iv || '',
+            'X-ZK-Salt': fileDoc.zkMetadata?.salt || '',
+            'X-ZK-Iterations':
+              fileDoc.zkMetadata?.iterations?.toString() || '0',
+            'X-ZK-Key-Hint': fileDoc.zkMetadata?.keyHint || 'unknown',
+          },
+        });
+      } // Read and decrypt file if necessary for legacy files
+      fileBuffer = await readAndDecryptFile(filePath, fileDoc); // Log decryption activity if file was encrypted
       logDecryptionActivity(fileDoc, 'preview', clientIP, userAgent);
 
       // Log successful preview (NOT download)

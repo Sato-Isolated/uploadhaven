@@ -42,7 +42,36 @@ export default function VideoPreview({ file }: VideoPreviewProps) {
   const [playbackRate, setPlaybackRate] = useState(1);
   const [showSettings, setShowSettings] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
+  const [videoError, setVideoError] = useState(false);
   const animationFrameRef = useRef<number | null>(null);
+
+  const isBlob = file.url?.startsWith('blob:');
+
+  // Debug: Log video preview info
+  console.log('🎬 VIDEO PREVIEW DEBUG:', {
+    filename: file.filename,
+    originalName: file.originalName,
+    type: file.type,
+    url: file.url,
+    urlType: isBlob ? 'blob' : 'api',
+  });
+
+  const handleOpenInNewTab = () => {
+    if (file.url) {
+      window.open(file.url, '_blank');
+    }
+  };
+
+  const handleDownload = () => {
+    if (file.url) {
+      const link = document.createElement('a');
+      link.href = file.url;
+      link.download = file.originalName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  };
 
   // Format time helper
   const formatTime = useCallback((time: number) => {
@@ -387,8 +416,7 @@ export default function VideoPreview({ file }: VideoPreviewProps) {
       transition={{ duration: 0.3 }}
       onMouseMove={() => setShowControls(true)}
       onMouseLeave={() => isPlaying && !showSettings && setShowControls(false)}
-    >
-      <video
+    >      <video
         ref={videoRef}
         src={file.url}
         className={`w-full ${isFullscreen ? 'h-screen' : 'max-h-[500px]'} cursor-pointer object-contain`}
@@ -399,13 +427,54 @@ export default function VideoPreview({ file }: VideoPreviewProps) {
         onPause={handlePause}
         onWaiting={handleWaiting}
         onCanPlay={handleCanPlay}
+        onError={() => setVideoError(true)}
         onClick={handleVideoClick}
       >
         {t('videoNotSupported')}
       </video>
 
+      {/* Error Fallback for blob URLs */}
+      {videoError && isBlob && (
+        <motion.div
+          className="absolute inset-0 flex items-center justify-center bg-black/90"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+        >
+          <div className="text-center">
+            <div className="text-6xl text-white mb-4">🎬</div>
+            <h3 className="text-lg font-medium text-white mb-2">
+              Video Ready for Viewing
+            </h3>
+            <p className="text-gray-300 mb-6 max-w-md">
+              Your decrypted video is ready. Use the buttons below to view or download it.
+            </p>
+            <div className="flex gap-3 justify-center">
+              <button
+                onClick={handleOpenInNewTab}
+                className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-white transition-colors hover:bg-blue-700"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                </svg>
+                Open in New Tab
+              </button>
+              <button
+                onClick={handleDownload}
+                className="inline-flex items-center gap-2 rounded-lg bg-green-600 px-4 py-2 text-white transition-colors hover:bg-green-700"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                Download Video
+              </button>
+            </div>
+          </div>
+        </motion.div>
+      )}
+
       {/* Loading Spinner */}
-      {isLoading && (
+      {isLoading && !videoError && (
         <motion.div
           className="absolute inset-0 flex items-center justify-center bg-black/50"
           initial={{ opacity: 0 }}
@@ -414,16 +483,15 @@ export default function VideoPreview({ file }: VideoPreviewProps) {
         >
           <div className="h-12 w-12 animate-spin rounded-full border-b-2 border-white"></div>
         </motion.div>
-      )}
-
-      {/* Custom Controls */}
-      <motion.div
-        className={`absolute right-0 bottom-0 left-0 bg-gradient-to-t from-black/90 to-transparent p-4 ${
-          showControls ? 'opacity-100' : 'opacity-0'
-        } transition-opacity duration-300`}
-        initial={{ y: 20 }}
-        animate={{ y: showControls ? 0 : 20 }}
-      >
+      )}      {/* Custom Controls */}
+      {!videoError && (
+        <motion.div
+          className={`absolute right-0 bottom-0 left-0 bg-gradient-to-t from-black/90 to-transparent p-4 ${
+            showControls ? 'opacity-100' : 'opacity-0'
+          } transition-opacity duration-300`}
+          initial={{ y: 20 }}
+          animate={{ y: showControls ? 0 : 20 }}
+        >
         {/* Progress Bar */}
         <div className="relative mb-4">
           <Slider
@@ -584,12 +652,12 @@ export default function VideoPreview({ file }: VideoPreviewProps) {
                 <Maximize className="h-4 w-4" />
               )}
             </Button>
-          </div>
-        </div>
+          </div>        </div>
       </motion.div>
+      )}
 
       {/* Loading/Play overlay */}
-      {!isPlaying && !isLoading && (
+      {!isPlaying && !isLoading && !videoError && (
         <motion.div
           className="absolute inset-0 flex cursor-pointer items-center justify-center bg-black/30"
           initial={{ opacity: 0 }}
@@ -607,10 +675,8 @@ export default function VideoPreview({ file }: VideoPreviewProps) {
             </Button>
           </motion.div>
         </motion.div>
-      )}
-
-      {/* Keyboard shortcuts hint */}
-      {showControls && (
+      )}      {/* Keyboard shortcuts hint */}
+      {showControls && !videoError && (
         <motion.div
           className="absolute top-4 right-4 max-w-[200px] rounded-lg bg-black/50 px-3 py-2 text-xs text-white/60"
           initial={{ opacity: 0, x: 20 }}

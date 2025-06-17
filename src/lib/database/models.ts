@@ -140,6 +140,27 @@ const fileSchema = new mongoose.Schema(
       algorithm: String,
       iterations: Number,
     },
+    // Zero-Knowledge encryption fields (client-side encryption)
+    isZeroKnowledge: {
+      type: Boolean,
+      default: false,
+    },    zkMetadata: {
+      algorithm: String, // e.g., 'AES-GCM'
+      iv: String, // base64 encoded IV (stored for client decryption)
+      salt: String, // base64 encoded salt (for password-derived keys)
+      iterations: Number, // PBKDF2 iterations
+      encryptedSize: Number, // size of encrypted blob
+      uploadTimestamp: Number, // when encrypted blob was uploaded
+      keyHint: {
+        type: String,
+        enum: ['password', 'embedded'],
+        required: false,
+      }, // hint for UI about key type
+      // Original file metadata for ZK files
+      originalType: String, // Original MIME type before encryption
+      originalName: String, // Original filename before encryption
+      originalSize: String, // Original file size before encryption
+    },
   },
   {
     timestamps: true,
@@ -361,6 +382,20 @@ export const saveFileMetadata = async (fileData: {
     tag: string;
     algorithm: string;
     iterations: number;
+  };  // Zero-Knowledge encryption fields (client-side encryption)
+  isZeroKnowledge?: boolean;
+  zkMetadata?: {
+    algorithm: string; // e.g., 'AES-GCM'
+    iv: string; // base64 encoded IV (stored for client decryption)
+    salt: string; // base64 encoded salt (for password-derived keys)
+    iterations: number; // PBKDF2 iterations
+    encryptedSize: number; // size of encrypted blob
+    uploadTimestamp: number; // when encrypted blob was uploaded
+    keyHint?: 'password' | 'embedded'; // hint for UI about key type
+    // Original file metadata for ZK files
+    originalType?: string; // Original MIME type before encryption
+    originalName?: string; // Original filename before encryption
+    originalSize?: string; // Original file size before encryption
   };
 }) => {
   try {

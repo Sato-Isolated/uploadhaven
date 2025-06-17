@@ -1,6 +1,7 @@
 # UploadHaven Documentation
 
-Welcome to the comprehensive documentation for UploadHaven - a simple, secure, ephemeral file sharing platform.
+Welcome to the comprehensive documentation for UploadHaven - a simple, secure, ephemeral file
+sharing platform.
 
 ## 📚 Documentation Structure
 
@@ -30,13 +31,23 @@ Complete reference for developers integrating with UploadHaven.
 
 Information about current features and future development.
 
-- **[File Encryption System](features/file-encryption.md)** - 🔒 Comprehensive encryption documentation
-- **[Performance Optimizations](features/performance-optimizations.md)** - ⚡ Advanced performance features ⭐ NEW
+- **[File Encryption System](features/file-encryption.md)** - 🔒 Comprehensive encryption
+  documentation
+- **[Performance Optimizations](features/performance-optimizations.md)** - ⚡ Advanced performance
+  features ⭐ NEW
 - **[Thumbnail Encryption](features/thumbnail-encryption.md)** - 🖼️ Encrypted preview generation
 - **[Security Features](features/security.md)** - Privacy and security implementation
 - **[Usage Guide](features/usage.md)** - How to use UploadHaven effectively
 - **[Feature Roadmap](features/roadmap.md)** - Development phases and timeline
 - **[Ideas Board](features/ideas.md)** - Community ideas and suggestions
+
+### 🎛️ Administration
+
+Essential resources for administrators and system operators.
+
+- **[Admin Dashboard](admin/dashboard.md)** - Comprehensive administrative interface
+- **[System Configuration](admin/configuration.md)** - Detailed configuration guide
+- **[Troubleshooting](admin/troubleshooting.md)** - Problem resolution guide
 
 ### 📋 Project Information
 
@@ -63,8 +74,8 @@ Technical details and project governance.
 ### For Self-Hosting
 
 1. [Installation Guide](getting-started/installation.md) - Complete setup
-2. [Configuration](admin/configuration.md) - System configuration
-3. [Deployment](deployment/production.md) - Production deployment
+2. [Admin Dashboard](admin/dashboard.md) - Administrative interface
+3. [System Configuration](admin/configuration.md) - System configuration
 
 ### For Contributors
 
@@ -122,9 +133,12 @@ Technical details and project governance.
 
 ### Support Channels
 
-- **[GitHub Issues](https://github.com/Sato-Isolated/uploadhaven/issues)** - Bug reports and technical issues
-- **[GitHub Discussions](https://github.com/Sato-Isolated/uploadhaven/discussions)** - General questions and ideas
-- **[Documentation Issues](https://github.com/Sato-Isolated/uploadhaven/issues?q=is%3Aissue+label%3Adocumentation)** - Documentation improvements
+- **[GitHub Issues](https://github.com/Sato-Isolated/uploadhaven/issues)** - Bug reports and
+  technical issues
+- **[GitHub Discussions](https://github.com/Sato-Isolated/uploadhaven/discussions)** - General
+  questions and ideas
+- **[Documentation Issues](https://github.com/Sato-Isolated/uploadhaven/issues?q=is%3Aissue+label%3Adocumentation)** -
+  Documentation improvements
 
 ### Contributing to Documentation
 

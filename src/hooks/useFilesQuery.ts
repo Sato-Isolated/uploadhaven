@@ -3,6 +3,7 @@ import { ApiClient } from '@/lib/api/client';
 import { queryKeys } from '@/lib/core/queryKeys';
 import { toast } from 'sonner';
 import { useTranslations } from 'next-intl';
+import { uploadFileZK } from '@/lib/upload/zk-upload-utils';
 import type { ClientFileData } from '@/types';
 
 interface FilesResponse {
@@ -137,11 +138,27 @@ export function useDeleteFiles() {
 export function useUploadFile() {
   const queryClient = useQueryClient();
   const t = useTranslations('Query');
-
   return useMutation<ClientFileData, Error, FormData>({
     mutationFn: async (formData: FormData): Promise<ClientFileData> => {
-      const response = await ApiClient.uploadFile('/api/upload', formData);
-      return response as ClientFileData;
+      // Extract file from FormData and use ZK upload
+      const file = formData.get('file') as File;
+      const expiration = formData.get('expiration') as string;
+      const password = formData.get('password') as string;
+
+      if (!file) {
+        throw new Error('No file provided');
+      }
+
+      const result = await uploadFileZK(file, {
+        expiration: expiration || undefined,
+        password: password || undefined,
+      });
+
+      if (!result.success) {
+        throw new Error(result.error || 'Upload failed');
+      }
+
+      return result.data as ClientFileData;
     },
 
     onSuccess: (data: ClientFileData) => {

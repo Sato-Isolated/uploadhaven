@@ -6,6 +6,7 @@ import { useSession } from '@/lib/auth/auth-client';
 import { toast } from 'sonner';
 import { nanoid } from 'nanoid';
 import { useTranslations } from 'next-intl';
+import { createZKFormData } from '@/lib/upload/zk-upload-utils';
 
 // Internal imports
 import type { UploadedFile } from '@/components/domains/upload/fileuploader/types';
@@ -45,14 +46,12 @@ export function useFileUploader(): UseFileUploaderReturn {
   const uploadFile = useCallback(
     async (uploadedFile: UploadedFile) => {
       try {
-        const formData = new FormData();
-        formData.append('file', uploadedFile.file);
-        formData.append('expiration', expiration);
+        // Step 1: Create ZK encrypted FormData
+        const formData = await createZKFormData(uploadedFile.file, {
+          expiration,
+          autoGenerateKey: isPasswordProtected,
+        });
 
-        // Include auto-generate key flag if protection is enabled
-        if (isPasswordProtected) {
-          formData.append('autoGenerateKey', 'true');
-        }
         // Include user ID if authenticated
         if (session?.user?.id) {
           formData.append('userId', session.user.id);

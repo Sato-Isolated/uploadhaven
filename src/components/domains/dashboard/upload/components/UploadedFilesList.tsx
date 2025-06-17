@@ -146,10 +146,7 @@ export function UploadedFilesList({
                   variant="outline"
                   size="sm"
                   onClick={() =>
-                    handleCopyToClipboard(
-                      `${window.location.origin}/${locale}/s/${file.shortUrl}`,
-                      t('shareLink')
-                    )
+                    handleCopyToClipboard(file.shortUrl!, t('shareLink'))
                   }
                   className="flex-1"
                 >
