@@ -134,37 +134,4 @@ export class QueryErrorBoundary extends Component<Props, State> {
   }
 }
 
-// Hook for simpler error boundary usage
-export function useErrorBoundary() {
-  const [error, setError] = React.useState<Error | null>(null);
 
-  const resetError = React.useCallback(() => {
-    setError(null);
-  }, []);
-
-  const captureError = React.useCallback((error: Error) => {
-    setError(error);
-  }, []);
-
-  if (error) {
-    throw error;
-  }
-
-  return { captureError, resetError };
-}
-
-// Higher-order component for easy wrapping
-export function withQueryErrorBoundary<P extends object>(
-  Component: React.ComponentType<P>,
-  errorBoundaryProps?: Omit<Props, 'children'>
-) {
-  const WrappedComponent = (props: P) => (
-    <QueryErrorBoundary {...errorBoundaryProps}>
-      <Component {...props} />
-    </QueryErrorBoundary>
-  );
-
-  WrappedComponent.displayName = `withQueryErrorBoundary(${Component.displayName || Component.name})`;
-
-  return WrappedComponent;
-}

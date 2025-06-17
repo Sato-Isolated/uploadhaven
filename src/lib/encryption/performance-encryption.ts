@@ -659,5 +659,3 @@ export class PerformanceMetrics {
     this.metrics = [];
   }
 }
-
-export default PerformanceEncryption;

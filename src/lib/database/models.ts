@@ -693,15 +693,4 @@ export const getNotificationStats = async (userId: string) => {
   }
 };
 
-export const cleanupExpiredNotifications = async () => {
-  try {
-    const now = new Date();
-    const result = await Notification.deleteMany({
-      expiresAt: { $lt: now },
-    });
-    return result.deletedCount;
-  } catch (error) {
-    // Error cleaning up expired notifications
-    throw error;
-  }
-};
+

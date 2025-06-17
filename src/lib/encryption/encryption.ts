@@ -174,104 +174,7 @@ export async function decryptFile(
   }
 }
 
-/**
- * Encrypts a file stream (for large files)
- */
-export async function encryptFileStream(
-  inputStream: NodeJS.ReadableStream,
-  password: string,
-  salt?: Buffer
-): Promise<{
-  encryptedStream: NodeJS.ReadableStream;
-  metadata: {
-    salt: string;
-    iv: string;
-    tag: string;
-    algorithm: string;
-    iterations: number;
-  };
-}> {
-  const fileSalt = salt || generateSalt();
-  const iv = generateIV();
-  const key = await deriveKey(password, fileSalt);
 
-  const cipher = createCipheriv(ENCRYPTION_CONFIG.algorithm, key, iv);
-
-  // We need to collect the tag after the stream ends
-  return new Promise((resolve, reject) => {
-    const encryptedStream = inputStream.pipe(cipher);
-
-    encryptedStream.on('end', () => {
-      const tag = cipher.getAuthTag();
-      resolve({
-        encryptedStream,
-        metadata: {
-          salt: fileSalt.toString('base64'),
-          iv: iv.toString('base64'),
-          tag: tag.toString('base64'),
-          algorithm: ENCRYPTION_CONFIG.algorithm,
-          iterations: ENCRYPTION_CONFIG.iterations,
-        },
-      });
-    });
-
-    encryptedStream.on('error', reject);
-  });
-}
-
-/**
- * Decrypts a file stream (for large files)
- */
-export async function decryptFileStream(
-  encryptedStream: NodeJS.ReadableStream,
-  password: string,
-  metadata: {
-    salt: string;
-    iv: string;
-    tag: string;
-    algorithm: string;
-    iterations: number;
-  }
-): Promise<NodeJS.ReadableStream> {
-  const salt = Buffer.from(metadata.salt, 'base64');
-  const iv = Buffer.from(metadata.iv, 'base64');
-  const tag = Buffer.from(metadata.tag, 'base64');
-
-  if (metadata.algorithm !== ENCRYPTION_CONFIG.algorithm) {
-    throw new Error(`Unsupported algorithm: ${metadata.algorithm}`);
-  }
-
-  const key = await deriveKey(password, salt, metadata.iterations);
-  const decipher = createDecipheriv(metadata.algorithm, key, iv);
-  decipher.setAuthTag(tag);
-
-  return encryptedStream.pipe(decipher);
-}
-
-/**
- * Validates encryption metadata
- */
-export function validateEncryptionMetadata(metadata: unknown): boolean {
-  try {
-    if (!metadata || typeof metadata !== 'object') {
-      return false;
-    }
-
-    const metadataObj = metadata as Record<string, unknown>;
-
-    return (
-      typeof metadataObj.salt === 'string' &&
-      typeof metadataObj.iv === 'string' &&
-      typeof metadataObj.tag === 'string' &&
-      typeof metadataObj.algorithm === 'string' &&
-      typeof metadataObj.iterations === 'number' &&
-      metadataObj.algorithm === ENCRYPTION_CONFIG.algorithm &&
-      metadataObj.iterations > 0
-    );
-  } catch {
-    return false;
-  }
-}
 
 /**
  * Generates a secure random password for system-generated encryption keys
@@ -289,11 +192,4 @@ export function generateSecurePassword(length: number = 64): string {
   return password;
 }
 
-/**
- * Wipes sensitive data from memory (best effort)
- */
-export function wipeSensitiveData(buffer: Buffer): void {
-  if (buffer && buffer.length > 0) {
-    buffer.fill(0);
-  }
-}
+

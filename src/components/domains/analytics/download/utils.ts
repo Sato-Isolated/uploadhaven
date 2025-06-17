@@ -53,8 +53,3 @@ export function calculateTrend(analytics: DownloadAnalytics | null): TrendData {
     return { trend: 'down', percentage: Math.round(Math.abs(change)) };
   return { trend: 'neutral', percentage: Math.round(Math.abs(change)) };
 }
-
-// Format date for display in trends
-export function formatTrendDate(dateString: string): string {
-  return new Date(dateString).toLocaleDateString();
-}

@@ -126,13 +126,6 @@ export async function createZKEncryptedBlob(
 }
 
 /**
- * Utility to convert binary string to base64 (for metadata)
- */
-export function binaryToBase64(binaryString: string): string {
-  return btoa(binaryString);
-}
-
-/**
  * Utility to generate a secure encryption key
  */
 export function generateEncryptionKey(length: number = 32): string {

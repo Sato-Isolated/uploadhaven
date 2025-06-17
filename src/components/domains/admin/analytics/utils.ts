@@ -81,22 +81,7 @@ export function getFileTypeIcon(type: string): string {
   if (type.startsWith('text/')) return '📝';
   if (type.includes('zip') || type.includes('archive')) return '📦';
   if (type.includes('document') || type.includes('word')) return '📄';
-  if (type.includes('spreadsheet') || type.includes('excel')) return '📊';
-  return '📁';
-}
-
-export function calculateGrowthTrend(
-  current: number,
-  previous: number
-): TrendData {
-  if (previous === 0) return { trend: 'neutral', percentage: 0 };
-
-  const change = ((current - previous) / previous) * 100;
-
-  if (change > 5) return { trend: 'up', percentage: Math.round(change) };
-  if (change < -5)
-    return { trend: 'down', percentage: Math.round(Math.abs(change)) };
-  return { trend: 'neutral', percentage: Math.round(Math.abs(change)) };
+  if (type.includes('spreadsheet') || type.includes('excel')) return '📊';  return '📁';
 }
 
 export function formatDate(dateString: string): string {

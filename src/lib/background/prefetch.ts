@@ -207,15 +207,4 @@ export class PrefetchManager {
 // Create a singleton instance
 let prefetchManager: PrefetchManager | null = null;
 
-export function getPrefetchManager(queryClient: QueryClient): PrefetchManager {
-  if (!prefetchManager || prefetchManager['queryClient'] !== queryClient) {
-    prefetchManager = new PrefetchManager(queryClient);
-  }
-  return prefetchManager;
-}
 
-// Hook for easy access to prefetch manager
-export function usePrefetch() {
-  const queryClient = new QueryClient(); // This should ideally come from context
-  return getPrefetchManager(queryClient);
-}
