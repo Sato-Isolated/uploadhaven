@@ -84,24 +84,15 @@ const fileSchema = new mongoose.Schema(
     downloadCount: {
       type: Number,
       default: 0,
-    },
-    ipAddress: {
+    },    ipAddress: {
       type: String,
       required: true,
     },
     userAgent: String,
-    scanResult: {
-      safe: {
-        type: Boolean,
-        default: true,
-      },
-      threat: String,
-      scanDate: Date,
-    },
     isDeleted: {
       type: Boolean,
       default: false,
-    }, // User fields for authenticated uploads
+    },// User fields for authenticated uploads
     userId: {
       type: String,
       required: false, // Optional for anonymous uploads
@@ -153,8 +144,7 @@ const fileSchema = new mongoose.Schema(
 
 // Security event model schema
 const securityEventSchema = new mongoose.Schema(
-  {
-    type: {
+  {    type: {
       type: String,
       enum: [
         'rate_limit',
@@ -162,8 +152,6 @@ const securityEventSchema = new mongoose.Schema(
         'large_file',
         'blocked_ip',
         'suspicious_activity',
-        'file_scan',
-        'malware_detected',
         'file_deletion',
         'bulk_delete',
         'file_upload',
@@ -236,8 +224,7 @@ const notificationSchema = new mongoose.Schema(
     userId: {
       type: String,
       required: true, // Target user for the notification
-    },
-    type: {
+    },    type: {
       type: String,
       enum: [
         'file_downloaded',
@@ -246,7 +233,6 @@ const notificationSchema = new mongoose.Schema(
         'security_alert',
         'system_announcement',
         'file_upload_complete',
-        'malware_detected',
         'bulk_action_complete',
       ],
       required: true,
@@ -340,13 +326,8 @@ export const saveFileMetadata = async (fileData: {
   expiresAt: Date;
   ipAddress: string;
   userAgent?: string;
-  scanResult?: {
-    safe: boolean;
-    threat?: string;
-    scanDate: Date;
-  };
   userId?: string;
-  isAnonymous?: boolean;  // Visibility removed - all files use security by obscurity
+  isAnonymous?: boolean;// Visibility removed - all files use security by obscurity
   password?: string; // hashed password
   isPasswordProtected?: boolean;
   // Zero-Knowledge encryption fields (client-side encryption)
@@ -423,13 +404,10 @@ export const incrementDownloadCount = async (filename: string) => {
 export const getSecurityStats = async () => {
   try {
     const now = new Date();
-    const last24h = new Date(now.getTime() - 24 * 60 * 60 * 1000);
-
-    const [
+    const last24h = new Date(now.getTime() - 24 * 60 * 60 * 1000);    const [
       totalEvents,
       rateLimitHits,
       invalidFiles,
-      malwareDetected,
       largeSizeBlocked,
       last24hEvents,
       blockedIPs,
@@ -437,7 +415,6 @@ export const getSecurityStats = async () => {
       SecurityEvent.countDocuments({}),
       SecurityEvent.countDocuments({ type: 'rate_limit' }),
       SecurityEvent.countDocuments({ type: 'invalid_file' }),
-      SecurityEvent.countDocuments({ type: 'malware_detected' }),
       SecurityEvent.countDocuments({ type: 'large_file' }),
       SecurityEvent.countDocuments({ timestamp: { $gte: last24h } }),
       SecurityEvent.distinct('ip', { type: 'blocked_ip' }).then(
@@ -451,7 +428,6 @@ export const getSecurityStats = async () => {
       invalidFiles,
       blockedIPs,
       last24h: last24hEvents,
-      malwareDetected,
       largeSizeBlocked,
     };
   } catch (error) {

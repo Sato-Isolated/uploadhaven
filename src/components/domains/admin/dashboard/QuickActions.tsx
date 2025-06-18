@@ -8,14 +8,12 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Shield } from 'lucide-react';
 
-interface QuickActionsProps {
-  onSecurityScan: () => void;
-}
+// Security scan functionality removed as part of zero-knowledge architecture
+// This component now serves as a placeholder for future admin quick actions
 
-export default function QuickActions({ onSecurityScan }: QuickActionsProps) {
+export default function QuickActions() {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -26,20 +24,13 @@ export default function QuickActions({ onSecurityScan }: QuickActionsProps) {
         <CardHeader>
           <CardTitle>Quick Actions</CardTitle>
           <CardDescription>Common administrative tasks</CardDescription>
-        </CardHeader>
-        <CardContent>
+        </CardHeader>        <CardContent>
           <div className="grid grid-cols-1 gap-4">
-            {/* Only Security Scan remains - System Logs removed as it duplicated ActivityOverview */}
-            <Button
-              variant="outline"
-              className="flex h-auto flex-col gap-3 border-orange-200 bg-gradient-to-br from-orange-50 to-red-100 p-6 transition-all duration-200 hover:from-orange-100 hover:to-red-200 dark:border-orange-800 dark:from-orange-950 dark:to-red-900 dark:hover:from-orange-900 dark:hover:to-red-800"
-              onClick={onSecurityScan}
-            >
-              <Shield className="h-8 w-8 text-orange-600 dark:text-orange-400" />
-              <span className="text-sm font-medium text-orange-700 dark:text-orange-300">
-                Security Scan
-              </span>
-            </Button>
+            {/* Security scan functionality removed as part of zero-knowledge architecture */}
+            <div className="p-4 text-center text-sm text-gray-500 dark:text-gray-400">
+              <Shield className="mx-auto mb-2 h-8 w-8" />
+              Security scanning disabled for zero-knowledge architecture
+            </div>
           </div>
         </CardContent>
       </Card>

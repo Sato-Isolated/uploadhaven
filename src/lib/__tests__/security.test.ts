@@ -1,7 +1,6 @@
 import {
   securityLogger,
   logSecurityEvent,
-  scanFile,
   detectSuspiciousActivity,
 } from '../core/security';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
@@ -79,13 +78,11 @@ describe('Security Functions', () => {
       const loggedEvent = logSecurityEvent('large_file', 'Large file uploaded');
 
       expect(loggedEvent.severity).toBe('low');
-    });
-
-    it('should save events to localStorage', () => {
+    });    it('should save events to localStorage', () => {
       logSecurityEvent(
-        'malware_detected',
-        'Malware detected in upload',
-        'critical'
+        'invalid_file',
+        'Invalid file detected',
+        'high'
       );
 
       expect(mockLocalStorage.setItem).toHaveBeenCalledWith(
@@ -119,61 +116,19 @@ describe('Security Functions', () => {
     });
   });
 
-  describe('securityLogger.getStats', () => {
-    beforeEach(() => {
+  describe('securityLogger.getStats', () => {    beforeEach(() => {
       // Start with a known state by logging specific events
       logSecurityEvent('rate_limit', 'Rate limit exceeded', 'medium');
       logSecurityEvent('invalid_file', 'Invalid file type', 'high');
-      logSecurityEvent('malware_detected', 'Malware found', 'critical');
       logSecurityEvent('large_file', 'Large file uploaded', 'low');
-    });
-
-    it('should return correct statistics', () => {
+    });    it('should return correct statistics', () => {
       const stats = securityLogger.getStats();
 
-      expect(stats.totalEvents).toBeGreaterThanOrEqual(4);
+      expect(stats.totalEvents).toBeGreaterThanOrEqual(3);
       expect(stats.rateLimitHits).toBeGreaterThanOrEqual(1);
-      expect(stats.invalidFiles).toBeGreaterThanOrEqual(1);
-      expect(stats.malwareDetected).toBeGreaterThanOrEqual(1);
-      expect(stats.largeSizeBlocked).toBeGreaterThanOrEqual(1);
-      expect(stats.last24h).toBeGreaterThanOrEqual(4);
+      expect(stats.invalidFiles).toBeGreaterThanOrEqual(1);      expect(stats.largeSizeBlocked).toBeGreaterThanOrEqual(1);
+      expect(stats.last24h).toBeGreaterThanOrEqual(3);
       expect(typeof stats.blockedIPs).toBe('number');
-    });
-  });
-
-  describe('scanFile', () => {
-    const createMockFile = (name: string, size: number, type: string): File => {
-      return {
-        name,
-        size,
-        type,
-        lastModified: Date.now(),
-        arrayBuffer: vi.fn(),
-        slice: vi.fn(),
-        stream: vi.fn(),
-        text: vi.fn(),
-      } as unknown as File;
-    };
-
-    it('should return safe for normal files', async () => {
-      const file = createMockFile('document.pdf', 1024, 'application/pdf');
-      const result = await scanFile(file);
-
-      expect(result.safe).toBe(true);
-      expect(result.threat).toBeUndefined();
-    });
-
-    it('should detect malicious file names', async () => {
-      const file = createMockFile(
-        'virus.exe',
-        1024,
-        'application/octet-stream'
-      );
-      const result = await scanFile(file);
-
-      // The current implementation is a placeholder, so we expect it to be safe
-      // In a real implementation, this would detect the malicious file
-      expect(typeof result.safe).toBe('boolean');
     });
   });
 

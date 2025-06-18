@@ -214,7 +214,7 @@ describe('Utility Functions', () => {
 
     it('should reject suspicious file types', () => {
       const file = createMockFile(
-        'malware.exe',
+        'suspicious.exe',
         1024,
         'application/x-msdownload'
       );

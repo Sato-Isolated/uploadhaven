@@ -16,7 +16,7 @@ import {
 } from '@/components/domains/upload/fileuploader/utils';
 
 // External imports
-import { scanFile, logSecurityEvent } from '@/lib/core/security';
+import { logSecurityEvent } from '@/lib/core/security';
 import { validateFileAdvanced } from '@/lib/core/utils';
 
 export interface UseFileUploaderReturn {
@@ -149,64 +149,27 @@ export function useFileUploader(): UseFileUploaderReturn {
         }
 
         validFiles.push(file);
-      }
+      }      if (validFiles.length === 0) return;
 
-      if (validFiles.length === 0) return;
-
-      // Create initial file entries with scanning status
+      // Create initial file entries with uploading status
       const newFiles = validFiles.map((file) => ({
         id: nanoid(),
         file,
         progress: 0,
-        status: 'scanning' as const,
+        status: 'uploading' as const,
       }));
 
       setFiles((prev) => [...prev, ...newFiles]);
 
-      // Scan each file for security threats
+      // Start upload for each file immediately (no scanning in zero-knowledge architecture)
       for (const uploadedFile of newFiles) {
         try {
-          const scanResult = await scanFile(uploadedFile.file);
-
-          if (!scanResult.safe) {
-            // File contains threats
-            setFiles((prev) =>
-              prev.map((f) =>
-                f.id === uploadedFile.id
-                  ? {
-                      ...f,
-                      status: 'threat_detected',
-                      scanResult,
-                      error:
-                        scanResult.threat ||
-                        t('securityThreatDetected', {
-                          threat: t('unknownError'),
-                        }),
-                    }
-                  : f
-              )
-            );
-            toast.error(
-              t('securityThreatInFile', { filename: uploadedFile.file.name })
-            );
-            continue;
-          }
-
-          // File is safe, proceed to upload
-          setFiles((prev) =>
-            prev.map((f) =>
-              f.id === uploadedFile.id
-                ? { ...f, status: 'uploading', scanResult }
-                : f
-            )
-          );
-
-          // Start upload
-          uploadFile({ ...uploadedFile, status: 'uploading', scanResult });
+          // Start upload immediately
+          uploadFile(uploadedFile);
         } catch (error) {
           logSecurityEvent(
             'suspicious_activity',
-            `File scan failed for ${uploadedFile.file.name}: ${error}`,
+            `File upload initialization failed for ${uploadedFile.file.name}: ${error}`,
             'high',
             {
               filename: uploadedFile.file.name,

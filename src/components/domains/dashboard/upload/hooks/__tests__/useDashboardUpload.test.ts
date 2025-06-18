@@ -28,7 +28,6 @@ vi.mock('@/components/domains/upload/fileuploader/utils', () => ({
 }));
 
 vi.mock('@/lib/security', () => ({
-  scanFile: vi.fn(),
   logSecurityEvent: vi.fn(),
 }));
 
@@ -39,7 +38,6 @@ vi.mock('@/lib/utils', () => ({
 import { useTranslations } from 'next-intl';
 import { useSession } from '@/lib/auth/auth-client';
 import { toast } from 'sonner';
-import { scanFile } from '@/lib/core/security';
 import { validateFileAdvanced } from '@/lib/core/utils';
 
 describe('useDashboardUpload', () => {
@@ -48,15 +46,13 @@ describe('useDashboardUpload', () => {
     data: { user: { id: 'user123' } },
   };
 
-  beforeEach(() => {
-    vi.clearAllMocks();
+  beforeEach(() => {    vi.clearAllMocks();
     (useTranslations as any).mockReturnValue(mockT);
     (useSession as any).mockReturnValue(mockSession);
     (validateFileAdvanced as any).mockResolvedValue({
       isValid: true,
       errors: [],
     });
-    (scanFile as any).mockResolvedValue({ safe: true });
   });
 
   it('should initialize with default values', () => {
@@ -206,7 +202,7 @@ describe('useDashboardUpload', () => {
     it('should reject files with disallowed types', async () => {
       const { result } = renderHook(() => useDashboardUpload());
 
-      const executableFile = new File(['content'], 'malware.exe', {
+      const executableFile = new File(['content'], 'suspicious.exe', {
         type: 'application/x-msdownload',
       });
 
@@ -237,51 +233,7 @@ describe('useDashboardUpload', () => {
       expect(toast.error).toHaveBeenCalledWith(
         expect.stringContaining('fileFailedValidation')
       );
-      expect(result.current.files).toHaveLength(0);
-    });
-  });
-
-  describe('security scanning', () => {
-    it('should handle files with security threats', async () => {
-      (scanFile as any).mockResolvedValue({
-        safe: false,
-        threat: 'Malware detected',
-      });
-
-      const { result } = renderHook(() => useDashboardUpload());
-
-      const file = new File(['content'], 'test.txt', { type: 'text/plain' });
-
-      await act(async () => {
-        await result.current.processFiles([file]);
-      });
-
-      expect(result.current.files).toHaveLength(1);
-      expect(result.current.files[0].status).toBe('threat_detected');
-      expect(result.current.files[0].error).toContain('securityThreatDetected');
-      expect(toast.error).toHaveBeenCalledWith(
-        expect.stringContaining('securityThreatInFile')
-      );
-    });
-
-    it('should handle security scan failures', async () => {
-      (scanFile as any).mockRejectedValue(new Error('Scan failed'));
-
-      const { result } = renderHook(() => useDashboardUpload());
-
-      const file = new File(['content'], 'test.txt', { type: 'text/plain' });
-
-      await act(async () => {
-        await result.current.processFiles([file]);
-      });
-
-      expect(result.current.files).toHaveLength(1);
-      expect(result.current.files[0].status).toBe('error');
-      expect(result.current.files[0].error).toBe('securityScanFailed');
-      expect(toast.error).toHaveBeenCalledWith(
-        expect.stringContaining('failedToScanFile')
-      );
-    });
+      expect(result.current.files).toHaveLength(0);    });
   });
 
   it('should handle successful file processing and start upload', async () => {

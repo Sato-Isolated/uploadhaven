@@ -24,11 +24,9 @@ export default function FileActions({
   return (
     <div className="flex items-center space-x-2">
       <AnimatePresence mode="wait">
-        {/* Status Badge */}
-        <FileStatusBadge
+        {/* Status Badge */}        <FileStatusBadge
           key={`status-${file.id}`}
           status={file.status}
-          threatDetails={file.error}
         />
         {/* Completed state action buttons */}
         {file.status === 'completed' && file.shortUrl && (

@@ -4,7 +4,6 @@ import {
   AlertTriangle,
   FileX,
   Ban,
-  Bug,
   HardDrive,
   UserX,
   Activity,
@@ -36,14 +35,9 @@ export const getEventIcon = (type: SecurityEventType): React.ReactNode => {
     case 'invalid_file':
       return React.createElement(FileX, {
         className: 'w-4 h-4 text-orange-600 dark:text-orange-400',
-      });
-    case 'blocked_ip':
+      });    case 'blocked_ip':
       return React.createElement(Ban, {
         className: 'w-4 h-4 text-red-600 dark:text-red-400',
-      });
-    case 'malware_detected':
-      return React.createElement(Bug, {
-        className: 'w-4 h-4 text-red-700 dark:text-red-500',
       });
     case 'large_file':
       return React.createElement(HardDrive, {

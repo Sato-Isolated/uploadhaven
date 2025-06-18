@@ -41,11 +41,9 @@ export interface FileOperationOptions {
  * File upload status
  */
 export type FileUploadStatus =
-  | 'scanning'
   | 'uploading'
   | 'completed'
-  | 'error'
-  | 'threat_detected';
+  | 'error';
 
 /**
  * Uploaded file with metadata
@@ -58,7 +56,6 @@ export interface UploadedFile {
   url?: string;
   shortUrl?: string;
   error?: string;
-  scanResult?: { safe: boolean; threat?: string };
   generatedKey?: string;
 }
 
@@ -159,7 +156,6 @@ export interface FileHandlerProps extends BaseComponentProps {
  */
 export interface FileStatusProps extends BaseComponentProps {
   status: FileUploadStatus;
-  threatDetails?: string;
 }
 
 /**

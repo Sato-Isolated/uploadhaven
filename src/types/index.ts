@@ -76,12 +76,9 @@ export type { BaseUser, ExtendedUser, User } from './auth';
 export type { IUser, IFile, ISecurityEvent } from './database';
 
 // =============================================================================
-// Security and Scanning
+// Security and Rate Limiting
 // =============================================================================
 export type {
-  ScanResult,
-  MalwareScanResult,
-  VirusTotalResponse,
   RateLimitConfig,
   RateLimitData,
   CleanupStats,

@@ -39,7 +39,7 @@ export default function FileProgressCard({
         className={`flex items-center space-x-4 rounded-xl border p-4 transition-all duration-300 ${
           file.status === 'completed'
             ? 'border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-950/20'
-            : file.status === 'error' || file.status === 'threat_detected'
+            : file.status === 'error'
               ? 'border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-950/20'
               : 'border-border bg-white dark:bg-gray-800/50'
         } `}

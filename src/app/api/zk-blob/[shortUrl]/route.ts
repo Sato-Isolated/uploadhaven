@@ -34,9 +34,7 @@ export async function GET(
     }
 
     // Connect to database
-    await connectDB();
-
-    // Find the file by shortUrl
+    await connectDB();    // Find the file by shortUrl
     const file = await File.findOne({ 
       shortUrl,
       // Only look for files that are not soft-deleted
@@ -50,6 +48,7 @@ export async function GET(
       // ZK files only
       isZeroKnowledge: 1,
       zkMetadata: 1,
+      _id: 1, // Add _id for updates
     });
 
     if (!file) {
@@ -86,15 +85,13 @@ export async function GET(
         { success: false, error: 'File has expired' },
         { status: 410 } // Gone
       );
-    }
-
-    // Validate that this is a ZK file
-    if (!file.isZeroKnowledge || !file.zkMetadata) {
+    }    // Validate that this is a ZK file
+    if (file.isZeroKnowledge !== true || !file.zkMetadata) {
       return NextResponse.json(
-        { success: false, error: 'File type not supported' },
+        { success: false, error: 'File type not supported', details: 'Not a zero-knowledge encrypted file' },
         { status: 400 }
       );
-    }    // Construct file path - ZK files are stored in public/uploads/public
+    }// Construct file path - ZK files are stored in public/uploads/public
     // Handle both cases: filename with or without public/ prefix
     const uploadsDir = process.env.UPLOADS_DIR || join(process.cwd(), 'public', 'uploads');
     const filename = file.filename.startsWith('public/') ? file.filename.substring(7) : file.filename;

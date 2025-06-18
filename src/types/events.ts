@@ -54,7 +54,6 @@ export type SecuritySeverity = 'low' | 'medium' | 'high' | 'critical';
  * Security event types
  */
 export type SecurityEventType =
-  | 'malware_detected'
   | 'invalid_file'
   | 'rate_limit_exceeded'
   | 'rate_limit'
@@ -67,7 +66,6 @@ export type SecurityEventType =
   | 'user_login'
   | 'user_logout'
   | 'user_registration'
-  | 'file_scan'
   | 'file_upload'
   | 'file_download';
 
@@ -110,7 +108,6 @@ export type NotificationType =
   | 'security_alert'
   | 'system_announcement'
   | 'file_upload_complete'
-  | 'malware_detected'
   | 'bulk_action_complete';
 
 /**

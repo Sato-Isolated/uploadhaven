@@ -5,7 +5,6 @@ import {
   FileX,
   Ban,
   Clock,
-  Bug,
   HardDrive,
 } from 'lucide-react';
 import { SecurityStatsGridProps, SecurityStatCardProps } from '../types';
@@ -81,18 +80,11 @@ export default function SecurityStatsGrid({
       value: stats.blockedIPs || 0,
       icon: <Ban className="h-4 w-4" />,
       color: 'text-red-600 dark:text-red-400',
-    },
-    {
+    },    {
       title: t('last24h'),
       value: stats.last24h || 0,
       icon: <Clock className="h-4 w-4" />,
       color: 'text-purple-600 dark:text-purple-400',
-    },
-    {
-      title: t('malwareDetected'),
-      value: stats.malwareDetected || 0,
-      icon: <Bug className="h-4 w-4" />,
-      color: 'text-red-700 dark:text-red-500',
     },
     {
       title: t('largeFilesBlocked'),

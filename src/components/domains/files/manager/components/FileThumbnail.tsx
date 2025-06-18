@@ -3,8 +3,25 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import { motion } from 'motion/react';
-import { getFileIcon } from '@/components/domains/filepreview/utils/fileUtils';
+import { FileIcon, FileText, FileImage, FileVideo, FileArchive } from 'lucide-react';
 import type { BaseComponentProps } from '@/types';
+
+// Simple file icon utility
+const getFileIcon = (mimeType: string, className: string = '') => {
+  if (mimeType.startsWith('image/')) {
+    return <FileImage className={className} />;
+  }
+  if (mimeType.startsWith('video/')) {
+    return <FileVideo className={className} />;
+  }
+  if (mimeType.includes('zip') || mimeType.includes('archive')) {
+    return <FileArchive className={className} />;
+  }
+  if (mimeType.includes('text') || mimeType.includes('pdf')) {
+    return <FileText className={className} />;
+  }
+  return <FileIcon className={className} />;
+};
 
 interface FileThumbnailProps extends BaseComponentProps {
   shortUrl: string;
@@ -32,10 +49,8 @@ export default function FileThumbnail({
   const thumbnailUrl = supportsThumbnail
     ? `/api/thumbnail/${shortUrl}${password ? `?password=${encodeURIComponent(password)}` : ''}`
     : null;
-
   // If thumbnails aren't supported or failed, show icon
   if (!supportsThumbnail || thumbnailError) {
-    const IconComponent = getFileIcon(mimeType);
     return (
       <motion.div
         className={`flex items-center justify-center ${className}`}
@@ -43,7 +58,7 @@ export default function FileThumbnail({
         whileHover={{ scale: 1.1, rotate: 5 }}
         transition={{ type: 'spring', stiffness: 300 }}
       >
-        <IconComponent className="h-full w-full text-blue-500" />
+        {getFileIcon(mimeType, "h-full w-full text-blue-500")}
       </motion.div>
     );
   }

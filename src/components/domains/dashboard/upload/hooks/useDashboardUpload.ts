@@ -15,7 +15,8 @@ import {
   getFileType,
   saveFileToLocalStorage,
 } from '@/components/domains/upload/fileuploader/utils';
-import { scanFile, logSecurityEvent } from '@/lib/core/security';
+// Security imports removed as part of zero-knowledge architecture
+// import { logSecurityEvent } from '@/lib/core/security';
 import { validateFileAdvanced } from '@/lib/core/utils';
 
 // Import ZK encryption utilities
@@ -129,13 +130,11 @@ export function useDashboardUpload() {
             })
           );
           continue;
-        }
-
-        const uploadedFile: UploadedFile = {
+        }        const uploadedFile: UploadedFile = {
           id: nanoid(),
           file,
           progress: 0,
-          status: 'scanning',
+          status: 'uploading',
         };
 
         newFiles.push(uploadedFile);
@@ -143,62 +142,20 @@ export function useDashboardUpload() {
 
       setFiles((prev) => [...prev, ...newFiles]);
 
-      // Security scan and upload each file
+      // Upload each file immediately (no scanning in zero-knowledge architecture)
       for (const uploadedFile of newFiles) {
         try {
-          const scanResult = await scanFile(uploadedFile.file);
-
-          if (!scanResult.safe) {
-            setFiles((prev) =>
-              prev.map((f) =>
-                f.id === uploadedFile.id
-                  ? {
-                      ...f,
-                      status: 'threat_detected',
-                      scanResult,
-                      error: t('securityThreatDetected', {
-                        threat: scanResult.threat || t('unknownError'),
-                      }),
-                    }
-                  : f
-              )
-            );
-
-            logSecurityEvent(
-              'malware_detected',
-              `Security threat detected in ${uploadedFile.file.name}: ${scanResult.threat}`,
-              'high',
-              {
-                filename: uploadedFile.file.name,
-                fileSize: uploadedFile.file.size,
-                fileType: uploadedFile.file.type,
-              }
-            );
-
-            toast.error(
-              t('securityThreatInFile', { filename: uploadedFile.file.name })
-            );
-            continue;
-          }
-
-          setFiles((prev) =>
-            prev.map((f) =>
-              f.id === uploadedFile.id
-                ? { ...f, status: 'uploading', scanResult }
-                : f
-            )
-          );
-
           await uploadFile(uploadedFile);
         } catch {
           setFiles((prev) =>
             prev.map((f) =>
               f.id === uploadedFile.id
-                ? { ...f, status: 'error', error: t('securityScanFailed') }
+                ? { ...f, status: 'error', error: t('failedToUploadFile') }
                 : f
-            )          );
+            )
+          );
           toast.error(
-            t('failedToScanFile', { filename: uploadedFile.file.name })
+            t('failedToUploadFile', { filename: uploadedFile.file.name })
           );
         }
       }

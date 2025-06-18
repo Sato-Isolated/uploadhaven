@@ -2,20 +2,19 @@
 
 import { motion, AnimatePresence } from 'motion/react';
 import { Badge } from '@/components/ui/badge';
-import { Shield, AlertTriangle, Check } from 'lucide-react';
+import { AlertTriangle, Check, Upload } from 'lucide-react';
 import type { FileStatusProps } from '@/types';
 
 type FileStatusBadgeProps = FileStatusProps;
 
 export default function FileStatusBadge({
   status,
-  threatDetails,
 }: FileStatusBadgeProps) {
   return (
     <AnimatePresence mode="wait">
-      {status === 'scanning' && (
+      {status === 'uploading' && (
         <motion.div
-          key="scanning"
+          key="uploading"
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.8 }}
@@ -32,33 +31,9 @@ export default function FileStatusBadge({
                 ease: 'linear',
               }}
             >
-              <Shield className="mr-1 h-3 w-3" />
+              <Upload className="mr-1 h-3 w-3" />
             </motion.div>
-            Scanning...
-          </Badge>
-        </motion.div>
-      )}
-      {status === 'threat_detected' && (
-        <motion.div
-          key="threat"
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 0.8 }}
-        >
-          <Badge
-            variant="destructive"
-            className="bg-red-100 text-red-800 dark:bg-red-950 dark:text-red-200"
-          >
-            <motion.div
-              animate={{ scale: [1, 1.2, 1] }}
-              transition={{
-                duration: 0.5,
-                repeat: Infinity,
-              }}
-            >
-              <AlertTriangle className="mr-1 h-3 w-3" />
-            </motion.div>
-            {threatDetails || 'Threat'}
+            Uploading...
           </Badge>
         </motion.div>
       )}

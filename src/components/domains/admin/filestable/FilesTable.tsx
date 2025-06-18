@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Card, CardContent } from '@/components/ui/card';
 import { useFilesTableLogic } from './hooks/useFilesTableLogic';
 import { FilesTableHeader } from './components/FilesTableHeader';
+import { FilesTableHeaderColumns } from './components/FilesTableHeaderColumns';
 import { FilesTableRow } from './components/FilesTableRow';
 import { FilesTableEmptyState } from './components/FilesTableEmptyState';
 import type { AdminFileData } from '@/types';
@@ -29,23 +30,23 @@ export default function FilesTable(props: FilesTableProps) {
   } = useFilesTableLogic(props);
 
   const { filteredFiles, selectedFiles } = props;
-
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.6, duration: 0.5 }}
     >
-      <Card className="border-0 bg-gradient-to-br from-white via-blue-50/30 to-purple-50/30 shadow-xl backdrop-blur-sm dark:from-gray-900 dark:via-blue-950/20 dark:to-purple-950/20">
-        <FilesTableHeader
+      <Card className="border-0 bg-gradient-to-br from-white via-blue-50/30 to-purple-50/30 shadow-xl backdrop-blur-sm dark:from-gray-900 dark:via-blue-950/20 dark:to-purple-950/20">        <FilesTableHeader
           totalFiles={filteredFiles.length}
-          isAllSelected={isAllSelected}
-          onSelectAll={onSelectAll}
         />
 
         <CardContent className="p-0">
           <div className="overflow-x-auto">
             <table className="w-full">
+              <FilesTableHeaderColumns
+                isAllSelected={isAllSelected}
+                onSelectAll={onSelectAll}
+              />
               <tbody>
                 <AnimatePresence mode="popLayout">
                   {filteredFiles.map((file, index) => (

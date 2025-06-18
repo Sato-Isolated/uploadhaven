@@ -125,9 +125,7 @@ class SecurityLogger {
       if (typeof event.timestamp === 'number') return event.timestamp;
       if (event.timestamp instanceof Date) return event.timestamp.getTime();
       return new Date(event.timestamp).getTime();
-    };
-
-    return {
+    };    return {
       totalEvents: this.events.length,
       rateLimitHits: this.events.filter((e) => e.type === 'rate_limit').length,
       invalidFiles: this.events.filter((e) => e.type === 'invalid_file').length,
@@ -135,8 +133,6 @@ class SecurityLogger {
         this.events.filter((e) => e.type === 'blocked_ip').map((e) => e.ip)
       ).size,
       last24h: this.events.filter((e) => getTimestamp(e) > last24h).length,
-      malwareDetected: this.events.filter((e) => e.type === 'malware_detected')
-        .length,
       largeSizeBlocked: this.events.filter((e) => e.type === 'large_file')
         .length,
     };
@@ -170,34 +166,6 @@ export function logSecurityEvent(
   }
 ): SecurityEvent {
   return securityLogger.logEvent(type, details, severity, additionalData);
-}
-
-// File scanning function (placeholder for actual implementation)
-export async function scanFile(
-  file: File
-): Promise<{ safe: boolean; threat?: string }> {
-  // This is a placeholder implementation
-  // In a real scenario, this would integrate with actual malware scanning
-  const suspiciousExtensions = ['.exe', '.bat', '.com', '.scr', '.pif'];
-  const fileExtension = file.name
-    .toLowerCase()
-    .substring(file.name.lastIndexOf('.'));
-
-  if (suspiciousExtensions.includes(fileExtension)) {
-    logSecurityEvent(
-      'file_scan',
-      `Suspicious file extension detected: ${fileExtension}`,
-      'high',
-      {
-        filename: file.name,
-        fileSize: file.size,
-        fileType: file.type,
-      }
-    );
-    return { safe: false, threat: 'Suspicious file extension' };
-  }
-
-  return { safe: true };
 }
 
 // Detect suspicious activity patterns

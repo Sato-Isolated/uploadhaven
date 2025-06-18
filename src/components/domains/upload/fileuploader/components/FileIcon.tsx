@@ -13,8 +13,7 @@ export default function FileIcon({ status }: FileIconProps) {
         containerClass: 'bg-green-100 dark:bg-green-900',
         iconClass: 'text-green-600',
       };
-    }
-    if (status === 'error' || status === 'threat_detected') {
+    }    if (status === 'error') {
       return {
         containerClass: 'bg-red-100 dark:bg-red-900',
         iconClass: 'text-red-600',
@@ -27,7 +26,7 @@ export default function FileIcon({ status }: FileIconProps) {
   };
 
   const { containerClass, iconClass } = getIconStyles(status);
-  const isAnimating = status === 'scanning' || status === 'uploading';
+  const isAnimating = status === 'uploading';
 
   return (
     <motion.div

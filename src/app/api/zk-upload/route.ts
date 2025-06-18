@@ -251,12 +251,13 @@ export async function POST(request: NextRequest) {
       mimeType: 'application/octet-stream', // ZK files are opaque blobs
       size: publicMetadata.size, // Size of encrypted data
       expiresAt,
-      ipAddress: clientIP,
-      userAgent,
+      ipAddress: clientIP,      userAgent,
       userId: session?.user?.id || undefined,
       isAnonymous: !session?.user?.id,
       password: hashedPassword,
-      isPasswordProtected,      // Zero-Knowledge specific fields
+      isPasswordProtected,
+      
+      // Zero-Knowledge specific fields
       isZeroKnowledge: true, // This is a ZK encrypted file
       zkMetadata: {
         algorithm: publicMetadata.algorithm,
@@ -268,10 +269,7 @@ export async function POST(request: NextRequest) {
         keyHint: keyData.isPasswordDerived ? 'password' : 'embedded',
         contentCategory: publicMetadata.contentCategory || 'other', // Store content category for preview
       },
-      scanResult: {
-        safe: true, // ZK files can't be scanned, assume safe
-        scanDate: new Date(),
-      },
+      // scanResult removed - ZK files cannot be scanned as part of zero-knowledge architecture
     });
 
     // Update user activity for authenticated users

@@ -96,17 +96,14 @@ export function UploadedFilesList({
                     {(file.file.size / 1024 / 1024).toFixed(2)} {tCommon('mb')}
                   </p>
                 </div>
-              </div>
-              <div className="flex items-center space-x-2">
+              </div>              <div className="flex items-center space-x-2">
                 {file.status === 'completed' && (
                   <CheckCircle className="h-5 w-5 text-green-500" />
                 )}
                 {file.status === 'error' && (
                   <AlertCircle className="h-5 w-5 text-red-500" />
                 )}
-                {file.status === 'threat_detected' && (
-                  <AlertCircle className="h-5 w-5 text-orange-500" />
-                )}
+                {/* threat_detected status removed as part of zero-knowledge architecture */}
                 <Button
                   variant="ghost"
                   size="sm"
@@ -116,16 +113,12 @@ export function UploadedFilesList({
                   <X className="h-4 w-4" />
                 </Button>
               </div>
-            </div>
-
-            {/* Progress Bar */}
-            {(file.status === 'scanning' || file.status === 'uploading') && (
+            </div>            {/* Progress Bar */}
+            {file.status === 'uploading' && (
               <div className="mb-3">
                 <div className="mb-1 flex justify-between text-sm">
                   <span className="text-gray-600">
-                    {file.status === 'scanning'
-                      ? t('scanning')
-                      : t('uploading')}
+                    {t('uploading')}
                   </span>
                   <span className="text-gray-600">{file.progress}%</span>
                 </div>

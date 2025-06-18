@@ -16,7 +16,6 @@ export {
   useSecurityData,
   useExportSecurityLogs,
   useClearSecurityLogs,
-  useSecurityScan,
 } from './useSecurityQuery';
 export {
   useFiles,
@@ -33,7 +32,6 @@ export { useFilesTableLogic } from '../components/domains/admin/filestable/hooks
 export { useFileUploader } from '../components/domains/upload/fileuploader/hooks/useFileUploader';
 export { useSecurityEventsFilter } from '../components/domains/security/events/hooks/useSecurityEventsFilter';
 export { useClientUserStats } from '../components/domains/dashboard/stats/hooks/useClientUserStats';
-export { useSecurityScanModal } from '../components/domains/security/hooks/useSecurityScanModal';
 export { useNotifications } from './useNotifications';
 // Real-time hooks using polling (preferred approach)
 export { useRealTimeActivities } from './useRealTimePolling';

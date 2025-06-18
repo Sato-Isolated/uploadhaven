@@ -26,8 +26,7 @@ export interface IUser {
  * Database file model
  */
 export interface IFile {
-  _id: string;
-  filename: string;
+  _id: string;  filename: string;
   shortUrl: string;
   originalName: string;
   mimeType: string;
@@ -37,14 +36,9 @@ export interface IFile {
   downloadCount: number;
   ipAddress: string;
   userAgent?: string;
-  scanResult: {
-    safe: boolean;
-    threat?: string;
-    scanDate?: Date;
-  };
   isDeleted: boolean;
   userId?: string;
-  isAnonymous: boolean;  password?: string; // hashed password for protected files
+  isAnonymous: boolean;password?: string; // hashed password for protected files
   isPasswordProtected: boolean;
   // Zero-Knowledge encryption fields (client-side encryption)
   isZeroKnowledge: boolean; // True if file uses Zero-Knowledge encryption

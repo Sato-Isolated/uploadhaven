@@ -26,11 +26,10 @@ export type FileType =
  * File upload status during processing
  */
 export type FileUploadStatus =
-  | 'scanning'
   | 'uploading'
   | 'encrypting'
   | 'completed'
-  | 'error'  | 'threat_detected';
+  | 'error';
 
 /**
  * Base file data structure - shared properties across all file interfaces
@@ -81,10 +80,6 @@ export interface UploadedFile {
   url?: string;
   shortUrl?: string;
   error?: string;
-  scanResult?: {
-    safe: boolean;
-    threat?: string;
-  };
   generatedKey?: string;
 }
 
@@ -131,8 +126,7 @@ export interface ExportFileData {
 export interface IFile {
   readonly _id: string;
   readonly filename: string;
-  readonly shortUrl: string;
-  readonly originalName: string;
+  readonly shortUrl: string;  readonly originalName: string;
   readonly originalType: string; // Original MIME type before encryption
   readonly mimeType: string;
   readonly size: number;
@@ -141,14 +135,9 @@ export interface IFile {
   readonly downloadCount: number;
   readonly ipAddress: string;
   readonly userAgent?: string;
-  readonly scanResult: {
-    safe: boolean;
-    threat?: string;
-    scanDate?: Date;
-  };
   readonly isDeleted: boolean;
   readonly userId?: string;
-  readonly isAnonymous: boolean;  readonly password?: string; // hashed password for protected files
+  readonly isAnonymous: boolean;readonly password?: string; // hashed password for protected files
   readonly isPasswordProtected: boolean;
   // Zero-Knowledge encryption fields
   readonly isZeroKnowledge: boolean;

@@ -36,6 +36,5 @@ export interface SecurityStats {
   invalidFiles: number;
   blockedIPs: number;
   last24h: number;
-  malwareDetected?: number;
   largeSizeBlocked?: number;
 }

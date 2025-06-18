@@ -131,13 +131,9 @@ function getNotificationConfig(
 ): NotificationConfig | null {
   // Fallback function for when no translation function is provided
   const translate =
-    t ||
-    ((key: string, params?: Record<string, any>) => {
+    t ||    ((key: string, params?: Record<string, any>) => {
       // Fallback to English strings if no translation function provided
       const fallbacks: Record<string, string> = {
-        'SecurityNotifications.malwareDetected': 'Malware Detected',
-        'SecurityNotifications.malwareDetectedMessage':
-          'Malware detected in {fileName}{threatName}. The file has been flagged for security review.',
         'SecurityNotifications.suspiciousActivityDetected':
           'Suspicious Activity Detected',
         'SecurityNotifications.suspiciousActivityMessage':
@@ -172,31 +168,7 @@ function getNotificationConfig(
       }
       return message;
     });
-
   const configs: Partial<Record<SecurityEventType, NotificationConfig>> = {
-    malware_detected: {
-      type: 'malware_detected',
-      title: translate('SecurityNotifications.malwareDetected'),
-      priority: 'urgent',
-      getMessage: (details, metadata) => {
-        const fileName =
-          (metadata?.fileName as string) ||
-          translate('SecurityNotifications.unknownFile');
-        const scanResult = metadata?.scanResult as
-          | { threatName?: string }
-          | undefined;
-        const threatName = scanResult?.threatName
-          ? translate('SecurityNotifications.threatNamePrefix', {
-              threatName: scanResult.threatName,
-            })
-          : '';
-        return translate('SecurityNotifications.malwareDetectedMessage', {
-          fileName,
-          threatName,
-        });
-      },
-    },
-
     suspicious_activity: {
       type: 'security_alert',
       title: translate('SecurityNotifications.suspiciousActivityDetected'),
