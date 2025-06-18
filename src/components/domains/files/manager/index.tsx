@@ -2,7 +2,6 @@
 
 'use client';
 
-import { useState } from 'react';
 import { toast } from 'sonner';
 import { useFiles, useDeleteFile } from '@/hooks';
 import { useOrigin } from '@/hooks/useOrigin';
@@ -13,19 +12,17 @@ import {
   Music,
   Archive,
 } from 'lucide-react';
-import { FilePreview } from '../../filepreview';
+// import { FilePreview } from '../../filepreview'; // TODO: Update to use new ZK preview system
 import LoadingIndicator from './components/LoadingIndicator';
 import EmptyState from './components/EmptyState';
 import FileListContainer from './components/FileListContainer';
-import type { FilePreviewData } from '@/types';
 import type { FileInfo, ExpirationStatus, FileManagerProps } from './types';
 import { useTranslations } from 'next-intl';
 
 export default function FileManager({ className = '' }: FileManagerProps) {
-  const t = useTranslations('Files');
-  const origin = useOrigin();
-  const [previewFile, setPreviewFile] = useState<FilePreviewData | null>(null);
-  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+  const t = useTranslations('Files');  const origin = useOrigin();
+  // const [previewFile, setPreviewFile] = useState<FilePreviewData | null>(null); // TODO: Update for ZK preview
+  // const [isPreviewOpen, setIsPreviewOpen] = useState(false); // TODO: Update for ZK preview
   // Use TanStack Query for better performance and caching
   const { data: files = [], isLoading: loading } = useFiles();
 
@@ -124,8 +121,9 @@ export default function FileManager({ className = '' }: FileManagerProps) {
         timeLeft: `${minutes} ${minutes > 1 ? t('minutes') : t('minute')}`,
       };
     }
-  };
-  const openPreview = (file: FileInfo) => {
+  };  const openPreview = () => {
+    // TODO: Update for ZK preview system - openPreview function disabled
+    /* 
     if (!origin) {
       toast.error('Unable to preview - origin not available');
       return;
@@ -138,12 +136,14 @@ export default function FileManager({ className = '' }: FileManagerProps) {
       url: `${origin}/api/files/${file.name}`,
     });
     setIsPreviewOpen(true);
+    */
   };
 
-  const closePreview = () => {
-    setIsPreviewOpen(false);
-    setPreviewFile(null);
-  };
+  // const closePreview = () => {
+  //   // TODO: Update for ZK preview
+  //   // setIsPreviewOpen(false);
+  //   // setPreviewFile(null);
+  // };
 
   if (loading) {
     return <LoadingIndicator />;
@@ -161,14 +161,14 @@ export default function FileManager({ className = '' }: FileManagerProps) {
         onDownload={downloadFile}
         onDelete={deleteFile}
         getExpirationStatus={getExpirationStatus}
-        getFileIcon={getFileIcon}
-      />
+        getFileIcon={getFileIcon}      />
 
-      <FilePreview
+      {/* TODO: Update to use new ZK preview system */}
+      {/* <FilePreview
         isOpen={isPreviewOpen}
         onClose={closePreview}
         file={previewFile}
-      />
+      /> */}
     </div>
   );
 }

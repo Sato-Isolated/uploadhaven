@@ -48,52 +48,8 @@ export default function ZKUploadForm() {
   const [result, setResult] = useState<ZKUploadResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [linkCopied, setLinkCopied] = useState(false);
-  // Check browser compatibility
-  const checkBrowserCompatibility = () => {
-    const features = {
-      webCrypto: !!window.crypto?.subtle,
-      arrayBuffer: !!window.ArrayBuffer,
-      formData: !!window.FormData,
-    };
 
-    const missingFeatures = Object.entries(features)
-      .filter(([, supported]) => !supported)
-      .map(([feature]) => feature);
-
-    return {
-      supported: missingFeatures.length === 0,
-      missingFeatures,
-    };
-  };
-
-  const compatibility = checkBrowserCompatibility();
-  if (!compatibility.supported) {
-    return (
-      <Card className="mx-auto w-full max-w-2xl">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <AlertCircle className="text-destructive h-5 w-5" />
-            Browser Not Supported
-          </CardTitle>
-          <CardDescription>
-            Your browser doesn't support the required encryption features
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Alert>
-            <AlertCircle className="h-4 w-4" />
-            <AlertDescription>
-              Missing features: {compatibility.missingFeatures.join(', ')}
-              <br />
-              Please use a modern browser (Chrome 37+, Firefox 34+, Safari 7+,
-              Edge 12+)
-            </AlertDescription>
-          </Alert>
-        </CardContent>
-      </Card>
-    );
-  }
-
+  // All hooks must be called before any early returns
   const handleFileSelect = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
       const selectedFile = event.target.files?.[0];
@@ -105,6 +61,7 @@ export default function ZKUploadForm() {
     },
     []
   );
+
   const handleUpload = useCallback(async () => {
     if (!file) return;
 
@@ -135,14 +92,15 @@ export default function ZKUploadForm() {
         encryptedSize: file.size, // We don't have the encrypted size from the utility
         keyType: usePassword && password.trim() ? 'password' : 'embedded',
       }); // Zero-Knowledge upload complete
-    } catch (error) {
-      console.error('❌ ZK Upload failed:', error);
-      setError(error instanceof Error ? error.message : 'Upload failed');
+    } catch (uploadError) {
+      console.error('❌ Upload failed:', uploadError);
+      setError(
+        uploadError instanceof Error ? uploadError.message : 'Upload failed'
+      );
     } finally {
       setIsUploading(false);
     }
   }, [file, password, usePassword, expiration]);
-
   const copyToClipboard = useCallback(async () => {
     if (!result?.shareLink) return;
 
@@ -150,8 +108,10 @@ export default function ZKUploadForm() {
       await navigator.clipboard.writeText(result.shareLink);
       setLinkCopied(true);
       setTimeout(() => setLinkCopied(false), 2000);
-    } catch (error) {
-      console.error('Failed to copy to clipboard:', error);
+      return true;
+    } catch (clipboardError) {
+      console.error('Failed to copy to clipboard:', clipboardError);
+      return false;
     }
   }, [result?.shareLink]);
 
@@ -159,11 +119,58 @@ export default function ZKUploadForm() {
     setFile(null);
     setPassword('');
     setUsePassword(false);
-    setResult(null);
-    setError(null);
+    setExpiration('24h');
+    setIsUploading(false);
     setUploadProgress(0);
+    setError(null);
+    setResult(null);
     setLinkCopied(false);
   }, []);
+
+  // Check browser compatibility after all hooks
+  const checkBrowserCompatibility = () => {
+    const features = {
+      webCrypto: !!window.crypto?.subtle,
+      arrayBuffer: !!window.ArrayBuffer,
+      formData: !!window.FormData,
+    };
+
+    const missingFeatures = Object.entries(features)
+      .filter(([, supported]) => !supported)
+      .map(([feature]) => feature);
+
+    return {
+      supported: missingFeatures.length === 0,
+      missingFeatures,
+    };
+  };
+
+  const compatibility = checkBrowserCompatibility();
+  if (!compatibility.supported) {
+    return (
+      <Card className="mx-auto w-full max-w-2xl">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <AlertCircle className="text-destructive h-5 w-5" />
+            Browser Not Supported
+          </CardTitle>
+          <CardDescription>
+            Your browser doesn&apos;t support the required encryption features
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Alert>
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>
+              Missing features: {compatibility.missingFeatures.join(', ')}
+              <br />
+              Please use a modern browser (Chrome 37+, Firefox 34+, Safari 7+,
+              Edge 12+)
+            </AlertDescription>
+          </Alert>
+        </CardContent>
+      </Card>
+    );  }
 
   const formatFileSize = (bytes: number) => {
     if (bytes === 0) return '0 Bytes';

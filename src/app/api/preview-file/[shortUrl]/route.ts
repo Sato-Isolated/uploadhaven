@@ -4,11 +4,7 @@ import { File, saveSecurityEvent } from '@/lib/database/models';
 import { checkFileExpiration } from '@/lib/background/startup';
 import path from 'path';
 import { getClientIP } from '@/lib/core/utils';
-import {
-  readAndDecryptFile,
-  getContentLength,
-  logDecryptionActivity,
-} from '@/lib/encryption/file-decryption';
+import { readFile } from 'fs/promises';
 
 /**
  * GET /api/preview-file/[shortUrl]
@@ -55,30 +51,10 @@ export async function GET(
       );
     }
 
-    // Check for instant expiration
-    const wasDeleted = await checkFileExpiration(fileDoc._id.toString());
-    if (wasDeleted) {
-      return NextResponse.json(
-        { success: false, error: 'File has expired' },
-        { status: 410 }
-      );
-    } // Password protection check
-    if (fileDoc.isPasswordProtected && fileDoc.password) {
+    // Check password protection
+    if (fileDoc.isPasswordProtected) {
       const password = request.nextUrl.searchParams.get('password');
-      if (!password) {
-        return NextResponse.json(
-          {
-            success: false,
-            error: 'Password required',
-            passwordRequired: true,
-          },
-          { status: 401 }
-        );
-      }
-
-      const bcrypt = await import('bcryptjs');
-      const isValidPassword = await bcrypt.compare(password, fileDoc.password);
-      if (!isValidPassword) {
+      if (!password || password !== fileDoc.password) {
         // Log failed password attempt
         await saveSecurityEvent({
           type: 'suspicious_activity',
@@ -96,11 +72,12 @@ export async function GET(
       }
     }
 
-    // Build file path - fileDoc.filename already contains the full path from uploads directory
+    // Construct file path
     const filePath = path.join(
       process.cwd(),
-      'public',
-      'uploads',
+      process.env.NODE_ENV === 'production'
+        ? '/var/data/uploads'
+        : 'public/uploads',
       fileDoc.filename
     );
 
@@ -110,9 +87,7 @@ export async function GET(
       // Handle Zero-Knowledge files differently
       if (fileDoc.isZeroKnowledge) {
         // For ZK files, serve the encrypted blob as-is for client-side decryption
-        // Note: Preview for ZK files requires client-side decryption
-        const fs = await import('fs/promises');
-        fileBuffer = await fs.readFile(filePath); // Serving Zero-Knowledge encrypted blob for preview
+        fileBuffer = await readFile(filePath);
 
         // Log ZK file preview (NOT download)
         await saveSecurityEvent({
@@ -135,28 +110,28 @@ export async function GET(
         return new NextResponse(fileBuffer, {
           status: 200,
           headers: {
-            'Content-Type': 'application/octet-stream', // Always binary for ZK files
+            'Content-Type': 'application/octet-stream',
             'Content-Length': fileBuffer.length.toString(),
-            'Cache-Control': 'public, max-age=1800', // Cache for 30 minutes
-            'Content-Disposition': `inline; filename="${fileDoc.originalName}"`, // inline for preview
+            'Cache-Control': 'public, max-age=1800',
+            'Content-Disposition': `inline; filename="${fileDoc.originalName}"`,
             'X-ZK-Encrypted': 'true',
             'X-ZK-Algorithm': fileDoc.zkMetadata?.algorithm || 'unknown',
             'X-ZK-IV': fileDoc.zkMetadata?.iv || '',
             'X-ZK-Salt': fileDoc.zkMetadata?.salt || '',
-            'X-ZK-Iterations':
-              fileDoc.zkMetadata?.iterations?.toString() || '0',
+            'X-ZK-Iterations': fileDoc.zkMetadata?.iterations?.toString() || '0',
             'X-ZK-Key-Hint': fileDoc.zkMetadata?.keyHint || 'unknown',
           },
         });
-      } // Read and decrypt file if necessary for legacy files
-      fileBuffer = await readAndDecryptFile(filePath, fileDoc); // Log decryption activity if file was encrypted
-      logDecryptionActivity(fileDoc, 'preview', clientIP, userAgent);
+      }
+
+      // For unencrypted files, read normally
+      fileBuffer = await readFile(filePath);
 
       // Log successful preview (NOT download)
       await saveSecurityEvent({
-        type: 'file_preview', // Different event type
+        type: 'file_preview',
         ip: clientIP,
-        details: `File previewed: ${fileDoc.originalName}${fileDoc.isEncrypted ? ' (decrypted)' : ''}`,
+        details: `File previewed: ${fileDoc.originalName}`,
         severity: 'low',
         userAgent,
         filename: fileDoc.filename,
@@ -169,9 +144,9 @@ export async function GET(
         status: 200,
         headers: {
           'Content-Type': fileDoc.mimeType,
-          'Content-Length': getContentLength(fileDoc).toString(),
-          'Cache-Control': 'public, max-age=1800', // Cache for 30 minutes
-          'Content-Disposition': `inline; filename="${fileDoc.originalName}"`, // inline for preview
+          'Content-Length': fileDoc.size.toString(),
+          'Cache-Control': 'public, max-age=1800',
+          'Content-Disposition': `inline; filename="${fileDoc.originalName}"`,
         },
       });
     } catch (error) {

@@ -110,8 +110,7 @@ const fileSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
-    // Visibility removed - all files use security by obscurity
-    // Password protection fields
+    // Visibility removed - all files use security by obscurity    // Password protection fields
     password: {
       type: String,
       required: false, // Only set if file is password protected
@@ -120,31 +119,11 @@ const fileSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
-    // Encryption fields
-    isEncrypted: {
-      type: Boolean,
-      default: false,
-    },
-    encryptionMetadata: {
-      salt: String,
-      iv: String,
-      tag: String,
-      algorithm: String,
-      iterations: Number,
-      encryptedSize: Number,
-    },
-    previewEncryptionMetadata: {
-      salt: String,
-      iv: String,
-      tag: String,
-      algorithm: String,
-      iterations: Number,
-    },
     // Zero-Knowledge encryption fields (client-side encryption)
     isZeroKnowledge: {
       type: Boolean,
       default: false,
-    },    zkMetadata: {
+    },zkMetadata: {
       algorithm: String, // e.g., 'AES-GCM'
       iv: String, // base64 encoded IV (stored for client decryption)
       salt: String, // base64 encoded salt (for password-derived keys)
@@ -156,6 +135,11 @@ const fileSchema = new mongoose.Schema(
         enum: ['password', 'embedded'],
         required: false,
       }, // hint for UI about key type
+      contentCategory: {
+        type: String,
+        enum: ['media', 'document', 'archive', 'text', 'other'],
+        required: false,
+      }, // General content type for preview
       // Original file metadata for ZK files
       originalType: String, // Original MIME type before encryption
       originalName: String, // Original filename before encryption
@@ -362,27 +346,10 @@ export const saveFileMetadata = async (fileData: {
     scanDate: Date;
   };
   userId?: string;
-  isAnonymous?: boolean;
-  // Visibility removed - all files use security by obscurity
+  isAnonymous?: boolean;  // Visibility removed - all files use security by obscurity
   password?: string; // hashed password
   isPasswordProtected?: boolean;
-  // Encryption fields
-  isEncrypted?: boolean;
-  encryptionMetadata?: {
-    salt: string;
-    iv: string;
-    tag: string;
-    algorithm: string;
-    iterations: number;
-    encryptedSize: number;
-  };
-  previewEncryptionMetadata?: {
-    salt: string;
-    iv: string;
-    tag: string;
-    algorithm: string;
-    iterations: number;
-  };  // Zero-Knowledge encryption fields (client-side encryption)
+  // Zero-Knowledge encryption fields (client-side encryption)
   isZeroKnowledge?: boolean;
   zkMetadata?: {
     algorithm: string; // e.g., 'AES-GCM'
@@ -392,6 +359,7 @@ export const saveFileMetadata = async (fileData: {
     encryptedSize: number; // size of encrypted blob
     uploadTimestamp: number; // when encrypted blob was uploaded
     keyHint?: 'password' | 'embedded'; // hint for UI about key type
+    contentCategory?: 'media' | 'document' | 'archive' | 'text' | 'other'; // General content type for preview
     // Original file metadata for ZK files
     originalType?: string; // Original MIME type before encryption
     originalName?: string; // Original filename before encryption

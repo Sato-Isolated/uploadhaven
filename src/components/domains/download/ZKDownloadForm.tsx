@@ -21,11 +21,9 @@ import {
   Eye,
   FileText,
 } from 'lucide-react';
-import {
-  decryptFileZK,
+import {  decryptFileZK,
   parseZKShareLink,
   checkBrowserCompatibility,
-  base64ToArrayBuffer,
 } from '@/lib/encryption/zero-knowledge';
 
 interface ZKDownloadState {
@@ -64,42 +62,7 @@ export default function ZKDownloadForm({
     decryptedBlob: null,
   });
 
-  // Check browser compatibility
-  const compatibility = checkBrowserCompatibility();
-  if (!compatibility.supported) {
-    return (
-      <Card className={className}>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <AlertCircle className="text-destructive h-5 w-5" />
-            Browser Not Supported
-          </CardTitle>
-          <CardDescription>
-            Your browser doesn't support the required decryption features
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Alert>
-            <AlertCircle className="h-4 w-4" />
-            <AlertDescription>
-              Missing features: {compatibility.missingFeatures.join(', ')}
-              <br />
-              Please use a modern browser (Chrome 37+, Firefox 34+, Safari 7+,
-              Edge 12+)
-            </AlertDescription>
-          </Alert>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  // Auto-analyze URL when it changes
-  useEffect(() => {
-    if (shareUrl && shareUrl.includes('#')) {
-      analyzeUrl();
-    }
-  }, [shareUrl]);
-
+  // All hooks must be called before any early returns
   const analyzeUrl = useCallback(() => {
     if (!shareUrl) return;
 
@@ -112,14 +75,20 @@ export default function ZKDownloadForm({
         error: null,
       }));
 
-      console.log('🔍 Analyzed share link:', linkData);
-    } catch (error) {
+      console.log('🔍 Analyzed share link:', linkData);    } catch {
       setState((prev) => ({
         ...prev,
         error: 'Invalid share link format',
       }));
     }
   }, [shareUrl]);
+
+  // Auto-analyze URL when it changes
+  useEffect(() => {
+    if (shareUrl && shareUrl.includes('#')) {
+      analyzeUrl();
+    }
+  }, [shareUrl, analyzeUrl]);
 
   const fetchFileInfo = useCallback(async (shortUrl: string) => {
     setState((prev) => ({ ...prev, isLoading: true, progress: 10 }));
@@ -157,14 +126,14 @@ export default function ZKDownloadForm({
         iterations: parseInt(headers['x-zk-iterations'] || '0'),
         keyHint: headers['x-zk-key-hint'],
       };
-    } catch (error) {
+    } catch (fileError) {
       setState((prev) => ({
         ...prev,
         isLoading: false,
         error:
-          error instanceof Error ? error.message : 'Failed to fetch file info',
+          fileError instanceof Error ? fileError.message : 'Failed to fetch file info',
       }));
-      throw error;
+      throw fileError;
     }
   }, []);
 
@@ -257,15 +226,14 @@ export default function ZKDownloadForm({
           encryptedSize: encryptedData.byteLength,
         },
         decryptedBlob: decrypted.file,
-      }));
-    } catch (error) {
-      console.error('❌ Download/decrypt failed:', error);
+      }));    } catch (decryptError) {
+      console.error('❌ Download/decrypt failed:', decryptError);
       setState((prev) => ({
         ...prev,
         isDecrypting: false,
         isLoading: false,
         error:
-          error instanceof Error ? error.message : 'Download/decrypt failed',
+          decryptError instanceof Error ? decryptError.message : 'Download/decrypt failed',
       }));
     }
   }, [shareUrl, password, fetchFileInfo]);
@@ -350,8 +318,36 @@ export default function ZKDownloadForm({
       mimetype === 'application/pdf' ||
       mimetype.startsWith('video/') ||
       mimetype.startsWith('audio/')
+    );  };
+
+  // Check browser compatibility after all hooks
+  const compatibility = checkBrowserCompatibility();
+  if (!compatibility.supported) {
+    return (
+      <Card className={className}>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <AlertCircle className="text-destructive h-5 w-5" />
+            Browser Not Supported
+          </CardTitle>
+          <CardDescription>
+            Your browser doesn&apos;t support the required decryption features
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Alert>
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>
+              Missing features: {compatibility.missingFeatures.join(', ')}
+              <br />
+              Please use a modern browser (Chrome 37+, Firefox 34+, Safari 7+,
+              Edge 12+)
+            </AlertDescription>
+          </Alert>
+        </CardContent>
+      </Card>
     );
-  };
+  }
 
   return (
     <Card className={className}>

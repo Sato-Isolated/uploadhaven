@@ -4,13 +4,6 @@ import { File, saveSecurityEvent } from '@/lib/database/models';
 import { checkFileExpiration } from '@/lib/background/startup';
 import path from 'path';
 import { readFile } from 'fs/promises';
-import {
-  generateEncryptedThumbnail,
-  decryptThumbnail,
-  thumbnailCache,
-} from '@/lib/encryption/thumbnail-encryption';
-import type { IFile } from '@/types/database';
-import { readAndDecryptFile } from '@/lib/encryption/file-decryption';
 
 export async function GET(
   request: NextRequest,
@@ -56,6 +49,13 @@ export async function GET(
         { success: false, error: 'File has expired' },
         { status: 410 }
       );
+    }    // For Zero-Knowledge files, thumbnails are not supported
+    // as they would require client-side decryption
+    if (fileDoc.isZeroKnowledge) {
+      return NextResponse.json(
+        { success: false, error: 'Thumbnails not supported for encrypted files' },
+        { status: 400 }
+      );
     }
 
     // Only generate thumbnails for supported file types
@@ -65,7 +65,7 @@ export async function GET(
         { success: false, error: 'Thumbnail not supported for this file type' },
         { status: 400 }
       );
-    } // Password protection check - thumbnails require same access as preview
+    }// Password protection check - thumbnails require same access as preview
     if (fileDoc.isPasswordProtected && fileDoc.password) {
       const password = request.nextUrl.searchParams.get('password');
       if (!password) {
@@ -87,81 +87,50 @@ export async function GET(
           { status: 401 }
         );
       }
-    }
-
-    try {
-      // Check cache first
-      const cachedThumbnail = await thumbnailCache.retrieve(
-        fileDoc._id.toString(),
-        fileDoc.shortUrl
+    }    try {
+      // For now, only support thumbnails for unencrypted files
+      // Generate thumbnail using the media processing utilities
+      const filePath = path.join(
+        process.cwd(),
+        process.env.NODE_ENV === 'production'
+          ? '/var/data/uploads'
+          : 'public/uploads',
+        fileDoc.filename
       );
 
-      let thumbnailBuffer: Buffer;
+      const sourceBuffer = await readFile(filePath);
 
-      if (cachedThumbnail) {
-        console.log('📦 Using cached encrypted thumbnail');
-        // Decrypt the cached thumbnail
-        thumbnailBuffer = await decryptThumbnail(
-          cachedThumbnail.thumbnailBuffer,
-          cachedThumbnail.metadata
-        );
+      // Simple thumbnail generation (we can implement basic thumbnail generation later)
+      // For now, return the original file if it's an image
+      if (mimeType.startsWith('image/')) {
+        // Log successful thumbnail request
+        await saveSecurityEvent({
+          type: 'file_download',
+          ip: clientIP,
+          details: `Thumbnail served for: ${fileDoc.originalName}`,
+          severity: 'low',
+          userAgent,
+          filename: fileDoc.filename,
+          fileSize: fileDoc.size,
+          fileType: fileDoc.mimeType,
+        });
+
+        // Return the image as thumbnail
+        return new NextResponse(sourceBuffer, {
+          status: 200,
+          headers: {
+            'Content-Type': mimeType,
+            'Cache-Control': 'public, max-age=3600', // Cache for 1 hour
+            'Content-Disposition': `inline; filename="thumb_${fileDoc.filename}"`,
+          },
+        });
       } else {
-        console.log('🔄 Generating new encrypted thumbnail');
-        // Generate new thumbnail
-        const filePath = path.join(
-          process.cwd(),
-          process.env.NODE_ENV === 'production'
-            ? '/var/data/uploads'
-            : 'public/uploads',
-          fileDoc.filename
-        );
-
-        const sourceBuffer = fileDoc.isEncrypted
-          ? await readAndDecryptFile(filePath, fileDoc as IFile)
-          : await readFile(filePath);
-
-        const thumbnailResult = await generateEncryptedThumbnail(
-          fileDoc as IFile,
-          sourceBuffer,
-          fileDoc.mimeType
-        );
-
-        // Cache the encrypted thumbnail
-        await thumbnailCache.store(
-          fileDoc._id.toString(),
-          fileDoc.shortUrl,
-          thumbnailResult.thumbnailBuffer,
-          thumbnailResult.metadata
-        );
-
-        // Decrypt for serving
-        thumbnailBuffer = await decryptThumbnail(
-          thumbnailResult.thumbnailBuffer,
-          thumbnailResult.metadata
+        // For non-image files, return an error for now
+        return NextResponse.json(
+          { success: false, error: 'Thumbnail generation not implemented for this file type' },
+          { status: 501 }
         );
       }
-
-      // Log successful thumbnail request
-      await saveSecurityEvent({
-        type: 'file_download',
-        ip: clientIP,
-        details: `Encrypted thumbnail served for: ${fileDoc.originalName}`,
-        severity: 'low',
-        userAgent,
-        filename: fileDoc.filename,
-        fileSize: fileDoc.size,
-        fileType: fileDoc.mimeType,
-      });
-
-      // Return thumbnail with appropriate headers
-      return new NextResponse(thumbnailBuffer, {
-        status: 200,
-        headers: {
-          'Content-Type': 'image/webp',
-          'Cache-Control': 'public, max-age=3600', // Cache for 1 hour
-          'Content-Disposition': `inline; filename="thumb_${fileDoc.filename}.webp"`,
-        },
-      });
     } catch (error) {
       console.error('Thumbnail generation error:', error);
       return NextResponse.json(

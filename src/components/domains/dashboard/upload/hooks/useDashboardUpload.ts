@@ -18,11 +18,8 @@ import {
 import { scanFile, logSecurityEvent } from '@/lib/core/security';
 import { validateFileAdvanced } from '@/lib/core/utils';
 
-// Import ZK encryption
-import {
-  createZKEncryptedBlob,
-  generateEncryptionKey,
-} from '@/lib/encryption/client-encryption';
+// Import ZK encryption utilities
+import { uploadFileZK } from '@/lib/upload/zk-upload-utils';
 
 export function useDashboardUpload() {
   const t = useTranslations('Upload');
@@ -30,136 +27,81 @@ export function useDashboardUpload() {
   const [expiration, setExpiration] = useState('24h');
   const [isPasswordProtected, setIsPasswordProtected] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
-  const { data: session } = useSession();
-  const uploadFile = useCallback(
+  const { data: session } = useSession();  const uploadFile = useCallback(
     async (uploadedFile: UploadedFile) => {
       try {
-        // Step 1: Generate ZK encryption key
-        const encryptionKey = generateEncryptionKey(32);
-
-        // Step 2: Encrypt file client-side
-        const { encryptedBlob, metadata } = await createZKEncryptedBlob(
-          uploadedFile.file,
-          encryptionKey
+        // Update file status to uploading
+        setFiles((prev) =>
+          prev.map((f) =>
+            f.id === uploadedFile.id ? { ...f, status: 'uploading' } : f
+          )
         );
 
-        console.log('🔐 File encrypted client-side:', {
-          originalSize: uploadedFile.file.size,
-          encryptedSize: encryptedBlob.size,
-          encryptionKey: encryptionKey.substring(0, 8) + '...', // Log partial key for debugging
-        }); // Step 3: Prepare form data with encrypted blob and ZK metadata
-        const formData = new FormData();
-        formData.append('file', encryptedBlob, uploadedFile.file.name);
-        formData.append('expiration', expiration);
+        // Use the true ZK system for upload
+        const result = await uploadFileZK(uploadedFile.file, {
+          expiration,
+          autoGenerateKey: isPasswordProtected,
+        });
 
-        // Add ZK metadata in the format expected by the API
-        formData.append('isZeroKnowledge', 'true');
-        formData.append('zkEncryptionKey', encryptionKey);
-        formData.append(
-          'zkMetadata',
-          JSON.stringify({
-            iv: metadata.iv,
-            salt: metadata.salt,
-            iterations: metadata.iterations.toString(),
-            originalName: metadata.originalName,
-            originalType: metadata.originalType,
-            originalSize: metadata.originalSize.toString(),
-          })
-        );
-
-        if (isPasswordProtected) {
-          formData.append('autoGenerateKey', 'true');
-        }
-        if (session?.user?.id) {
-          formData.append('userId', session.user.id);
+        if (!result.success) {
+          throw new Error(result.error || 'Upload failed');
         }
 
-        const xhr = new XMLHttpRequest();
-        xhr.upload.onprogress = (event) => {
-          if (event.lengthComputable) {
-            const progress = Math.round((event.loaded / event.total) * 100);
-            setFiles((prev) =>
-              prev.map((f) =>
-                f.id === uploadedFile.id ? { ...f, progress } : f
-              )
-            );
-          }
-        };        xhr.onload = () => {
-          if (xhr.status === 200) {
-            const response = JSON.parse(xhr.responseText);
+        console.log('✅ ZK Upload successful:', {
+          url: result.url,
+          shortUrl: result.shortUrl,
+        });
 
-            // Use the server-generated share URL directly (it already contains the encryption key)
-            const shareLink = response.shortUrl || response.url;
-
-            setFiles((prev) =>
-              prev.map((f) =>
-                f.id === uploadedFile.id
-                  ? {
-                      ...f,
-                      status: 'completed',
-                      url: shareLink, // Use the complete share link from server
-                      shortUrl: shareLink,
-                      generatedKey: response.generatedKey,
-                    }
-                  : f
-              )
-            );
-            toast.success(t('fileUploadedSuccessfully'));
-
-            if (session?.user?.id) {
-              const fileInfo = {
-                name: response.filename,
-                size: uploadedFile.file.size,
-                uploadDate: new Date().toISOString(),
-                type: getFileType(uploadedFile.file.name),
-                expiresAt: response.expiresAt,
-              };
-              saveFileToLocalStorage(fileInfo);
-            }
-          } else {
-            const errorResponse = JSON.parse(xhr.responseText);
-            setFiles((prev) =>
-              prev.map((f) =>
-                f.id === uploadedFile.id
-                  ? {
-                      ...f,
-                      status: 'error',
-                      error: errorResponse.error || t('uploadFailed'),
-                    }
-                  : f
-              )
-            );
-            toast.error(
-              `${t('uploadFailed')}: ${errorResponse.error || t('unknownError')}`
-            );
-          }
-        };
-
-        xhr.onerror = () => {
-          setFiles((prev) =>
-            prev.map((f) =>
-              f.id === uploadedFile.id
-                ? { ...f, status: 'error', error: t('networkError') }
-                : f
-            )
-          );
-          toast.error(t('networkErrorDuringUpload'));
-        };
-
-        xhr.open('POST', '/api/upload');
-        xhr.send(formData);
-      } catch {
+        // Update file with completed status and share URL
         setFiles((prev) =>
           prev.map((f) =>
             f.id === uploadedFile.id
-              ? { ...f, status: 'error', error: t('uploadFailed') }
+              ? {
+                  ...f,
+                  status: 'completed',
+                  url: result.url || result.shortUrl,
+                  shortUrl: result.shortUrl || result.url,
+                  generatedKey: result.data?.generatedKey,
+                  progress: 100,
+                }
               : f
           )
         );
-        toast.error(t('failedToUploadFile'));
+
+        toast.success(t('fileUploadedSuccessfully'));
+
+        // Save to local storage for authenticated users
+        if (session?.user?.id) {
+          const fileInfo = {
+            name: result.data?.filename || uploadedFile.file.name,
+            size: uploadedFile.file.size,
+            uploadDate: new Date().toISOString(),
+            type: getFileType(uploadedFile.file.name),
+            expiresAt: result.data?.expiresAt,
+          };
+          saveFileToLocalStorage(fileInfo);
+        }
+      } catch (error) {
+        console.error('ZK Upload failed:', error);
+        setFiles((prev) =>
+          prev.map((f) =>
+            f.id === uploadedFile.id
+              ? {
+                  ...f,
+                  status: 'error',
+                  error: error instanceof Error ? error.message : t('uploadFailed'),
+                }
+              : f
+          )
+        );
+        toast.error(
+          `${t('uploadFailed')}: ${
+            error instanceof Error ? error.message : t('unknownError')
+          }`
+        );
       }
     },
-    [expiration, isPasswordProtected, session]
+    [expiration, isPasswordProtected, session, t]
   );
 
   const processFiles = useCallback(
@@ -254,15 +196,14 @@ export function useDashboardUpload() {
               f.id === uploadedFile.id
                 ? { ...f, status: 'error', error: t('securityScanFailed') }
                 : f
-            )
-          );
+            )          );
           toast.error(
             t('failedToScanFile', { filename: uploadedFile.file.name })
           );
         }
       }
     },
-    [uploadFile]
+    [uploadFile, t]
   );
 
   const removeFile = useCallback((id: string) => {

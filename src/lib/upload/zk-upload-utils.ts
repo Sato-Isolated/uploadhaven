@@ -1,14 +1,16 @@
 /**
  * Upload utilities for Zero-Knowledge file encryption
  *
- * This module provides helper functions to upload files using the ZK encryption system.
+ * This module provides helper functions to upload files using the true ZK encryption system.
  * All files are encrypted client-side before being sent to the server.
  */
 
 import {
-  createZKEncryptedBlob,
-  generateEncryptionKey,
-} from '@/lib/encryption/client-encryption';
+  encryptFileZK,
+  arrayBufferToBase64,
+  generateZKShareLink,
+  type ZKEncryptionResult,
+} from '@/lib/encryption/zero-knowledge';
 
 /**
  * Interface for ZK upload options
@@ -34,52 +36,33 @@ export async function uploadFileZK(
   data?: any;
 }> {
   try {
-    // Generate encryption key
-    const encryptionKey = generateEncryptionKey(32);
+    // Encrypt file client-side using true ZK encryption
+    const encrypted: ZKEncryptionResult = await encryptFileZK(
+      file,
+      options.password
+    );    // Prepare upload data for /api/zk-upload
+    const uploadData = {
+      encryptedData: arrayBufferToBase64(encrypted.encryptedPackage.encryptedData),
+      publicMetadata: {
+        ...encrypted.encryptedPackage.publicMetadata,
+        // Add content category for preview without revealing exact type
+        contentCategory: getContentCategory(file.type),
+      },
+      keyData: encrypted.keyData,
+      userOptions: {
+        password: options.password,
+        autoGenerateKey: options.autoGenerateKey,
+        expiration: options.expiration || '24h',
+      },
+    };
 
-    // Encrypt file client-side
-    const encrypted = await createZKEncryptedBlob(file, encryptionKey);
-
-    // Prepare form data with encrypted blob and ZK metadata
-    const formData = new FormData();
-    formData.append('file', encrypted.encryptedBlob, file.name);
-
-    // Add ZK metadata
-    formData.append('isZeroKnowledge', 'true');
-    formData.append('zkEncryptionKey', encryptionKey);
-    formData.append(
-      'zkMetadata',
-      JSON.stringify({
-        iv: encrypted.metadata.iv,
-        salt: encrypted.metadata.salt,
-        iterations: encrypted.metadata.iterations.toString(),
-        originalName: encrypted.metadata.originalName,
-        originalType: encrypted.metadata.originalType,
-        originalSize: encrypted.metadata.originalSize.toString(),
-      })
-    );
-
-    // Add other options
-    if (options.password) {
-      formData.append('password', options.password);
-    }
-    if (options.autoGenerateKey) {
-      formData.append('autoGenerateKey', 'true');
-    }
-    if (options.expiration) {
-      formData.append('expiration', options.expiration);
-    }
-    if (options.requestEncryption !== undefined) {
-      formData.append(
-        'requestEncryption',
-        options.requestEncryption.toString()
-      );
-    }
-
-    // Upload to server
-    const response = await fetch('/api/upload', {
+    // Upload to true ZK endpoint
+    const response = await fetch('/api/zk-upload', {
       method: 'POST',
-      body: formData,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(uploadData),
     });
 
     if (!response.ok) {
@@ -89,10 +72,17 @@ export async function uploadFileZK(
 
     const result = await response.json();
 
+    // Generate final share link with embedded key
+    const shareUrl = generateZKShareLink(
+      window.location.origin,
+      result.url.split('/').pop() || '',
+      encrypted.keyData
+    );
+
     return {
       success: true,
-      url: result.url,
-      shortUrl: result.shortUrl,
+      url: shareUrl,
+      shortUrl: shareUrl,
       data: result,
     };
   } catch (error) {
@@ -105,50 +95,64 @@ export async function uploadFileZK(
 }
 
 /**
- * Create FormData for ZK upload (for use with XMLHttpRequest)
+ * Create upload data for ZK upload (for use with fetch/XMLHttpRequest)
+ * @deprecated This function creates data for the true ZK system, not FormData
+ * Use uploadFileZK directly instead
  */
 export async function createZKFormData(
   file: File,
   options: ZKUploadOptions = {}
-): Promise<FormData> {
-  // Generate encryption key
-  const encryptionKey = generateEncryptionKey(32);
+): Promise<{
+  uploadData: any;
+  shareUrl: string;
+}> {
+  // Encrypt file client-side using true ZK encryption
+  const encrypted: ZKEncryptionResult = await encryptFileZK(
+    file,
+    options.password
+  );
+  // Prepare upload data for /api/zk-upload
+  const uploadData = {
+    encryptedData: arrayBufferToBase64(encrypted.encryptedPackage.encryptedData),
+    publicMetadata: {
+      ...encrypted.encryptedPackage.publicMetadata,
+      // Add content category for preview without revealing exact type
+      contentCategory: getContentCategory(file.type),
+    },
+    keyData: encrypted.keyData,
+    userOptions: {
+      password: options.password,
+      autoGenerateKey: options.autoGenerateKey,
+      expiration: options.expiration || '24h',
+    },
+  };
 
-  // Encrypt file client-side
-  const encrypted = await createZKEncryptedBlob(file, encryptionKey);
-
-  // Prepare form data
-  const formData = new FormData();
-  formData.append('file', encrypted.encryptedBlob, file.name);
-
-  // Add ZK metadata
-  formData.append('isZeroKnowledge', 'true');
-  formData.append('zkEncryptionKey', encryptionKey);
-  formData.append(
-    'zkMetadata',
-    JSON.stringify({
-      iv: encrypted.metadata.iv,
-      salt: encrypted.metadata.salt,
-      iterations: encrypted.metadata.iterations.toString(),
-      originalName: encrypted.metadata.originalName,
-      originalType: encrypted.metadata.originalType,
-      originalSize: encrypted.metadata.originalSize.toString(),
-    })
+  // Generate share URL (will need actual short URL after upload)
+  const tempShareUrl = generateZKShareLink(
+    window.location.origin,
+    'temp-url', // Will be replaced with actual short URL
+    encrypted.keyData
   );
 
-  // Add other options
-  if (options.password) {
-    formData.append('password', options.password);
-  }
-  if (options.autoGenerateKey) {
-    formData.append('autoGenerateKey', 'true');
-  }
-  if (options.expiration) {
-    formData.append('expiration', options.expiration);
-  }
-  if (options.requestEncryption !== undefined) {
-    formData.append('requestEncryption', options.requestEncryption.toString());
-  }
+  return {
+    uploadData,
+    shareUrl: tempShareUrl,
+  };
+}
 
-  return formData;
+// Helper to determine content category without revealing exact type
+function getContentCategory(mimeType: string): 'media' | 'document' | 'archive' | 'text' | 'other' {
+  if (mimeType.startsWith('video/') || mimeType.startsWith('audio/') || mimeType.startsWith('image/')) {
+    return 'media';
+  }
+  if (mimeType.includes('pdf') || mimeType.includes('document') || mimeType.includes('text')) {
+    return 'document';
+  }
+  if (mimeType.includes('zip') || mimeType.includes('rar') || mimeType.includes('tar')) {
+    return 'archive';
+  }
+  if (mimeType.startsWith('text/')) {
+    return 'text';
+  }
+  return 'other';
 }

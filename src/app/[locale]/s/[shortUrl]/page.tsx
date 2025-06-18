@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
-import FilePreviewClient from '@/components/domains/filepreview/FilePreviewClient';
+import FilePreviewRouter from '@/components/domains/filepreview/v2/FilePreviewRouter';
 
 type Props = {
   params: Promise<{ locale: string; shortUrl: string }>;
@@ -22,5 +22,5 @@ export default async function FilePreviewPage({ params }: Props) {
   const { locale } = await params;
   setRequestLocale(locale);
 
-  return <FilePreviewClient />;
+  return <FilePreviewRouter />;
 }

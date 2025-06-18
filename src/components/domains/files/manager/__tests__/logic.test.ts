@@ -153,41 +153,7 @@ describe('FileManager Utilities', () => {
         expect(url).toContain(filename);
         expect(url).toMatch(/^https:\/\/.+\/api\/files\/.+$/);
       });
-    });
-  });
-
-  describe('File Preview Data Transformation', () => {
-    it('should transform FileInfo to FilePreviewData correctly', () => {
-      const fileInfo = {
-        id: 'test-id',
-        name: 'test.txt',
-        originalName: 'original-test.txt',
-        size: 1024,
-        mimeType: 'text/plain',
-        uploadDate: '2024-01-01T00:00:00Z',
-        downloadCount: 0,
-        type: 'document' as const,
-        expiresAt: '2024-01-02T00:00:00Z',
-        shortUrl: 'https://short.ly/abc123',
-      };
-
-      const origin = 'https://example.com';
-
-      const previewData = {
-        filename: fileInfo.name,
-        originalName: fileInfo.originalName,
-        type: fileInfo.mimeType,
-        size: fileInfo.size,
-        url: `${origin}/api/files/${fileInfo.name}`,
-      };
-
-      expect(previewData.filename).toBe('test.txt');
-      expect(previewData.originalName).toBe('original-test.txt');
-      expect(previewData.type).toBe('text/plain');
-      expect(previewData.size).toBe(1024);
-      expect(previewData.url).toBe('https://example.com/api/files/test.txt');
-    });
-  });
+    });  });
 
   describe('Component State Management', () => {
     it('should handle preview state correctly', () => {

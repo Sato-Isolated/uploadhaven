@@ -4,7 +4,7 @@
 
 import { motion, AnimatePresence } from 'motion/react';
 import { Button } from '@/components/ui/button';
-import { Link2, Copy, X } from 'lucide-react';
+import { Link2, X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import FileStatusBadge from './FileStatusBadge';
 import type { FileHandlerProps } from '@/types';

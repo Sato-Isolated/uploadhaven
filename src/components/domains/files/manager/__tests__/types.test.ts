@@ -81,8 +81,7 @@ describe('FileManager Types', () => {
     it('should have correct FileCardProps structure', () => {      const mockFile: FileInfo = {
         id: 'test-file-id',
         name: 'test.txt',
-        originalName: 'test.txt',
-        originalType: 'text/plain',
+        originalName: 'test.txt',        originalType: 'text/plain',
         mimeType: 'text/plain',
         size: 1024,
         type: 'document',
@@ -90,7 +89,6 @@ describe('FileManager Types', () => {
         downloadCount: 0,
         expiresAt: '2024-01-02T00:00:00Z',
         shortUrl: 'https://short.ly/abc123',
-        isEncrypted: false,
         isZeroKnowledge: false,
       };
 
@@ -167,10 +165,9 @@ describe('FileManager Types', () => {
     });
   });
 
-  describe('Function Type Validation', () => {
-    it('should validate getExpirationStatus function signature', () => {
+  describe('Function Type Validation', () => {    it('should validate getExpirationStatus function signature', () => {
       const getExpirationStatus = (
-        expiresAt?: string | null
+        _expiresAt?: string | null
       ): ExpirationStatus => ({
         text: 'Test',
         variant: 'secondary',

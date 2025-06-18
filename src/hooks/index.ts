@@ -26,11 +26,9 @@ export {
   useUploadFile,
 } from './useFilesQuery';
 export { useLogUserActivity } from './useUserActivity';
-export { useTextPreview, useFilePreview } from './useFilePreview';
 export { useDashboardUpload } from '../components/domains/dashboard/upload/hooks/useDashboardUpload';
 export { useSignUpForm } from '../components/domains/auth/signup/hooks/useSignUpForm';
 export { useSignInForm } from '../components/domains/auth/signin/hooks/useSignInForm';
-export { useFilePreviewLogic } from '../components/domains/filepreview/hooks/useFilePreviewLogic';
 export { useFilesTableLogic } from '../components/domains/admin/filestable/hooks/useFilesTableLogic';
 export { useFileUploader } from '../components/domains/upload/fileuploader/hooks/useFileUploader';
 export { useSecurityEventsFilter } from '../components/domains/security/events/hooks/useSecurityEventsFilter';

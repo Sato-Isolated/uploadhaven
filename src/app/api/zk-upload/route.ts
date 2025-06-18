@@ -15,10 +15,6 @@ import { auth } from '@/lib/auth/auth';
 import { headers } from 'next/headers';
 import { generateShortUrl } from '@/lib/core/server-utils';
 import { hashPassword, validatePassword } from '@/lib/core/utils';
-import {
-  validateZKEncryptedPackage,
-  type ZKEncryptedPackage,
-} from '@/lib/encryption/zero-knowledge';
 
 const MAX_ENCRYPTED_SIZE = 150 * 1024 * 1024; // 150MB (accounting for encryption overhead)
 
@@ -32,16 +28,18 @@ const zkUploadSchema = z.object({
     salt: z.string(),
     iterations: z.number(),
     uploadTimestamp: z.number(),
+    contentCategory: z.enum(['media', 'document', 'archive', 'text', 'other']).optional(),
   }),
   keyData: z.object({
     key: z.string().optional(), // For random key encryption (embedded in URL)
     salt: z.string(),
     isPasswordDerived: z.boolean(),
-  }),
-  userOptions: z.object({
+  }),userOptions: z.object({
     password: z.string().optional(), // For file access protection (separate from encryption)
     autoGenerateKey: z.boolean().optional(),
     expiration: z.string().default('24h'),
+    originalType: z.string().optional(), // Original MIME type of the file
+    originalName: z.string().optional(), // Original filename
   }),
 });
 
@@ -258,9 +256,7 @@ export async function POST(request: NextRequest) {
       userId: session?.user?.id || undefined,
       isAnonymous: !session?.user?.id,
       password: hashedPassword,
-      isPasswordProtected,
-      // Zero-Knowledge specific fields
-      isEncrypted: false, // Not server-side encrypted
+      isPasswordProtected,      // Zero-Knowledge specific fields
       isZeroKnowledge: true, // This is a ZK encrypted file
       zkMetadata: {
         algorithm: publicMetadata.algorithm,
@@ -270,6 +266,7 @@ export async function POST(request: NextRequest) {
         encryptedSize: publicMetadata.size,
         uploadTimestamp: publicMetadata.uploadTimestamp,
         keyHint: keyData.isPasswordDerived ? 'password' : 'embedded',
+        contentCategory: publicMetadata.contentCategory || 'other', // Store content category for preview
       },
       scanResult: {
         safe: true, // ZK files can't be scanned, assume safe

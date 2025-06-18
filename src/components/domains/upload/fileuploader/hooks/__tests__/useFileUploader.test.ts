@@ -125,10 +125,8 @@ describe('useFileUploader', () => {
   });
   describe('File Management', () => {
     it('should remove file from list', () => {
-      const { result } = renderHook(() => useFileUploader());
-
-      // Create a test file list
-      const testFiles = [
+      const { result } = renderHook(() => useFileUploader());      // Create a test file list
+      const _testFiles = [
         {
           id: 'test-file-1',
           file: new File(['content'], 'test.txt'),

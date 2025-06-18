@@ -4,7 +4,7 @@
 
 import { motion } from 'motion/react';
 import { Button } from '@/components/ui/button';
-import { Link2, Copy, ExternalLink, Shield, File } from 'lucide-react';
+import { Link2, Copy, ExternalLink, Shield } from 'lucide-react';
 import type { FileHandlerProps } from '@/types';
 
 interface FileLinksProps extends FileHandlerProps {

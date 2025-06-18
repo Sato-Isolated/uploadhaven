@@ -2,11 +2,10 @@
 
 import { useCallback, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
-import { useSession } from '@/lib/auth/auth-client';
 import { toast } from 'sonner';
 import { nanoid } from 'nanoid';
 import { useTranslations } from 'next-intl';
-import { createZKFormData } from '@/lib/upload/zk-upload-utils';
+import { uploadFileZK } from '@/lib/upload/zk-upload-utils';
 
 // Internal imports
 import type { UploadedFile } from '@/components/domains/upload/fileuploader/types';
@@ -39,96 +38,62 @@ export interface UseFileUploaderReturn {
 export function useFileUploader(): UseFileUploaderReturn {
   const t = useTranslations('Upload');
   const [files, setFiles] = useState<UploadedFile[]>([]);
-  const [expiration, setExpiration] = useState('24h');
-  const [isPasswordProtected, setIsPasswordProtected] = useState(false);
-  const { data: session } = useSession();
-
+  const [expiration, setExpiration] = useState('24h');  const [isPasswordProtected, setIsPasswordProtected] = useState(false);
   const uploadFile = useCallback(
     async (uploadedFile: UploadedFile) => {
       try {
-        // Step 1: Create ZK encrypted FormData
-        const formData = await createZKFormData(uploadedFile.file, {
+        // Update file status to uploading
+        setFiles((prev) =>
+          prev.map((f) =>
+            f.id === uploadedFile.id ? { ...f, status: 'uploading' } : f
+          )
+        );
+
+        // Use the new ZK upload system
+        const result = await uploadFileZK(uploadedFile.file, {
           expiration,
           autoGenerateKey: isPasswordProtected,
         });
 
-        // Include user ID if authenticated
-        if (session?.user?.id) {
-          formData.append('userId', session.user.id);
+        if (!result.success) {
+          throw new Error(result.error || 'Upload failed');
         }
 
-        const xhr = new XMLHttpRequest();
-        xhr.upload.onprogress = (event) => {
-          if (event.lengthComputable) {
-            const progress = Math.round((event.loaded / event.total) * 100);
-            setFiles((prev) =>
-              prev.map((f) =>
-                f.id === uploadedFile.id ? { ...f, progress } : f
-              )
-            );
-          }
+        // Update file with completed status
+        setFiles((prev) =>
+          prev.map((f) =>
+            f.id === uploadedFile.id
+              ? {
+                  ...f,
+                  status: 'completed',
+                  progress: 100,
+                  url: result.url,
+                  shortUrl: result.shortUrl,
+                  generatedKey: result.data?.generatedKey,
+                }
+              : f
+          )
+        );
+
+        // Save to localStorage for FileManager with expiration info
+        const fileInfo = {
+          name: result.data?.filename || uploadedFile.file.name,
+          size: uploadedFile.file.size,
+          uploadDate: new Date().toISOString(),
+          type: getFileType(uploadedFile.file.name),
+          expiresAt: result.data?.expiresAt,
         };
 
-        xhr.onload = () => {
-          if (xhr.status === 200) {
-            const response = JSON.parse(xhr.responseText);
-            setFiles((prev) =>
-              prev.map((f) =>
-                f.id === uploadedFile.id
-                  ? {
-                      ...f,
-                      status: 'completed',
-                      progress: 100,
-                      url: response.url,
-                      shortUrl: response.shortUrl,
-                      generatedKey: response.generatedKey,
-                    }
-                  : f
-              )
-            );
+        saveFileToLocalStorage(fileInfo);
 
-            // Save to localStorage for FileManager with expiration info
-            const fileInfo = {
-              name: response.filename,
-              size: uploadedFile.file.size,
-              uploadDate: new Date().toISOString(),
-              type: getFileType(uploadedFile.file.name),
-              expiresAt: response.expiresAt,
-            };
-
-            saveFileToLocalStorage(fileInfo);
-
-            toast.success(t('fileUploadedSuccessfully'));
-            // Show generated key if file is password protected
-            if (response.generatedKey) {
-              toast.success(t('generatedKey', { key: response.generatedKey }), {
-                duration: 10000, // Show for 10 seconds
-              });
-            }
-          } else {
-            // Parse server error response to get specific error message
-            let errorMessage = t('uploadFailedWithStatus', {
-              status: xhr.status,
-              statusText: xhr.statusText,
-            });
-            try {
-              const errorResponse = JSON.parse(xhr.responseText);
-              if (errorResponse.error) {
-                errorMessage = errorResponse.error;
-              }
-            } catch {
-              // If response isn't JSON, use default error message
-            }
-            throw new Error(errorMessage);
-          }
-        };
-
-        xhr.onerror = () => {
-          throw new Error(t('uploadFailed'));
-        };
-
-        xhr.open('POST', '/api/upload');
-        xhr.send(formData);
+        toast.success(t('fileUploadedSuccessfully'));
+        
+        // Show generated key if file is password protected
+        if (result.data?.generatedKey) {
+          toast.success(t('generatedKey', { key: result.data.generatedKey }), {
+            duration: 10000, // Show for 10 seconds
+          });
+        }
       } catch (error) {
         setFiles((prev) =>
           prev.map((f) =>
@@ -145,7 +110,7 @@ export function useFileUploader(): UseFileUploaderReturn {
         toast.error(t('failedToUploadFile'));
       }
     },
-    [expiration, session?.user?.id, isPasswordProtected]
+    [expiration, isPasswordProtected, t]
   );
 
   const onDrop = useCallback(
@@ -256,14 +221,13 @@ export function useFileUploader(): UseFileUploaderReturn {
                 ? { ...f, status: 'error', error: t('securityScanFailed') }
                 : f
             )
-          );
-          toast.error(
+          );          toast.error(
             t('failedToScanFile', { filename: uploadedFile.file.name })
           );
         }
       }
     },
-    [uploadFile]
+    [uploadFile, t]
   );
 
   const handleCopyToClipboard = useCallback(

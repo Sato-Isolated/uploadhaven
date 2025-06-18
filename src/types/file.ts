@@ -5,7 +5,6 @@
  * Hierarchy:
  * BaseFileData -> ClientFileData & AdminFileData
  * UploadedFile (for upload process)
- * FilePreviewData (for preview component)
  */
 
 // =============================================================================
@@ -31,20 +30,7 @@ export type FileUploadStatus =
   | 'uploading'
   | 'encrypting'
   | 'completed'
-  | 'error'
-  | 'threat_detected';
-
-/**
- * Encryption metadata structure
- */
-export interface EncryptionMetadata {
-  salt: string; // base64 encoded salt for key derivation
-  iv: string; // base64 encoded initialization vector
-  tag: string; // base64 encoded authentication tag
-  algorithm: string; // encryption algorithm used (e.g., 'aes-256-gcm')
-  iterations: number; // PBKDF2 iterations for key derivation
-  encryptedSize: number; // size of encrypted file data
-}
+  | 'error'  | 'threat_detected';
 
 /**
  * Base file data structure - shared properties across all file interfaces
@@ -56,10 +42,7 @@ export interface BaseFileData {
   readonly originalType: string; // Original MIME type before encryption
   readonly size: number;
   readonly mimeType: string;
-  readonly uploadDate: string;
-  readonly downloadCount: number;
-  readonly type: FileType;
-  readonly isEncrypted: boolean;
+  readonly uploadDate: string;  readonly downloadCount: number;  readonly type: FileType;
   // Zero-Knowledge encryption fields
   readonly isZeroKnowledge: boolean;
   readonly zkMetadata?: {
@@ -70,6 +53,7 @@ export interface BaseFileData {
     encryptedSize: number;
     uploadTimestamp: number;
     keyHint?: 'password' | 'embedded';
+    contentCategory?: 'media' | 'document' | 'archive' | 'text' | 'other';
   };
 }
 
@@ -102,17 +86,6 @@ export interface UploadedFile {
     threat?: string;
   };
   generatedKey?: string;
-}
-
-/**
- * Simplified file data for preview components
- */
-export interface FilePreviewData {
-  readonly filename: string;
-  readonly originalName: string;
-  readonly type: string;
-  readonly size: number;
-  readonly url: string;
 }
 
 // =============================================================================
@@ -175,12 +148,8 @@ export interface IFile {
   };
   readonly isDeleted: boolean;
   readonly userId?: string;
-  readonly isAnonymous: boolean;
-  readonly password?: string; // hashed password for protected files
+  readonly isAnonymous: boolean;  readonly password?: string; // hashed password for protected files
   readonly isPasswordProtected: boolean;
-  readonly isEncrypted: boolean;
-  readonly encryptionMetadata?: EncryptionMetadata;
-  readonly previewEncryptionMetadata?: EncryptionMetadata;
   // Zero-Knowledge encryption fields
   readonly isZeroKnowledge: boolean;
   readonly zkMetadata?: {
@@ -232,8 +201,7 @@ export function isAdminFileData(obj: unknown): obj is AdminFileData {
  */
 export function toClientFileData(dbFile: IFile): ClientFileData {
   return {
-    id: dbFile._id,
-    name: dbFile.filename,
+    id: dbFile._id,    name: dbFile.filename,
     originalName: dbFile.originalName,
     originalType: dbFile.originalType,
     size: dbFile.size,
@@ -243,7 +211,6 @@ export function toClientFileData(dbFile: IFile): ClientFileData {
     type: getFileTypeFromMimeType(dbFile.originalType || dbFile.mimeType), // Use original type for ZK files
     expiresAt: dbFile.expiresAt?.toISOString() || null,
     shortUrl: dbFile.shortUrl,
-    isEncrypted: dbFile.isEncrypted || false,
     isZeroKnowledge: dbFile.isZeroKnowledge || false,
     zkMetadata: dbFile.zkMetadata,
   };
@@ -264,13 +231,11 @@ export function toAdminFileData(
     size: dbFile.size,
     mimeType: dbFile.mimeType,
     uploadDate: dbFile.uploadDate.toISOString(),
-    downloadCount: dbFile.downloadCount,
-    type: getFileTypeFromMimeType(dbFile.originalType || dbFile.mimeType), // Use original type for ZK files
+    downloadCount: dbFile.downloadCount,    type: getFileTypeFromMimeType(dbFile.originalType || dbFile.mimeType), // Use original type for ZK files
     expiresAt: dbFile.expiresAt?.toISOString() || null,
     userId: dbFile.userId,
     userName: userName,
     isAnonymous: dbFile.isAnonymous,
-    isEncrypted: dbFile.isEncrypted || false,
     isZeroKnowledge: dbFile.isZeroKnowledge || false,
     zkMetadata: dbFile.zkMetadata,
   };

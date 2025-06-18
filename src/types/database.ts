@@ -44,19 +44,8 @@ export interface IFile {
   };
   isDeleted: boolean;
   userId?: string;
-  isAnonymous: boolean;
-  password?: string; // hashed password for protected files
+  isAnonymous: boolean;  password?: string; // hashed password for protected files
   isPasswordProtected: boolean;
-  // Encryption fields (legacy server-side encryption)
-  isEncrypted: boolean;
-  encryptionMetadata?: {
-    salt: string; // base64 encoded salt for key derivation
-    iv: string; // base64 encoded initialization vector
-    tag: string; // base64 encoded authentication tag
-    algorithm: string; // encryption algorithm used (e.g., 'aes-256-gcm')
-    iterations: number; // PBKDF2 iterations for key derivation
-    encryptedSize: number; // size of encrypted file data
-  };
   // Zero-Knowledge encryption fields (client-side encryption)
   isZeroKnowledge: boolean; // True if file uses Zero-Knowledge encryption
   zkMetadata?: {
@@ -67,6 +56,7 @@ export interface IFile {
     encryptedSize: number; // size of encrypted blob
     uploadTimestamp: number; // when encrypted blob was uploaded
     keyHint?: 'password' | 'embedded'; // hint for UI about key type
+    contentCategory?: 'media' | 'document' | 'archive' | 'text' | 'other'; // General content type for preview
     // Original file metadata for ZK files
     originalType?: string; // Original MIME type before encryption
     originalName?: string; // Original filename before encryption

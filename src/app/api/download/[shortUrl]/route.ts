@@ -1,33 +1,32 @@
 import { NextRequest, NextResponse } from 'next/server';
-import path from 'path';
 import connectDB from '@/lib/database/mongodb';
-import {
-  File,
-  incrementDownloadCount,
-  saveSecurityEvent,
-  saveNotification,
-} from '@/lib/database/models';
+import { File, saveSecurityEvent } from '@/lib/database/models';
 import { checkFileExpiration } from '@/lib/background/startup';
-import {
-  readAndDecryptFile,
-  getContentLength,
-  logDecryptionActivity,
-} from '@/lib/encryption/file-decryption';
+import path from 'path';
+import { getClientIP } from '@/lib/core/utils';
+import { readFile } from 'fs/promises';
 
+/**
+ * GET /api/download/[shortUrl]
+ *
+ * Download a file and increment download count.
+ * Used for actual file downloads.
+ *
+ * Key differences from preview API:
+ * - DOES increment download count
+ * - Logs as "file_download" instead of "file_preview"
+ * - Same security checks (password, expiration, etc.)
+ */
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ shortUrl: string }> }
 ) {
   try {
     await connectDB();
-
     const { shortUrl } = await params;
 
     // Get client IP and user agent for logging
-    const clientIP =
-      request.headers.get('x-forwarded-for') ||
-      request.headers.get('x-real-ip') ||
-      '127.0.0.1';
+    const clientIP = getClientIP(request);
     const userAgent = request.headers.get('user-agent') || '';
 
     // Find file by short URL
@@ -37,15 +36,6 @@ export async function GET(
     });
 
     if (!fileDoc) {
-      // Log file not found event
-      await saveSecurityEvent({
-        type: 'file_download',
-        ip: clientIP,
-        details: `Download attempted for non-existent short URL: ${shortUrl}`,
-        severity: 'medium',
-        userAgent,
-      });
-
       return NextResponse.json(
         { success: false, error: 'File not found' },
         { status: 404 }
@@ -54,73 +44,45 @@ export async function GET(
 
     // Check if file has expired
     if (fileDoc.expiresAt && new Date() > fileDoc.expiresAt) {
-      // Instantly delete the expired file
       await checkFileExpiration(fileDoc._id.toString());
-
-      // Log expired file download attempt
-      await saveSecurityEvent({
-        type: 'file_download',
-        ip: clientIP,
-        details: `Download attempted for expired file: ${fileDoc.filename} (auto-deleted)`,
-        severity: 'low',
-        userAgent,
-        filename: fileDoc.filename,
-      });
-
       return NextResponse.json(
         { success: false, error: 'File has expired' },
         { status: 410 }
       );
     }
 
-    // Also check for instant expiration (files that just expired)
-    const wasDeleted = await checkFileExpiration(fileDoc._id.toString());
-    if (wasDeleted) {
-      await saveSecurityEvent({
-        type: 'file_download',
-        ip: clientIP,
-        details: `Download attempted for just-expired file: ${fileDoc.filename} (auto-deleted)`,
-        severity: 'low',
-        userAgent,
-        filename: fileDoc.filename,
-      });
-
-      return NextResponse.json(
-        { success: false, error: 'File has expired' },
-        { status: 410 }
-      );
-    }
-
-    // Check if file is password protected
+    // Check password protection
     if (fileDoc.isPasswordProtected) {
-      // For password-protected files, they should have been verified through the page
-      // Check for verification token or session
-      const url = new URL(request.url);
-      const verified = url.searchParams.get('verified');
-
-      if (!verified) {
-        // Log unauthorized download attempt
+      const password = request.nextUrl.searchParams.get('password');
+      if (!password || password !== fileDoc.password) {
+        // Log failed password attempt
         await saveSecurityEvent({
-          type: 'unauthorized_access',
+          type: 'suspicious_activity',
           ip: clientIP,
-          details: `Direct download attempt for password-protected file: ${fileDoc.filename}`,
-          severity: 'high',
+          details: `Failed password attempt for file download: ${fileDoc.originalName}`,
+          severity: 'medium',
           userAgent,
           filename: fileDoc.filename,
         });
 
         return NextResponse.json(
-          { success: false, error: 'Password verification required' },
-          { status: 403 }
+          { success: false, error: 'Invalid password' },
+          { status: 401 }
         );
       }
     }
 
-    // Build file path - fileDoc.filename already contains the full path from uploads directory
+    // Increment download count
+    await File.findByIdAndUpdate(fileDoc._id, {
+      $inc: { downloadCount: 1 },
+    });
+
+    // Construct file path
     const filePath = path.join(
       process.cwd(),
-      'public',
-      'uploads',
+      process.env.NODE_ENV === 'production'
+        ? '/var/data/uploads'
+        : 'public/uploads',
       fileDoc.filename
     );
 
@@ -129,18 +91,8 @@ export async function GET(
 
       // Handle Zero-Knowledge files differently
       if (fileDoc.isZeroKnowledge) {
-        // For ZK files, serve the encrypted blob as-is
-        // Client will handle decryption using keys from URL or password
-        const fs = await import('fs/promises');
-        fileBuffer = await fs.readFile(filePath);
-
-        console.log('🔐 Serving Zero-Knowledge encrypted blob');
-        console.log(`   File: ${fileDoc.filename}`);
-        console.log(`   Size: ${fileBuffer.length} bytes`);
-        console.log(`   Algorithm: ${fileDoc.zkMetadata?.algorithm}`);
-
-        // Increment download count for ZK files
-        await incrementDownloadCount(fileDoc.filename);
+        // For ZK files, serve the encrypted blob as-is for client-side decryption
+        fileBuffer = await readFile(filePath);
 
         // Log ZK file download
         await saveSecurityEvent({
@@ -156,155 +108,76 @@ export async function GET(
             zeroKnowledge: true,
             algorithm: fileDoc.zkMetadata?.algorithm,
             keyType: fileDoc.zkMetadata?.keyHint,
+            downloadCount: fileDoc.downloadCount + 1,
           },
         });
 
-        // Create notification for file owner (if not anonymous)
-        if (!fileDoc.isAnonymous && fileDoc.userId) {
-          try {
-            await saveNotification({
-              userId: fileDoc.userId,
-              type: 'file_downloaded',
-              title: 'Zero-Knowledge File Downloaded',
-              message: `Your encrypted file "${fileDoc.originalName}" was downloaded`,
-              priority: 'normal',
-              relatedFileId: fileDoc._id.toString(),
-              metadata: {
-                downloaderIP: clientIP,
-                downloadTime: new Date(),
-                fileSize: fileDoc.size,
-                mimeType: fileDoc.mimeType,
-                wasZeroKnowledge: true,
-              },
-            });
-          } catch (notificationError) {
-            console.error(
-              'Failed to create ZK download notification:',
-              notificationError
-            );
-          }
-        }
-
-        // Return encrypted blob with ZK-specific headers
+        // Return encrypted blob with ZK-specific headers for download
         return new NextResponse(fileBuffer, {
           status: 200,
           headers: {
-            'Content-Type': 'application/octet-stream', // Always binary for ZK files
+            'Content-Type': 'application/octet-stream',
             'Content-Length': fileBuffer.length.toString(),
+            'Cache-Control': 'public, max-age=1800',
             'Content-Disposition': `attachment; filename="${fileDoc.originalName}"`,
-            'Cache-Control': 'private, no-cache, no-store, must-revalidate',
             'X-ZK-Encrypted': 'true',
             'X-ZK-Algorithm': fileDoc.zkMetadata?.algorithm || 'unknown',
             'X-ZK-IV': fileDoc.zkMetadata?.iv || '',
             'X-ZK-Salt': fileDoc.zkMetadata?.salt || '',
-            'X-ZK-Iterations':
-              fileDoc.zkMetadata?.iterations?.toString() || '0',
+            'X-ZK-Iterations': fileDoc.zkMetadata?.iterations?.toString() || '0',
             'X-ZK-Key-Hint': fileDoc.zkMetadata?.keyHint || 'unknown',
-            Pragma: 'no-cache',
-            Expires: '0',
           },
         });
       }
 
-      // For legacy server-side encrypted files, use existing decryption
-      fileBuffer = await readAndDecryptFile(filePath, fileDoc);
-
-      // Log decryption activity if file was encrypted (legacy server-side encrypted files)
-      logDecryptionActivity(fileDoc, 'download', clientIP, userAgent);
-
-      // Increment download count
-      await incrementDownloadCount(fileDoc.filename);
+      // For unencrypted files, read normally
+      fileBuffer = await readFile(filePath);
 
       // Log successful download
       await saveSecurityEvent({
         type: 'file_download',
         ip: clientIP,
-        details: `File downloaded: ${fileDoc.originalName}${fileDoc.isEncrypted ? ' (decrypted)' : ''}`,
+        details: `File downloaded: ${fileDoc.originalName}`,
         severity: 'low',
         userAgent,
         filename: fileDoc.filename,
         fileSize: fileDoc.size,
         fileType: fileDoc.mimeType,
+        metadata: {
+          downloadCount: fileDoc.downloadCount + 1,
+        },
       });
-
-      // Create notification for file owner (if not anonymous)
-      if (!fileDoc.isAnonymous && fileDoc.userId) {
-        try {
-          await saveNotification({
-            userId: fileDoc.userId,
-            type: 'file_downloaded',
-            title: 'File Downloaded',
-            message: `Your file "${fileDoc.originalName}" was downloaded`,
-            priority: 'normal',
-            relatedFileId: fileDoc._id.toString(),
-            metadata: {
-              downloaderIP: clientIP,
-              downloadTime: new Date(),
-              fileSize: fileDoc.size,
-              mimeType: fileDoc.mimeType,
-              wasEncrypted: fileDoc.isEncrypted || false,
-            },
-          });
-        } catch (notificationError) {
-          // Don't fail download if notification fails
-          console.error(
-            'Failed to create download notification:',
-            notificationError
-          );
-        }
-      }
 
       // Return file with appropriate headers
       return new NextResponse(fileBuffer, {
         status: 200,
         headers: {
           'Content-Type': fileDoc.mimeType,
-          'Content-Length': getContentLength(fileDoc).toString(),
+          'Content-Length': fileDoc.size.toString(),
+          'Cache-Control': 'public, max-age=1800',
           'Content-Disposition': `attachment; filename="${fileDoc.originalName}"`,
-          'Cache-Control': 'private, no-cache, no-store, must-revalidate',
-          Pragma: 'no-cache',
-          Expires: '0',
         },
       });
-    } catch (fileError) {
-      console.error('Error reading file:', fileError);
+    } catch (error) {
+      console.error('Download file error:', error);
 
-      // Log file read error
+      // Log failed file access
       await saveSecurityEvent({
         type: 'suspicious_activity',
         ip: clientIP,
-        details: `File read error for ${fileDoc.filename}: ${
-          fileError instanceof Error ? fileError.message : 'Unknown error'
-        }`,
+        details: `Failed to download file: ${fileDoc.originalName} - ${error}`,
         severity: 'medium',
         userAgent,
         filename: fileDoc.filename,
       });
 
       return NextResponse.json(
-        { success: false, error: 'File not accessible' },
-        { status: 500 }
+        { success: false, error: 'File not found or corrupted' },
+        { status: 404 }
       );
     }
   } catch (error) {
     console.error('Download API error:', error);
-
-    // Try to log the error
-    try {
-      const clientIP = request.headers.get('x-forwarded-for') || '127.0.0.1';
-      await saveSecurityEvent({
-        type: 'suspicious_activity',
-        ip: clientIP,
-        details: `Download API error: ${
-          error instanceof Error ? error.message : 'Unknown error'
-        }`,
-        severity: 'high',
-        userAgent: request.headers.get('user-agent') || '',
-      });
-    } catch (logError) {
-      console.error('Failed to log error:', logError);
-    }
-
     return NextResponse.json(
       { success: false, error: 'Internal server error' },
       { status: 500 }

@@ -12,7 +12,6 @@ export type {
   FileType,
   BaseFileData,
   ClientFileData,
-  FilePreviewData,
   AdminFileData,
   ExportFileData,
 } from './file';

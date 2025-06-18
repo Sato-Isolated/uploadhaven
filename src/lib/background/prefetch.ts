@@ -203,8 +203,3 @@ export class PrefetchManager {
     }
   }
 }
-
-// Create a singleton instance
-let prefetchManager: PrefetchManager | null = null;
-
-

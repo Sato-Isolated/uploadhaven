@@ -25,10 +25,8 @@ export const queryKeys = {
   all: ['uploadhaven'] as const,
   // Files domain
   files: () => [...queryKeys.all, 'files'] as const,
-  file: (id: string) => [...queryKeys.files(), id] as const,
-  filesList: (filters?: Record<string, unknown>) =>
+  file: (id: string) => [...queryKeys.files(), id] as const,  filesList: (filters?: Record<string, unknown>) =>
     [...queryKeys.files(), 'list', filters] as const,
-  filePreview: (url: string) => [...queryKeys.files(), 'preview', url] as const,
   fileMetadata: (shortUrl: string) =>
     [...queryKeys.files(), 'metadata', shortUrl] as const,
 

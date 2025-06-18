@@ -203,6 +203,74 @@ export function base64ToArrayBuffer(base64: string): ArrayBuffer {
 }
 
 /**
+ * Safely convert Base64 string to ArrayBuffer with error handling
+ */
+export function safeBase64ToArrayBuffer(base64: string): ArrayBuffer {
+  try {
+    // Clean the base64 string (remove any whitespace, newlines, etc.)
+    const cleanBase64 = base64.replace(/[^A-Za-z0-9+/=]/g, '');
+
+    // Validate base64 format
+    if (!/^[A-Za-z0-9+/]*={0,2}$/.test(cleanBase64)) {
+      throw new Error('Invalid Base64 format');
+    }
+
+    return base64ToArrayBuffer(cleanBase64);
+  } catch (error) {
+    console.error('Failed to decode Base64:', { base64, error });
+    throw new Error(
+      `Invalid Base64 data: ${
+        error instanceof Error ? error.message : 'Unknown error'
+      }`
+    );
+  }
+}
+
+/**
+ * Convert ArrayBuffer or Uint8Array to URL-safe Base64 string
+ */
+export function arrayBufferToBase64UrlSafe(buffer: ArrayBuffer | Uint8Array): string {
+  const base64 = arrayBufferToBase64(buffer);
+  // Convert to URL-safe Base64: replace + with -, / with _, and remove padding =
+  return base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+}
+
+/**
+ * Convert URL-safe Base64 string to ArrayBuffer
+ */
+export function base64UrlSafeToArrayBuffer(base64UrlSafe: string): ArrayBuffer {
+  // Convert from URL-safe Base64: replace - with +, _ with /, and add padding
+  let base64 = base64UrlSafe.replace(/-/g, '+').replace(/_/g, '/');
+  
+  // Add padding if needed
+  while (base64.length % 4) {
+    base64 += '=';
+  }
+  
+  return base64ToArrayBuffer(base64);
+}
+
+/**
+ * Safely convert URL-safe Base64 string to ArrayBuffer with error handling
+ */
+export function safeBase64UrlSafeToArrayBuffer(base64UrlSafe: string): ArrayBuffer {
+  try {
+    // Clean the URL-safe base64 string (remove any whitespace, newlines, etc.)
+    const cleanBase64 = base64UrlSafe.replace(/[^A-Za-z0-9_-]/g, '');
+    
+    // Validate URL-safe base64 format
+    if (!/^[A-Za-z0-9_-]*$/.test(cleanBase64)) {
+      throw new Error('Invalid URL-safe Base64 format');
+    }
+    
+    return base64UrlSafeToArrayBuffer(cleanBase64);
+  } catch (error) {
+    console.error('Failed to decode URL-safe Base64:', { base64UrlSafe, error });
+    throw new Error(`Invalid URL-safe Base64 data: ${error instanceof Error ? error.message : 'Unknown error'}`);
+  }
+}
+
+/**
  * Encrypt a file with client-side Zero-Knowledge encryption
  */
 export async function encryptFileZK(
@@ -265,13 +333,12 @@ export async function encryptFileZK(
     key,
     combinedData
   );
-
   // Export key for share link (if not password-derived)
   let exportedKey = '';
   if (!isPasswordDerived) {
     const keyBuffer = await crypto.subtle.exportKey('raw', key);
-    exportedKey = arrayBufferToBase64(keyBuffer);
-  } // Create the encrypted package
+    exportedKey = arrayBufferToBase64UrlSafe(keyBuffer);
+  }// Create the encrypted package
   const encryptedPackage: ZKEncryptedPackage = {
     encryptedData,
     publicMetadata: {
@@ -308,39 +375,37 @@ export async function decryptFileZK(
       `Browser not supported: ${compatibility.missingFeatures.join(', ')}`
     );
   }
-
-  // Parse metadata
-  const iv = new Uint8Array(
-    base64ToArrayBuffer(encryptedPackage.publicMetadata.iv)
-  );
-  const salt = new Uint8Array(
-    base64ToArrayBuffer(encryptedPackage.publicMetadata.salt)
-  );
-
-  // Derive or import the decryption key
-  let key: CryptoKey;
-
-  if (isPassword) {
-    key = await deriveKeyFromPassword(keyOrPassword, salt);
-  } else {
-    // Import the key from base64
-    const keyBuffer = base64ToArrayBuffer(keyOrPassword);
-    key = await crypto.subtle.importKey(
-      'raw',
-      keyBuffer,
-      {
-        name: ZK_CONFIG.algorithm,
-        length: ZK_CONFIG.keyLength,
-      },
-      false,
-      ['decrypt']
-    );
-  }
-
-  // Decrypt the data
-  let decryptedData: ArrayBuffer;
+  
   try {
-    decryptedData = await crypto.subtle.decrypt(
+    // Parse metadata
+    const iv = new Uint8Array(
+      safeBase64ToArrayBuffer(encryptedPackage.publicMetadata.iv)
+    );
+    const salt = new Uint8Array(
+      safeBase64ToArrayBuffer(encryptedPackage.publicMetadata.salt)
+    );
+
+    // Derive or import the decryption key
+    let key: CryptoKey;
+    if (isPassword) {
+      key = await deriveKeyFromPassword(keyOrPassword, salt);
+    } else {
+      // Import the key from URL-safe base64
+      const keyBuffer = safeBase64UrlSafeToArrayBuffer(keyOrPassword);
+      key = await crypto.subtle.importKey(
+        'raw',
+        keyBuffer,
+        {
+          name: ZK_CONFIG.algorithm,
+          length: ZK_CONFIG.keyLength,
+        },
+        false,
+        ['decrypt']
+      );
+    }
+
+    // Decrypt the data
+    const decryptedData = await crypto.subtle.decrypt(
       {
         name: ZK_CONFIG.algorithm,
         iv: iv,
@@ -348,28 +413,36 @@ export async function decryptFileZK(
       key,
       encryptedPackage.encryptedData
     );
+
+    // Parse the decrypted data
+    const decryptedBytes = new Uint8Array(decryptedData);
+
+    // Read metadata length (first 4 bytes)
+    const metadataLength = new Uint32Array(decryptedBytes.slice(0, 4).buffer)[0];
+
+    // Extract metadata
+    const metadataBytes = decryptedBytes.slice(4, 4 + metadataLength);
+    const metadataString = new TextDecoder().decode(metadataBytes);
+    const metadata: ZKFileMetadata = JSON.parse(metadataString);
+
+    // Extract file content
+    const fileContent = decryptedBytes.slice(4 + metadataLength);
+
+    // Create blob with correct MIME type
+    const file = new Blob([fileContent], { type: metadata.mimetype });
+
+    return { file, metadata };
+    
   } catch (error) {
+    console.error('ZK Decryption failed:', {
+      packageSize: encryptedPackage.encryptedData.byteLength,
+      keyLength: keyOrPassword.length,
+      isPassword,
+      algorithm: encryptedPackage.publicMetadata.algorithm,
+      error: error instanceof Error ? error.message : String(error)
+    });
     throw new Error('Decryption failed: Invalid key or corrupted data');
   }
-
-  // Parse the decrypted data
-  const decryptedBytes = new Uint8Array(decryptedData);
-
-  // Read metadata length (first 4 bytes)
-  const metadataLength = new Uint32Array(decryptedBytes.slice(0, 4).buffer)[0];
-
-  // Extract metadata
-  const metadataBytes = decryptedBytes.slice(4, 4 + metadataLength);
-  const metadataString = new TextDecoder().decode(metadataBytes);
-  const metadata: ZKFileMetadata = JSON.parse(metadataString);
-
-  // Extract file content
-  const fileContent = decryptedBytes.slice(4 + metadataLength);
-
-  // Create blob with correct MIME type
-  const file = new Blob([fileContent], { type: metadata.mimetype });
-
-  return { file, metadata };
 }
 
 /**
@@ -385,13 +458,12 @@ export function generateZKShareLink(
   }
 ): string {
   const url = new URL(`${baseUrl}/s/${shortUrl}`);
-
   if (keyData.isPasswordDerived) {
     // For password-derived keys, add a flag to indicate password requirement
     url.hash = 'password';
   } else if (keyData.key) {
-    // For random keys, embed the key in the URL fragment
-    url.hash = `key=${keyData.key}`;
+    // For random keys, embed the key directly in the URL fragment (URL-safe Base64)
+    url.hash = keyData.key;
   } else {
     // Fallback - should not happen but handle gracefully
     throw new Error('Missing key for non-password-derived encryption');
@@ -418,6 +490,12 @@ export function parseZKShareLink(url: string): ZKShareLinkData {
       shortUrl,
       key: urlObj.hash.substring(5), // Remove '#key='
     };
+  } else if (urlObj.hash && urlObj.hash !== '#') {
+    // Handle direct key in hash (current behavior)
+    return {
+      shortUrl,
+      key: urlObj.hash.slice(1), // Remove '#'
+    };
   } else {
     return {
       shortUrl,
@@ -428,7 +506,7 @@ export function parseZKShareLink(url: string): ZKShareLinkData {
 /**
  * Estimate encryption overhead for UI display
  */
-export function estimateEncryptionOverhead(originalSize: number): number {
+export function estimateEncryptionOverhead(): number {
   // Metadata overhead (roughly 200 bytes for JSON metadata)
   const metadataOverhead = 200;
   // Length prefix (4 bytes)
