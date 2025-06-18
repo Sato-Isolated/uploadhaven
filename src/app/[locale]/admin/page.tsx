@@ -15,8 +15,17 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 async function fetchData(endpoint: string) {
   try {
     const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000';
+    
+    // Get the current headers to forward cookies/session data
+    const headersList = await headers();
+    const cookie = headersList.get('cookie');
+    
     const response = await fetch(`${baseUrl}${endpoint}`, {
       cache: 'no-store', // Always get fresh data for admin panel
+      headers: {
+        'Content-Type': 'application/json',
+        ...(cookie && { Cookie: cookie }), // Forward cookies for authentication
+      },
     });
 
     if (!response.ok) {

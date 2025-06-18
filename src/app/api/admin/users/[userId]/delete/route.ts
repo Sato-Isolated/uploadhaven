@@ -1,17 +1,23 @@
-import { NextRequest, NextResponse } from 'next/server';
-import connectDB from '@/lib/database/mongodb';
-import { User, File, saveSecurityEvent } from '@/lib/database/models';
+import { NextRequest } from 'next/server';
 import { headers } from 'next/headers';
 import { unlink } from 'fs/promises';
 import path from 'path';
+import {
+  withAdminAPIParams,
+  createSuccessResponse,
+  createErrorResponse,
+} from '@/lib/middleware';
+import { User, File, saveSecurityEvent } from '@/lib/database/models';
 
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: Promise<{ userId: string }> }
-) {
-  try {
-    await connectDB();
-
+/**
+ * DELETE /api/admin/users/[userId]/delete
+ * 
+ * Delete a user and all their associated files.
+ * Requires admin authentication.
+ * Includes safety measures to prevent admin deletion.
+ */
+export const DELETE = withAdminAPIParams<{ userId: string }>(
+  async (request: NextRequest, { params }) => {
     const headersList = await headers();
     const ip =
       headersList.get('x-forwarded-for') ||
@@ -22,79 +28,99 @@ export async function DELETE(
     const { userId } = await params;
 
     if (!userId) {
-      return NextResponse.json(
-        { success: false, error: 'User ID is required' },
-        { status: 400 }
-      );
+      return createErrorResponse('User ID is required', 'MISSING_USER_ID', 400);
     }
 
     // Find the user
     const user = await User.findById(userId);
 
     if (!user) {
-      return NextResponse.json(
-        { success: false, error: 'User not found' },
-        { status: 404 }
-      );
+      return createErrorResponse('User not found', 'USER_NOT_FOUND', 404);
     }
 
     // Prevent deletion of admin users (safety measure)
     if (user.role === 'admin') {
-      return NextResponse.json(
-        { success: false, error: 'Cannot delete admin users' },
-        { status: 403 }
-      );
+      await saveSecurityEvent({
+        type: 'suspicious_activity',
+        ip,
+        details: `Attempt to delete admin user: ${user.email}`,
+        severity: 'high',
+        userAgent,
+        metadata: {
+          userId: userId,
+          userEmail: user.email,
+          reason: 'admin_deletion_blocked',
+        },
+      });
+
+      return createErrorResponse('Cannot delete admin users', 'ADMIN_DELETION_FORBIDDEN', 403);
     }
 
-    // Find all files uploaded by the user
-    const userFiles = await File.find({ userId: userId }); // Delete physical files from storage
-    const deletionPromises = userFiles.map(async (file) => {
-      try {
-        const filePath = path.join(
-          process.cwd(),
-          'public',
-          'uploads',
-          file.filename
-        );
-        await unlink(filePath);
-      } catch (error) {
-        console.error(`Failed to delete file ${file.filename}:`, error);
-        // Continue with deletion even if physical file removal fails
-      }
-    });
+    try {
+      // Find all files uploaded by the user
+      const userFiles = await File.find({ userId: userId });
 
-    await Promise.allSettled(deletionPromises);
+      // Delete physical files from storage
+      const deletionPromises = userFiles.map(async (file) => {
+        try {
+          const filePath = path.join(
+            process.cwd(),
+            'public',
+            'uploads',
+            file.filename
+          );
+          await unlink(filePath);
+        } catch (error) {
+          console.error(`Failed to delete file ${file.filename}:`, error);
+          // Continue with deletion even if physical file removal fails
+        }
+      });
 
-    // Delete file records from database
-    await File.deleteMany({ userId: userId });
+      await Promise.allSettled(deletionPromises);
 
-    // Delete the user
-    await User.findByIdAndDelete(userId);
+      // Delete file records from database
+      await File.deleteMany({ userId: userId });
 
-    // Log security event
-    await saveSecurityEvent({
-      type: 'user_deleted',
-      ip,
-      details: `User ${user.email} has been deleted by admin (including ${userFiles.length} files)`,
-      severity: 'high',
-      userAgent,
-      metadata: {
-        userId: userId,
-        userEmail: user.email,
+      // Delete the user
+      await User.findByIdAndDelete(userId);
+
+      // Log security event
+      await saveSecurityEvent({
+        type: 'user_deleted',
+        ip,
+        details: `User ${user.email} has been deleted by admin (including ${userFiles.length} files)`,
+        severity: 'high',
+        userAgent,
+        metadata: {
+          userId: userId,
+          userEmail: user.email,
+          deletedFilesCount: userFiles.length,
+          adminAction: true,
+        },
+      });
+
+      return createSuccessResponse({
+        message: `User ${user.email} and ${userFiles.length} associated files have been deleted successfully`,
         deletedFilesCount: userFiles.length,
-        adminAction: true,
-      },
-    });
+      });
+    } catch (error) {
+      console.error('User deletion error:', error);
 
-    return NextResponse.json({
-      success: true,
-      message: `User ${user.email} and ${userFiles.length} associated files have been deleted successfully`,
-    });
-  } catch (error) {
-    console.error('User deletion error:', error);
-    return NextResponse.json(
-      { success: false, error: 'Failed to delete user' },
-      { status: 500 }
-    );
+      // Log the error
+      await saveSecurityEvent({
+        type: 'suspicious_activity',
+        ip,
+        details: `Failed to delete user ${user.email}: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        severity: 'high',
+        userAgent,
+        metadata: {
+          userId: userId,
+          userEmail: user.email,
+          error: error instanceof Error ? error.message : 'Unknown error',
+        },
+      });
+
+      return createErrorResponse('Failed to delete user', 'USER_DELETION_ERROR', 500);
+    }
   }
-}
+);

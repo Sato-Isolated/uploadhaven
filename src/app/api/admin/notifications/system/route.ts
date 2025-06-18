@@ -1,29 +1,13 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/lib/auth/auth';
-import { headers } from 'next/headers';
-import connectDB from '@/lib/database/mongodb';
+import { NextRequest } from 'next/server';
+import { withAdminAPI, createSuccessResponse, createErrorResponse, type AuthenticatedRequest } from '@/lib/middleware';
 import { User, saveNotification } from '@/lib/database/models';
 
 /**
  * Admin endpoint for creating system-wide notifications
  * Only admins can create system announcements
  */
-export async function POST(request: NextRequest) {
+export const POST = withAdminAPI(async (request: AuthenticatedRequest) => {
   try {
-    await connectDB();
-
-    // Check admin authentication
-    const session = await auth.api.getSession({
-      headers: await headers(),
-    });
-
-    if (!session?.user || session.user.role !== 'admin') {
-      return NextResponse.json(
-        { error: 'Unauthorized. Admin access required.' },
-        { status: 403 }
-      );
-    }
-
     const {
       title,
       message,
@@ -34,18 +18,12 @@ export async function POST(request: NextRequest) {
 
     // Validate required fields
     if (!title || !message) {
-      return NextResponse.json(
-        { error: 'Title and message are required' },
-        { status: 400 }
-      );
+      return createErrorResponse('Title and message are required', 'INVALID_INPUT', 400);
     }
 
     // Validate priority
     if (!['low', 'normal', 'high', 'urgent'].includes(priority)) {
-      return NextResponse.json(
-        { error: 'Invalid priority. Must be low, normal, high, or urgent.' },
-        { status: 400 }
-      );
+      return createErrorResponse('Invalid priority. Must be low, normal, high, or urgent.', 'INVALID_INPUT', 400);
     }
 
     // Get target users
@@ -59,17 +37,11 @@ export async function POST(request: NextRequest) {
       // Specific user IDs provided
       userIds = targetUsers;
     } else {
-      return NextResponse.json(
-        { error: 'Invalid targetUsers. Must be "all" or array of user IDs.' },
-        { status: 400 }
-      );
+      return createErrorResponse('Invalid targetUsers. Must be "all" or array of user IDs.', 'INVALID_INPUT', 400);
     }
 
     if (userIds.length === 0) {
-      return NextResponse.json(
-        { error: 'No users found to send notification to' },
-        { status: 400 }
-      );
+      return createErrorResponse('No users found to send notification to', 'NO_TARGET_USERS', 400);
     }
 
     // Create notifications for all target users
@@ -81,8 +53,8 @@ export async function POST(request: NextRequest) {
         message,
         priority,
         metadata: {
-          createdBy: session.user.id,
-          createdByEmail: session.user.email,
+          createdBy: request.user.id,
+          createdByEmail: request.user.email,
           isSystemAnnouncement: true,
           ...metadata,
         },
@@ -101,8 +73,7 @@ export async function POST(request: NextRequest) {
     ).length;
     const failureCount = results.length - successCount;
 
-    return NextResponse.json({
-      success: true,
+    return createSuccessResponse({
       message: `System notification created successfully`,
       stats: {
         totalUsers: userIds.length,
@@ -121,17 +92,19 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error('Failed to create system notification:', error);
-    return NextResponse.json(
-      { error: 'Failed to create system notification' },
-      { status: 500 }
+    return createErrorResponse(
+      'Failed to create system notification',
+      'SYSTEM_NOTIFICATION_FAILED',
+      500
     );
   }
-}
+});
 
 // Handle unsupported methods
 export async function GET() {
-  return NextResponse.json(
-    { error: 'Method not allowed. Use POST to create system notifications.' },
-    { status: 405 }
+  return createErrorResponse(
+    'Method not allowed. Use POST to create system notifications.',
+    'METHOD_NOT_ALLOWED',
+    405
   );
 }

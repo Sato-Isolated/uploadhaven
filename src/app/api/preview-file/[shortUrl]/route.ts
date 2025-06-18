@@ -1,10 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
-import connectDB from '@/lib/database/mongodb';
+import path from 'path';
+import { readFile } from 'fs/promises';
+import {
+  withAPIParams,
+  createSuccessResponse,
+  createErrorResponse,
+} from '@/lib/middleware';
 import { File, saveSecurityEvent } from '@/lib/database/models';
 import { checkFileExpiration } from '@/lib/background/startup';
-import path from 'path';
 import { getClientIP } from '@/lib/core/utils';
-import { readFile } from 'fs/promises';
 
 /**
  * GET /api/preview-file/[shortUrl]
@@ -17,17 +21,17 @@ import { readFile } from 'fs/promises';
  * - Logs as "file_preview" instead of "file_download"
  * - Same security checks (password, expiration, etc.)
  */
-export async function GET(
-  request: NextRequest,
-  { params }: { params: Promise<{ shortUrl: string }> }
-) {
-  try {
-    await connectDB();
+export const GET = withAPIParams<{ shortUrl: string }>(
+  async (request: NextRequest, { params }): Promise<NextResponse> => {
     const { shortUrl } = await params;
 
     // Get client IP and user agent for logging
     const clientIP = getClientIP(request);
     const userAgent = request.headers.get('user-agent') || '';
+
+    if (!shortUrl) {
+      return createErrorResponse('Short URL is required', 'MISSING_SHORT_URL', 400);
+    }
 
     // Find file by short URL
     const fileDoc = await File.findOne({
@@ -36,19 +40,36 @@ export async function GET(
     });
 
     if (!fileDoc) {
-      return NextResponse.json(
-        { success: false, error: 'File not found' },
-        { status: 404 }
-      );
+      await saveSecurityEvent({
+        type: 'access_denied',
+        ip: clientIP,
+        details: `Preview attempt for non-existent file: ${shortUrl}`,
+        severity: 'medium',
+        userAgent,
+        metadata: { shortUrl },
+      });
+
+      return createErrorResponse('File not found', 'FILE_NOT_FOUND', 404);
     }
 
     // Check if file has expired
     if (fileDoc.expiresAt && new Date() > fileDoc.expiresAt) {
       await checkFileExpiration(fileDoc._id.toString());
-      return NextResponse.json(
-        { success: false, error: 'File has expired' },
-        { status: 410 }
-      );
+      
+      await saveSecurityEvent({
+        type: 'access_denied',
+        ip: clientIP,
+        details: `Preview attempt for expired file: ${fileDoc.originalName}`,
+        severity: 'low',
+        userAgent,
+        metadata: { 
+          shortUrl,
+          filename: fileDoc.filename,
+          expiredAt: fileDoc.expiresAt 
+        },
+      });
+
+      return createErrorResponse('File has expired', 'FILE_EXPIRED', 410);
     }
 
     // Check password protection
@@ -62,14 +83,42 @@ export async function GET(
           details: `Failed password attempt for file preview: ${fileDoc.originalName}`,
           severity: 'medium',
           userAgent,
-          filename: fileDoc.filename,
+          metadata: { 
+            shortUrl,
+            filename: fileDoc.filename 
+          },
         });
 
-        return NextResponse.json(
-          { success: false, error: 'Invalid password' },
-          { status: 401 }
-        );
+        return createErrorResponse('Invalid password', 'INVALID_PASSWORD', 401);
       }
+    }
+
+    // Handle Zero-Knowledge files - reject them as per new architecture
+    if (fileDoc.isZeroKnowledge) {
+      // Log the rejection attempt
+      await saveSecurityEvent({
+        type: 'access_denied',
+        ip: clientIP,
+        details: `ZK file preview rejected (use /api/zk-blob/ instead): ${fileDoc.originalName}`,
+        severity: 'low',
+        userAgent,
+        metadata: {
+          shortUrl,
+          filename: fileDoc.filename,
+          reason: 'zk_file_rejected_from_preview_api',
+          redirectTo: '/api/zk-blob/',
+        },
+      });
+
+      return createErrorResponse(
+        'Zero-Knowledge files not supported in preview API. Use /api/zk-blob/ for encrypted files.',
+        'UNSUPPORTED_FILE_TYPE',
+        400,
+        {
+          isZeroKnowledge: true,
+          redirectEndpoint: `/api/zk-blob/${fileDoc.shortUrl}`,
+        }
+      );
     }
 
     // Construct file path
@@ -82,50 +131,8 @@ export async function GET(
     );
 
     try {
-      let fileBuffer: Buffer;
-
-      // Handle Zero-Knowledge files differently
-      if (fileDoc.isZeroKnowledge) {
-        // For ZK files, serve the encrypted blob as-is for client-side decryption
-        fileBuffer = await readFile(filePath);
-
-        // Log ZK file preview (NOT download)
-        await saveSecurityEvent({
-          type: 'file_preview',
-          ip: clientIP,
-          details: `Zero-Knowledge file previewed: ${fileDoc.originalName} (encrypted blob)`,
-          severity: 'low',
-          userAgent,
-          filename: fileDoc.filename,
-          fileSize: fileDoc.size,
-          fileType: fileDoc.mimeType,
-          metadata: {
-            zeroKnowledge: true,
-            algorithm: fileDoc.zkMetadata?.algorithm,
-            keyType: fileDoc.zkMetadata?.keyHint,
-          },
-        });
-
-        // Return encrypted blob with ZK-specific headers for preview
-        return new NextResponse(fileBuffer, {
-          status: 200,
-          headers: {
-            'Content-Type': 'application/octet-stream',
-            'Content-Length': fileBuffer.length.toString(),
-            'Cache-Control': 'public, max-age=1800',
-            'Content-Disposition': `inline; filename="${fileDoc.originalName}"`,
-            'X-ZK-Encrypted': 'true',
-            'X-ZK-Algorithm': fileDoc.zkMetadata?.algorithm || 'unknown',
-            'X-ZK-IV': fileDoc.zkMetadata?.iv || '',
-            'X-ZK-Salt': fileDoc.zkMetadata?.salt || '',
-            'X-ZK-Iterations': fileDoc.zkMetadata?.iterations?.toString() || '0',
-            'X-ZK-Key-Hint': fileDoc.zkMetadata?.keyHint || 'unknown',
-          },
-        });
-      }
-
-      // For unencrypted files, read normally
-      fileBuffer = await readFile(filePath);
+      // Read the file from disk
+      const fileBuffer = await readFile(filePath);
 
       // Log successful preview (NOT download)
       await saveSecurityEvent({
@@ -134,9 +141,12 @@ export async function GET(
         details: `File previewed: ${fileDoc.originalName}`,
         severity: 'low',
         userAgent,
-        filename: fileDoc.filename,
-        fileSize: fileDoc.size,
-        fileType: fileDoc.mimeType,
+        metadata: {
+          shortUrl,
+          filename: fileDoc.filename,
+          fileSize: fileDoc.size,
+          fileType: fileDoc.mimeType,
+        },
       });
 
       // Return file with appropriate headers
@@ -149,29 +159,23 @@ export async function GET(
           'Content-Disposition': `inline; filename="${fileDoc.originalName}"`,
         },
       });
-    } catch (error) {
-      console.error('Preview file error:', error);
+    } catch (fileError) {
+      console.error('Preview file error:', fileError);
 
       // Log failed file access
       await saveSecurityEvent({
         type: 'suspicious_activity',
         ip: clientIP,
-        details: `Failed to preview file: ${fileDoc.originalName} - ${error}`,
+        details: `Failed to preview file: ${fileDoc.originalName} - ${fileError instanceof Error ? fileError.message : 'Unknown error'}`,
         severity: 'medium',
         userAgent,
-        filename: fileDoc.filename,
+        metadata: {
+          shortUrl,
+          filename: fileDoc.filename,
+        },
       });
 
-      return NextResponse.json(
-        { success: false, error: 'File not found or corrupted' },
-        { status: 404 }
-      );
+      return createErrorResponse('File not found or corrupted', 'FILE_ACCESS_ERROR', 404);
     }
-  } catch (error) {
-    console.error('Preview API error:', error);
-    return NextResponse.json(
-      { success: false, error: 'Internal server error' },
-      { status: 500 }
-    );
   }
-}
+);

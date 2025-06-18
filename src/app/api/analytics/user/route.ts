@@ -1,33 +1,16 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/lib/auth/auth';
-import { headers } from 'next/headers';
-import connectDB from '@/lib/database/mongodb';
+import { NextRequest } from 'next/server';
+import { withAuthenticatedAPI, createSuccessResponse, type AuthenticatedRequest } from '@/lib/middleware';
 import { File, SecurityEvent } from '@/lib/database/models';
 
-export async function GET(request: NextRequest) {
-  try {
-    // Get session
-    const session = await auth.api.getSession({
-      headers: await headers(),
-    });
+export const GET = withAuthenticatedAPI(async (request: AuthenticatedRequest) => {
+  const url = new URL((request as unknown as NextRequest).url);
+  const timeRange = url.searchParams.get('timeRange') || '7d';
+  const limit = parseInt(url.searchParams.get('limit') || '10');
+  const userId = request.user.id;
 
-    if (!session?.user) {
-      return NextResponse.json(
-        { success: false, error: 'Authentication required' },
-        { status: 401 }
-      );
-    }
-
-    await connectDB();
-
-    const url = new URL(request.url);
-    const timeRange = url.searchParams.get('timeRange') || '7d';
-    const limit = parseInt(url.searchParams.get('limit') || '10');
-    const userId = session.user.id;
-
-    // Calculate date range
-    const now = new Date();
-    const startDate = new Date();
+  // Calculate date range
+  const now = new Date();
+  const startDate = new Date();
 
     switch (timeRange) {
       case '24h':
@@ -238,12 +221,10 @@ export async function GET(request: NextRequest) {
       timestamp: { $gte: startDate },
       details: { $regex: /File downloaded:/ },
       filename: { $in: userOriginalNames },
-    });
-
-    // Get user's total files count
+    });    // Get user's total files count
     const userTotalFiles = await File.countDocuments({ userId });
-    return NextResponse.json({
-      success: true,
+    
+    return createSuccessResponse({
       analytics: {
         totalDownloads,
         last24hDownloads: downloadEvents.filter((event) => {
@@ -262,11 +243,4 @@ export async function GET(request: NextRequest) {
         recentDownloads,
       },
     });
-  } catch (error) {
-    console.error('User analytics API error:', error);
-    return NextResponse.json(
-      { success: false, error: 'Failed to fetch user analytics data' },
-      { status: 500 }
-    );
-  }
-}
+  });

@@ -1,104 +1,99 @@
-import { NextRequest, NextResponse } from 'next/server';
-import connectDB from '@/lib/database/mongodb';
+import { NextRequest } from 'next/server';
+import { withAuthenticatedAPI, createSuccessResponse, createErrorResponse, type AuthenticatedRequest } from '@/lib/middleware';
 import { File, saveSecurityEvent } from '@/lib/database/models';
 import { headers } from 'next/headers';
 import { unlink } from 'fs/promises';
 import path from 'path';
 
-export async function DELETE(request: NextRequest) {
-  try {
-    await connectDB();
+export const DELETE = withAuthenticatedAPI(async (request: AuthenticatedRequest) => {
+  const { user } = request;
 
-    const headersList = await headers();
-    const ip =
-      headersList.get('x-forwarded-for') ||
-      headersList.get('x-real-ip') ||
-      '127.0.0.1';
-    const userAgent = headersList.get('user-agent') || 'Unknown'; // Get the request body to see if specific files are requested
-    const body = await request.json().catch(() => ({}));
-    const { filenames } = body;
+  const headersList = await headers();
+  const ip =
+    headersList.get('x-forwarded-for') ||
+    headersList.get('x-real-ip') ||
+    '127.0.0.1';
+  const userAgent = headersList.get('user-agent') || 'Unknown';
 
-    interface QueryType {
-      isDeleted: boolean;
-      filename?: { $in: string[] };
-    }
+  // Get the request body to see if specific files are requested
+  const body = await (request as unknown as NextRequest).json().catch(() => ({}));
+  const { filenames } = body;
 
-    let query: QueryType = { isDeleted: false };
+  interface QueryType {
+    isDeleted: boolean;
+    userId: string;
+    filename?: { $in: string[] };
+  }
 
-    // If specific filenames are provided, only delete those
-    if (filenames && Array.isArray(filenames)) {
-      query = { ...query, filename: { $in: filenames } };
-    }
+  let query: QueryType = { 
+    isDeleted: false,
+    userId: user.id // Only allow users to delete their own files
+  };
 
-    // Find files to delete
-    const filesToDelete = await File.find(query);
+  // If specific filenames are provided, only delete those
+  if (filenames && Array.isArray(filenames)) {
+    query = { ...query, filename: { $in: filenames } };
+  }
 
-    if (filesToDelete.length === 0) {
-      return NextResponse.json({
-        success: true,
-        deletedCount: 0,
-        message: 'No files found to delete',
-      });
-    }
+  // Find files to delete
+  const filesToDelete = await File.find(query);
 
-    // Mark files as deleted in database
-    const result = await File.updateMany(query, { isDeleted: true }); // Try to delete actual files from filesystem
-    let physicalDeletedCount = 0;
-    const errors: string[] = [];
-
-    for (const file of filesToDelete) {
-      try {
-        // Determine which subdirectory based on password protection
-        const subDir = file.isPasswordProtected ? 'protected' : 'public';
-        const uploadsDir = path.join(
-          process.cwd(),
-          'public',
-          'uploads',
-          subDir
-        );
-        const filePath = path.join(uploadsDir, file.filename);
-        await unlink(filePath);
-        physicalDeletedCount++;
-      } catch (error) {
-        errors.push(
-          `Failed to delete ${file.filename} from filesystem: ${error}`
-        );
-      }
-    }
-
-    // Log security event
-    await saveSecurityEvent({
-      type: 'bulk_delete',
-      ip,
-      details: `Bulk deleted ${result.modifiedCount} files`,
-      severity: 'medium',
-      userAgent,
-      metadata: {
-        deletedCount: result.modifiedCount,
-        physicalDeletedCount,
-        errors: errors.length,
-      },
+  if (filesToDelete.length === 0) {
+    return createSuccessResponse({
+      deletedCount: 0,
+      message: 'No files found to delete',
     });
+  }
 
-    return NextResponse.json({
-      success: true,
+  // Mark files as deleted in database
+  const result = await File.updateMany(query, { isDeleted: true });
+  
+  // Try to delete actual files from filesystem
+  let physicalDeletedCount = 0;
+  const errors: string[] = [];
+  for (const file of filesToDelete) {
+    try {
+      // Determine which subdirectory based on password protection
+      const subDir = file.isPasswordProtected ? 'protected' : 'public';
+      const uploadsDir = path.join(
+        process.cwd(),
+        'public',
+        'uploads',
+        subDir
+      );
+      const filePath = path.join(uploadsDir, file.filename);
+      await unlink(filePath);
+      physicalDeletedCount++;
+    } catch (error) {
+      errors.push(
+        `Failed to delete ${file.filename} from filesystem: ${error}`
+      );
+    }
+  }
+
+  // Log bulk deletion
+  await saveSecurityEvent({
+    type: 'bulk_file_deletion',
+    ip,
+    details: `Bulk deletion completed: ${result.modifiedCount} files marked as deleted`,
+    severity: 'medium',
+    userAgent,
+    userId: user.id,
+    metadata: {
       deletedCount: result.modifiedCount,
       physicalDeletedCount,
-      totalFiles: filesToDelete.length,
-      errors: errors.length > 0 ? errors : undefined,
-    });
-  } catch (error) {
-    console.error('Bulk delete error:', error);
-    return NextResponse.json(
-      { success: false, error: 'Failed to perform bulk delete' },
-      { status: 500 }
-    );
-  }
-}
+      errors: errors.length,
+    },
+  });
+
+  return createSuccessResponse({
+    deletedCount: result.modifiedCount,
+    physicalDeletedCount,
+    totalFiles: filesToDelete.length,
+    errors: errors.length > 0 ? errors : undefined,
+  });
+});
 
 export async function GET() {
-  return NextResponse.json(
-    { error: 'Method not allowed. Use DELETE to clear all files.' },
-    { status: 405 }
-  );
+  return createErrorResponse('Method not allowed', 'METHOD_NOT_ALLOWED', 405);
 }

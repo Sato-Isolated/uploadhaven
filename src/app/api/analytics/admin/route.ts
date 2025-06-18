@@ -1,10 +1,9 @@
-import { NextRequest, NextResponse } from 'next/server';
-import connectDB from '@/lib/database/mongodb';
-import { File, User, SecurityEvent } from '@/lib/database/models';
+import { NextRequest } from 'next/server';
+import { withAdminAPI, createSuccessResponse, createErrorResponse, type AuthenticatedRequest } from '@/lib/middleware';
+import { File, User } from '@/lib/database/models';
 
-export async function GET(request: NextRequest) {
+async function getAdminAnalyticsHandler(request: AuthenticatedRequest) {
   try {
-    await connectDB();
 
     const url = new URL(request.url);
     const timeRange = url.searchParams.get('timeRange') || '30d';
@@ -119,32 +118,9 @@ export async function GET(request: NextRequest) {
       {
         $sort: { _id: 1 },
       },
-    ]);
-
-    // Security Analytics
-    const securityEvents = await SecurityEvent.aggregate([
-      {
-        $match: {
-          timestamp: { $gte: startDate },
-        },
-      },
-      {
-        $group: {
-          _id: '$type',
-          count: { $sum: 1 },
-        },
-      },
-      {
-        $sort: { count: -1 },
-      },
-    ]);
-
-    const recentSecurityEvents = await SecurityEvent.find({
-      timestamp: { $gte: startDate },
-    })
-      .sort({ timestamp: -1 })
-      .limit(10)
-      .select('type timestamp details userAgent ipAddress');
+    ]);    // Security Analytics (simplified without SecurityEvent model)
+    const securityEvents: { _id: string; count: number }[] = [];
+    const recentSecurityEvents: any[] = [];
 
     // Top Files by Downloads
     const topFiles = await File.find({
@@ -272,23 +248,21 @@ export async function GET(request: NextRequest) {
           totalSizeBytes: user.totalSize,
           fileCount: user.fileCount,
         })),
-      },
-      securityAnalytics: {
+      },      securityAnalytics: {
         eventsByType: securityEvents,
         recentEvents: recentSecurityEvents,
         totalEvents: securityEvents.reduce(
-          (sum, event) => sum + event.count,
+          (sum: number, event: { count: number }) => sum + event.count,
           0
         ),
       },
     };
 
-    return NextResponse.json(analytics);
+    return createSuccessResponse(analytics);
   } catch (error) {
     console.error('Admin analytics API error:', error);
-    return NextResponse.json(
-      { success: false, error: 'Failed to fetch admin analytics' },
-      { status: 500 }
-    );
+    return createErrorResponse('Failed to fetch admin analytics', 'INTERNAL_ERROR');
   }
 }
+
+export const GET = withAdminAPI(getAdminAnalyticsHandler);

@@ -1,7 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-import connectDB from '@/lib/database/mongodb';
-import { User, File, saveSecurityEvent } from '@/lib/database/models';
 import { headers } from 'next/headers';
+import {
+  withAdminAPI,
+  createSuccessResponse,
+  createErrorResponse,
+} from '@/lib/middleware';
+import { User, File, saveSecurityEvent } from '@/lib/database/models';
 
 interface ExportedUser {
   id: string;
@@ -46,23 +50,40 @@ interface FileExportData {
 
 type ExportData = UserExportData | FileExportData;
 
-export async function GET(request: NextRequest) {
+/**
+ * GET /api/admin/export
+ * 
+ * Export user or file data in JSON or CSV format.
+ * Requires admin authentication.
+ * Query parameters:
+ * - type: 'users' | 'files' (default: 'users')
+ * - format: 'json' | 'csv' (default: 'json')
+ */
+export const GET = withAdminAPI(async (request: NextRequest) => {
+  const headersList = await headers();
+  const ip =
+    headersList.get('x-forwarded-for') ||
+    headersList.get('x-real-ip') ||
+    '127.0.0.1';
+  const userAgent = headersList.get('user-agent') || 'Unknown';
+
+  const { searchParams } = new URL(request.url);
+  const format = searchParams.get('format') || 'json';
+  const type = searchParams.get('type') || 'users';
+
+  // Validate parameters
+  if (!['json', 'csv'].includes(format)) {
+    return createErrorResponse('Invalid format. Use "json" or "csv"', 'INVALID_FORMAT', 400);
+  }
+
+  if (!['users', 'files'].includes(type)) {
+    return createErrorResponse('Invalid export type. Use "users" or "files"', 'INVALID_TYPE', 400);
+  }
+
   try {
-    await connectDB();
-
-    const headersList = await headers();
-    const ip =
-      headersList.get('x-forwarded-for') ||
-      headersList.get('x-real-ip') ||
-      '127.0.0.1';
-    const userAgent = headersList.get('user-agent') || 'Unknown';
-
-    const { searchParams } = new URL(request.url);
-    const format = searchParams.get('format') || 'json';
-    const type = searchParams.get('type') || 'users';
-
     let data: ExportData;
     let filename = '';
+
     if (type === 'users') {
       // Export user data
       const users = await User.find(
@@ -95,7 +116,7 @@ export async function GET(request: NextRequest) {
         })),
       };
       filename = `users_export_${new Date().toISOString().split('T')[0]}`;
-    } else if (type === 'files') {
+    } else {
       // Export file data
       const files = await File.find({}).sort({ uploadDate: -1 });
 
@@ -120,15 +141,9 @@ export async function GET(request: NextRequest) {
         })),
       };
       filename = `files_export_${new Date().toISOString().split('T')[0]}`;
-    } else {
-      return NextResponse.json(
-        {
-          success: false,
-          error: "Invalid export type. Use 'users' or 'files'",
-        },
-        { status: 400 }
-      );
-    } // Log security event
+    }
+
+    // Log security event
     await saveSecurityEvent({
       type: 'data_export',
       ip,
@@ -193,9 +208,6 @@ export async function GET(request: NextRequest) {
     }
   } catch (error) {
     console.error('Export error:', error);
-    return NextResponse.json(
-      { success: false, error: 'Failed to export data' },
-      { status: 500 }
-    );
+    return createErrorResponse('Failed to export data', 'EXPORT_ERROR', 500);
   }
-}
+});

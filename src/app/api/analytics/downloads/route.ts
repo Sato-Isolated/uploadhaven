@@ -1,11 +1,9 @@
-import { NextRequest, NextResponse } from 'next/server';
-import connectDB from '@/lib/database/mongodb';
+import { NextRequest } from 'next/server';
+import { withAPI, createSuccessResponse, createErrorResponse } from '@/lib/middleware';
 import { File, SecurityEvent } from '@/lib/database/models';
 
-export async function GET(request: NextRequest) {
+export const GET = withAPI(async (request: NextRequest) => {
   try {
-    await connectDB();
-
     const url = new URL(request.url);
     const timeRange = url.searchParams.get('timeRange') || '7d';
     const limit = parseInt(url.searchParams.get('limit') || '10');
@@ -218,28 +216,24 @@ export async function GET(request: NextRequest) {
       type: 'file_download',
       timestamp: { $gte: startDate },
       details: { $regex: /File downloaded:/ },
-    });
-
-    return NextResponse.json({
-      success: true,
-      data: {
-        overview: {
-          totalDownloads,
-          avgDownloadsPerDay,
-          uniqueDownloaders: uniqueDownloaders.length,
-          timeRange,
-        },
-        topFiles,
-        downloadTrends: trends,
-        fileTypeStats,
-        recentDownloads,
+    });    return createSuccessResponse({
+      overview: {
+        totalDownloads,
+        avgDownloadsPerDay,
+        uniqueDownloaders: uniqueDownloaders.length,
+        timeRange,
       },
+      topFiles,
+      downloadTrends: trends,
+      fileTypeStats,
+      recentDownloads,
     });
   } catch (error) {
     console.error('Analytics API error:', error);
-    return NextResponse.json(
-      { success: false, error: 'Failed to fetch analytics data' },
-      { status: 500 }
+    return createErrorResponse(
+      'Failed to fetch analytics data',
+      'ANALYTICS_FETCH_FAILED',
+      500
     );
   }
-}
+});

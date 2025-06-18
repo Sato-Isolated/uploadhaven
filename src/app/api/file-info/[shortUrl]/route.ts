@@ -1,12 +1,6 @@
-import { NextRequest, NextResponse } from 'next/server';
-import connectDB from '@/lib/database/mongodb';
+import { NextRequest } from 'next/server';
+import { withAPIParams, createSuccessResponse, createErrorResponse } from '@/lib/middleware';
 import { File, saveSecurityEvent } from '@/lib/database/models';
-
-interface FileInfoParams {
-  params: Promise<{
-    shortUrl: string;
-  }>;
-}
 
 /**
  * GET /api/file-info/[shortUrl]
@@ -17,25 +11,16 @@ interface FileInfoParams {
  * This endpoint is ZK-only and returns information about encrypted files
  * without exposing any sensitive data.
  */
-export async function GET(
-  request: NextRequest,
-  { params }: FileInfoParams
-): Promise<NextResponse> {
-  try {
+export const GET = withAPIParams<{ shortUrl: string }>(
+  async (request: NextRequest, { params }) => {
     const { shortUrl } = await params;
 
     console.log('File info request - shortUrl:', shortUrl);
 
     if (!shortUrl) {
       console.log('File info error - missing shortUrl');
-      return NextResponse.json(
-        { success: false, error: 'Short URL is required' },
-        { status: 400 }
-      );
-    }    // Connect to database
-    console.log('Connecting to database...');
-    await connectDB();
-    console.log('Database connected successfully');
+      return createErrorResponse('Short URL is required', 'MISSING_SHORT_URL', 400);
+    }
 
     // Find the file by shortUrl
     console.log('Querying for file with shortUrl:', shortUrl);
@@ -67,17 +52,11 @@ export async function GET(
           shortUrl,
           reason: 'file_not_found',
         },
-      });
-
-      return NextResponse.json(
-        { success: false, error: 'File not found' },
-        { status: 404 }
-      );
+      });      return createErrorResponse('File not found', 'FILE_NOT_FOUND', 404);
     }    // Check if file has expired
     const now = new Date();
-    const isExpired = file.expiresAt && new Date(file.expiresAt) <= now;
-
-    if (isExpired) {      await saveSecurityEvent({
+    const isExpired = file.expiresAt && new Date(file.expiresAt) <= now;    if (isExpired) {
+      await saveSecurityEvent({
         type: 'access_denied',
         ip: request.headers.get('x-forwarded-for') || 'unknown',
         details: `Expired file access attempt: ${shortUrl}`,
@@ -89,14 +68,15 @@ export async function GET(
           expiredAt: file.expiresAt,
         },
       });
+      
+      return createErrorResponse('File has expired', 'FILE_EXPIRED', 410);
+    }
 
-      return NextResponse.json(
-        { success: false, error: 'File has expired' },
-        { status: 410 } // Gone
-      );
-    }    // Check if file has reached download limit  
+    // Check if file has reached download limit  
     // Note: downloadLimit is not part of the current schema, but download count is tracked
-    // For now, we'll skip this check as maxDownloads field doesn't exist in IFile    // Validate that this is a ZK file
+    // For now, we'll skip this check as maxDownloads field doesn't exist in IFile
+
+    // Validate that this is a ZK file
     // A file is considered ZK if it has zkMetadata with required fields
     const hasZkMetadata = file.zkMetadata && typeof file.zkMetadata === 'object';
     const hasRequiredZkFields = hasZkMetadata && (
@@ -124,11 +104,7 @@ export async function GET(
         zkMetadataType: typeof file.zkMetadata,
         shortUrl: file.shortUrl
       });
-      
-      return NextResponse.json(
-        { success: false, error: 'File type not supported - legacy files are not supported in ZK-only mode' },
-        { status: 400 }
-      );
+        return createErrorResponse('File type not supported - legacy files are not supported in ZK-only mode', 'UNSUPPORTED_FILE_TYPE', 400);
     }
 
     console.log('File validation passed - this is a ZK file');    // Return safe public metadata
@@ -160,8 +136,7 @@ export async function GET(
       type: 'file_download',
       ip: request.headers.get('x-forwarded-for') || 'unknown',
       details: `File info accessed: ${shortUrl}`,
-      severity: 'low',
-      userAgent: request.headers.get('user-agent') || 'unknown',
+      severity: 'low',      userAgent: request.headers.get('user-agent') || 'unknown',
       metadata: {
         shortUrl,
         contentCategory: file.zkMetadata?.contentCategory || 'unknown',
@@ -169,28 +144,8 @@ export async function GET(
       },
     });
 
-    return NextResponse.json({
-      success: true,
+    return createSuccessResponse({
       data: fileInfo,
     });
-
-  } catch (error) {
-    console.error('Error fetching file info:', error);    // Log the error
-    await saveSecurityEvent({
-      type: 'suspicious_activity', // Using the closest available type for errors
-      ip: request.headers.get('x-forwarded-for') || 'unknown',
-      details: `Error fetching file info: ${error instanceof Error ? error.message : 'Unknown error'}`,
-      severity: 'high',
-      userAgent: request.headers.get('user-agent') || 'unknown',
-      metadata: {
-        shortUrl: (await params).shortUrl,
-        error: error instanceof Error ? error.message : 'Unknown error',
-      },
-    });
-
-    return NextResponse.json(
-      { success: false, error: 'Internal server error' },
-      { status: 500 }
-    );
   }
-}
+);

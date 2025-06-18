@@ -1,14 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { readFileSync } from 'fs';
 import { join } from 'path';
-import connectDB from '@/lib/database/mongodb';
+import {
+  withAPIParams,
+  createSuccessResponse,
+  createErrorResponse,
+} from '@/lib/middleware';
 import { File, saveSecurityEvent } from '@/lib/database/models';
-
-interface ZKBlobParams {
-  params: Promise<{
-    shortUrl: string;
-  }>;
-}
 
 /**
  * GET /api/zk-blob/[shortUrl]
@@ -19,22 +17,15 @@ interface ZKBlobParams {
  * 
  * Security: Only serves encrypted data - no sensitive information is exposed.
  */
-export async function GET(
-  request: NextRequest,
-  { params }: ZKBlobParams
-): Promise<NextResponse> {
-  try {
+export const GET = withAPIParams<{ shortUrl: string }>(
+  async (request: NextRequest, { params }): Promise<NextResponse> => {
     const { shortUrl } = await params;
 
     if (!shortUrl) {
-      return NextResponse.json(
-        { success: false, error: 'Short URL is required' },
-        { status: 400 }
-      );
+      return createErrorResponse('Short URL is required', 'MISSING_SHORT_URL', 400);
     }
 
-    // Connect to database
-    await connectDB();    // Find the file by shortUrl
+    // Find the file by shortUrl
     const file = await File.findOne({ 
       shortUrl,
       // Only look for files that are not soft-deleted
@@ -61,10 +52,7 @@ export async function GET(
         metadata: { shortUrl, reason: 'file_not_found' },
       });
 
-      return NextResponse.json(
-        { success: false, error: 'File not found' },
-        { status: 404 }
-      );
+      return createErrorResponse('File not found', 'FILE_NOT_FOUND', 404);
     }
 
     // Check if file has expired
@@ -78,20 +66,40 @@ export async function GET(
         details: `Expired ZK blob access attempt: ${shortUrl}`,
         severity: 'medium',
         userAgent: request.headers.get('user-agent') || 'unknown',
-        metadata: { shortUrl, reason: 'file_expired', expiredAt: file.expiresAt },
+        metadata: { 
+          shortUrl, 
+          reason: 'file_expired', 
+          expiredAt: file.expiresAt 
+        },
       });
 
-      return NextResponse.json(
-        { success: false, error: 'File has expired' },
-        { status: 410 } // Gone
-      );
-    }    // Validate that this is a ZK file
+      return createErrorResponse('File has expired', 'FILE_EXPIRED', 410);
+    }
+
+    // Validate that this is a ZK file
     if (file.isZeroKnowledge !== true || !file.zkMetadata) {
-      return NextResponse.json(
-        { success: false, error: 'File type not supported', details: 'Not a zero-knowledge encrypted file' },
-        { status: 400 }
+      await saveSecurityEvent({
+        type: 'blob_access_denied',
+        ip: request.headers.get('x-forwarded-for') || 'unknown',
+        details: `Non-ZK file accessed via ZK blob API: ${shortUrl}`,
+        severity: 'medium',
+        userAgent: request.headers.get('user-agent') || 'unknown',
+        metadata: { 
+          shortUrl, 
+          reason: 'not_zk_file',
+          isZeroKnowledge: file.isZeroKnowledge 
+        },
+      });
+
+      return createErrorResponse(
+        'File type not supported',
+        'UNSUPPORTED_FILE_TYPE',
+        400,
+        { details: 'Not a zero-knowledge encrypted file' }
       );
-    }// Construct file path - ZK files are stored in public/uploads/public
+    }
+
+    // Construct file path - ZK files are stored in public/uploads/public
     // Handle both cases: filename with or without public/ prefix
     const uploadsDir = process.env.UPLOADS_DIR || join(process.cwd(), 'public', 'uploads');
     const filename = file.filename.startsWith('public/') ? file.filename.substring(7) : file.filename;
@@ -103,7 +111,8 @@ export async function GET(
       fileBuffer = readFileSync(filePath);
     } catch (error) {
       console.error('Failed to read encrypted file:', error);
-        await saveSecurityEvent({
+      
+      await saveSecurityEvent({
         type: 'suspicious_activity',
         ip: request.headers.get('x-forwarded-for') || 'unknown',
         details: `ZK blob file missing on disk: ${shortUrl}`,
@@ -116,17 +125,16 @@ export async function GET(
         },
       });
 
-      return NextResponse.json(
-        { success: false, error: 'File not available' },
-        { status: 404 }
-      );
+      return createErrorResponse('File not available', 'FILE_ACCESS_ERROR', 404);
     }
 
     // Increment download count
     await File.updateOne(
       { _id: file._id },
       { $inc: { downloadCount: 1 } }
-    );    // Log successful blob access
+    );
+
+    // Log successful blob access
     await saveSecurityEvent({
       type: 'file_download',
       ip: request.headers.get('x-forwarded-for') || 'unknown',
@@ -156,23 +164,5 @@ export async function GET(
         'Access-Control-Allow-Headers': 'Content-Type',
       },
     });
-
-  } catch (error) {
-    console.error('Error serving ZK blob:', error);    await saveSecurityEvent({
-      type: 'suspicious_activity',
-      ip: request.headers.get('x-forwarded-for') || 'unknown',
-      details: `Error serving ZK blob: ${error instanceof Error ? error.message : 'Unknown error'}`,
-      severity: 'high',
-      userAgent: request.headers.get('user-agent') || 'unknown',
-      metadata: {
-        shortUrl: (await params).shortUrl,
-        error: error instanceof Error ? error.message : 'Unknown error',
-      },
-    });
-
-    return NextResponse.json(
-      { success: false, error: 'Internal server error' },
-      { status: 500 }
-    );
   }
-}
+);

@@ -4,6 +4,10 @@ export interface DownloadAnalytics {
   totalDownloads: number;
   last24hDownloads: number;
   last7dDownloads: number;
+  avgDownloadsPerDay: number;
+  uniqueDownloaders: number;
+  totalFiles: number;
+  timeRange: string;
   topFiles: Array<{
     filename: string;
     originalName: string;
@@ -15,6 +19,20 @@ export interface DownloadAnalytics {
   downloadTrends: Array<{
     date: string;
     downloads: number;
+  }>;
+  fileTypeStats: Array<{
+    _id: string;
+    count: number;
+    totalSize: number;
+  }>;
+  recentDownloads: Array<{
+    timestamp: string;
+    ip: string;
+    filename: string;
+    fileSize: number;
+    fileType: string;
+    originalName: string;
+    shortUrl?: string;
   }>;
 }
 

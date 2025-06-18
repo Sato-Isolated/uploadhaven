@@ -1,10 +1,18 @@
-import { NextResponse } from 'next/server';
-import connectDB from '@/lib/database/mongodb';
+import {
+  withAPI,
+  createSuccessResponse,
+  createErrorResponse,
+} from '@/lib/middleware';
 import { File, User } from '@/lib/database/models';
 
-export async function GET() {
+/**
+ * GET /api/files
+ * 
+ * Get a list of all non-deleted files with user information.
+ * Public endpoint for general file listing.
+ */
+export const GET = withAPI(async () => {
   try {
-    await connectDB();
     // Get all non-deleted files
     const files = await File.find({ isDeleted: false })
       .sort({ uploadDate: -1 })
@@ -13,7 +21,9 @@ export async function GET() {
     // Get unique user IDs from files that have userId
     const userIds = [
       ...new Set(files.map((file) => file.userId).filter(Boolean)),
-    ]; // Fetch user data for all user IDs
+    ];
+
+    // Fetch user data for all user IDs
     const users = await User.find(
       { _id: { $in: userIds } },
       { name: 1, email: 1 }
@@ -39,15 +49,12 @@ export async function GET() {
       };
     });
 
-    return NextResponse.json({ files: fileList });
+    return createSuccessResponse({ files: fileList });
   } catch (error) {
     console.error('Error fetching files:', error);
-    return NextResponse.json(
-      { error: 'Failed to fetch files' },
-      { status: 500 }
-    );
+    return createErrorResponse('Failed to fetch files', 'FILES_FETCH_ERROR', 500);
   }
-}
+});
 
 function getFileType(
   mimeType: string

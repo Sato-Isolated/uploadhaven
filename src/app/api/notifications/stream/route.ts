@@ -1,3 +1,4 @@
+import { NextRequest } from 'next/server';
 import { auth } from '@/lib/auth/auth';
 import { headers } from 'next/headers';
 import connectDB from '@/lib/database/mongodb';
@@ -9,19 +10,20 @@ import { Notification } from '@/lib/database/models';
  * Server-Sent Events endpoint for real-time notifications
  * Streams new notifications to authenticated users in real-time
  */
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    // Authenticate user
+    // Authenticate user using BetterAuth
     const session = await auth.api.getSession({
       headers: await headers(),
     });
+    
     if (!session?.user?.id) {
       return new Response('Unauthorized', { status: 401 });
     }
 
     const userId = session.user.id;
 
-    // Connect to database
+    // Connect to database using our connection manager
     await connectDB();
 
     // Create SSE response
@@ -98,7 +100,7 @@ export async function GET() {
       headers: {
         'Content-Type': 'text/event-stream',
         'Cache-Control': 'no-cache',
-        Connection: 'keep-alive',
+        'Connection': 'keep-alive',
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Headers': 'Cache-Control',
       },
@@ -185,7 +187,9 @@ async function checkForNewNotifications(
       ],
     })
       .sort({ createdAt: -1 })
-      .lean(); // Send each new notification
+      .lean();
+
+    // Send each new notification
     for (const notification of newNotifications) {
       // Check if controller is still open before sending
       if (!controller || controller.desiredSize === null) {

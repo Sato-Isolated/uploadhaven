@@ -2,7 +2,11 @@ import { NextRequest, NextResponse } from 'next/server';
 import path from 'path';
 import fs from 'fs/promises';
 import { rateLimit, rateLimitConfigs } from '@/lib/core/rateLimit';
-import connectDB from '@/lib/database/mongodb';
+import {
+  withAPIParams,
+  createSuccessResponse,
+  createErrorResponse,
+} from '@/lib/middleware';
 import {
   getFileMetadata,
   incrementDownloadCount,
@@ -10,15 +14,18 @@ import {
   User,
 } from '@/lib/database/models';
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: Promise<{ filename: string }> }
-) {
-  try {
-    // Connect to MongoDB
-    await connectDB();
+/**
+ * GET /api/files/[filename]
+ * 
+ * Downloads a file by filename. Supports both public and password-protected files.
+ * For password-protected files, users must access via the shared link route.
+ * Includes rate limiting and comprehensive security logging.
+ */
+export const GET = withAPIParams<{ filename: string }>(
+  async (request: NextRequest, { params }): Promise<NextResponse> => {
+    const { filename } = await params;
 
-    // Get client IP and user agent
+    // Get client IP and user agent for logging
     const clientIP =
       request.headers.get('x-forwarded-for') ||
       request.headers.get('x-real-ip') ||
@@ -38,34 +45,25 @@ export async function GET(
         userAgent,
       });
 
-      return NextResponse.json(
+      const headers = new Headers();
+      headers.set('X-RateLimit-Limit', rateLimitCheck.limit.toString());
+      headers.set('X-RateLimit-Remaining', rateLimitCheck.remaining.toString());
+      headers.set('X-RateLimit-Reset', rateLimitCheck.reset.toISOString());      return createErrorResponse(
+        rateLimitCheck.message || 'Rate limit exceeded',
+        'RATE_LIMIT_EXCEEDED',
+        429,
         {
-          success: false,
-          error: rateLimitCheck.message,
           rateLimit: {
             limit: rateLimitCheck.limit,
             remaining: rateLimitCheck.remaining,
             reset: rateLimitCheck.reset,
           },
-        },
-        {
-          status: 429,
-          headers: {
-            'X-RateLimit-Limit': rateLimitCheck.limit.toString(),
-            'X-RateLimit-Remaining': rateLimitCheck.remaining.toString(),
-            'X-RateLimit-Reset': rateLimitCheck.reset.toISOString(),
-          },
         }
       );
     }
 
-    const { filename } = await params;
-
     if (!filename) {
-      return NextResponse.json(
-        { error: 'Filename is required' },
-        { status: 400 }
-      );
+      return createErrorResponse('Filename is required', 'MISSING_FILENAME', 400);
     }
 
     // Validate filename to prevent path traversal
@@ -80,10 +78,10 @@ export async function GET(
         details: `Path traversal attempt detected: ${filename}`,
         severity: 'high',
         userAgent,
-        filename,
+        metadata: { filename },
       });
 
-      return NextResponse.json({ error: 'Invalid filename' }, { status: 400 });
+      return createErrorResponse('Invalid filename', 'INVALID_FILENAME', 400);
     }
 
     // Check file metadata in database
@@ -96,11 +94,13 @@ export async function GET(
         details: `Attempt to access non-existent file: ${filename}`,
         severity: 'medium',
         userAgent,
-        filename,
+        metadata: { filename },
       });
 
-      return NextResponse.json({ error: 'File not found' }, { status: 404 });
-    } // Check if file has expired
+      return createErrorResponse('File not found', 'FILE_NOT_FOUND', 404);
+    }
+
+    // Check if file has expired
     if (fileMetadata.expiresAt && new Date() > fileMetadata.expiresAt) {
       await saveSecurityEvent({
         type: 'suspicious_activity',
@@ -108,9 +108,10 @@ export async function GET(
         details: `Attempt to access expired file: ${filename}`,
         severity: 'low',
         userAgent,
-        filename,
+        metadata: { filename },
       });
-      return NextResponse.json({ error: 'File has expired' }, { status: 410 });
+
+      return createErrorResponse('File has expired', 'FILE_EXPIRED', 410);
     }
 
     // Check if file is password protected
@@ -122,15 +123,13 @@ export async function GET(
         details: `Direct access attempt to password-protected file: ${filename}`,
         severity: 'high',
         userAgent,
-        filename,
+        metadata: { filename },
       });
 
-      return NextResponse.json(
-        {
-          error:
-            'Password required. Please use the shared link to access this file.',
-        },
-        { status: 403 }
+      return createErrorResponse(
+        'Password required. Please use the shared link to access this file.',
+        'PASSWORD_REQUIRED',
+        403
       );
     }
 
@@ -146,6 +145,7 @@ export async function GET(
       // Read file
       const fileBuffer = await fs.readFile(filePath);
       const stats = await fs.stat(filePath);
+
       // Update download count in database
       await incrementDownloadCount(filename);
 
@@ -170,24 +170,28 @@ export async function GET(
       headers.set(
         'Content-Disposition',
         `inline; filename="${fileMetadata.originalName}"`
-      ); // Log successful download
+      );
+
+      // Log successful download
       await saveSecurityEvent({
         type: 'file_download',
         ip: clientIP,
         details: `File downloaded: ${filename}`,
         severity: 'low',
         userAgent,
-        filename: fileMetadata.originalName,
-        fileSize: fileMetadata.size,
-        fileType: fileMetadata.mimeType,
-        userId: fileMetadata.userId || undefined,
+        metadata: {
+          filename: fileMetadata.originalName,
+          fileSize: fileMetadata.size,
+          fileType: fileMetadata.mimeType,
+          userId: fileMetadata.userId || undefined,
+        },
       });
 
       return new NextResponse(fileBuffer, {
         status: 200,
         headers,
       });
-    } catch {
+    } catch (fsError) {
       // File exists in database but not on filesystem
       await saveSecurityEvent({
         type: 'suspicious_activity',
@@ -195,36 +199,13 @@ export async function GET(
         details: `File metadata exists but file missing from filesystem: ${filename}`,
         severity: 'high',
         userAgent,
-        filename,
+        metadata: { filename },
       });
 
-      return NextResponse.json({ error: 'File not found' }, { status: 404 });
+      return createErrorResponse('File not found', 'FILE_NOT_FOUND', 404);
     }
-  } catch (error) {
-    console.error('Download error:', error);
-
-    // Try to log the error
-    try {
-      const clientIP = request.headers.get('x-forwarded-for') || '127.0.0.1';
-      await saveSecurityEvent({
-        type: 'suspicious_activity',
-        ip: clientIP,
-        details: `Download error: ${
-          error instanceof Error ? error.message : 'Unknown error'
-        }`,
-        severity: 'high',
-        userAgent: request.headers.get('user-agent') || '',
-      });
-    } catch (logError) {
-      console.error('Failed to log error:', logError);
-    }
-
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
   }
-}
+);
 
 function getContentType(ext: string): string {
   const contentTypes: Record<string, string> = {

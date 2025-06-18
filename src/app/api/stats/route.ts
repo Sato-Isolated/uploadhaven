@@ -1,5 +1,5 @@
-import { NextRequest, NextResponse } from 'next/server';
-import connectDB from '@/lib/database/mongodb';
+import { NextRequest } from 'next/server';
+import { withAPI, createSuccessResponse } from '@/lib/middleware';
 import {
   File,
   User,
@@ -7,16 +7,15 @@ import {
   getRecentSecurityEvents,
 } from '@/lib/database/models';
 
-export async function GET(request: NextRequest) {
-  try {
-    await connectDB();
-
-    // Get URL search params
-    const { searchParams } = new URL(request.url);
-    const includeEvents = searchParams.get('includeEvents') === 'true'; // Calculate file statistics
-    const now = new Date();
-    const last24h = new Date(now.getTime() - 24 * 60 * 60 * 1000);
-    const last7d = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+export const GET = withAPI(async (request: NextRequest) => {
+  // Get URL search params
+  const { searchParams } = new URL(request.url);
+  const includeEvents = searchParams.get('includeEvents') === 'true';
+  
+  // Calculate file statistics
+  const now = new Date();
+  const last24h = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+  const last7d = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
 
     const [
       totalFiles,
@@ -97,14 +96,5 @@ export async function GET(request: NextRequest) {
       },
       security: securityStats,
       ...(includeEvents && { recentEvents }),
-    };
-
-    return NextResponse.json(stats);
-  } catch (error) {
-    console.error('Stats API error:', error);
-    return NextResponse.json(
-      { success: false, error: 'Failed to fetch statistics' },
-      { status: 500 }
-    );
-  }
-}
+    };    return createSuccessResponse(stats);
+  });

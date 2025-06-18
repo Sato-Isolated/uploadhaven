@@ -1,50 +1,45 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
+import { withAPI, createSuccessResponse, createErrorResponse } from '@/lib/middleware';
 import { createFileExpirationNotifications } from '@/lib/notifications/security-notifications';
-import connectDB from '@/lib/database/mongodb';
 
 /**
  * Background job endpoint for creating file expiration notifications
  * This should be called by a cron job or scheduled task
  */
-export async function POST(request: NextRequest) {
+export const POST = withAPI(async (request: NextRequest) => {
   try {
     // Verify this is an internal request (could use API key or internal header)
     const authHeader = request.headers.get('authorization');
     const internalKey = process.env.INTERNAL_API_KEY;
 
     if (!internalKey || authHeader !== `Bearer ${internalKey}`) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return createErrorResponse('Unauthorized', 'UNAUTHORIZED', 401);
     }
 
-    await connectDB();
+    // Database connection handled by withAPI middleware
 
     // Create expiration notifications
     await createFileExpirationNotifications();
 
-    return NextResponse.json({
-      success: true,
+    return createSuccessResponse({
       message: 'File expiration notifications created successfully',
       timestamp: new Date().toISOString(),
     });
   } catch (error) {
     console.error('Failed to create file expiration notifications:', error);
-    return NextResponse.json(
-      {
-        error: 'Failed to create notifications',
-        timestamp: new Date().toISOString(),
-      },
-      { status: 500 }
+    return createErrorResponse(
+      'Failed to create notifications',
+      'NOTIFICATION_CREATION_FAILED',
+      500
     );
   }
-}
+});
 
 // Handle unsupported methods
 export async function GET() {
-  return NextResponse.json(
-    {
-      error:
-        'Method not allowed. Use POST to trigger expiration notifications.',
-    },
-    { status: 405 }
+  return createErrorResponse(
+    'Method not allowed. Use POST to trigger expiration notifications.',
+    'METHOD_NOT_ALLOWED',
+    405
   );
 }

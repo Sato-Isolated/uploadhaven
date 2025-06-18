@@ -1,26 +1,39 @@
-import { NextRequest, NextResponse } from 'next/server';
-import connectDB from '@/lib/database/mongodb';
+import { NextRequest } from 'next/server';
+import {
+  withAdminAPI,
+  createSuccessResponse,
+  createErrorResponse,
+} from '@/lib/middleware';
 import { SecurityEvent } from '@/lib/database/models';
 
-// GET /api/admin/activities - Get recent activities
-export async function GET(request: NextRequest) {
+/**
+ * GET /api/admin/activities
+ * 
+ * Get recent activities and security events for admin dashboard.
+ * Requires admin authentication.
+ * Supports pagination and filtering by type, severity, and user.
+ */
+export const GET = withAdminAPI(async (request: NextRequest) => {
+  const { searchParams } = new URL(request.url);
+  const page = parseInt(searchParams.get('page') || '1');
+  const limit = parseInt(searchParams.get('limit') || '50');
+  const type = searchParams.get('type'); // optional filter by activity type
+  const severity = searchParams.get('severity'); // optional filter by severity
+  const userId = searchParams.get('userId'); // optional filter by user
+  const skip = (page - 1) * limit;
+
+  // Validate pagination parameters
+  if (page < 1 || limit < 1 || limit > 100) {
+    return createErrorResponse('Invalid pagination parameters', 'INVALID_PAGINATION', 400);
+  }
+
+  // Build filter query
+  const filter: Record<string, string> = {};
+  if (type) filter.type = type;
+  if (severity) filter.severity = severity;
+  if (userId) filter.userId = userId;
+
   try {
-    const { searchParams } = new URL(request.url);
-    const page = parseInt(searchParams.get('page') || '1');
-    const limit = parseInt(searchParams.get('limit') || '50');
-    const type = searchParams.get('type'); // optional filter by activity type
-    const severity = searchParams.get('severity'); // optional filter by severity
-    const userId = searchParams.get('userId'); // optional filter by user
-    const skip = (page - 1) * limit;
-
-    await connectDB();
-
-    // Build filter query
-    const filter: Record<string, string> = {};
-    if (type) filter.type = type;
-    if (severity) filter.severity = severity;
-    if (userId) filter.userId = userId;
-
     // Get recent activities
     const [activities, totalCount] = await Promise.all([
       SecurityEvent.find(filter)
@@ -35,8 +48,8 @@ export async function GET(request: NextRequest) {
     const totalPages = Math.ceil(totalCount / limit);
     const hasNext = page < totalPages;
     const hasPrev = page > 1;
-    return NextResponse.json({
-      success: true,
+
+    return createSuccessResponse({
       activities,
       pagination: {
         page,
@@ -50,9 +63,6 @@ export async function GET(request: NextRequest) {
     });
   } catch (error) {
     console.error('Error fetching recent activities:', error);
-    return NextResponse.json(
-      { success: false, error: 'Failed to fetch recent activities' },
-      { status: 500 }
-    );
+    return createErrorResponse('Failed to fetch recent activities', 'ACTIVITIES_FETCH_ERROR', 500);
   }
-}
+});
