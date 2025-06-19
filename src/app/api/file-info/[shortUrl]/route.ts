@@ -105,9 +105,7 @@ export const GET = withAPIParams<{ shortUrl: string }>(
         shortUrl: file.shortUrl
       });
         return createErrorResponse('File type not supported - legacy files are not supported in ZK-only mode', 'UNSUPPORTED_FILE_TYPE', 400);
-    }
-
-    console.log('File validation passed - this is a ZK file');    // Return safe public metadata
+    }    console.log('File validation passed - this is a ZK file');    // Return safe public metadata
     const fileInfo = {
       shortUrl: file.shortUrl,
       isPasswordProtected: file.isPasswordProtected || false,
@@ -131,7 +129,17 @@ export const GET = withAPIParams<{ shortUrl: string }>(
         uploadTimestamp: file.zkMetadata?.uploadTimestamp || 0,
         uploadDate: file.createdAt?.toISOString() || new Date().toISOString(),
       },
-    };    // Log successful file info access
+    };
+
+    console.log('Constructed fileInfo:', JSON.stringify(fileInfo, null, 2));
+    console.log('Original file.zkMetadata:', JSON.stringify(file.zkMetadata, null, 2));
+
+    console.log('API Response fileInfo:', {
+      shortUrl: fileInfo.shortUrl,
+      hasZkMetadata: !!fileInfo.zkMetadata,
+      zkMetadata: fileInfo.zkMetadata,
+      zkMetadataKeys: Object.keys(fileInfo.zkMetadata)
+    });// Log successful file info access
     await saveSecurityEvent({
       type: 'file_download',
       ip: request.headers.get('x-forwarded-for') || 'unknown',
@@ -142,10 +150,6 @@ export const GET = withAPIParams<{ shortUrl: string }>(
         contentCategory: file.zkMetadata?.contentCategory || 'unknown',
         isPasswordProtected: file.isPasswordProtected,
       },
-    });
-
-    return createSuccessResponse({
-      data: fileInfo,
-    });
+    });    return createSuccessResponse(fileInfo);
   }
 );

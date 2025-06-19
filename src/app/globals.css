@@ -181,3 +181,49 @@
 .animation-delay-4000 {
   animation-delay: 4s;
 }
+
+/* Custom scrollbar styles for file list */
+.scrollbar-thin {
+  scrollbar-width: thin;
+}
+
+.scrollbar-thumb-gray-300 {
+  scrollbar-color: rgb(209 213 219) transparent;
+}
+
+.scrollbar-track-transparent {
+  scrollbar-color: rgb(209 213 219) transparent;
+}
+
+/* Webkit scrollbar styles */
+.scrollbar-thin::-webkit-scrollbar {
+  width: 6px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background-color: rgb(209 213 219);
+  border-radius: 3px;
+  transition: background-color 0.2s ease;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background-color: rgb(156 163 175);
+}
+
+/* Dark mode scrollbar */
+.dark .scrollbar-thin::-webkit-scrollbar-thumb {
+  background-color: rgb(75 85 99);
+}
+
+.dark .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background-color: rgb(107 114 128);
+}
+
+/* Firefox dark mode */
+.dark .scrollbar-thumb-gray-300 {
+  scrollbar-color: rgb(75 85 99) transparent;
+}

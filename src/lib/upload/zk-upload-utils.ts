@@ -63,19 +63,29 @@ export async function uploadFileZK(
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(uploadData),
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error || 'Upload failed');
+    });    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ error: 'Failed to parse error response' }));
+      console.error('Upload API error:', {
+        status: response.status,
+        statusText: response.statusText,
+        error: errorData
+      });
+      throw new Error(errorData.error || `Upload failed with status ${response.status}`);
     }
 
-    const result = await response.json();
+    const result = await response.json().catch(() => {
+      throw new Error('Failed to parse success response');
+    });    console.log('Upload API response:', result); // Debug log
+
+    // Validate that the result contains required data
+    if (!result || !result.data?.url) {
+      throw new Error('Invalid response: missing URL in data');
+    }
 
     // Generate final share link with embedded key
     const shareUrl = generateZKShareLink(
       window.location.origin,
-      result.url.split('/').pop() || '',
+      result.data.url.split('/').pop() || '',
       encrypted.keyData
     );
 

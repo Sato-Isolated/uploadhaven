@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'motion/react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -32,25 +32,16 @@ interface ZKFilePreviewProps {
  * Main ZK File Preview Component
  * Handles decryption and preview of zero-knowledge encrypted files
  */
-export default function ZKFilePreview({ fileInfo, shortUrl }: ZKFilePreviewProps) {  const [password, setPassword] = useState('');
+export default function ZKFilePreview({ fileInfo, shortUrl }: ZKFilePreviewProps) {
+  // All hooks must be called at the top level
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [localIsDecrypting, setLocalIsDecrypting] = useState(false);
   const [decryptedContent, setDecryptedContent] = useState<Uint8Array | null>(null);
-  const [decryptedMetadata, setDecryptedMetadata] = useState<ZKFileMetadata | null>(null);  const [localError, setLocalError] = useState<string | null>(null);
-
-  // Get file type icon
-  const getFileIcon = (category: string) => {
-    switch (category) {
-      case 'image': return <ImageIcon className="h-6 w-6" />;
-      case 'video': return <Video className="h-6 w-6" />;
-      case 'audio': return <Music className="h-6 w-6" />;
-      case 'document': return <FileText className="h-6 w-6" />;
-      case 'archive': return <Archive className="h-6 w-6" />;
-      default: return <Shield className="h-6 w-6" />;
-    }
-  };
-  // Handle file decryption
-  const handleDecrypt = async () => {
+  const [decryptedMetadata, setDecryptedMetadata] = useState<ZKFileMetadata | null>(null);
+  const [localError, setLocalError] = useState<string | null>(null);
+  // Handle file decryption function
+  const handleDecrypt = useCallback(async () => {
     try {
       setLocalIsDecrypting(true);
       setLocalError(null);
@@ -58,53 +49,30 @@ export default function ZKFilePreview({ fileInfo, shortUrl }: ZKFilePreviewProps
       // Fetch the encrypted blob
       const blobResponse = await fetch(`/api/zk-blob/${shortUrl}`);
       if (!blobResponse.ok) {
-        throw new Error('Failed to fetch encrypted file');
-      }      const encryptedBlob = await blobResponse.arrayBuffer();
-
-      // Determine the decryption key
-      let decryptionKey = password;
-      if (fileInfo.zkMetadata.keyHint === 'url-fragment' || fileInfo.zkMetadata.keyHint === 'embedded') {
-        // For URL fragment keys, we extract from the URL hash
-        decryptionKey = window.location.hash.slice(1) || password;
+        throw new Error(`Failed to fetch encrypted file: ${blobResponse.statusText}`);
       }
 
-      if (!decryptionKey) {
-        setLocalError('Please enter the decryption key');
-        return;
-      }      // Decrypt the file using the ZK library
-      // The blob contains the encrypted data as-is from the server
-      console.log('Decryption attempt:', {
-        blobSize: encryptedBlob.byteLength,
-        keyLength: decryptionKey.length,
-        keyHint: fileInfo.zkMetadata.keyHint,
-        key: decryptionKey,
-        algorithm: fileInfo.zkMetadata.algorithm,
-        iv: fileInfo.zkMetadata.iv,
-        salt: fileInfo.zkMetadata.salt
-      });      // Try to create the proper ZKEncryptedPackage structure
-      const encryptedPackage: ZKEncryptedPackage = {
-        encryptedData: encryptedBlob,
+      const encryptedBlob = await blobResponse.blob();
+      console.log('Encrypted blob fetched, size:', encryptedBlob.size);
+
+      // Prepare the encrypted package for decryption
+      const zkPackage: ZKEncryptedPackage = {
+        encryptedData: await encryptedBlob.arrayBuffer(),
         publicMetadata: {
-          size: fileInfo.zkMetadata.encryptedSize,
-          algorithm: fileInfo.zkMetadata.algorithm,
-          iv: fileInfo.zkMetadata.iv || '',
-          salt: fileInfo.zkMetadata.salt || '',
-          iterations: fileInfo.zkMetadata.iterations || fileInfo.zkMetadata.keyDerivation?.iterations || 100000,
-          uploadTimestamp: fileInfo.zkMetadata.uploadTimestamp || new Date(fileInfo.zkMetadata.uploadDate).getTime()
+          size: fileInfo.zkMetadata!.encryptedSize || 0,
+          algorithm: fileInfo.zkMetadata!.algorithm,
+          iv: fileInfo.zkMetadata!.iv || '',
+          salt: fileInfo.zkMetadata!.salt || '',
+          iterations: fileInfo.zkMetadata!.iterations || 100000,
+          uploadTimestamp: fileInfo.zkMetadata!.uploadTimestamp || Date.now()
         }
       };
 
-      console.log('Encrypted package:', encryptedPackage);
-
-      const isPasswordKey = fileInfo.zkMetadata.keyHint === 'password-protected';
-      console.log('Calling decryptFileZK with:', { 
-        isPasswordKey, 
-        keyHint: fileInfo.zkMetadata.keyHint,
-        keyBytes: new TextEncoder().encode(decryptionKey).length
-      });
+      // Determine if we're using a password or key
+      const keyHint = fileInfo.zkMetadata?.keyHint || 'password-protected';
+      const isPasswordKey = keyHint === 'password-protected';
       
-      console.log('About to call decryptFileZK...');
-      const result = await decryptFileZK(encryptedPackage, decryptionKey, isPasswordKey);
+      const result = await decryptFileZK(zkPackage, password, isPasswordKey);
       console.log('Decryption successful!', result.metadata);
 
       // Convert blob to Uint8Array for our preview
@@ -117,15 +85,73 @@ export default function ZKFilePreview({ fileInfo, shortUrl }: ZKFilePreviewProps
     } finally {
       setLocalIsDecrypting(false);
     }
-  };
+  }, [shortUrl, fileInfo.zkMetadata, password]);
   // Auto-decrypt if key is in URL fragment
   useEffect(() => {
-    if ((fileInfo.zkMetadata.keyHint === 'url-fragment' || fileInfo.zkMetadata.keyHint === 'embedded') && window.location.hash) {
+    const zkMetadata = fileInfo?.zkMetadata;
+    const keyHint = zkMetadata?.keyHint;
+    
+    if ((keyHint === 'url-fragment' || keyHint === 'embedded') && window.location.hash) {
       setPassword(window.location.hash.slice(1));
       // Auto-decrypt after a short delay
-      setTimeout(handleDecrypt, 500);
+      setTimeout(() => {
+        handleDecrypt();
+      }, 500);
     }
-  }, [fileInfo]);
+  }, [fileInfo?.zkMetadata?.keyHint, fileInfo?.zkMetadata, handleDecrypt]);
+
+  console.log('ZKFilePreview - Received fileInfo:', {
+    hasFileInfo: !!fileInfo,
+    hasZkMetadata: !!fileInfo?.zkMetadata,
+    zkMetadataType: typeof fileInfo?.zkMetadata
+  });
+
+  // Safety check: ensure zkMetadata exists
+  if (!fileInfo?.zkMetadata) {
+    console.error('ZKFilePreview - Missing zkMetadata:', {
+      fileInfo,
+      hasFileInfo: !!fileInfo,
+      zkMetadata: fileInfo?.zkMetadata
+    });
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 p-4">
+        <div className="max-w-4xl mx-auto">
+          <Alert className="border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-900/10">
+            <AlertDescription>
+              Error: File metadata is missing or corrupted. This file cannot be previewed.
+              <br />
+              Debug info: {JSON.stringify({ hasFileInfo: !!fileInfo, hasZkMetadata: !!fileInfo?.zkMetadata }, null, 2)}
+            </AlertDescription>
+          </Alert>
+        </div>
+      </div>
+    );
+  }  // Safe access to zkMetadata with fallbacks
+  const zkMetadata = fileInfo.zkMetadata;
+  const contentCategory = zkMetadata?.contentCategory || 'other';
+  const keyHint = zkMetadata?.keyHint || 'password-protected';
+  const algorithm = zkMetadata?.algorithm || 'AES-256-GCM';
+  // Note: These variables are kept for potential future use
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const iv = zkMetadata?.iv || '';
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const salt = zkMetadata?.salt || '';
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const iterations = zkMetadata?.iterations || zkMetadata?.keyDerivation?.iterations || 100000;
+  const encryptedSize = zkMetadata?.encryptedSize || 0;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const uploadTimestamp = zkMetadata?.uploadTimestamp || new Date(zkMetadata?.uploadDate || 0).getTime();
+  // Get file type icon
+  const getFileIcon = (category: string) => {
+    switch (category) {
+      case 'image': return <ImageIcon className="h-6 w-6" />;
+      case 'video': return <Video className="h-6 w-6" />;
+      case 'audio': return <Music className="h-6 w-6" />;
+      case 'document': return <FileText className="h-6 w-6" />;
+      case 'archive': return <Archive className="h-6 w-6" />;
+      default: return <Shield className="h-6 w-6" />;
+    }
+  };
 
   // Copy download link
   const copyDownloadLink = () => {
@@ -156,17 +182,16 @@ export default function ZKFilePreview({ fileInfo, shortUrl }: ZKFilePreviewProps
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           className="mb-6"
-        >
-          <div className="flex items-center gap-3 mb-2">
+        >          <div className="flex items-center gap-3 mb-2">
             <div className="p-2 rounded-lg bg-purple-100 dark:bg-purple-900">
-              {getFileIcon(fileInfo.zkMetadata.contentCategory)}
+              {getFileIcon(contentCategory)}
             </div>
             <div>
               <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
                 🔒 Encrypted File Preview
               </h1>
               <p className="text-gray-600 dark:text-gray-400">
-                File ID: {shortUrl} | Category: {fileInfo.zkMetadata.contentCategory}
+                File ID: {shortUrl} | Category: {contentCategory}
               </p>
             </div>
           </div>
@@ -185,22 +210,21 @@ export default function ZKFilePreview({ fileInfo, shortUrl }: ZKFilePreviewProps
                 File Information
               </CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+            <CardContent>              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                 <div>
-                  <span className="font-medium">Category:</span> {fileInfo.zkMetadata.contentCategory}
+                  <span className="font-medium">Category:</span> {contentCategory}
                 </div>
                 <div>
-                  <span className="font-medium">Size:</span> {(fileInfo.zkMetadata.encryptedSize / 1024).toFixed(1)} KB
+                  <span className="font-medium">Size:</span> {(encryptedSize / 1024).toFixed(1)} KB
                 </div>
                 <div>
-                  <span className="font-medium">Algorithm:</span> {fileInfo.zkMetadata.algorithm}
+                  <span className="font-medium">Algorithm:</span> {algorithm}
                 </div>
                 <div>
-                  <span className="font-medium">Upload Date:</span> {new Date(fileInfo.zkMetadata.uploadDate).toLocaleDateString()}
+                  <span className="font-medium">Upload Date:</span> {new Date(zkMetadata?.uploadDate || 0).toLocaleDateString()}
                 </div>
                 <div>
-                  <span className="font-medium">Key Type:</span> {fileInfo.zkMetadata.keyHint === 'url-fragment' ? 'URL Fragment' : 'Password Protected'}
+                  <span className="font-medium">Key Type:</span> {keyHint === 'url-fragment' ? 'URL Fragment' : 'Password Protected'}
                 </div>
                 <div>
                   <span className="font-medium">Status:</span> 
@@ -228,7 +252,7 @@ export default function ZKFilePreview({ fileInfo, shortUrl }: ZKFilePreviewProps
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                {fileInfo.zkMetadata.keyHint === 'password-protected' && (
+                {keyHint === 'password-protected' && (
                   <div className="space-y-2">
                     <label className="text-sm font-medium">Enter Password:</label>
                     <div className="relative">
@@ -249,7 +273,7 @@ export default function ZKFilePreview({ fileInfo, shortUrl }: ZKFilePreviewProps
                       </Button>
                     </div>
                   </div>
-                )}                {(fileInfo.zkMetadata.keyHint === 'url-fragment' || fileInfo.zkMetadata.keyHint === 'embedded') && (
+                )}                {(keyHint === 'url-fragment' || keyHint === 'embedded') && (
                   <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
                     <p className="text-sm text-blue-700 dark:text-blue-300">
                       💡 This file uses URL fragment encryption. The decryption key should be in the URL after the # symbol.
@@ -263,7 +287,7 @@ export default function ZKFilePreview({ fileInfo, shortUrl }: ZKFilePreviewProps
 
                 <div className="flex gap-2">                  <Button 
                     onClick={handleDecrypt}
-                    disabled={localIsDecrypting || (!password && fileInfo.zkMetadata.keyHint === 'password-protected')}
+                    disabled={localIsDecrypting || (!password && keyHint === 'password-protected')}
                     className="flex-1"
                   >
                     {localIsDecrypting ? (

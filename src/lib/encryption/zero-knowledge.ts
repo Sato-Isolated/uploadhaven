@@ -180,14 +180,55 @@ export function generateIV(): Uint8Array {
 
 /**
  * Convert ArrayBuffer or Uint8Array to Base64 string
+ * Robust implementation that handles large files efficiently
  */
 export function arrayBufferToBase64(buffer: ArrayBuffer | Uint8Array): string {
   const bytes = buffer instanceof Uint8Array ? buffer : new Uint8Array(buffer);
-  let binary = '';
-  for (let i = 0; i < bytes.byteLength; i++) {
-    binary += String.fromCharCode(bytes[i]);
+  
+  try {
+    // Use smaller chunks and avoid String.fromCharCode.apply for very large arrays
+    const chunkSize = 4096; // 4KB chunks
+    let result = '';
+    
+    for (let i = 0; i < bytes.byteLength; i += chunkSize) {
+      const chunk = bytes.subarray(i, i + chunkSize);
+      
+      // Build binary string character by character to avoid stack overflow
+      let binaryString = '';
+      for (let j = 0; j < chunk.length; j++) {
+        binaryString += String.fromCharCode(chunk[j]);
+      }
+      
+      // Convert each chunk to base64 and concatenate
+      result += btoa(binaryString);
+    }
+    
+    return result;
+  } catch (error) {
+    console.error('Error in arrayBufferToBase64:', error);
+    
+    // Fallback: try with even smaller chunks
+    try {
+      const smallChunkSize = 1024; // 1KB chunks as fallback
+      let result = '';
+      
+      for (let i = 0; i < bytes.byteLength; i += smallChunkSize) {
+        const chunk = bytes.subarray(i, i + smallChunkSize);
+        
+        let binaryString = '';
+        for (let j = 0; j < chunk.length; j++) {
+          binaryString += String.fromCharCode(chunk[j]);
+        }
+        
+        result += btoa(binaryString);
+      }
+      
+      return result;
+    } catch (fallbackError) {
+      console.error('Fallback arrayBufferToBase64 also failed:', fallbackError);
+      throw new Error('Failed to convert ArrayBuffer to Base64: file may be too large');
+    }
   }
-  return btoa(binary);
 }
 
 /**
@@ -432,15 +473,17 @@ export async function decryptFileZK(
     const file = new Blob([fileContent], { type: metadata.mimetype });
 
     return { file, metadata };
-    
-  } catch (error) {
-    console.error('ZK Decryption failed:', {
-      packageSize: encryptedPackage.encryptedData.byteLength,
-      keyLength: keyOrPassword.length,
-      isPassword,
-      algorithm: encryptedPackage.publicMetadata.algorithm,
+      } catch (error) {
+    // Safe error logging to prevent console errors
+    const errorDetails = {
+      packageSize: encryptedPackage?.encryptedData?.byteLength || 0,
+      keyLength: keyOrPassword?.length || 0,
+      isPassword: Boolean(isPassword),
+      algorithm: encryptedPackage?.publicMetadata?.algorithm || 'unknown',
       error: error instanceof Error ? error.message : String(error)
-    });
+    };
+    
+    console.error('ZK Decryption failed:', errorDetails);
     throw new Error('Decryption failed: Invalid key or corrupted data');
   }
 }

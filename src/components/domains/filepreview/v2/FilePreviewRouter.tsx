@@ -53,9 +53,17 @@ export default function FilePreviewRouter() {
           throw new Error('File has expired');
         }
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-      }
+      }      const result: FileInfoResponse = await response.json();      console.log('FilePreviewRouter - API Response:', {
+        success: result.success,
+        data: result.data,
+        zkMetadata: result.data?.zkMetadata,
+        zkMetadataKeys: result.data?.zkMetadata ? Object.keys(result.data.zkMetadata) : null
+      });
 
-      const result: FileInfoResponse = await response.json();
+      // Debug: Log the exact structure of result.data
+      console.log('FilePreviewRouter - result.data structure:', result.data);
+      console.log('FilePreviewRouter - result.data keys:', Object.keys(result.data || {}));
+      console.log('FilePreviewRouter - result.data.zkMetadata:', result.data?.zkMetadata);
 
       if (!result.success) {
         throw new Error('Failed to fetch file information');
@@ -189,13 +197,23 @@ export default function FilePreviewRouter() {
         </Card>
       </motion.div>
     );
-  }
-  return (
+  }  return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
     >
+      {/* Debug log before passing to ZKFilePreview */}
+      {(() => {
+        console.log('FilePreviewRouter - Passing to ZKFilePreview:', {
+          fileInfo,
+          hasZkMetadata: !!fileInfo?.zkMetadata,
+          zkMetadataKeys: fileInfo?.zkMetadata ? Object.keys(fileInfo.zkMetadata) : null,
+          shortUrl
+        });
+        return null;
+      })()}
+      
       {/* All files are ZK encrypted in our new system */}
       <ZKFilePreview fileInfo={fileInfo} shortUrl={shortUrl} />
     </motion.div>

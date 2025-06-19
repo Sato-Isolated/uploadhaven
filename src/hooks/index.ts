@@ -31,7 +31,6 @@ export { useSignInForm } from '../components/domains/auth/signin/hooks/useSignIn
 export { useFilesTableLogic } from '../components/domains/admin/filestable/hooks/useFilesTableLogic';
 export { useFileUploader } from '../components/domains/upload/fileuploader/hooks/useFileUploader';
 export { useSecurityEventsFilter } from '../components/domains/security/events/hooks/useSecurityEventsFilter';
-export { useClientUserStats } from '../components/domains/dashboard/stats/hooks/useClientUserStats';
 export { useNotifications } from './useNotifications';
 // Real-time hooks using polling (preferred approach)
 export { useRealTimeActivities } from './useRealTimePolling';

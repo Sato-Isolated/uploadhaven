@@ -7,22 +7,43 @@ import { uploadFileZK } from '@/lib/upload/zk-upload-utils';
 import type { ClientFileData } from '@/types';
 
 interface FilesResponse {
-  files: ClientFileData[];
+  success: boolean;
+  data: {
+    files: ClientFileData[];
+  };
+  timestamp: string;
+}
+
+interface UseFilesOptions {
+  userId?: string;
 }
 
 /**
  * Hook to fetch the list of files
  */
-export function useFiles() {
+export function useFiles(options: UseFilesOptions = {}) {  const { userId } = options;
+  
   return useQuery({
-    queryKey: queryKeys.files(),
+    queryKey: queryKeys.filesList(userId ? { userId } : undefined),
     queryFn: async (): Promise<ClientFileData[]> => {
-      const response = await ApiClient.get<FilesResponse>('/api/files');
-      return response.files;
+      try {
+        const url = userId ? `/api/files?userId=${userId}` : '/api/files';
+        const response = await ApiClient.get<FilesResponse>(url);
+        
+        // Ensure we always return an array, even if response.data.files is undefined
+        const files = response.data.files || [];
+        return files;
+      } catch (error) {
+        console.error('Error fetching files:', error);
+        // Return empty array on error to prevent undefined data
+        return [];
+      }
     },
-    staleTime: 2 * 60 * 1000, // 2 minutes
+    staleTime: 5 * 60 * 1000, // 5 minutes
     retry: 3,
     retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+    // Always enable the query - if no userId, get all files; if userId, get user's files
+    enabled: true,
   });
 }
 
@@ -44,23 +65,22 @@ export function useFile(id: string) {
 export function useDeleteFile() {
   const queryClient = useQueryClient();
   const t = useTranslations('Query');
-
   return useMutation({
-    mutationFn: (filename: string) =>
-      ApiClient.delete(`/api/files/${filename}/delete`),
-    onMutate: async (filename) => {
+    mutationFn: (fileId: string) =>
+      ApiClient.delete(`/api/files/by-id/${fileId}/delete`),
+    onMutate: async (fileId) => {
       // Cancel any outgoing refetches
       await queryClient.cancelQueries({ queryKey: queryKeys.files() });
 
       // Snapshot the previous value
       const previousFiles = queryClient.getQueryData<ClientFileData[]>(
-        queryKeys.files()
+        queryKeys.filesList()
       );
 
       // Optimistically update to the new value
       queryClient.setQueryData<ClientFileData[]>(
-        queryKeys.files(),
-        (old) => old?.filter((file) => file.name !== filename) ?? []
+        queryKeys.filesList(),
+        (old) => old?.filter((file) => file.id !== fileId) ?? []
       );
 
       return { previousFiles };
@@ -68,7 +88,7 @@ export function useDeleteFile() {
 
     onError: (err, variables, context) => {
       // If the mutation fails, roll back
-      queryClient.setQueryData(queryKeys.files(), context?.previousFiles);
+      queryClient.setQueryData(queryKeys.filesList(), context?.previousFiles);
       toast.error(t('failedToDeleteFile'));
     },
 
