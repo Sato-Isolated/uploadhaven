@@ -3,7 +3,6 @@ import path from 'path';
 import { readFile } from 'fs/promises';
 import {
   withAPIParams,
-  createSuccessResponse,
   createErrorResponse,
 } from '@/lib/middleware';
 import { File, saveSecurityEvent } from '@/lib/database/models';

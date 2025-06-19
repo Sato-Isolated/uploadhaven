@@ -1,4 +1,3 @@
-import { NextRequest } from 'next/server';
 import { withAdminAPI, createSuccessResponse, createErrorResponse, type AuthenticatedRequest } from '@/lib/middleware';
 import { File, User } from '@/lib/database/models';
 
@@ -120,7 +119,7 @@ async function getAdminAnalyticsHandler(request: AuthenticatedRequest) {
       },
     ]);    // Security Analytics (simplified without SecurityEvent model)
     const securityEvents: { _id: string; count: number }[] = [];
-    const recentSecurityEvents: any[] = [];
+    const recentSecurityEvents: Array<Record<string, unknown>> = [];
 
     // Top Files by Downloads
     const topFiles = await File.find({

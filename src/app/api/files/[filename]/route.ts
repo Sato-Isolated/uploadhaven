@@ -4,7 +4,6 @@ import fs from 'fs/promises';
 import { rateLimit, rateLimitConfigs } from '@/lib/core/rateLimit';
 import {
   withAPIParams,
-  createSuccessResponse,
   createErrorResponse,
 } from '@/lib/middleware';
 import {
@@ -190,8 +189,7 @@ export const GET = withAPIParams<{ filename: string }>(
       return new NextResponse(fileBuffer, {
         status: 200,
         headers,
-      });
-    } catch (fsError) {
+      });    } catch {
       // File exists in database but not on filesystem
       await saveSecurityEvent({
         type: 'suspicious_activity',

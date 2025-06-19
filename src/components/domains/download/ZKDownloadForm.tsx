@@ -21,7 +21,8 @@ import {
   Eye,
   FileText,
 } from 'lucide-react';
-import {  decryptFileZK,
+import {
+  decryptFileZK,
   parseZKShareLink,
   checkBrowserCompatibility,
 } from '@/lib/encryption/zero-knowledge';
@@ -75,7 +76,8 @@ export default function ZKDownloadForm({
         error: null,
       }));
 
-      console.log('🔍 Analyzed share link:', linkData);    } catch {
+      console.log('🔍 Analyzed share link:', linkData);
+    } catch {
       setState((prev) => ({
         ...prev,
         error: 'Invalid share link format',
@@ -131,7 +133,9 @@ export default function ZKDownloadForm({
         ...prev,
         isLoading: false,
         error:
-          fileError instanceof Error ? fileError.message : 'Failed to fetch file info',
+          fileError instanceof Error
+            ? fileError.message
+            : 'Failed to fetch file info',
       }));
       throw fileError;
     }
@@ -226,14 +230,17 @@ export default function ZKDownloadForm({
           encryptedSize: encryptedData.byteLength,
         },
         decryptedBlob: decrypted.file,
-      }));    } catch (decryptError) {
+      }));
+    } catch (decryptError) {
       console.error('❌ Download/decrypt failed:', decryptError);
       setState((prev) => ({
         ...prev,
         isDecrypting: false,
         isLoading: false,
         error:
-          decryptError instanceof Error ? decryptError.message : 'Download/decrypt failed',
+          decryptError instanceof Error
+            ? decryptError.message
+            : 'Download/decrypt failed',
       }));
     }
   }, [shareUrl, password, fetchFileInfo]);
@@ -318,7 +325,8 @@ export default function ZKDownloadForm({
       mimetype === 'application/pdf' ||
       mimetype.startsWith('video/') ||
       mimetype.startsWith('audio/')
-    );  };
+    );
+  };
 
   // Check browser compatibility after all hooks
   const compatibility = checkBrowserCompatibility();
@@ -482,7 +490,7 @@ export default function ZKDownloadForm({
                 <div>
                   <h3 className="font-medium">{state.fileInfo.filename}</h3>
                   <p className="text-muted-foreground text-sm">
-                    {state.fileInfo.mimetype} •{' '}
+                    {state.fileInfo.mimetype} •
                     {formatFileSize(state.fileInfo.size)}
                   </p>
                 </div>

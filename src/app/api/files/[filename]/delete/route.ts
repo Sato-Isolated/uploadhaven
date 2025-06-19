@@ -1,4 +1,3 @@
-import { NextRequest } from 'next/server';
 import { withAuthenticatedAPIParams, createSuccessResponse, createErrorResponse, type AuthenticatedRequest } from '@/lib/middleware';
 import { File, saveSecurityEvent } from '@/lib/database/models';
 import { headers } from 'next/headers';

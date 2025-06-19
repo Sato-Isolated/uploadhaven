@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { headers } from 'next/headers';
 import {
   withAdminAPI,
-  createSuccessResponse,
   createErrorResponse,
 } from '@/lib/middleware';
 import { User, File, saveSecurityEvent } from '@/lib/database/models';

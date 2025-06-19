@@ -35,7 +35,7 @@ export function FilesTableRow({
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: 20 }}
       transition={{ delay: index * 0.02, duration: 0.3 }}
-      className="border-b border-gray-200/30 transition-all duration-300 hover:bg-gradient-to-r hover:from-blue-50/50 hover:to-purple-50/50 dark:border-gray-700/30 dark:hover:from-blue-950/20 dark:hover:to-purple-950/20"
+      className="border-b border-gray-200/30 transition-all duration-300 hover:bg-gradient-to-r hover:from-blue-50/50 hover:to-purple-50/50 dark:border-gray-700/30 dark:hover:from-blue-950/20 dark:hover:to-purple-950/20 cursor-pointer"
       whileHover={{ scale: 1.01, y: -1 }}
     >
       {/* Checkbox Cell */}

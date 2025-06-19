@@ -18,6 +18,7 @@ export interface IUser {
   image?: string;
   role: 'user' | 'admin';
   lastActivity: Date;
+  isActive: boolean; // Admin can suspend users
   createdAt: Date;
   updatedAt: Date;
 }
@@ -39,9 +40,11 @@ export interface IFile {
   isDeleted: boolean;
   userId?: string;
   isAnonymous: boolean;password?: string; // hashed password for protected files
-  isPasswordProtected: boolean;
-  // Zero-Knowledge encryption fields (client-side encryption)
+  isPasswordProtected: boolean;  // Zero-Knowledge encryption fields (client-side encryption)
   isZeroKnowledge: boolean; // True if file uses Zero-Knowledge encryption
+  // Security fields
+  ipHash?: string; // Hashed IP for security logging
+  downloadLimit?: number; // Optional download limit
   zkMetadata?: {
     algorithm: string; // e.g., 'AES-GCM'
     iv: string; // base64 encoded IV (stored for client decryption)

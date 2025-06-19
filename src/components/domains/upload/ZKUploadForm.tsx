@@ -170,7 +170,8 @@ export default function ZKUploadForm() {
           </Alert>
         </CardContent>
       </Card>
-    );  }
+    );
+  }
 
   const formatFileSize = (bytes: number) => {
     if (bytes === 0) return '0 Bytes';
@@ -195,7 +196,6 @@ export default function ZKUploadForm() {
       <CardContent className="space-y-6">
         {!result ? (
           <>
-            {' '}
             {/* File Selection */}
             <div className="space-y-2">
               <label htmlFor="file" className="text-sm font-medium">
@@ -215,7 +215,7 @@ export default function ZKUploadForm() {
                   {file.size > 0 && (
                     <span>
                       → ~
-                      {formatFileSize(file.size + Math.ceil(file.size * 0.1))}{' '}
+                      {formatFileSize(file.size + Math.ceil(file.size * 0.1))}
                       encrypted
                     </span>
                   )}
@@ -332,7 +332,7 @@ export default function ZKUploadForm() {
               <AlertDescription>
                 Your file has been encrypted and uploaded successfully!
               </AlertDescription>
-            </Alert>{' '}
+            </Alert>
             {/* Share Link */}
             <div className="space-y-2">
               <label className="text-sm font-medium">Share Link</label>

@@ -1,12 +1,7 @@
 import { auth } from '@/lib/auth/auth';
 import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
@@ -106,7 +101,7 @@ export default async function UserFilesPage() {
                 {t('myFiles')}
               </h1>
               <p className="mt-2 text-lg text-gray-600 dark:text-gray-300">
-                {t('manageFiles')} • {files.length}{' '}
+                {t('manageFiles')} • {files.length}
                 {files.length === 1 ? 'fichier' : 'fichiers'}
               </p>
             </div>
@@ -119,7 +114,7 @@ export default async function UserFilesPage() {
                   <List className="h-4 w-4" />
                   {t('backToDashboard')}
                 </Button>
-              </Link>{' '}
+              </Link>
               <Link href="/dashboard">
                 <Button className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600">
                   <Home className="h-4 w-4" />
@@ -145,7 +140,7 @@ export default async function UserFilesPage() {
                 </h3>
                 <p className="mb-6 text-gray-600 dark:text-gray-400">
                   {t('startByUploading')}
-                </p>{' '}
+                </p>
                 <Link href="/dashboard">
                   <Button className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600">
                     <Home className="h-4 w-4" />

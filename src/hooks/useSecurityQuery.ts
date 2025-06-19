@@ -142,34 +142,3 @@ export function useClearSecurityLogs() {
     },
   });
 }
-
-interface SecurityScanStatus {
-  virusTotalConfigured: boolean;
-  quotaStatus?: {
-    used: number;
-    remaining: number;
-    total: number;
-    resetsAt: string;
-  };
-}
-
-/**
- * Hook to fetch security scan status
- */
-export function useSecurityScan(options: { enabled?: boolean } = {}) {
-  const { enabled = true } = options;
-
-  return useQuery({
-    queryKey: queryKeys.securityScan(),
-    queryFn: async (): Promise<SecurityScanStatus> => {
-      const response =
-        await ApiClient.get<SecurityScanStatus>('/api/security/scan');
-      return response;
-    },
-    enabled,
-    staleTime: 2 * 60 * 1000, // 2 minutes
-    gcTime: 10 * 60 * 1000, // 10 minutes
-    retry: 2,
-    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 3000),
-  });
-}

@@ -1,4 +1,3 @@
-import { NextRequest } from 'next/server';
 import { auth } from '@/lib/auth/auth';
 import { headers } from 'next/headers';
 import connectDB from '@/lib/database/mongodb';
@@ -10,7 +9,7 @@ import { Notification } from '@/lib/database/models';
  * Server-Sent Events endpoint for real-time notifications
  * Streams new notifications to authenticated users in real-time
  */
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     // Authenticate user using BetterAuth
     const session = await auth.api.getSession({

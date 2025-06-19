@@ -59,10 +59,8 @@ export const queryKeys = {
   security: () => [...queryKeys.all, 'security'] as const,
   securityEvents: (timeRange?: TimeRange) =>
     [...queryKeys.security(), 'events', timeRange] as const,
-  securityStats: () => [...queryKeys.security(), 'stats'] as const,
-  securityLogs: (filters?: Record<string, unknown>) =>
+  securityStats: () => [...queryKeys.security(), 'stats'] as const,  securityLogs: (filters?: Record<string, unknown>) =>
     [...queryKeys.security(), 'logs', filters] as const,
-  securityScan: () => [...queryKeys.security(), 'scan'] as const,
   securityFiles: () => [...queryKeys.security(), 'files'] as const,
 
   // Stats domain

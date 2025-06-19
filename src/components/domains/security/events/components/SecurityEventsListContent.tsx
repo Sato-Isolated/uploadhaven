@@ -72,7 +72,7 @@ export function SecurityEventsListContent({
               typeof event.details === 'object' &&
               event.details.fileSize && (
                 <p className="text-xs text-gray-500 dark:text-gray-400">
-                  {t('sizeLabel')}:{' '}
+                  {t('sizeLabel')}:
                   {(event.details.fileSize / 1024 / 1024).toFixed(2)}
                   {tCommon('mb')}
                 </p>

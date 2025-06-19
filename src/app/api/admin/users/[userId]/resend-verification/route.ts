@@ -1,4 +1,3 @@
-import { NextRequest } from 'next/server';
 import { withAdminAPIParams, createSuccessResponse, createErrorResponse, type AuthenticatedRequest } from '@/lib/middleware';
 import { User, saveSecurityEvent } from '@/lib/database/models';
 

@@ -37,10 +37,15 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: 'user',
       enum: ['user', 'admin'],
-    }, // Track when user was last active (login, upload, etc.)
+    },    // Track when user was last active (login, upload, etc.)
     lastActivity: {
       type: Date,
       default: Date.now,
+    },
+    // Admin can suspend users (independent of lastActivity)
+    isActive: {
+      type: Boolean,
+      default: true,
     },
   },
   {
@@ -109,11 +114,18 @@ const fileSchema = new mongoose.Schema(
     isPasswordProtected: {
       type: Boolean,
       default: false,
-    },
-    // Zero-Knowledge encryption fields (client-side encryption)
+    },    // Zero-Knowledge encryption fields (client-side encryption)
     isZeroKnowledge: {
       type: Boolean,
       default: false,
+    },    // Security fields
+    ipHash: {
+      type: String,
+      required: false,
+    },
+    downloadLimit: {
+      type: Number,
+      required: false,
     },zkMetadata: {
       algorithm: String, // e.g., 'AES-GCM'
       iv: String, // base64 encoded IV (stored for client decryption)

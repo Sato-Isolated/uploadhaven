@@ -9,8 +9,22 @@ export default getRequestConfig(async ({ requestLocale }) => {
     ? requested
     : routing.defaultLocale;
 
+  // Load messages from multiple files
+  const messages = {
+    // Keep existing structure from main file
+    ...(await import(`../../messages/${locale}.json`)).default,
+  };
+  // Try to load specific namespace files
+  try {
+    const adminMessages = (await import(`../../messages/${locale}/Admin.json`)).default;
+    messages.Admin = adminMessages;
+  } catch {
+    // Fallback to existing Admin section if separate file doesn't exist
+    console.warn(`Admin translations not found for locale ${locale}, using fallback`);
+  }
+
   return {
     locale,
-    messages: (await import(`../../messages/${locale}.json`)).default,
+    messages,
   };
 });

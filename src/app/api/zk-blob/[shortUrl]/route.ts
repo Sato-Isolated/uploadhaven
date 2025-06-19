@@ -3,7 +3,6 @@ import { readFileSync } from 'fs';
 import { join } from 'path';
 import {
   withAPIParams,
-  createSuccessResponse,
   createErrorResponse,
 } from '@/lib/middleware';
 import { File, saveSecurityEvent } from '@/lib/database/models';

@@ -8,7 +8,6 @@ import { withOptionalAuthAPI, createSuccessResponse, createErrorResponse } from 
 import { saveFileMetadata, saveSecurityEvent, saveNotification, User } from '@/lib/database/models';
 import { generateShortUrl } from '@/lib/core/server-utils';
 import { hashPassword, validatePassword } from '@/lib/core/utils';
-import type { UploadedFile } from '@/types/file';
 
 const MAX_ENCRYPTED_SIZE = 150 * 1024 * 1024; // 150MB (accounting for encryption overhead)
 
@@ -54,7 +53,9 @@ const EXPIRATION_OPTIONS = {
  * Accepts pre-encrypted files from the client and stores them as opaque blobs.
  * The server never has access to decryption keys or plaintext content.
  */
-export const POST = withOptionalAuthAPI(async (request: NextRequest & { user?: any }) => {
+import type { AuthenticatedRequest } from '@/lib/middleware';
+
+export const POST = withOptionalAuthAPI(async (request: NextRequest & { user?: AuthenticatedRequest['user'] }) => {
   // Extract user from request (provided by withOptionalAuthAPI)
   const user = request.user;
 

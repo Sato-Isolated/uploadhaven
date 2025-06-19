@@ -9,13 +9,30 @@ import { File, User } from '@/lib/database/models';
  * GET /api/files
  * 
  * Get a list of all non-deleted files with user information.
- * Public endpoint for general file listing.
+ * Supports query parameters for admin interface.
+ * 
+ * Query params:
+ * - limit: number of files to return (default: 50, max: 500)
+ * - sort: field to sort by (uploadDate, size, downloadCount)
+ * - order: asc or desc (default: desc) * - userId: filter by specific user
  */
-export const GET = withAPI(async () => {
+export const GET = withAPI(async (request) => {
   try {
-    // Get all non-deleted files
-    const files = await File.find({ isDeleted: false })
-      .sort({ uploadDate: -1 })
+    const url = new URL(request.url);
+    const limit = Math.min(parseInt(url.searchParams.get('limit') || '50'), 500);
+    const sort = url.searchParams.get('sort') || 'uploadDate';
+    const order = url.searchParams.get('order') || 'desc';    const userId = url.searchParams.get('userId');
+
+    // Build query filter
+    const filter: any = { isDeleted: false };
+    if (userId) filter.userId = userId;// Build sort object
+    const sortObj: any = {};
+    sortObj[sort] = order === 'asc' ? 1 : -1;
+
+    // Get filtered files
+    const files = await File.find(filter)
+      .sort(sortObj)
+      .limit(limit)
       .lean();
 
     // Get unique user IDs from files that have userId
@@ -28,10 +45,10 @@ export const GET = withAPI(async () => {
       { _id: { $in: userIds } },
       { name: 1, email: 1 }
     ).lean();
-    const userMap = new Map(users.map((user) => [user._id.toString(), user]));
-
-    const fileList = files.map((file) => {
+    const userMap = new Map(users.map((user) => [user._id.toString(), user]));const fileList = files.map((file) => {
       const user = file.userId ? userMap.get(file.userId) : null;
+      // Type assertion for new security fields (added via migration)
+      const fileWithSecurity = file as any;
 
       return {
         id: file._id.toString(),
@@ -44,8 +61,10 @@ export const GET = withAPI(async () => {
         downloadCount: file.downloadCount || 0,
         type: getFileType(file.mimeType),
         userId: file.userId || null,
-        userName: user ? user.name : null,
-        isAnonymous: file.isAnonymous !== false, // Default to true if not explicitly false
+        userName: user ? user.name : null,        isAnonymous: file.isAnonymous !== false, // Default to true if not explicitly false
+        isPasswordProtected: file.isPasswordProtected || false,
+        ipHash: fileWithSecurity.ipHash || null,
+        downloadLimit: fileWithSecurity.downloadLimit || null,
       };
     });
 
