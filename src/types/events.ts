@@ -17,7 +17,7 @@ export interface BaseEvent {
   type: string;
   timestamp: string | Date;
   details?: string;
-  severity?: SecuritySeverity;
+  severity?: 'low' | 'medium' | 'high' | 'critical'; // Re-added for compatibility, consider moving to a shared type
   ip?: string;
   userAgent?: string;
 }
@@ -39,59 +39,6 @@ export interface ActivityEvent extends BaseEvent {
 export interface ActivityResponse {
   activities: ActivityEvent[];
   pagination: PaginationData;
-}
-
-// =============================================================================
-// Security Events
-// =============================================================================
-
-/**
- * Security severity levels
- */
-export type SecuritySeverity = 'low' | 'medium' | 'high' | 'critical';
-
-/**
- * Security event types
- */
-export type SecurityEventType =
-  | 'invalid_file'
-  | 'rate_limit_exceeded'
-  | 'rate_limit'
-  | 'suspicious_activity'
-  | 'unauthorized_access'
-  | 'blocked_ip'
-  | 'large_file'
-  | 'access_denied'
-  | 'system_maintenance'
-  | 'user_login'
-  | 'user_logout'
-  | 'user_registration'
-  | 'file_upload'
-  | 'file_download';
-
-/**
- * Security event
- */
-export interface SecurityEvent {
-  id: string;
-  type: SecurityEventType;
-  timestamp: string | Date;
-  ip?: string;
-  userAgent?: string;
-  severity?: SecuritySeverity;
-  metadata?: Record<string, unknown>;
-  details?:
-    | {
-        ip?: string;
-        filename?: string;
-        fileSize?: number;
-        userAgent?: string;
-        endpoint?: string;
-        reason?: string;
-        userId?: string;
-      }
-    | string;
-  message?: string; // Optional message field for compatibility
 }
 
 // =============================================================================
@@ -125,9 +72,7 @@ export interface Notification {
   title: string;
   message: string;
   isRead: boolean;
-  priority: NotificationPriority;
-  relatedFileId?: string;
-  relatedSecurityEventId?: string;
+  priority: NotificationPriority;  relatedFileId?: string;
   actionUrl?: string;
   actionLabel?: string;
   expiresAt?: Date;

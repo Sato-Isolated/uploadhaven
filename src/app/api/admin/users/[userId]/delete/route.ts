@@ -7,7 +7,8 @@ import {
   createSuccessResponse,
   createErrorResponse,
 } from '@/lib/middleware';
-import { User, File, saveSecurityEvent } from '@/lib/database/models';
+import { User, File } from '@/lib/database/models';
+import { logSecurityEvent } from '@/lib/audit/audit-service';
 
 /**
  * DELETE /api/admin/users/[userId]/delete
@@ -36,22 +37,20 @@ export const DELETE = withAdminAPIParams<{ userId: string }>(
 
     if (!user) {
       return createErrorResponse('User not found', 'USER_NOT_FOUND', 404);
-    }
-
-    // Prevent deletion of admin users (safety measure)
+    }    // Prevent deletion of admin users (safety measure)
     if (user.role === 'admin') {
-      await saveSecurityEvent({
-        type: 'suspicious_activity',
-        ip,
-        details: `Attempt to delete admin user: ${user.email}`,
-        severity: 'high',
-        userAgent,
-        metadata: {
+      await logSecurityEvent(
+        'admin_user_deletion_blocked',
+        `Attempt to delete admin user: ${user.email}`,
+        'high',
+        false,
+        {
           userId: userId,
           userEmail: user.email,
-          reason: 'admin_deletion_blocked',
+          reason: 'admin_deletion_blocked'
         },
-      });
+        ip
+      );
 
       return createErrorResponse('Cannot delete admin users', 'ADMIN_DELETION_FORBIDDEN', 403);
     }
@@ -82,43 +81,39 @@ export const DELETE = withAdminAPIParams<{ userId: string }>(
       await File.deleteMany({ userId: userId });
 
       // Delete the user
-      await User.findByIdAndDelete(userId);
-
-      // Log security event
-      await saveSecurityEvent({
-        type: 'user_deleted',
-        ip,
-        details: `User ${user.email} has been deleted by admin (including ${userFiles.length} files)`,
-        severity: 'high',
-        userAgent,
-        metadata: {
+      await User.findByIdAndDelete(userId);      // Log security event
+      await logSecurityEvent(
+        'user_deleted',
+        `User ${user.email} has been deleted by admin (including ${userFiles.length} files)`,
+        'high',
+        true,
+        {
           userId: userId,
           userEmail: user.email,
           deletedFilesCount: userFiles.length,
-          adminAction: true,
+          adminAction: true
         },
-      });
+        ip
+      );
 
       return createSuccessResponse({
         message: `User ${user.email} and ${userFiles.length} associated files have been deleted successfully`,
         deletedFilesCount: userFiles.length,
       });
     } catch (error) {
-      console.error('User deletion error:', error);
-
-      // Log the error
-      await saveSecurityEvent({
-        type: 'suspicious_activity',
-        ip,
-        details: `Failed to delete user ${user.email}: ${error instanceof Error ? error.message : 'Unknown error'}`,
-        severity: 'high',
-        userAgent,
-        metadata: {
+      console.error('User deletion error:', error);      // Log the error
+      await logSecurityEvent(
+        'user_deletion_error',
+        `Failed to delete user ${user.email}: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        'high',
+        false,
+        {
           userId: userId,
           userEmail: user.email,
-          error: error instanceof Error ? error.message : 'Unknown error',
+          error: error instanceof Error ? error.message : 'Unknown error'
         },
-      });
+        ip
+      );
 
       return createErrorResponse('Failed to delete user', 'USER_DELETION_ERROR', 500);
     }

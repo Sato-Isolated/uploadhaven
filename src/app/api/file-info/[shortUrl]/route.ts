@@ -1,6 +1,7 @@
 import { NextRequest } from 'next/server';
 import { withAPIParams, createSuccessResponse, createErrorResponse } from '@/lib/middleware';
-import { File, saveSecurityEvent } from '@/lib/database/models';
+import { File } from '@/lib/database/models';
+import { logSecurityEvent, logFileOperation } from '@/lib/audit/audit-service';
 
 /**
  * GET /api/file-info/[shortUrl]
@@ -39,35 +40,36 @@ export const GET = withAPIParams<{ shortUrl: string }>(
       // These fields help determine file state
       downloadCount: 1,
       maxDownloads: 1,
-    });
-
-    if (!file) {      // Log the attempt to access non-existent file
-      await saveSecurityEvent({
-        type: 'access_denied',
-        ip: request.headers.get('x-forwarded-for') || 'unknown',
-        details: `File not found: ${shortUrl}`,
-        severity: 'medium',
-        userAgent: request.headers.get('user-agent') || 'unknown',
-        metadata: {
+    });    if (!file) {      // Log the attempt to access non-existent file
+      await logSecurityEvent(
+        'file_info_not_found',
+        `File not found: ${shortUrl}`,
+        'medium',
+        false,
+        {
           shortUrl,
           reason: 'file_not_found',
+          threatType: 'invalid_access'
         },
-      });      return createErrorResponse('File not found', 'FILE_NOT_FOUND', 404);
+        request.headers.get('x-forwarded-for') || 'unknown'
+      );
+      
+      return createErrorResponse('File not found', 'FILE_NOT_FOUND', 404);
     }    // Check if file has expired
     const now = new Date();
     const isExpired = file.expiresAt && new Date(file.expiresAt) <= now;    if (isExpired) {
-      await saveSecurityEvent({
-        type: 'access_denied',
-        ip: request.headers.get('x-forwarded-for') || 'unknown',
-        details: `Expired file access attempt: ${shortUrl}`,
-        severity: 'medium',
-        userAgent: request.headers.get('user-agent') || 'unknown',
-        metadata: {
+      await logSecurityEvent(
+        'file_access_expired',
+        `Expired file access attempt: ${shortUrl}`,
+        'medium',
+        false,
+        {
           shortUrl,
           reason: 'file_expired',
-          expiredAt: file.expiresAt,
+          expiredAt: file.expiresAt
         },
-      });
+        request.headers.get('x-forwarded-for') || 'unknown'
+      );
       
       return createErrorResponse('File has expired', 'FILE_EXPIRED', 410);
     }
@@ -139,17 +141,24 @@ export const GET = withAPIParams<{ shortUrl: string }>(
       hasZkMetadata: !!fileInfo.zkMetadata,
       zkMetadata: fileInfo.zkMetadata,
       zkMetadataKeys: Object.keys(fileInfo.zkMetadata)
-    });// Log successful file info access
-    await saveSecurityEvent({
-      type: 'file_download',
-      ip: request.headers.get('x-forwarded-for') || 'unknown',
-      details: `File info accessed: ${shortUrl}`,
-      severity: 'low',      userAgent: request.headers.get('user-agent') || 'unknown',
-      metadata: {
-        shortUrl,
+    });    // Log successful file info access
+    await logFileOperation(
+      'file_info_accessed',
+      `File info accessed: ${shortUrl}`,
+      file._id?.toString() || shortUrl,
+      file.zkMetadata?.originalName || file.originalName || 'encrypted_file',
+      file._id?.toString() || '', // Use file ID as hash since no dedicated fileHash field
+      undefined, // No userId for anonymous access
+      {
         contentCategory: file.zkMetadata?.contentCategory || 'unknown',
         isPasswordProtected: file.isPasswordProtected,
+        accessType: 'info_request',
+        fileSize: file.size,
+        mimeType: file.mimeType
       },
-    });    return createSuccessResponse(fileInfo);
+      request.headers.get('x-forwarded-for') || 'unknown'
+    );
+
+    return createSuccessResponse(fileInfo);
   }
 );

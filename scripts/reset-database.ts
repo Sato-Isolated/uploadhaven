@@ -1,6 +1,7 @@
 #!/usr/bin/env tsx
 import connectDB from '@/lib/database/mongodb';
-import { User, File, SecurityEvent, Notification } from '@/lib/database/models';
+import { User, File, Notification } from '@/lib/database/models';
+import { AuditLog } from '@/lib/database/audit-models';
 import { promises as fs } from 'fs';
 import path from 'path';
 
@@ -96,7 +97,7 @@ async function dropCollections() {
     const collections = [
       { model: User, name: 'users' },
       { model: File, name: 'files' },
-      { model: SecurityEvent, name: 'securityevents' },
+      { model: AuditLog, name: 'audit_logs' },
       { model: Notification, name: 'notifications' }
     ];
     

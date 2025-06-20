@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/lib/database/mongodb';
-import { File, saveSecurityEvent } from '@/lib/database/models';
+import { File } from '@/lib/database/models';
 import { verifyPassword } from '@/lib/core/utils';
 import { rateLimit, rateLimitConfigs } from '@/lib/core/rateLimit';
+import { logSecurityEvent } from '@/lib/audit/audit-service';
 
 export async function POST(
   request: NextRequest,
@@ -19,16 +20,15 @@ export async function POST(
       request.headers.get('x-real-ip') ||
       '127.0.0.1';
     const userAgent = request.headers.get('user-agent') || ''; // Apply rate limiting for password attempts
-    const rateLimitCheck = rateLimit(rateLimitConfigs.password)(request);
-
-    if (!rateLimitCheck.success) {
-      await saveSecurityEvent({
-        type: 'rate_limit',
-        ip: clientIP,
-        details: `Password verification rate limit exceeded for ${shortUrl}`,
-        severity: 'medium',
-        userAgent,
-      });
+    const rateLimitCheck = rateLimit(rateLimitConfigs.password)(request);    if (!rateLimitCheck.success) {
+      await logSecurityEvent(
+        'rate_limit_exceeded',
+        `Password verification rate limit exceeded for ${shortUrl}`,
+        'medium',
+        true,
+        { ip: clientIP, userAgent, shortUrl },
+        clientIP
+      );
 
       return NextResponse.json(
         {
@@ -66,17 +66,16 @@ export async function POST(
     const fileDoc = await File.findOne({
       shortUrl,
       isDeleted: false,
-    });
-
-    if (!fileDoc) {
+    });    if (!fileDoc) {
       // Log suspicious activity - trying to access non-existent file
-      await saveSecurityEvent({
-        type: 'suspicious_activity',
-        ip: clientIP,
-        details: `Password verification attempt for non-existent file: ${shortUrl}`,
-        severity: 'medium',
-        userAgent,
-      });
+      await logSecurityEvent(
+        'suspicious_activity',
+        `Password verification attempt for non-existent file: ${shortUrl}`,
+        'medium',
+        false,
+        { ip: clientIP, userAgent, shortUrl },
+        clientIP
+      );
 
       return NextResponse.json(
         { success: false, error: 'File not found' },
@@ -101,18 +100,16 @@ export async function POST(
     }
 
     // Verify password
-    const isPasswordValid = await verifyPassword(password, fileDoc.password);
-
-    if (!isPasswordValid) {
+    const isPasswordValid = await verifyPassword(password, fileDoc.password);    if (!isPasswordValid) {
       // Log failed password attempt
-      await saveSecurityEvent({
-        type: 'suspicious_activity',
-        ip: clientIP,
-        details: `Failed password attempt for file: ${fileDoc.originalName}`,
-        severity: 'medium',
-        userAgent,
-        filename: fileDoc.filename,
-      });
+      await logSecurityEvent(
+        'failed_authentication',
+        `Failed password attempt for file: ${fileDoc.originalName}`,
+        'medium',
+        false,
+        { ip: clientIP, userAgent, filename: fileDoc.filename, originalName: fileDoc.originalName },
+        clientIP
+      );
 
       return NextResponse.json(
         { success: false, error: 'Invalid password' },
@@ -122,17 +119,15 @@ export async function POST(
 
     // Password is correct - generate a temporary access token or session
     // For simplicity, we'll return success and let the frontend redirect
-    // In a production app, you might want to use JWT tokens or sessions
-
-    // Log successful password verification
-    await saveSecurityEvent({
-      type: 'file_download',
-      ip: clientIP,
-      details: `Password verified for file: ${fileDoc.originalName}`,
-      severity: 'low',
-      userAgent,
-      filename: fileDoc.filename,
-    });
+    // In a production app, you might want to use JWT tokens or sessions    // Log successful password verification
+    await logSecurityEvent(
+      'successful_authentication',
+      `Password verified for file: ${fileDoc.originalName}`,
+      'info',
+      false,
+      { ip: clientIP, userAgent, filename: fileDoc.filename, originalName: fileDoc.originalName },
+      clientIP
+    );
 
     return NextResponse.json({
       success: true,
@@ -145,20 +140,19 @@ export async function POST(
       },
     });
   } catch (error) {
-    console.error('Password verification error:', error);
-
-    // Try to log the error
+    console.error('Password verification error:', error);    // Try to log the error
     try {
       const clientIP = request.headers.get('x-forwarded-for') || '127.0.0.1';
-      await saveSecurityEvent({
-        type: 'suspicious_activity',
-        ip: clientIP,
-        details: `Password verification error: ${
+      await logSecurityEvent(
+        'system_error',
+        `Password verification error: ${
           error instanceof Error ? error.message : 'Unknown error'
         }`,
-        severity: 'high',
-        userAgent: request.headers.get('user-agent') || '',
-      });
+        'high',
+        false,
+        { ip: clientIP, userAgent: request.headers.get('user-agent') || '' },
+        clientIP
+      );
     } catch (logError) {
       console.error('Failed to log error:', logError);
     }

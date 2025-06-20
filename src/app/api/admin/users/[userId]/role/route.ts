@@ -1,5 +1,6 @@
 import { withAdminAPIParams, createSuccessResponse, createErrorResponse, type AuthenticatedRequest } from '@/lib/middleware';
-import { User, saveSecurityEvent } from '@/lib/database/models';
+import { User } from '@/lib/database/models';
+import { logSecurityEvent } from '@/lib/audit/audit-service';
 
 export const PATCH = withAdminAPIParams<{ userId: string }>(
   async (request: AuthenticatedRequest, { params }) => {
@@ -25,26 +26,23 @@ export const PATCH = withAdminAPIParams<{ userId: string }>(
       const oldRole = user.role;
 
       // Update user role
-      await User.findByIdAndUpdate(userId, { role });
-
-      // Log security event
+      await User.findByIdAndUpdate(userId, { role });      // Log security event
       const clientIP = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || '127.0.0.1';
-      const userAgent = request.headers.get('user-agent') || 'Unknown';
 
-      await saveSecurityEvent({
-        type: 'user_role_changed',
-        ip: clientIP,
-        details: `User ${user.email} role changed from ${oldRole} to ${role} by admin`,
-        severity: 'high',
-        userAgent,
-        metadata: {
+      await logSecurityEvent(
+        'user_role_changed',
+        `User ${user.email} role changed from ${oldRole} to ${role} by admin`,
+        'high',
+        true,
+        {
           userId: userId,
           userEmail: user.email,
           oldRole,
           newRole: role,
-          adminAction: true,
+          adminAction: true
         },
-      });
+        clientIP
+      );
 
       return createSuccessResponse({
         message: `User ${user.email} role updated to ${role} successfully`,

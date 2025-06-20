@@ -1,6 +1,7 @@
 import { NextRequest } from 'next/server';
 import { withAuthenticatedAPI, createSuccessResponse, type AuthenticatedRequest } from '@/lib/middleware';
-import { File, SecurityEvent } from '@/lib/database/models';
+import { File } from '@/lib/database/models';
+import { AuditLog } from '@/lib/database/audit-models';
 
 export const GET = withAuthenticatedAPI(async (request: AuthenticatedRequest) => {
   const url = new URL((request as unknown as NextRequest).url);
@@ -29,14 +30,12 @@ export const GET = withAuthenticatedAPI(async (request: AuthenticatedRequest) =>
         startDate.setDate(now.getDate() - 7);
     } // Get user's files for filtering downloads
     const userFiles = await File.find({ userId }).select('originalName');
-    const userOriginalNames = userFiles.map((file) => file.originalName);
-
-    // Get downloads for user's files only
-    const downloadEvents = await SecurityEvent.find({
-      type: 'file_download',
+    const userOriginalNames = userFiles.map((file) => file.originalName);    // Get downloads for user's files only from audit logs
+    const downloadEvents = await AuditLog.find({
+      category: 'file_operation',
+      action: { $regex: 'download', $options: 'i' },
       timestamp: { $gte: startDate },
-      details: { $regex: /File downloaded:/ },
-      filename: { $in: userOriginalNames }, // Filter by user's files using originalName
+      'metadata.filename': { $in: userOriginalNames }, // Filter by user's files using originalName
     }).sort({ timestamp: -1 });
 
     const totalDownloads = downloadEvents.length; // Get top files by download count (user's files only)
@@ -72,14 +71,14 @@ export const GET = withAuthenticatedAPI(async (request: AuthenticatedRequest) =>
       ...file,
       type: file.mimeType, // Add type field expected by components
       uploadDate: file.uploadDate.toISOString(), // Ensure date is string
-    })); // Get download trends (daily aggregation) for user's files
-    const downloadTrends = await SecurityEvent.aggregate([
+    }));    // Get download trends (daily aggregation) for user's files
+    const downloadTrends = await AuditLog.aggregate([
       {
         $match: {
-          type: 'file_download',
+          category: 'file_operation',
+          action: { $regex: 'download', $options: 'i' },
           timestamp: { $gte: startDate },
-          details: { $regex: /File downloaded:/ },
-          filename: { $in: userOriginalNames },
+          'metadata.filename': { $in: userOriginalNames },
         },
       },
       {
@@ -101,7 +100,7 @@ export const GET = withAuthenticatedAPI(async (request: AuthenticatedRequest) =>
     const currentDate = new Date(now);
     while (currentDate >= startDate) {
       const dateStr = currentDate.toISOString().split('T')[0];
-      const existing = downloadTrends.find((trend) => trend._id === dateStr);
+      const existing = downloadTrends.find((trend: any) => trend._id === dateStr);
       trends.push({
         date: dateStr,
         downloads: existing ? existing.count : 0,
@@ -170,14 +169,14 @@ export const GET = withAuthenticatedAPI(async (request: AuthenticatedRequest) =>
       {
         $sort: { totalDownloads: -1 },
       },
-    ]); // Get recent downloads for user's files with file info
-    const recentDownloads = await SecurityEvent.aggregate([
+    ]);    // Get recent downloads for user's files with file info
+    const recentDownloads = await AuditLog.aggregate([
       {
         $match: {
-          type: 'file_download',
+          category: 'file_operation',
+          action: { $regex: 'download', $options: 'i' },
           timestamp: { $gte: startDate },
-          details: { $regex: /File downloaded:/ },
-          filename: { $in: userOriginalNames },
+          'metadata.filename': { $in: userOriginalNames },
         },
       },
       {
@@ -215,19 +214,19 @@ export const GET = withAuthenticatedAPI(async (request: AuthenticatedRequest) =>
       1,
       Math.ceil((now.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24))
     );
-    const avgDownloadsPerDay = Math.round(totalDownloads / daysDiff); // Get unique downloaders (by IP) for user's files
-    const uniqueDownloaders = await SecurityEvent.distinct('ip', {
-      type: 'file_download',
+    const avgDownloadsPerDay = Math.round(totalDownloads / daysDiff);    // Get unique downloaders (by ipHash) for user's files
+    const uniqueDownloaders = await AuditLog.distinct('ipHash', {
+      category: 'file_operation',
+      action: { $regex: 'download', $options: 'i' },
       timestamp: { $gte: startDate },
-      details: { $regex: /File downloaded:/ },
-      filename: { $in: userOriginalNames },
-    });    // Get user's total files count
+      'metadata.filename': { $in: userOriginalNames },
+    });// Get user's total files count
     const userTotalFiles = await File.countDocuments({ userId });
     
     return createSuccessResponse({
       analytics: {
         totalDownloads,
-        last24hDownloads: downloadEvents.filter((event) => {
+        last24hDownloads: downloadEvents.filter((event: any) => {
           const eventDate = new Date(event.timestamp);
           const yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000);
           return eventDate >= yesterday;

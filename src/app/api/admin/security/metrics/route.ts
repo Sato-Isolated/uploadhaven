@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth/auth';
 import { headers } from 'next/headers';
 import connectDB from '@/lib/database/mongodb';
-import { SecurityEvent, File, User } from '@/lib/database/models';
+import { AuditLog } from '@/lib/database/audit-models';
+import { File, User } from '@/lib/database/models';
 
 /**
  * GET /api/admin/security/metrics
@@ -34,29 +35,43 @@ export async function GET(request: NextRequest) {
 
     // Get current time and 24h ago
     const now = new Date();
-    const yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+    const yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000);    // Get security events from last 24 hours
+    const last24hEvents = await AuditLog.find({
+      timestamp: { $gte: yesterday },
+      category: 'security_event'
+    });
 
-    // Get security events from last 24 hours
-    const last24hEvents = await SecurityEvent.find({
-      timestamp: { $gte: yesterday }
-    });    // Count events by severity
-    const criticalEvents = last24hEvents.filter(e => e.severity === 'high').length;
-    const blockedRequests = last24hEvents.filter(e => e.type === 'rate_limit' || e.type === 'blocked_ip').length;
-    const failedLogins = last24hEvents.filter(e => e.type === 'user_login' && e.severity === 'high').length;
-    const suspiciousActivity = last24hEvents.filter(e => e.type === 'suspicious_activity').length;
-
-    // Get total counts
-    const totalEvents = await SecurityEvent.countDocuments();
-    const rateLimitHits = await SecurityEvent.countDocuments({ type: 'rate_limit' });
+    // Count events by severity
+    const criticalEvents = last24hEvents.filter(e => e.severity === 'critical' || e.severity === 'high').length;
+    const blockedRequests = last24hEvents.filter(e => 
+      e.action.includes('rate_limit') || 
+      e.action.includes('blocked') || 
+      e.action.includes('block')
+    ).length;
+    const failedLogins = last24hEvents.filter(e => 
+      e.action.includes('login') && 
+      (e.severity === 'high' || e.status === 'failure')
+    ).length;
+    const suspiciousActivity = last24hEvents.filter(e => 
+      e.action.includes('suspicious') || 
+      e.action.includes('anomaly')
+    ).length;    // Get total counts
+    const totalEvents = await AuditLog.countDocuments({ category: 'security_event' });
+    const rateLimitHits = await AuditLog.countDocuments({ 
+      category: 'security_event',
+      action: { $regex: 'rate_limit', $options: 'i' }
+    });
 
     // Get unique blocked IPs (from events in last 7 days)
+    // Note: We use ipHash now for privacy, so we count unique hashes
     const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-    const blockedIpEvents = await SecurityEvent.find({
-      type: { $in: ['blocked_ip', 'rate_limit', 'suspicious_activity'] },
+    const blockedIpEvents = await AuditLog.find({
+      category: 'security_event',
+      action: { $regex: 'block|rate_limit|suspicious', $options: 'i' },
       timestamp: { $gte: weekAgo }
-    }, { ip: 1 });
+    }, { ipHash: 1 });
     
-    const uniqueBlockedIPs = new Set(blockedIpEvents.map(e => e.ip)).size;
+    const uniqueBlockedIPs = new Set(blockedIpEvents.map(e => e.ipHash)).size;
 
     // Zero Knowledge compliance metrics
     const totalFiles = await File.countDocuments({ isDeleted: false });
@@ -76,19 +91,18 @@ export async function GET(request: NextRequest) {
       lastActivity: { $gte: yesterday }
     });    // Calculate encryption and verification rates
     const encryptionRate = totalFiles > 0 ? (encryptedFiles / totalFiles) * 100 : 100;
-    const verificationRate = totalUsers > 0 ? (verifiedUsers / totalUsers) * 100 : 100;
-
-    // Get threat intelligence
-    const threats = await SecurityEvent.aggregate([
+    const verificationRate = totalUsers > 0 ? (verifiedUsers / totalUsers) * 100 : 100;    // Get threat intelligence
+    const threats = await AuditLog.aggregate([
       {
         $match: {
           timestamp: { $gte: yesterday },
-          severity: { $in: ['medium', 'high'] }
+          category: 'security_event',
+          severity: { $in: ['medium', 'high', 'critical'] }
         }
       },
       {
         $group: {
-          _id: '$type',
+          _id: '$action',
           count: { $sum: 1 },
           severity: { $first: '$severity' }
         }
@@ -211,8 +225,7 @@ export async function GET(request: NextRequest) {
       rateLimitHits,
       suspiciousActivity,
       issues: securityIssues,
-      recommendations,
-      threats: threats.reduce((acc, threat) => {
+      recommendations,      threats: threats.reduce((acc: Record<string, { count: number; severity: string }>, threat: any) => {
         acc[threat._id] = {
           count: threat.count,
           severity: threat.severity

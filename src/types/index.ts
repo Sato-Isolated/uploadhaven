@@ -60,9 +60,6 @@ export type {
   BaseEvent,
   ActivityEvent,
   ActivityResponse,
-  SecuritySeverity,
-  SecurityEventType,
-  SecurityEvent,
 } from './events';
 
 // =============================================================================
@@ -73,7 +70,7 @@ export type { BaseUser, ExtendedUser, User } from './auth';
 // =============================================================================
 // Database Models
 // =============================================================================
-export type { IUser, IFile, ISecurityEvent } from './database';
+export type { IUser, IFile } from './database';
 
 // =============================================================================
 // Security and Rate Limiting

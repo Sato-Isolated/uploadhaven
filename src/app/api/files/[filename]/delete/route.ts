@@ -1,5 +1,6 @@
 import { withAuthenticatedAPIParams, createSuccessResponse, createErrorResponse, type AuthenticatedRequest } from '@/lib/middleware';
-import { File, saveSecurityEvent } from '@/lib/database/models';
+import { File } from '@/lib/database/models';
+import { logSecurityEvent, logFileOperation } from '@/lib/audit/audit-service';
 import { headers } from 'next/headers';
 import { unlink } from 'fs/promises';
 import path from 'path';
@@ -14,46 +15,56 @@ export const DELETE = withAuthenticatedAPIParams<{ filename: string }>(
     const userAgent = headersList.get('user-agent') || 'Unknown';
 
     // Find the file in database
-    const fileRecord = await File.findOne({ filename, isDeleted: false });
-    if (!fileRecord) {
+    const fileRecord = await File.findOne({ filename, isDeleted: false });    if (!fileRecord) {
       // Log security event for attempted deletion of non-existent file
-      await saveSecurityEvent({
-        type: 'suspicious_activity',
-        ip,
-        details: `Attempted to delete non-existent file: ${filename}`,
-        severity: 'medium',
-        userAgent,
-        filename,
-      });
+      await logSecurityEvent(
+        'delete_nonexistent_file',
+        `Attempted to delete non-existent file: ${filename}`,
+        'medium',
+        false,
+        {
+          filename,
+          threatType: 'invalid_operation'
+        },
+        ip
+      );
 
       return createErrorResponse('File not found', 'FILE_NOT_FOUND', 404);
-    }
-
-    // Check if user owns the file (only authenticated users can have ownership)
+    }    // Check if user owns the file (only authenticated users can have ownership)
     if (fileRecord.userId && fileRecord.userId.toString() !== user.id) {
       // Log unauthorized deletion attempt
-      await saveSecurityEvent({
-        type: 'unauthorized_access',
-        ip,
-        details: `User ${user.id} attempted to delete file owned by ${fileRecord.userId}: ${filename}`,
-        severity: 'high',
-        userAgent,
-        filename,
-      });
+      await logSecurityEvent(
+        'unauthorized_delete_attempt',
+        `User ${user.id} attempted to delete file owned by ${fileRecord.userId}: ${filename}`,
+        'high',
+        true,
+        {
+          filename,
+          targetUserId: fileRecord.userId.toString(),
+          attemptingUserId: user.id,
+          threatType: 'unauthorized_access',
+          blockedReason: 'User attempted to delete another user\'s file'
+        },
+        ip
+      );
 
       return createErrorResponse('Unauthorized: You can only delete your own files', 'UNAUTHORIZED', 403);
-    }
-
-    // For files without userId (public files), check if user is admin
+    }    // For files without userId (public files), check if user is admin
     if (!fileRecord.userId && user.role !== 'admin') {
-      await saveSecurityEvent({
-        type: 'unauthorized_access',
-        ip,
-        details: `Non-admin user ${user.id} attempted to delete public file: ${filename}`,
-        severity: 'high',
-        userAgent,
-        filename,
-      });
+      await logSecurityEvent(
+        'unauthorized_public_file_delete',
+        `Non-admin user ${user.id} attempted to delete public file: ${filename}`,
+        'high',
+        true,
+        {
+          filename,
+          userId: user.id,
+          userRole: user.role,
+          threatType: 'unauthorized_access',
+          blockedReason: 'Non-admin user attempted to delete public file'
+        },
+        ip
+      );
 
       return createErrorResponse('Unauthorized: Only admins can delete public files', 'FORBIDDEN', 403);
     }
@@ -71,19 +82,23 @@ export const DELETE = withAuthenticatedAPIParams<{ filename: string }>(
     } catch (fsError) {
       // File might already be deleted or not exist on filesystem
       console.warn(`Could not delete file from filesystem: ${filename}`, fsError);
-    }
-
-    // Log successful deletion
-    await saveSecurityEvent({
-      type: 'file_deletion',
-      ip,
-      details: `File deleted: ${fileRecord.originalName} (${filename})`,
-      severity: 'low',
-      userAgent,
+    }    // Log successful deletion
+    await logFileOperation(
+      'file_delete',
+      `File deleted: ${fileRecord.originalName} (${filename})`,
+      fileRecord._id?.toString() || 'unknown',
+      fileRecord.originalName,
       filename,
-      fileSize: fileRecord.size,
-      fileType: fileRecord.mimeType,
-    });
+      user.id,
+      {
+        fileSize: fileRecord.size,
+        mimeType: fileRecord.mimeType,
+        encrypted: false,
+        passwordProtected: fileRecord.isPasswordProtected || false,
+        softDelete: true
+      },
+      ip
+    );
 
     return createSuccessResponse({ message: 'File deleted successfully' });
   }

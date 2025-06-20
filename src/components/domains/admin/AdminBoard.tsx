@@ -11,7 +11,8 @@ import {
   Files, 
   Activity, 
   Settings,
-  Shield
+  Shield,
+  ClipboardList
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
@@ -23,6 +24,7 @@ import UsersTable from './components/UsersTable';
 import FilesTable from './components/FilesTable';
 import SystemHealth from './components/SystemHealth';
 import SecurityHealth from './components/SecurityHealth';
+import AuditLogsDashboard from './audit/AuditLogsDashboard';
 
 // Import du hook de données
 import { useAdminData } from './hooks/useAdminData';
@@ -106,7 +108,7 @@ export default function AdminBoard({ className = '' }: AdminBoardProps) {
       </div>      {/* Main Content */}
       <div className="container mx-auto px-4 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">          {/* Navigation - Simplified Zero Knowledge Tabs */}
-          <TabsList className="grid w-full grid-cols-4 lg:w-auto lg:grid-cols-none lg:flex bg-white/80 dark:bg-gray-800/60 backdrop-blur-md border border-gray-200/60 dark:border-gray-700/60 shadow-lg dark:shadow-gray-900/50 rounded-xl p-1">
+          <TabsList className="grid w-full grid-cols-5 lg:w-auto lg:grid-cols-none lg:flex bg-white/80 dark:bg-gray-800/60 backdrop-blur-md border border-gray-200/60 dark:border-gray-700/60 shadow-lg dark:shadow-gray-900/50 rounded-xl p-1">
             <TabsTrigger 
               value="overview" 
               className="flex items-center gap-2 text-gray-600 dark:text-gray-400 data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-blue-500 dark:data-[state=active]:from-blue-500 dark:data-[state=active]:to-blue-400 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-blue-500/25 hover:bg-gray-100/80 dark:hover:bg-gray-700/60 cursor-pointer transition-all duration-300 rounded-lg font-medium"
@@ -127,13 +129,19 @@ export default function AdminBoard({ className = '' }: AdminBoardProps) {
             >
               <Files className="h-4 w-4" />
               <span className="hidden sm:inline">{t('files')}</span>
-            </TabsTrigger>
-            <TabsTrigger 
+            </TabsTrigger>            <TabsTrigger 
               value="system"
               className="flex items-center gap-2 text-gray-600 dark:text-gray-400 data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-blue-500 dark:data-[state=active]:from-blue-500 dark:data-[state=active]:to-blue-400 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-blue-500/25 hover:bg-gray-100/80 dark:hover:bg-gray-700/60 cursor-pointer transition-all duration-300 rounded-lg font-medium"
             >
               <Shield className="h-4 w-4" />
               <span className="hidden sm:inline">{t('security')}</span>
+            </TabsTrigger>
+            <TabsTrigger 
+              value="audit"
+              className="flex items-center gap-2 text-gray-600 dark:text-gray-400 data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-blue-500 dark:data-[state=active]:from-blue-500 dark:data-[state=active]:to-blue-400 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-blue-500/25 hover:bg-gray-100/80 dark:hover:bg-gray-700/60 cursor-pointer transition-all duration-300 rounded-lg font-medium"
+            >
+              <ClipboardList className="h-4 w-4" />
+              <span className="hidden sm:inline">{t('auditLogs')}</span>
             </TabsTrigger>
           </TabsList>          {/* Overview Tab - Complete dashboard */}
           <TabsContent value="overview" className="space-y-6">
@@ -227,9 +235,19 @@ export default function AdminBoard({ className = '' }: AdminBoardProps) {
                         </div>
                       </div>
                     </div>
-                  </div>
-                </CardContent>
+                  </div>                </CardContent>
               </Card>
+            </motion.div>
+          </TabsContent>
+
+          {/* Audit Logs Tab - Security-first audit system */}
+          <TabsContent value="audit" className="space-y-6">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+            >
+              <AuditLogsDashboard />
             </motion.div>
           </TabsContent>
         </Tabs>

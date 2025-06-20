@@ -4,7 +4,7 @@ import {
   createSuccessResponse,
   createErrorResponse,
 } from '@/lib/middleware';
-import { SecurityEvent } from '@/lib/database/models';
+import { AuditLog } from '@/lib/database/audit-models';
 
 /**
  * GET /api/admin/activities
@@ -26,22 +26,21 @@ export const GET = withAdminAPI(async (request: NextRequest) => {
   if (page < 1 || limit < 1 || limit > 100) {
     return createErrorResponse('Invalid pagination parameters', 'INVALID_PAGINATION', 400);
   }
-
-  // Build filter query
-  const filter: Record<string, string> = {};
-  if (type) filter.type = type;
+  // Build filter query for new audit log structure
+  const filter: Record<string, any> = {};
+  if (type) filter.action = { $regex: type, $options: 'i' }; // Search in action field
   if (severity) filter.severity = severity;
   if (userId) filter.userId = userId;
 
   try {
-    // Get recent activities
+    // Get recent activities from audit logs
     const [activities, totalCount] = await Promise.all([
-      SecurityEvent.find(filter)
+      AuditLog.find(filter)
         .sort({ timestamp: -1 })
         .skip(skip)
         .limit(limit)
         .lean(),
-      SecurityEvent.countDocuments(filter),
+      AuditLog.countDocuments(filter),
     ]);
 
     // Calculate pagination info

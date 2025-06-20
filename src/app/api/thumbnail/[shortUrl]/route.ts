@@ -5,7 +5,8 @@ import {
   withAPIParams,
   createErrorResponse,
 } from '@/lib/middleware';
-import { File, saveSecurityEvent } from '@/lib/database/models';
+import { File } from '@/lib/database/models';
+import { logSecurityEvent, logFileOperation } from '@/lib/audit/audit-service';
 import { checkFileExpiration } from '@/lib/background/startup';
 
 /**
@@ -36,37 +37,33 @@ export const GET = withAPIParams<{ shortUrl: string }>(
     const fileDoc = await File.findOne({
       shortUrl,
       isDeleted: false,
-    });
-
-    if (!fileDoc) {
-      await saveSecurityEvent({
-        type: 'access_denied',
-        ip: clientIP,
-        details: `Thumbnail attempt for non-existent file: ${shortUrl}`,
-        severity: 'medium',
-        userAgent,
-        metadata: { shortUrl },
-      });
+    });    if (!fileDoc) {
+      await logSecurityEvent(
+        'thumbnail_file_not_found',
+        `Thumbnail attempt for non-existent file: ${shortUrl}`,
+        'medium',
+        false,
+        { shortUrl, action: 'thumbnail_access' },
+        clientIP
+      );
 
       return createErrorResponse('File not found', 'FILE_NOT_FOUND', 404);
-    }
-
-    // Check if file has expired
+    }    // Check if file has expired
     if (fileDoc.expiresAt && new Date() > fileDoc.expiresAt) {
       await checkFileExpiration(fileDoc._id.toString());
       
-      await saveSecurityEvent({
-        type: 'access_denied',
-        ip: clientIP,
-        details: `Thumbnail attempt for expired file: ${fileDoc.originalName}`,
-        severity: 'low',
-        userAgent,
-        metadata: { 
+      await logSecurityEvent(
+        'thumbnail_file_expired',
+        `Thumbnail attempt for expired file: ${fileDoc.originalName}`,
+        'low',
+        false,
+        { 
           shortUrl,
           filename: fileDoc.filename,
           expiredAt: fileDoc.expiresAt 
         },
-      });
+        clientIP
+      );
 
       return createErrorResponse('File has expired', 'FILE_EXPIRED', 410);
     }
@@ -75,23 +72,21 @@ export const GET = withAPIParams<{ shortUrl: string }>(
     const wasDeleted = await checkFileExpiration(fileDoc._id.toString());
     if (wasDeleted) {
       return createErrorResponse('File has expired', 'FILE_EXPIRED', 410);
-    }
-
-    // For Zero-Knowledge files, thumbnails are not supported
+    }    // For Zero-Knowledge files, thumbnails are not supported
     // as they would require client-side decryption
     if (fileDoc.isZeroKnowledge) {
-      await saveSecurityEvent({
-        type: 'access_denied',
-        ip: clientIP,
-        details: `Thumbnail rejected for ZK file: ${fileDoc.originalName}`,
-        severity: 'low',
-        userAgent,
-        metadata: { 
+      await logSecurityEvent(
+        'thumbnail_zk_file_rejected',
+        `Thumbnail rejected for ZK file: ${fileDoc.originalName}`,
+        'low',
+        false,
+        { 
           shortUrl,
           filename: fileDoc.filename,
           reason: 'zk_file_thumbnail_not_supported' 
         },
-      });
+        clientIP
+      );
 
       return createErrorResponse(
         'Thumbnails not supported for encrypted files',
@@ -120,22 +115,21 @@ export const GET = withAPIParams<{ shortUrl: string }>(
           401,
           { passwordRequired: true }
         );
-      }
-
-      const bcrypt = await import('bcryptjs');
+      }      const bcrypt = await import('bcryptjs');
       const isValidPassword = await bcrypt.compare(password, fileDoc.password);
       if (!isValidPassword) {
-        await saveSecurityEvent({
-          type: 'suspicious_activity',
-          ip: clientIP,
-          details: `Failed password attempt for thumbnail: ${fileDoc.originalName}`,
-          severity: 'medium',
-          userAgent,
-          metadata: { 
+        await logSecurityEvent(
+          'thumbnail_invalid_password',
+          `Failed password attempt for thumbnail: ${fileDoc.originalName}`,
+          'medium',
+          false,
+          { 
             shortUrl,
-            filename: fileDoc.filename 
+            filename: fileDoc.filename,
+            attemptType: 'thumbnail_access'
           },
-        });
+          clientIP
+        );
 
         return createErrorResponse('Invalid password', 'INVALID_PASSWORD', 401);
       }
@@ -151,25 +145,26 @@ export const GET = withAPIParams<{ shortUrl: string }>(
         fileDoc.filename
       );
 
-      const sourceBuffer = await readFile(filePath);
-
-      // Simple thumbnail generation (basic implementation)
+      const sourceBuffer = await readFile(filePath);      // Simple thumbnail generation (basic implementation)
       // For now, return the original file if it's an image
       if (mimeType.startsWith('image/')) {
         // Log successful thumbnail request
-        await saveSecurityEvent({
-          type: 'file_download',
-          ip: clientIP,
-          details: `Thumbnail served for: ${fileDoc.originalName}`,
-          severity: 'low',
-          userAgent,
-          metadata: {
+        await logFileOperation(
+          'thumbnail_served',
+          `Thumbnail served for: ${fileDoc.originalName}`,
+          fileDoc._id.toString(),
+          fileDoc.originalName,
+          fileDoc._id.toString(),
+          fileDoc.userId,
+          {
             shortUrl,
             filename: fileDoc.filename,
             fileSize: fileDoc.size,
             fileType: fileDoc.mimeType,
+            thumbnailType: 'image'
           },
-        });
+          clientIP
+        );
 
         // Return the image as thumbnail
         return new NextResponse(sourceBuffer, {
@@ -187,21 +182,21 @@ export const GET = withAPIParams<{ shortUrl: string }>(
           'NOT_IMPLEMENTED',
           501
         );
-      }
-    } catch (fileError) {
+      }    } catch (fileError) {
       console.error('Thumbnail generation error:', fileError);
 
-      await saveSecurityEvent({
-        type: 'suspicious_activity',
-        ip: clientIP,
-        details: `Failed to generate thumbnail: ${fileDoc.originalName} - ${fileError instanceof Error ? fileError.message : 'Unknown error'}`,
-        severity: 'medium',
-        userAgent,
-        metadata: {
+      await logSecurityEvent(
+        'thumbnail_generation_error',
+        `Failed to generate thumbnail: ${fileDoc.originalName} - ${fileError instanceof Error ? fileError.message : 'Unknown error'}`,
+        'medium',
+        false,
+        {
           shortUrl,
           filename: fileDoc.filename,
+          errorType: 'thumbnail_generation_failed'
         },
-      });
+        clientIP
+      );
 
       return createErrorResponse('Failed to generate thumbnail', 'THUMBNAIL_GENERATION_ERROR', 500);
     }

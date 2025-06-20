@@ -1,6 +1,7 @@
 import { NextRequest } from 'next/server';
 import { withAuthenticatedAPI, createSuccessResponse, createErrorResponse, type AuthenticatedRequest } from '@/lib/middleware';
-import { File, saveSecurityEvent } from '@/lib/database/models';
+import { File } from '@/lib/database/models';
+import { logSecurityEvent, logFileOperation } from '@/lib/audit/audit-service';
 import { headers } from 'next/headers';
 import { unlink } from 'fs/promises';
 import path from 'path';
@@ -70,21 +71,21 @@ export const DELETE = withAuthenticatedAPI(async (request: AuthenticatedRequest)
       );
     }
   }
-
   // Log bulk deletion
-  await saveSecurityEvent({
-    type: 'bulk_file_deletion',
-    ip,
-    details: `Bulk deletion completed: ${result.modifiedCount} files marked as deleted`,
-    severity: 'medium',
-    userAgent,
-    userId: user.id,
-    metadata: {
+  await logSecurityEvent(
+    'bulk_file_deletion',
+    `Bulk deletion completed: ${result.modifiedCount} files marked as deleted`,
+    'medium',
+    true,
+    {
       deletedCount: result.modifiedCount,
       physicalDeletedCount,
       errors: errors.length,
+      userId: user.id,
+      totalFiles: filesToDelete.length
     },
-  });
+    ip
+  );
 
   return createSuccessResponse({
     deletedCount: result.modifiedCount,

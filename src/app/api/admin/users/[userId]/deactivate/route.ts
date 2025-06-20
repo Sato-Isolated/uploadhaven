@@ -1,5 +1,6 @@
 import { withAdminAPIParams, createSuccessResponse, createErrorResponse, type AuthenticatedRequest } from '@/lib/middleware';
-import { User, saveSecurityEvent } from '@/lib/database/models';
+import { User } from '@/lib/database/models';
+import { logSecurityEvent } from '@/lib/audit/audit-service';
 
 export const POST = withAdminAPIParams<{ userId: string }>(
   async (request: AuthenticatedRequest, { params }) => {
@@ -23,20 +24,19 @@ export const POST = withAdminAPIParams<{ userId: string }>(
         deactivatedAt: new Date(),
       });      // Log security event
       const clientIP = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || '127.0.0.1';
-      const userAgent = request.headers.get('user-agent') || 'Unknown';
 
-      await saveSecurityEvent({
-        type: 'user_deactivated',
-        ip: clientIP,
-        details: `User ${user.email} has been deactivated by admin`,
-        severity: 'medium',
-        userAgent,
-        metadata: {
+      await logSecurityEvent(
+        'user_deactivated',
+        `User ${user.email} has been deactivated by admin`,
+        'medium',
+        true,
+        {
           userId: userId,
           userEmail: user.email,
-          adminAction: true,
+          adminAction: true
         },
-      });
+        clientIP
+      );
 
       return createSuccessResponse({
         message: `User ${user.email} has been deactivated successfully`,
@@ -73,24 +73,21 @@ export const PATCH = withAdminAPIParams<{ userId: string }>(
       await User.findByIdAndUpdate(userId, {
         isActive: true,
         $unset: { deactivatedAt: 1 },
-      });
-
-      // Log security event
+      });      // Log security event
       const clientIP = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || '127.0.0.1';
-      const userAgent = request.headers.get('user-agent') || 'Unknown';
 
-      await saveSecurityEvent({
-        type: 'user_reactivated',
-        ip: clientIP,
-        details: `User ${user.email} has been reactivated by admin`,
-        severity: 'low',
-        userAgent,
-        metadata: {
+      await logSecurityEvent(
+        'user_reactivated',
+        `User ${user.email} has been reactivated by admin`,
+        'low',
+        true,
+        {
           userId: userId,
           userEmail: user.email,
-          adminAction: true,
+          adminAction: true
         },
-      });
+        clientIP
+      );
 
       return createSuccessResponse({
         message: `User ${user.email} has been reactivated successfully`,

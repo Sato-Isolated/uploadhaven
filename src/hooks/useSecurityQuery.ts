@@ -3,75 +3,101 @@ import { ApiClient } from '@/lib/api/client';
 import { queryKeys } from '@/lib/core/queryKeys';
 import { toast } from 'sonner';
 import type {
-  SecurityEvent,
-  SecurityStats,
-  SecurityEventType,
-  SecuritySeverity,
-} from '@/types';
+  BaseAuditLog,
+  AuditSeverity,
+  AuditCategory,
+  AuditStats,
+} from '@/types/audit';
 
-interface SecurityApiResponse {
-  events: Array<{
+interface AuditApiResponse {
+  activities: Array<{
     id: string;
-    type: string;
-    message?: string;
-    details?: string | Record<string, unknown>;
+    action: string;
+    description: string;
+    category: string;
     severity: string;
+    status: string;
     timestamp: string | number;
-    ip?: string;
-    filename?: string;
-    fileSize?: number;
+    ipHash?: string;
+    metadata?: Record<string, unknown>;
     userAgent?: string;
-    endpoint?: string;
-    reason?: string;
+    userId?: string;
+    adminId?: string;
   }>;
-  stats: SecurityStats;
+  stats?: AuditStats;
 }
 
 /**
- * Hook to fetch security data (events and stats)
+ * Hook to fetch security data (audit logs and stats)
  */
 export function useSecurityData() {
   return useQuery({
-    queryKey: queryKeys.security(),
-    queryFn: async (): Promise<{
-      events: SecurityEvent[];
-      stats: SecurityStats;
+    queryKey: queryKeys.security(),    queryFn: async (): Promise<{
+      events: BaseAuditLog[];
+      stats: AuditStats;
     }> => {
-      const response = await ApiClient.get<SecurityApiResponse>(
-        '/api/security?include_events=true'
-      ); // Transform API events to SecurityEvent format
-      const events: SecurityEvent[] = response.events.map((event) => ({
-        id: event.id,
-        type: event.type as SecurityEventType,
-        severity: event.severity as SecuritySeverity,
-        timestamp:
-          typeof event.timestamp === 'string'
-            ? new Date(parseInt(event.timestamp))
-            : new Date(event.timestamp || 0),
-        details: {
-          ip: event.ip,
-          filename: event.filename,
-          fileSize: event.fileSize,
-          userAgent: event.userAgent,
-          endpoint: event.endpoint,
-          reason: event.reason,
-        },
-        message:
-          typeof event.details === 'string'
-            ? event.details
-            : event.message || `${event.type} event`,
+      const response = await ApiClient.get<AuditApiResponse>(
+        '/api/admin/activities?includeStats=true'
+      );
+
+      // Transform API activities to BaseAuditLog format
+      const events: BaseAuditLog[] = response.activities.map((activity) => ({
+        id: activity.id,
+        action: activity.action,
+        description: activity.description,
+        category: activity.category as AuditCategory,
+        severity: activity.severity as AuditSeverity,
+        status: activity.status as any,
+        timestamp: new Date(
+          typeof activity.timestamp === 'string'
+            ? parseInt(activity.timestamp)
+            : activity.timestamp || 0
+        ),
+        ipHash: activity.ipHash || '',
+        userAgent: activity.userAgent,
+        userId: activity.userId,
+        adminId: activity.adminId,
+        metadata: activity.metadata || {},
+        createdAt: new Date(),
+        expiresAt: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000), // 90 days
       }));
 
       return {
         events,
         stats: response.stats || {
-          totalEvents: 0,
-          rateLimitHits: 0,
-          invalidFiles: 0,
-          blockedIPs: 0,
-          last24h: 0,
-          malwareDetected: 0,
-          largeSizeBlocked: 0,
+          totalLogs: 0,
+          last24Hours: 0,
+          last7Days: 0,
+          last30Days: 0,
+          bySeverity: {
+            info: 0,
+            low: 0,
+            medium: 0,
+            high: 0,
+            critical: 0,
+          },
+          byCategory: {
+            user_action: 0,
+            admin_action: 0,
+            security_event: 0,
+            system_event: 0,
+            data_access: 0,
+            file_operation: 0,
+            auth_event: 0,
+            compliance: 0,
+          },
+          topActions: [],
+          securityEvents: {
+            total: 0,
+            blocked: 0,
+            critical: 0,
+            last24h: 0,
+          },
+          systemHealth: {
+            errorRate: 0,
+            avgResponseTime: 0,
+            uptimePercentage: 100,
+          },
         },
       };
     },

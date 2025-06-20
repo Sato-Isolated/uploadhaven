@@ -16,7 +16,6 @@ import {
 } from '@/components/domains/upload/fileuploader/utils';
 
 // External imports
-import { logSecurityEvent } from '@/lib/core/security';
 import { validateFileAdvanced } from '@/lib/core/utils';
 
 export interface UseFileUploaderReturn {
@@ -117,25 +116,10 @@ export function useFileUploader(): UseFileUploaderReturn {
     async (acceptedFiles: File[]) => {
       const validFiles: File[] = [];
 
-      for (const file of acceptedFiles) {
-        // Use advanced file validation
+      for (const file of acceptedFiles) {        // Use advanced file validation
         const validation = validateFileAdvanced(file);
 
         if (!validation.isValid) {
-          // Log security events for validation failures
-          validation.errors.forEach((error) => {
-            logSecurityEvent(
-              'invalid_file',
-              `File ${file.name} rejected: ${error}`,
-              'medium',
-              {
-                filename: file.name,
-                fileSize: file.size,
-                fileType: file.type,
-              }
-            );
-          });
-
           // Show first error to user
           toast.error(`${file.name}: ${validation.errors[0]}`);
           continue;
@@ -162,29 +146,19 @@ export function useFileUploader(): UseFileUploaderReturn {
       setFiles((prev) => [...prev, ...newFiles]);
 
       // Start upload for each file immediately (no scanning in zero-knowledge architecture)
-      for (const uploadedFile of newFiles) {
-        try {
+      for (const uploadedFile of newFiles) {        try {
           // Start upload immediately
           uploadFile(uploadedFile);
         } catch (error) {
-          logSecurityEvent(
-            'suspicious_activity',
-            `File upload initialization failed for ${uploadedFile.file.name}: ${error}`,
-            'high',
-            {
-              filename: uploadedFile.file.name,
-              fileSize: uploadedFile.file.size,
-              fileType: uploadedFile.file.type,
-            }
-          );
-
           setFiles((prev) =>
             prev.map((f) =>
               f.id === uploadedFile.id
                 ? { ...f, status: 'error', error: t('securityScanFailed') }
                 : f
             )
-          );          toast.error(
+          );
+
+          toast.error(
             t('failedToScanFile', { filename: uploadedFile.file.name })
           );
         }

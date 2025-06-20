@@ -18,7 +18,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import SecurityPanel from '@/components/domains/security/panel';
+import AuditLogsDashboard from '@/components/domains/admin/audit/AuditLogsDashboard';
 import { Shield } from 'lucide-react';
 import type { SecurityStats } from './types';
 
@@ -92,9 +92,8 @@ export default function SecurityStatus({
               <DialogContent className="max-h-[85vh] !max-w-6xl overflow-hidden">
                 <DialogHeader>
                   <DialogTitle>{t('securityDashboard')}</DialogTitle>
-                </DialogHeader>
-                <div className="max-h-[75vh] overflow-y-auto pr-2">
-                  <SecurityPanel />
+                </DialogHeader>                <div className="max-h-[75vh] overflow-y-auto pr-2">
+                  <AuditLogsDashboard />
                 </div>
               </DialogContent>
             </Dialog>

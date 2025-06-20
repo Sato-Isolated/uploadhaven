@@ -4,12 +4,20 @@
  */
 
 import { saveNotification } from '@/lib/database/models';
-import type { SecurityEventType, SecuritySeverity } from '@/types/events';
+import type { AuditSeverity } from '@/types/audit';
+
+type SecurityEventType = 
+  | 'suspicious_activity'
+  | 'blocked_ip'
+  | 'rate_limit'
+  | 'invalid_file'
+  | 'access_denied'
+  | 'system_maintenance';
 
 interface SecurityNotificationData {
   userId: string;
   eventType: SecurityEventType;
-  severity: SecuritySeverity;
+  severity: AuditSeverity;
   details: string;
   metadata?: Record<string, unknown>;
   relatedFileId?: string;
@@ -71,7 +79,7 @@ export async function createSecurityNotification(
 export async function createSystemSecurityNotification(
   userIds: string[],
   eventType: SecurityEventType,
-  severity: SecuritySeverity,
+  severity: AuditSeverity,
   details: string,
   metadata?: Record<string, unknown>,
   t?: TranslationFunction
@@ -126,7 +134,7 @@ interface NotificationConfig {
  */
 function getNotificationConfig(
   eventType: SecurityEventType,
-  severity: SecuritySeverity,
+  severity: AuditSeverity,
   t?: TranslationFunction
 ): NotificationConfig | null {
   // Fallback function for when no translation function is provided

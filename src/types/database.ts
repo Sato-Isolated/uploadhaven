@@ -64,24 +64,6 @@ export interface IFile {
 }
 
 /**
- * Database security event model
- */
-export interface ISecurityEvent {
-  _id: string;
-  type: string;
-  timestamp: Date;
-  ip: string;
-  details: string;
-  severity: 'low' | 'medium' | 'high';
-  userAgent?: string;
-  filename?: string;
-  fileSize?: number;
-  fileType?: string;
-  userId?: string;
-  metadata?: Record<string, unknown>;
-}
-
-/**
  * Database notification model
  */
 export interface INotification {
@@ -91,9 +73,7 @@ export interface INotification {
   title: string;
   message: string;
   isRead: boolean;
-  priority: 'low' | 'normal' | 'high' | 'urgent';
-  relatedFileId?: string;
-  relatedSecurityEventId?: string;
+  priority: 'low' | 'normal' | 'high' | 'urgent';  relatedFileId?: string;
   actionUrl?: string;
   actionLabel?: string;
   expiresAt?: Date;

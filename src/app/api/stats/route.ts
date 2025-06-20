@@ -1,11 +1,7 @@
 import { NextRequest } from 'next/server';
 import { withAPI, createSuccessResponse } from '@/lib/middleware';
-import {
-  File,
-  User,
-  getSecurityStats,
-  getRecentSecurityEvents,
-} from '@/lib/database/models';
+import { File, User } from '@/lib/database/models';
+import { AuditLog } from '@/lib/database/audit-models';
 
 export const GET = withAPI(async (request: NextRequest) => {
   // Get URL search params
@@ -15,9 +11,7 @@ export const GET = withAPI(async (request: NextRequest) => {
   // Calculate file statistics
   const now = new Date();
   const last24h = new Date(now.getTime() - 24 * 60 * 60 * 1000);
-  const last7d = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-
-    const [
+  const last7d = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);    const [
       totalFiles,
       totalSize,
       last24hUploads,
@@ -52,9 +46,13 @@ export const GET = withAPI(async (request: NextRequest) => {
       }),
       User.countDocuments({
         lastActivity: { $gte: last24h },
-      }),
-      getSecurityStats(),
-      includeEvents ? getRecentSecurityEvents(20) : null,
+      }),      // Get security stats from audit logs
+      (AuditLog as any).getStats('24h'),
+      // Get recent security events
+      includeEvents ? AuditLog.find({ category: 'security_event' })
+        .sort({ timestamp: -1 })
+        .limit(20)
+        .lean() : null,
     ]);
 
     // Calculate file type distribution

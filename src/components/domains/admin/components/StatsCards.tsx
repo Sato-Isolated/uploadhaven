@@ -89,9 +89,9 @@ function StatCard({
 
 export default function StatsCards({ stats, isLoading }: StatsCardsProps) {
   const t = useTranslations('Admin');
-
   const cards = [
     {
+      id: 'total-files',
       title: t('totalFiles'),
       value: stats?.totalFiles || 0,
       subtitle: t('filesInSystem'),
@@ -99,6 +99,7 @@ export default function StatsCards({ stats, isLoading }: StatsCardsProps) {
       gradient: 'bg-gradient-to-r from-blue-500 to-blue-600',
     },
     {
+      id: 'total-users',
       title: t('totalUsers'),
       value: stats?.totalUsers || 0,
       subtitle: `${stats?.activeUsers || 0} ${t('activeUsers')}`,
@@ -106,6 +107,7 @@ export default function StatsCards({ stats, isLoading }: StatsCardsProps) {
       gradient: 'bg-gradient-to-r from-green-500 to-green-600',
     },
     {
+      id: 'total-storage',
       title: t('totalStorage'),
       value: stats?.totalStorage || '0 Bytes',
       subtitle: t('storageUsed'),
@@ -113,6 +115,7 @@ export default function StatsCards({ stats, isLoading }: StatsCardsProps) {
       gradient: 'bg-gradient-to-r from-purple-500 to-purple-600',
     },
     {
+      id: 'today-uploads',
       title: t('todayUploads'),
       value: stats?.todayUploads || 0,
       subtitle: t('filesUploadedToday'),
@@ -120,6 +123,7 @@ export default function StatsCards({ stats, isLoading }: StatsCardsProps) {
       gradient: 'bg-gradient-to-r from-orange-500 to-orange-600',
     },
     {
+      id: 'total-downloads',
       title: t('totalDownloads'),
       value: stats?.totalDownloads || 0,
       subtitle: t('allTimeDownloads'),
@@ -127,7 +131,9 @@ export default function StatsCards({ stats, isLoading }: StatsCardsProps) {
       gradient: 'bg-gradient-to-r from-cyan-500 to-cyan-600',
     },
     {
-      title: t('systemHealth'),      value: stats?.systemHealth === 'healthy' ? t('healthy') : 
+      id: 'system-health',
+      title: t('systemHealth'),
+      value: stats?.systemHealth === 'healthy' ? t('healthy') : 
              stats?.systemHealth === 'warning' ? t('warning') : t('error'),
       subtitle: t('systemStatus'),
       icon: Activity,
@@ -136,12 +142,11 @@ export default function StatsCards({ stats, isLoading }: StatsCardsProps) {
                 'bg-gradient-to-r from-red-500 to-red-600',
     },
   ];
-
   return (
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
       {cards.map((card) => (
         <StatCard
-          key={card.title}
+          key={card.id}
           title={card.title}
           value={card.value}
           subtitle={card.subtitle}

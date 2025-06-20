@@ -1,5 +1,6 @@
 import { withAdminAPIParams, createSuccessResponse, createErrorResponse, type AuthenticatedRequest } from '@/lib/middleware';
-import { User, saveSecurityEvent } from '@/lib/database/models';
+import { User } from '@/lib/database/models';
+import { logSecurityEvent } from '@/lib/audit/audit-service';
 
 export const POST = withAdminAPIParams<{ userId: string }>(
   async (request: AuthenticatedRequest, { params }) => {
@@ -26,24 +27,21 @@ export const POST = withAdminAPIParams<{ userId: string }>(
       // In a real implementation, you would:
       // 1. Generate a new verification token
       // 2. Save it to the user record
-      // 3. Send an email with the verification link
-
-      // Log security event
+      // 3. Send an email with the verification link      // Log security event
       const clientIP = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || '127.0.0.1';
-      const userAgent = request.headers.get('user-agent') || 'Unknown';
 
-      await saveSecurityEvent({
-        type: 'verification_email_resent',
-        ip: clientIP,
-        details: `Verification email resent for user ${user.email} by admin`,
-        severity: 'low',
-        userAgent,
-        metadata: {
+      await logSecurityEvent(
+        'verification_email_resent',
+        `Verification email resent for user ${user.email} by admin`,
+        'low',
+        true,
+        {
           userId: userId,
           userEmail: user.email,
-          adminAction: true,
+          adminAction: true
         },
-      });
+        clientIP
+      );
 
       return createSuccessResponse({
         message: `Verification email sent to ${user.email} successfully`,

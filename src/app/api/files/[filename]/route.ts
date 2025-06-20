@@ -9,9 +9,9 @@ import {
 import {
   getFileMetadata,
   incrementDownloadCount,
-  saveSecurityEvent,
   User,
 } from '@/lib/database/models';
+import { logSecurityEvent, logFileOperation } from '@/lib/audit/audit-service';
 
 /**
  * GET /api/files/[filename]
@@ -32,17 +32,20 @@ export const GET = withAPIParams<{ filename: string }>(
     const userAgent = request.headers.get('user-agent') || '';
 
     // Apply rate limiting for downloads
-    const rateLimitCheck = rateLimit(rateLimitConfigs.download)(request);
-
-    if (!rateLimitCheck.success) {
+    const rateLimitCheck = rateLimit(rateLimitConfigs.download)(request);    if (!rateLimitCheck.success) {
       // Log rate limit hit
-      await saveSecurityEvent({
-        type: 'rate_limit',
-        ip: clientIP,
-        details: `Download rate limit exceeded: ${rateLimitCheck.message}`,
-        severity: 'medium',
-        userAgent,
-      });
+      await logSecurityEvent(
+        'rate_limit_exceeded',
+        `Download rate limit exceeded: ${rateLimitCheck.message}`,
+        'medium',
+        true,
+        {
+          endpoint: '/api/files/[filename]',
+          threatType: 'rate_limit_exceeded',
+          blockedReason: 'Download rate limit exceeded'
+        },
+        clientIP
+      );
 
       const headers = new Headers();
       headers.set('X-RateLimit-Limit', rateLimitCheck.limit.toString());
@@ -63,67 +66,74 @@ export const GET = withAPIParams<{ filename: string }>(
 
     if (!filename) {
       return createErrorResponse('Filename is required', 'MISSING_FILENAME', 400);
-    }
-
-    // Validate filename to prevent path traversal
+    }    // Validate filename to prevent path traversal
     if (
       filename.includes('..') ||
       filename.includes('/') ||
       filename.includes('\\')
     ) {
-      await saveSecurityEvent({
-        type: 'suspicious_activity',
-        ip: clientIP,
-        details: `Path traversal attempt detected: ${filename}`,
-        severity: 'high',
-        userAgent,
-        metadata: { filename },
-      });
+      await logSecurityEvent(
+        'path_traversal_attempt',
+        `Path traversal attempt detected: ${filename}`,
+        'high',
+        true,
+        {
+          filename,
+          threatType: 'path_traversal',
+          blockedReason: 'Suspicious filename detected'
+        },
+        clientIP
+      );
 
       return createErrorResponse('Invalid filename', 'INVALID_FILENAME', 400);
     }
 
     // Check file metadata in database
-    const fileMetadata = await getFileMetadata(filename);
-
-    if (!fileMetadata) {
-      await saveSecurityEvent({
-        type: 'suspicious_activity',
-        ip: clientIP,
-        details: `Attempt to access non-existent file: ${filename}`,
-        severity: 'medium',
-        userAgent,
-        metadata: { filename },
-      });
+    const fileMetadata = await getFileMetadata(filename);    if (!fileMetadata) {
+      await logSecurityEvent(
+        'file_not_found',
+        `Attempt to access non-existent file: ${filename}`,
+        'medium',
+        false,
+        {
+          filename,
+          threatType: 'invalid_access'
+        },
+        clientIP
+      );
 
       return createErrorResponse('File not found', 'FILE_NOT_FOUND', 404);
-    }
-
-    // Check if file has expired
+    }    // Check if file has expired
     if (fileMetadata.expiresAt && new Date() > fileMetadata.expiresAt) {
-      await saveSecurityEvent({
-        type: 'suspicious_activity',
-        ip: clientIP,
-        details: `Attempt to access expired file: ${filename}`,
-        severity: 'low',
-        userAgent,
-        metadata: { filename },
-      });
+      await logSecurityEvent(
+        'expired_file_access',
+        `Attempt to access expired file: ${filename}`,
+        'low',
+        false,
+        {
+          filename,
+          expiresAt: fileMetadata.expiresAt,
+          threatType: 'expired_access'
+        },
+        clientIP
+      );
 
       return createErrorResponse('File has expired', 'FILE_EXPIRED', 410);
-    }
-
-    // Check if file is password protected
+    }    // Check if file is password protected
     if (fileMetadata.isPasswordProtected) {
       // Log unauthorized access attempt to password-protected file
-      await saveSecurityEvent({
-        type: 'unauthorized_access',
-        ip: clientIP,
-        details: `Direct access attempt to password-protected file: ${filename}`,
-        severity: 'high',
-        userAgent,
-        metadata: { filename },
-      });
+      await logSecurityEvent(
+        'unauthorized_access_attempt',
+        `Direct access attempt to password-protected file: ${filename}`,
+        'high',
+        true,
+        {
+          filename,
+          threatType: 'unauthorized_access',
+          blockedReason: 'Attempted direct access to password-protected file'
+        },
+        clientIP
+      );
 
       return createErrorResponse(
         'Password required. Please use the shared link to access this file.',
@@ -169,36 +179,41 @@ export const GET = withAPIParams<{ filename: string }>(
       headers.set(
         'Content-Disposition',
         `inline; filename="${fileMetadata.originalName}"`
-      );
-
-      // Log successful download
-      await saveSecurityEvent({
-        type: 'file_download',
-        ip: clientIP,
-        details: `File downloaded: ${filename}`,
-        severity: 'low',
-        userAgent,
-        metadata: {
-          filename: fileMetadata.originalName,
+      );      // Log successful download
+      await logFileOperation(
+        'file_download',
+        `File downloaded: ${filename}`,
+        fileMetadata._id?.toString() || 'unknown',
+        fileMetadata.originalName,
+        filename,
+        fileMetadata.userId,
+        {
           fileSize: fileMetadata.size,
-          fileType: fileMetadata.mimeType,
-          userId: fileMetadata.userId || undefined,
+          mimeType: fileMetadata.mimeType,
+          downloadCount: fileMetadata.downloadCount + 1,
+          encrypted: false,
+          passwordProtected: fileMetadata.isPasswordProtected
         },
-      });
+        clientIP
+      );
 
       return new NextResponse(fileBuffer, {
         status: 200,
         headers,
       });    } catch {
       // File exists in database but not on filesystem
-      await saveSecurityEvent({
-        type: 'suspicious_activity',
-        ip: clientIP,
-        details: `File metadata exists but file missing from filesystem: ${filename}`,
-        severity: 'high',
-        userAgent,
-        metadata: { filename },
-      });
+      await logSecurityEvent(
+        'file_system_inconsistency',
+        `File metadata exists but file missing from filesystem: ${filename}`,
+        'high',
+        false,
+        {
+          filename,
+          threatType: 'system_error',
+          issue: 'database_filesystem_mismatch'
+        },
+        clientIP
+      );
 
       return createErrorResponse('File not found', 'FILE_NOT_FOUND', 404);
     }

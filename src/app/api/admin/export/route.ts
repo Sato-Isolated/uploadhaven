@@ -4,7 +4,8 @@ import {
   withAdminAPI,
   createErrorResponse,
 } from '@/lib/middleware';
-import { User, File, saveSecurityEvent } from '@/lib/database/models';
+import { User, File } from '@/lib/database/models';
+import { logSecurityEvent } from '@/lib/audit/audit-service';
 
 interface ExportedUser {
   id: string;
@@ -140,23 +141,21 @@ export const GET = withAdminAPI(async (request: NextRequest) => {
         })),
       };
       filename = `files_export_${new Date().toISOString().split('T')[0]}`;
-    }
-
-    // Log security event
-    await saveSecurityEvent({
-      type: 'data_export',
-      ip,
-      details: `Admin exported ${type} data in ${format} format`,
-      severity: 'medium',
-      userAgent,
-      metadata: {
+    }    // Log security event
+    await logSecurityEvent(
+      'data_export',
+      `Admin exported ${type} data in ${format} format`,
+      'medium',
+      true,
+      {
         export_type: type,
         format,
         record_count:
           data.export_type === 'users' ? data.users.length : data.files.length,
-        adminAction: true,
+        adminAction: true
       },
-    });
+      ip
+    );
 
     if (format === 'csv') {
       // Convert to CSV format

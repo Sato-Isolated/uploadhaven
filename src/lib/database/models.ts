@@ -2,14 +2,12 @@ import mongoose from 'mongoose';
 import type {
   IUser as BaseIUser,
   IFile as BaseIFile,
-  ISecurityEvent as BaseISecurityEvent,
 } from '@/types';
 import type { INotification as BaseINotification } from '@/types/database';
 
 // Re-export centralized interfaces
 export type IUser = BaseIUser;
 export type IFile = BaseIFile;
-export type ISecurityEvent = BaseISecurityEvent;
 export type INotification = BaseINotification;
 
 // User model schema (matches better-auth user schema)
@@ -142,73 +140,10 @@ const fileSchema = new mongoose.Schema(
         type: String,
         enum: ['media', 'document', 'archive', 'text', 'other'],
         required: false,
-      }, // General content type for preview
-      // Original file metadata for ZK files
+      }, // General content type for preview      // Original file metadata for ZK files
       originalType: String, // Original MIME type before encryption
       originalName: String, // Original filename before encryption
       originalSize: String, // Original file size before encryption
-    },
-  },
-  {
-    timestamps: true,
-  }
-);
-
-// Security event model schema
-const securityEventSchema = new mongoose.Schema(
-  {    type: {
-      type: String,
-      enum: [
-        'rate_limit',
-        'invalid_file',
-        'large_file',
-        'blocked_ip',
-        'suspicious_activity',
-        'file_deletion',
-        'bulk_delete',
-        'file_upload',
-        'user_registration',
-        'file_download',
-        'file_preview', // New event type for file previews
-        'user_login',
-        'user_logout',
-        'user_role_changed',
-        'system_maintenance',
-        'encryption_error', // New event type for encryption errors
-        'decryption_error', // New event type for decryption errors
-        'encryption_success', // New event type for successful encryption
-        'decryption_success', // New event type for successful decryption
-      ],
-      required: true,
-    },
-    timestamp: {
-      type: Date,
-      default: Date.now,
-    },
-    ip: {
-      type: String,
-      required: true,
-    },
-    details: {
-      type: String,
-      required: true,
-    },
-    severity: {
-      type: String,
-      enum: ['low', 'medium', 'high'],
-      required: true,
-    },
-    userAgent: String,
-    filename: String,
-    fileSize: Number,
-    fileType: String,
-    metadata: {
-      type: mongoose.Schema.Types.Mixed,
-      default: {},
-    },
-    userId: {
-      type: String,
-      required: false, // Optional for anonymous activities
     },
   },
   {
@@ -224,11 +159,6 @@ userSchema.index({ lastActivity: -1 }); // Index for activity queries
 fileSchema.index({ expiresAt: 1 });
 fileSchema.index({ uploadDate: -1 });
 fileSchema.index({ isDeleted: 1 });
-
-securityEventSchema.index({ timestamp: -1 });
-securityEventSchema.index({ type: 1 });
-securityEventSchema.index({ ip: 1 });
-securityEventSchema.index({ severity: 1 });
 
 // Notification model schema
 const notificationSchema = new mongoose.Schema(
@@ -265,14 +195,9 @@ const notificationSchema = new mongoose.Schema(
       type: String,
       enum: ['low', 'normal', 'high', 'urgent'],
       default: 'normal',
-    },
-    relatedFileId: {
+    },    relatedFileId: {
       type: String,
       required: false, // Optional reference to a file
-    },
-    relatedSecurityEventId: {
-      type: String,
-      required: false, // Optional reference to security event
     },
     actionUrl: {
       type: String,
@@ -319,10 +244,6 @@ function getOrCreateModel<T>(
 
 export const User = getOrCreateModel<IUser>('User', userSchema, 'user');
 export const File = getOrCreateModel<IFile>('File', fileSchema);
-export const SecurityEvent = getOrCreateModel<ISecurityEvent>(
-  'SecurityEvent',
-  securityEventSchema
-);
 export const Notification = getOrCreateModel<INotification>(
   'Notification',
   notificationSchema
@@ -369,28 +290,6 @@ export const saveFileMetadata = async (fileData: {
   }
 };
 
-export const saveSecurityEvent = async (eventData: {
-  type: string;
-  ip: string;
-  details: string;
-  severity: string;
-  userAgent?: string;
-  filename?: string;
-  fileSize?: number;
-  fileType?: string;
-  metadata?: Record<string, unknown>;
-  userId?: string;
-}) => {
-  try {
-    const event = new SecurityEvent(eventData);
-    await event.save();
-    return event;
-  } catch (error) {
-    // Error saving security event
-    throw error;
-  }
-};
-
 export const getFileMetadata = async (filename: string) => {
   try {
     return await File.findOne({ filename, isDeleted: false });
@@ -413,62 +312,13 @@ export const incrementDownloadCount = async (filename: string) => {
   }
 };
 
-export const getSecurityStats = async () => {
-  try {
-    const now = new Date();
-    const last24h = new Date(now.getTime() - 24 * 60 * 60 * 1000);    const [
-      totalEvents,
-      rateLimitHits,
-      invalidFiles,
-      largeSizeBlocked,
-      last24hEvents,
-      blockedIPs,
-    ] = await Promise.all([
-      SecurityEvent.countDocuments({}),
-      SecurityEvent.countDocuments({ type: 'rate_limit' }),
-      SecurityEvent.countDocuments({ type: 'invalid_file' }),
-      SecurityEvent.countDocuments({ type: 'large_file' }),
-      SecurityEvent.countDocuments({ timestamp: { $gte: last24h } }),
-      SecurityEvent.distinct('ip', { type: 'blocked_ip' }).then(
-        (ips) => ips.length
-      ),
-    ]);
-
-    return {
-      totalEvents,
-      rateLimitHits,
-      invalidFiles,
-      blockedIPs,
-      last24h: last24hEvents,
-      largeSizeBlocked,
-    };
-  } catch (error) {
-    // Error getting security stats
-    throw error;
-  }
-};
-
-export const getRecentSecurityEvents = async (limit = 50) => {
-  try {
-    return await SecurityEvent.find({})
-      .sort({ timestamp: -1 })
-      .limit(limit)
-      .lean();
-  } catch (error) {
-    // Error getting recent security events
-    throw error;
-  }
-};
-
 // Notification helper functions
 export const saveNotification = async (notificationData: {
   userId: string;
   type: string;
   title: string;
-  message: string;
-  priority?: string;
+  message: string;  priority?: string;
   relatedFileId?: string;
-  relatedSecurityEventId?: string;
   actionUrl?: string;
   actionLabel?: string;
   expiresAt?: Date;

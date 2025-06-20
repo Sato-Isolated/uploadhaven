@@ -5,9 +5,10 @@ import { nanoid } from 'nanoid';
 import { z } from 'zod';
 import { rateLimit, rateLimitConfigs } from '@/lib/core/rateLimit';
 import { withOptionalAuthAPI, createSuccessResponse, createErrorResponse } from '@/lib/middleware';
-import { saveFileMetadata, saveSecurityEvent, saveNotification, User } from '@/lib/database/models';
+import { saveFileMetadata, saveNotification, User } from '@/lib/database/models';
 import { generateShortUrl } from '@/lib/core/server-utils';
 import { hashPassword, validatePassword } from '@/lib/core/utils';
+import { logSecurityEvent, logFileOperation } from '@/lib/audit/audit-service';
 
 const MAX_ENCRYPTED_SIZE = 150 * 1024 * 1024; // 150MB (accounting for encryption overhead)
 
@@ -72,18 +73,21 @@ export const POST = withOptionalAuthAPI(async (request: NextRequest & { user?: A
     rateLimitCheck = rateLimit(rateLimitConfigs.upload)(request);
   } catch {
     rateLimitCheck = { success: true };
-  }
-
-  if (!rateLimitCheck.success) {
-    await saveSecurityEvent({
-      type: 'rate_limit',
-      ip: clientIP,
-      details: `ZK upload rate limit exceeded: ${
-        rateLimitCheck.message || 'Rate limit exceeded'
-      }`,
-      severity: 'medium',
-      userAgent,
-    });
+  }  if (!rateLimitCheck.success) {
+    await logSecurityEvent(
+      'rate_limit_exceeded',
+      `ZK upload rate limit exceeded: ${rateLimitCheck.message || 'Rate limit exceeded'}`,
+      'medium',
+      true,
+      {
+        endpoint: '/api/zk-upload',
+        limit: rateLimitCheck.limit,
+        remaining: rateLimitCheck.remaining,
+        threatType: 'rate_limit_exceeded',
+        blockedReason: 'Rate limit exceeded for ZK upload endpoint'
+      },
+      clientIP
+    );
 
     const responseHeaders = new Headers();
     responseHeaders.set('X-RateLimit-Limit', (rateLimitCheck.limit || 0).toString());
@@ -115,13 +119,19 @@ export const POST = withOptionalAuthAPI(async (request: NextRequest & { user?: A
   // Validate the Zero-Knowledge upload data
   const validation = zkUploadSchema.safeParse(requestData);
   if (!validation.success) {
-    await saveSecurityEvent({
-      type: 'invalid_file',
-      ip: clientIP,
-      details: `ZK upload validation failed: ${validation.error.issues[0].message}`,
-      severity: 'medium',
-      userAgent,
-    });
+    await logSecurityEvent(
+      'invalid_file_upload',
+      `ZK upload validation failed: ${validation.error.issues[0].message}`,
+      'medium',
+      true,
+      {
+        endpoint: '/api/zk-upload',
+        validationError: validation.error.issues[0].message,
+        threatType: 'invalid_data',
+        blockedReason: 'Upload validation failed'
+      },
+      clientIP
+    );
 
     return createErrorResponse(validation.error.issues[0].message, 'VALIDATION_ERROR', 400);
   }
@@ -242,25 +252,27 @@ export const POST = withOptionalAuthAPI(async (request: NextRequest & { user?: A
       } catch (error) {
         console.error('Failed to update user lastActivity:', error);
       }
-    }
-
-    // Log successful ZK upload
-    await saveSecurityEvent({
-      type: 'file_upload',
-      ip: clientIP,
-      details: `Zero-Knowledge file uploaded successfully (${publicMetadata.size} bytes)`,
-      severity: 'low',
-      userAgent,
-      metadata: {
-        filename: fileName,
+    }    // Log successful ZK upload
+    await logFileOperation(
+      'file_upload_success',
+      `Zero-Knowledge file uploaded successfully (${publicMetadata.size} bytes)`,
+      savedFile._id.toString(),
+      fileName,
+      shortId,
+      user?.id,
+      {
         fileSize: publicMetadata.size,
         fileType: 'application/octet-stream',
-        userId: user?.id || undefined,
         zeroKnowledge: true,
         algorithm: publicMetadata.algorithm,
         keyType: keyData.isPasswordDerived ? 'password' : 'embedded',
+        encrypted: true,
+        passwordProtected: isPasswordProtected,
+        downloadLimit: undefined, // ZK files don't have download limits in this implementation
+        expiresAt: expiresAt
       },
-    });    // Create notification for authenticated users
+      clientIP
+    );// Create notification for authenticated users
     if (user?.id) {
       try {
         await saveNotification({
@@ -314,23 +326,23 @@ export const POST = withOptionalAuthAPI(async (request: NextRequest & { user?: A
         zeroKnowledge: true,
         algorithm: publicMetadata.algorithm,
       },
-    });
-  } catch (error) {
+    });  } catch (error) {
     console.error('ZK Upload processing error:', error);
 
     // Log the error
-    await saveSecurityEvent({
-      type: 'suspicious_activity',
-      ip: clientIP,
-      details: `ZK upload error: ${
-        error instanceof Error ? error.message : 'Unknown error'
-      }`,
-      severity: 'high',
-      userAgent,
-      metadata: {
+    await logSecurityEvent(
+      'upload_processing_error',
+      `ZK upload error: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      'high',
+      false,
+      {
+        endpoint: '/api/zk-upload',
         error: error instanceof Error ? error.message : 'Unknown error',
+        errorType: 'processing_failure',
+        threatType: 'system_error'
       },
-    });
+      clientIP
+    );
 
     return createErrorResponse('Failed to process upload', 'UPLOAD_PROCESSING_ERROR', 500);
   }

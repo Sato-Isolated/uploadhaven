@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { headers } from 'next/headers';
 import { auth } from '@/lib/auth/auth';
-import { saveSecurityEvent, User } from '@/lib/database/models';
+import { User } from '@/lib/database/models';
+import { logSecurityEvent } from '@/lib/audit/audit-service';
 
 export async function POST(request: NextRequest) {
   try {
@@ -26,16 +27,14 @@ export async function POST(request: NextRequest) {
         // Update user's lastActivity
         await User.findByIdAndUpdate(session.user.id, {
           lastActivity: new Date(),
-        });
-
-        await saveSecurityEvent({
-          type: 'user_logout',
-          ip: clientIP,
-          details: `User logged out: ${session.user.email}`,
-          severity: 'low',
-          userAgent,
-          userId: session.user.id,
-        });
+        });        await logSecurityEvent(
+          'user_logout',
+          `User logged out: ${session.user.email}`,
+          'low',
+          true,
+          { userId: session.user.id },
+          clientIP
+        );
       } catch (error) {
         console.error('Failed to log user logout:', error);
       }

@@ -1,6 +1,7 @@
 #!/usr/bin/env tsx
 import connectDB from '@/lib/database/mongodb';
-import { User, File, SecurityEvent, Notification } from '@/lib/database/models';
+import { User, File, Notification } from '@/lib/database/models';
+import { AuditLog } from '@/lib/database/audit-models';
 
 /**
  * Database migration script for UploadHaven
@@ -33,12 +34,11 @@ const migrations: Migration[] = [
       await File.collection.createIndex({ expiresAt: 1 });
       await File.collection.createIndex({ isDeleted: 1 });
       await File.collection.createIndex({ userId: 1, uploadDate: -1 });
-      
-      // Security event indexes
-      await SecurityEvent.collection.createIndex({ timestamp: -1 });
-      await SecurityEvent.collection.createIndex({ type: 1, timestamp: -1 });
-      await SecurityEvent.collection.createIndex({ ip: 1 });
-      await SecurityEvent.collection.createIndex({ severity: 1, timestamp: -1 });
+        // Audit log indexes (replaces SecurityEvent indexes)
+      await AuditLog.collection.createIndex({ timestamp: -1 });
+      await AuditLog.collection.createIndex({ action: 1, timestamp: -1 });
+      await AuditLog.collection.createIndex({ ipHash: 1 });
+      await AuditLog.collection.createIndex({ severity: 1, timestamp: -1 });
       
       console.log('✅ Initial indexes created');
     },
@@ -46,7 +46,7 @@ const migrations: Migration[] = [
       console.log('Dropping initial indexes...');
       await User.collection.dropIndexes();
       await File.collection.dropIndexes();
-      await SecurityEvent.collection.dropIndexes();
+      await AuditLog.collection.dropIndexes();
       console.log('✅ Initial indexes dropped');
     }
   },
@@ -81,11 +81,10 @@ const migrations: Migration[] = [
         { expiresAt: 1 }, 
         { expireAfterSeconds: 86400 } // 24 hours
       );
-      
-      // TTL index for old security events (cleanup after 90 days)
-      await SecurityEvent.collection.createIndex(
-        { timestamp: 1 }, 
-        { expireAfterSeconds: 7776000 } // 90 days
+        // TTL index for old audit logs (cleanup after 90 days by default)
+      await AuditLog.collection.createIndex(
+        { expiresAt: 1 }, 
+        { expireAfterSeconds: 0 } // Use expiresAt field for TTL
       );
       
       // TTL index for expired notifications
@@ -115,10 +114,9 @@ const migrations: Migration[] = [
         isDeleted: 1, 
         uploadDate: -1 
       });
-      
-      // Compound index for security event filtering
-      await SecurityEvent.collection.createIndex({ 
-        type: 1, 
+        // Compound index for audit log filtering
+      await AuditLog.collection.createIndex({ 
+        category: 1, 
         severity: 1, 
         timestamp: -1 
       });

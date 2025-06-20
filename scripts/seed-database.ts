@@ -2,7 +2,7 @@
 import connectDB from '@/lib/database/mongodb';
 import { User } from '@/lib/database/models';
 import { File } from '@/lib/database/models';
-import { SecurityEvent } from '@/lib/database/models';
+import { AuditLog } from '@/lib/database/audit-models';
 import bcrypt from 'bcryptjs';
 import { nanoid } from 'nanoid';
 
@@ -17,7 +17,7 @@ interface SeedData {
     testUser: any;
   };
   files: any[];
-  securityEvents: any[];
+  auditLogs: any[];
 }
 
 async function seedDatabase() {
@@ -26,15 +26,13 @@ async function seedDatabase() {
     
     // Connect to database
     await connectDB();
-    console.log('✅ Connected to database');
-
-    // Clear existing data (development only)
+    console.log('✅ Connected to database');    // Clear existing data (development only)
     if (process.env.NODE_ENV === 'development') {
       console.log('🧹 Clearing existing data...');
       await Promise.all([
         User.deleteMany({}),
         File.deleteMany({}),
-        SecurityEvent.deleteMany({})
+        AuditLog.deleteMany({})
       ]);
       console.log('✅ Existing data cleared');
     }
@@ -45,7 +43,7 @@ async function seedDatabase() {
         testUser: null
       },
       files: [],
-      securityEvents: []
+      auditLogs: []
     };
 
     // Create admin user
@@ -148,55 +146,74 @@ async function seedDatabase() {
     }
     console.log(`✅ Created ${seedData.files.length} sample files`);
 
-    // Create security events
-    console.log('🔒 Creating security events...');
-    const securityEvents = [
+    // Create security events    console.log('🔒 Creating audit logs...');
+    const auditLogData = [
       {
-        type: 'file_upload',
+        category: 'file_operation',
+        action: 'file_uploaded',
+        description: 'File uploaded successfully',
+        severity: 'info',
+        status: 'success',
         timestamp: new Date(Date.now() - 86400000),
-        ip: '192.168.1.100',
-        details: 'File uploaded successfully',
-        severity: 'low',
+        ipHash: 'hashed_192_168_1_100',
         userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-        filename: seedData.files[0].filename,
-        fileSize: seedData.files[0].size,
-        fileType: seedData.files[0].mimeType,
-        userId: seedData.users.testUser._id.toString()
+        userId: seedData.users.testUser._id.toString(),
+        metadata: {
+          filename: seedData.files[0].filename,
+          fileSize: seedData.files[0].size,
+          fileType: seedData.files[0].mimeType
+        }
       },
       {
-        type: 'file_download',
+        category: 'file_operation',
+        action: 'file_downloaded',
+        description: 'File downloaded by anonymous user',
+        severity: 'info',
+        status: 'success',
         timestamp: new Date(Date.now() - 43200000),
-        ip: '203.0.113.5',
-        details: 'File downloaded by anonymous user',
-        severity: 'low',
+        ipHash: 'hashed_203_0_113_5',
         userAgent: 'Mozilla/5.0 (iPhone; CPU iPhone OS 15_0 like Mac OS X)',
-        filename: seedData.files[1].filename,
-        fileSize: seedData.files[1].size,
-        fileType: seedData.files[1].mimeType
+        metadata: {
+          filename: seedData.files[1].filename,
+          fileSize: seedData.files[1].size,
+          fileType: seedData.files[1].mimeType
+        }
       },
       {
-        type: 'rate_limit',
-        timestamp: new Date(Date.now() - 21600000),
-        ip: '203.0.113.10',
-        details: 'Rate limit exceeded for upload endpoint',
+        category: 'security_event',
+        action: 'rate_limit_exceeded',
+        description: 'Rate limit exceeded for upload endpoint',
         severity: 'medium',
-        userAgent: 'curl/7.68.0'
+        status: 'failure',
+        timestamp: new Date(Date.now() - 21600000),
+        ipHash: 'hashed_203_0_113_10',
+        userAgent: 'curl/7.68.0',
+        metadata: {
+          endpoint: '/api/zk-upload',
+          rateLimitType: 'upload'
+        }
       },
       {
-        type: 'suspicious_activity',
-        timestamp: new Date(Date.now() - 10800000),
-        ip: '198.51.100.1',
-        details: 'Multiple failed authentication attempts',
+        category: 'security_event',
+        action: 'suspicious_activity_detected',
+        description: 'Multiple failed authentication attempts',
         severity: 'high',
-        userAgent: 'Mozilla/5.0 (compatible; automated scanner)'
+        status: 'failure',
+        timestamp: new Date(Date.now() - 10800000),
+        ipHash: 'hashed_198_51_100_1',
+        userAgent: 'Mozilla/5.0 (compatible; automated scanner)',
+        metadata: {
+          attemptCount: 5,
+          timeWindow: '5 minutes'
+        }
       }
     ];
 
-    for (const eventData of securityEvents) {
-      const event = await SecurityEvent.create(eventData);
-      seedData.securityEvents.push(event);
+    for (const logData of auditLogData) {
+      const log = await AuditLog.create(logData);
+      seedData.auditLogs.push(log);
     }
-    console.log(`✅ Created ${seedData.securityEvents.length} security events`);
+    console.log(`✅ Created ${seedData.auditLogs.length} audit logs`);
 
     // Create indexes if they don't exist
     console.log('📊 Creating database indexes...');
@@ -209,13 +226,13 @@ async function seedDatabase() {
       File.collection.createIndex({ filename: 1 }, { unique: true }),
       File.collection.createIndex({ uploadDate: -1 }),
       File.collection.createIndex({ expiresAt: 1 }),
-      File.collection.createIndex({ isDeleted: 1 }),
-      File.collection.createIndex({ userId: 1, uploadDate: -1 }),
+      File.collection.createIndex({ isDeleted: 1 }),      File.collection.createIndex({ userId: 1, uploadDate: -1 }),
       
-      SecurityEvent.collection.createIndex({ timestamp: -1 }),
-      SecurityEvent.collection.createIndex({ type: 1, timestamp: -1 }),
-      SecurityEvent.collection.createIndex({ ip: 1 }),
-      SecurityEvent.collection.createIndex({ severity: 1, timestamp: -1 })
+      AuditLog.collection.createIndex({ timestamp: -1 }),
+      AuditLog.collection.createIndex({ category: 1, timestamp: -1 }),
+      AuditLog.collection.createIndex({ action: 1, timestamp: -1 }),
+      AuditLog.collection.createIndex({ ipHash: 1 }),
+      AuditLog.collection.createIndex({ severity: 1, timestamp: -1 })
     ]);
     console.log('✅ Database indexes created');
 
@@ -226,7 +243,7 @@ async function seedDatabase() {
     console.log(`\n📊 Summary:`);
     console.log(`  - Users: 2`);
     console.log(`  - Files: ${seedData.files.length}`);
-    console.log(`  - Security Events: ${seedData.securityEvents.length}`);
+    console.log(`  - Audit Logs: ${seedData.auditLogs.length}`);
 
   } catch (error) {
     console.error('❌ Error seeding database:', error);

@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import path from 'path';
 import fs from 'fs/promises';
 import { withAPIParams, createErrorResponse } from '@/lib/middleware';
-import { File, saveSecurityEvent } from '@/lib/database/models';
+import { File } from '@/lib/database/models';
+import { logSecurityEvent, logFileOperation } from '@/lib/audit/audit-service';
 import { rateLimit, rateLimitConfigs } from '@/lib/core/rateLimit';
 
 export const GET = withAPIParams<{ shortUrl: string }>(
@@ -26,17 +27,19 @@ export const GET = withAPIParams<{ shortUrl: string }>(
       const file = await File.findOne({ 
         shortUrl, 
         isDeleted: false 
-      });
-
-      if (!file) {
+      });      if (!file) {
         // Log potential scanning attempt
-        await saveSecurityEvent({
-          type: 'suspicious_activity',
-          ip: clientIP,
-          details: `Download attempt for non-existent file: ${shortUrl}`,
-          severity: 'low',
-          userAgent,
-        });
+        await logSecurityEvent(
+          'download_nonexistent_file',
+          `Download attempt for non-existent file: ${shortUrl}`,
+          'low',
+          false,
+          {
+            shortUrl,
+            threatType: 'invalid_access'
+          },
+          clientIP
+        );
         
         return createErrorResponse('File not found', 'FILE_NOT_FOUND', 404);
       }
@@ -63,16 +66,23 @@ export const GET = withAPIParams<{ shortUrl: string }>(
         
         // Increment download count
         file.downloadCount = (file.downloadCount || 0) + 1;
-        await file.save();
-
-        // Log download event
-        await saveSecurityEvent({
-          type: 'file_download',
-          ip: clientIP,
-          details: `File downloaded: ${file.filename} (${shortUrl})`,
-          severity: 'info',
-          userAgent,
-        });
+        await file.save();        // Log download event
+        await logFileOperation(
+          'file_download',
+          `File downloaded: ${file.filename} (${shortUrl})`,
+          file._id?.toString() || 'unknown',
+          file.originalName,
+          shortUrl,
+          file.userId,
+          {
+            fileSize: file.size,
+            mimeType: file.mimeType,
+            downloadCount: file.downloadCount,
+            encrypted: false,
+            passwordProtected: file.isPasswordProtected
+          },
+          clientIP
+        );
 
         // Return file
         return new NextResponse(fileBuffer, {
@@ -82,16 +92,21 @@ export const GET = withAPIParams<{ shortUrl: string }>(
             'Content-Disposition': `attachment; filename="${file.originalName}"`,
             'Content-Length': fileBuffer.length.toString(),
           },
-        });
-      } catch {
+        });      } catch {
         // File exists in database but not on filesystem
-        await saveSecurityEvent({
-          type: 'suspicious_activity',
-          ip: clientIP,
-          details: `File metadata exists but file missing from filesystem: ${file.filename}`,
-          severity: 'high',
-          userAgent,
-        });
+        await logSecurityEvent(
+          'file_system_inconsistency',
+          `File metadata exists but file missing from filesystem: ${file.filename}`,
+          'high',
+          false,
+          {
+            filename: file.filename,
+            shortUrl,
+            threatType: 'system_error',
+            issue: 'database_filesystem_mismatch'
+          },
+          clientIP
+        );
         
         return createErrorResponse('File not available', 'FILE_UNAVAILABLE', 500);
       }

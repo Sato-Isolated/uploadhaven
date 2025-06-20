@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { headers } from 'next/headers';
 import { auth } from '@/lib/auth/auth';
-import { saveSecurityEvent, User } from '@/lib/database/models';
+import { User } from '@/lib/database/models';
+import { logSecurityEvent } from '@/lib/audit/audit-service';
 
 export async function POST(request: NextRequest) {
   try {
@@ -25,16 +26,14 @@ export async function POST(request: NextRequest) {
         // Update user's lastActivity
         await User.findByIdAndUpdate(authResponse.user.id, {
           lastActivity: new Date(),
-        });
-
-        await saveSecurityEvent({
-          type: 'user_registration',
-          ip: clientIP,
-          details: `User registered: ${authResponse.user.email}`,
-          severity: 'low',
-          userAgent,
-          userId: authResponse.user.id,
-        });
+        });        await logSecurityEvent(
+          'user_registration',
+          `User registered: ${authResponse.user.email}`,
+          'low',
+          true,
+          { userId: authResponse.user.id },
+          clientIP
+        );
       } catch (error) {
         console.error('Failed to log user registration:', error);
       }

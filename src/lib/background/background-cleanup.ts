@@ -1,5 +1,6 @@
 import connectDB from '@/lib/database/mongodb';
-import { File, saveSecurityEvent } from '@/lib/database/models';
+import { File } from '@/lib/database/models';
+import { logAdminAction } from '@/lib/audit/audit-service';
 import { unlink } from 'fs/promises';
 import path from 'path';
 import type { CleanupStats } from '@/types';
@@ -102,22 +103,19 @@ class BackgroundCleanupService {
           stats.errors.push(errorMsg);
           // Background cleanup error: ${errorMsg}
         }
-      }
-
-      // Log cleanup activity
-      await saveSecurityEvent({
-        type: 'system_maintenance',
-        ip: '127.0.0.1',
-        details: `Background cleanup completed: ${stats.deletedCount} expired files removed`,
-        severity: 'low',
-        userAgent: 'Background Service',
-        metadata: {
+      }      // Log cleanup activity
+      await logAdminAction(
+        'background_cleanup',
+        `Background cleanup completed: ${stats.deletedCount} expired files removed`,
+        'low',
+        'system',
+        {
           deletedCount: stats.deletedCount,
           totalExpired: stats.totalExpired,
           errors: stats.errors.length,
           timestamp: new Date().toISOString(),
-        },
-      }); // Background cleanup completed: ${stats.deletedCount}/${stats.totalExpired} files processed
+        }
+      );// Background cleanup completed: ${stats.deletedCount}/${stats.totalExpired} files processed
 
       return stats;
     } catch (error) {
@@ -154,22 +152,19 @@ class BackgroundCleanupService {
           // Instant deletion: Deleted expired file ${file.filename}
         } catch {
           // Instant deletion: Could not delete physical file ${file.filename}
-        }
-
-        // Log instant deletion
-        await saveSecurityEvent({
-          type: 'file_expired',
-          ip: '127.0.0.1',
-          details: `Instant deletion of expired file: ${file.filename}`,
-          severity: 'low',
-          userAgent: 'Background Service',
-          metadata: {
+        }        // Log instant deletion
+        await logAdminAction(
+          'file_expired_cleanup',
+          `Instant deletion of expired file: ${file.filename}`,
+          'low',
+          'system',
+          {
             fileId: file._id.toString(),
             filename: file.filename,
             expiredAt: file.expiresAt?.toISOString(),
             deletedAt: new Date().toISOString(),
-          },
-        });
+          }
+        );
 
         return true;
       }
