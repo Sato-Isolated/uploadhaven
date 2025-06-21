@@ -4,6 +4,7 @@ import { logAdminAction } from '@/lib/audit/audit-service';
 import { unlink } from 'fs/promises';
 import path from 'path';
 import type { CleanupStats } from '@/types';
+import { expirationNotificationService } from './expiration-notifications';
 
 class BackgroundCleanupService {
   private intervalId: NodeJS.Timeout | null = null;
@@ -53,12 +54,23 @@ class BackgroundCleanupService {
   isServiceRunning(): boolean {
     return this.isRunning;
   }
-
   /**
    * Run a single cleanup operation
    */
   async runCleanup(): Promise<CleanupStats> {
     try {
+      // First, send expiration notifications before cleanup
+      try {
+        console.log('📧 Checking for files that need expiration notifications...');
+        await expirationNotificationService.notifyExpiringFiles({
+          notifyWithinHours: 24, // Notify 24 hours before expiration
+          minHoursUntilExpiry: 1, // Don't notify if less than 1 hour left
+        });
+      } catch (error) {
+        console.error('Error sending expiration notifications:', error);
+        // Continue with cleanup even if notifications fail
+      }
+
       await connectDB();
 
       const now = new Date();

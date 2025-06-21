@@ -186,44 +186,44 @@ export function arrayBufferToBase64(buffer: ArrayBuffer | Uint8Array): string {
   const bytes = buffer instanceof Uint8Array ? buffer : new Uint8Array(buffer);
   
   try {
-    // Use smaller chunks and avoid String.fromCharCode.apply for very large arrays
-    const chunkSize = 4096; // 4KB chunks
-    let result = '';
+    // For Node.js environment (server-side)
+    if (typeof Buffer !== 'undefined') {
+      return Buffer.from(bytes).toString('base64');
+    }
+    
+    // For browser environment - build binary string then convert to base64
+    // Use smaller chunks to avoid stack overflow with String.fromCharCode.apply
+    const chunkSize = 8192; // 8KB chunks
+    let binaryString = '';
     
     for (let i = 0; i < bytes.byteLength; i += chunkSize) {
       const chunk = bytes.subarray(i, i + chunkSize);
       
       // Build binary string character by character to avoid stack overflow
-      let binaryString = '';
       for (let j = 0; j < chunk.length; j++) {
         binaryString += String.fromCharCode(chunk[j]);
       }
-      
-      // Convert each chunk to base64 and concatenate
-      result += btoa(binaryString);
     }
     
-    return result;
+    // Convert the complete binary string to base64
+    return btoa(binaryString);
   } catch (error) {
     console.error('Error in arrayBufferToBase64:', error);
     
     // Fallback: try with even smaller chunks
     try {
       const smallChunkSize = 1024; // 1KB chunks as fallback
-      let result = '';
+      let binaryString = '';
       
       for (let i = 0; i < bytes.byteLength; i += smallChunkSize) {
         const chunk = bytes.subarray(i, i + smallChunkSize);
         
-        let binaryString = '';
         for (let j = 0; j < chunk.length; j++) {
           binaryString += String.fromCharCode(chunk[j]);
         }
-        
-        result += btoa(binaryString);
       }
       
-      return result;
+      return btoa(binaryString);
     } catch (fallbackError) {
       console.error('Fallback arrayBufferToBase64 also failed:', fallbackError);
       throw new Error('Failed to convert ArrayBuffer to Base64: file may be too large');

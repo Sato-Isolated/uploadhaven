@@ -53,9 +53,12 @@ export type NotificationType =
   | 'file_expired_soon'
   | 'file_shared'
   | 'security_alert'
+  | 'malware_detected'
   | 'system_announcement'
   | 'file_upload_complete'
-  | 'bulk_action_complete';
+  | 'bulk_action_complete'
+  | 'account_security'
+  | 'admin_alert';
 
 /**
  * Notification priority levels

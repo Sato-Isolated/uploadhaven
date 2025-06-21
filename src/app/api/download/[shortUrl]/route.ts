@@ -5,6 +5,7 @@ import { withAPIParams, createErrorResponse } from '@/lib/middleware';
 import { File } from '@/lib/database/models';
 import { logSecurityEvent, logFileOperation } from '@/lib/audit/audit-service';
 import { rateLimit, rateLimitConfigs } from '@/lib/core/rateLimit';
+import { fileEventNotificationService } from '@/lib/notifications/file-event-notifications';
 
 export const GET = withAPIParams<{ shortUrl: string }>(
   async (request: NextRequest, { params }): Promise<NextResponse> => {
@@ -63,10 +64,25 @@ export const GET = withAPIParams<{ shortUrl: string }>(
         
         // Read file
         const fileBuffer = await fs.readFile(filePath);
-        
-        // Increment download count
+          // Increment download count
         file.downloadCount = (file.downloadCount || 0) + 1;
-        await file.save();        // Log download event
+        await file.save();
+
+        // Send download notification to file owner
+        try {
+          await fileEventNotificationService.notifyFileDownloaded({
+            fileId: file._id.toString(),
+            filename: file.originalName,
+            userId: file.userId,
+            downloaderIP: clientIP,
+            userAgent: userAgent,
+            isPasswordProtected: file.isPasswordProtected || false,
+            downloadCount: file.downloadCount,
+          });
+        } catch (notificationError) {
+          console.error('Failed to send download notification:', notificationError);
+          // Don't fail the download if notification fails
+        }// Log download event
         await logFileOperation(
           'file_download',
           `File downloaded: ${file.filename} (${shortUrl})`,

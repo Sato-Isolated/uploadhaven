@@ -5,10 +5,11 @@ import { nanoid } from 'nanoid';
 import { z } from 'zod';
 import { rateLimit, rateLimitConfigs } from '@/lib/core/rateLimit';
 import { withOptionalAuthAPI, createSuccessResponse, createErrorResponse } from '@/lib/middleware';
-import { saveFileMetadata, saveNotification, User } from '@/lib/database/models';
+import { saveFileMetadata, User } from '@/lib/database/models';
 import { generateShortUrl } from '@/lib/core/server-utils';
 import { hashPassword, validatePassword } from '@/lib/core/utils';
 import { logSecurityEvent, logFileOperation } from '@/lib/audit/audit-service';
+import { fileEventNotificationService } from '@/lib/notifications/file-event-notifications';
 
 const MAX_ENCRYPTED_SIZE = 150 * 1024 * 1024; // 150MB (accounting for encryption overhead)
 
@@ -137,14 +138,14 @@ export const POST = withOptionalAuthAPI(async (request: NextRequest & { user?: A
   }
 
   const { encryptedData, publicMetadata, keyData, userOptions } = validation.data;
-
   console.log('🔐 ZK Upload received:');
   console.log(`   Encrypted size: ${publicMetadata.size} bytes`);
   console.log(`   Algorithm: ${publicMetadata.algorithm}`);
   console.log(
     `   Key type: ${keyData.isPasswordDerived ? 'password-derived' : 'random'}`
   );
-
+  console.log('   Base64 data length:', encryptedData.length);
+  console.log('   Expected buffer size after decode:', Math.ceil(encryptedData.length * 3 / 4));
   // Convert base64 encrypted data to buffer
   let encryptedBuffer: Buffer;
   try {
@@ -152,9 +153,15 @@ export const POST = withOptionalAuthAPI(async (request: NextRequest & { user?: A
   } catch {
     return createErrorResponse('Invalid encrypted data encoding', 'INVALID_ENCODING', 400);
   }
-
-  // Verify the buffer size matches metadata
+  // Verify the buffer size matches metadata (after base64 decoding)
   if (encryptedBuffer.length !== publicMetadata.size) {
+    console.error('Size mismatch:', {
+      bufferLength: encryptedBuffer.length,
+      expectedSize: publicMetadata.size,
+      base64Length: encryptedData.length,
+      calculatedBase64Size: Math.ceil(publicMetadata.size * 4 / 3), // Expected base64 size
+      sizeRatio: encryptedBuffer.length / publicMetadata.size
+    });
     return createErrorResponse('Encrypted data size mismatch', 'SIZE_MISMATCH', 400);
   }
 
@@ -272,25 +279,18 @@ export const POST = withOptionalAuthAPI(async (request: NextRequest & { user?: A
         expiresAt: expiresAt
       },
       clientIP
-    );// Create notification for authenticated users
+    );    // Create notification for authenticated users using the proper service
     if (user?.id) {
       try {
-        await saveNotification({
+        await fileEventNotificationService.notifyFileUploaded({
+          fileId: savedFile._id.toString(),
+          filename: userOptions.originalName || fileName,
           userId: user.id,
-          type: 'file_upload_complete',
-          title: 'Zero-Knowledge File Upload Complete',
-          message:
-            'Your encrypted file has been uploaded successfully with Zero-Knowledge encryption',
-          priority: 'normal',
-          relatedFileId: savedFile._id.toString(),
-          actionUrl: shareableUrl,
-          metadata: {
-            zeroKnowledge: true,
-            encryptedSize: publicMetadata.size,
-            shareableUrl,
-            isPasswordProtected,
-            expiresAt: expiresAt.toISOString(),
-          },
+          fileSize: publicMetadata.size,
+          expiresAt: expiresAt,
+          shareUrl: shareableUrl,
+          isZeroKnowledge: true,
+          isPasswordProtected: isPasswordProtected,
         });
       } catch (notificationError) {
         console.error(

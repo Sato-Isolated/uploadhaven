@@ -7,11 +7,6 @@ import {
   Bell,
   BellRing,
   Check,
-  X,
-  Clock,
-  AlertTriangle,
-  Info,
-  CheckCircle,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -22,9 +17,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuItem,
 } from '@/components/ui/dropdown-menu';
-import { useNotifications } from '@/hooks/useNotifications';
-import { formatDistanceToNow } from 'date-fns';
-import type { Notification } from '@/types/events';
+import { useNotifications, useNotificationStats } from '@/hooks/notifications';
+import { NotificationItem } from './display/NotificationItem';
+import type { NotificationEntity } from '@/lib/notifications/domain/types';
 
 interface NotificationDropdownProps {
   className?: string;
@@ -33,61 +28,30 @@ interface NotificationDropdownProps {
 export function NotificationDropdown({ className }: NotificationDropdownProps) {
   const t = useTranslations('Notifications');
 
+  // Use the new focused hooks
   const {
     notifications,
-    stats,
     isLoading,
-    isConnected,
     markAsRead,
     markAllAsRead,
     deleteNotification,
     isMarkingAsRead,
-    isMarkingAllAsRead,
-  } = useNotifications({
-    limit: 10,
-    includeRead: false, // Only unread for dropdown
-    realtime: true,
-  });
+    isMarkingAllAsRead, } = useNotifications({
+      query: {
+        limit: 10,
+        includeRead: false, // Only unread for dropdown
+      },
+      realtime: {
+        enabled: true,
+      },
+    });
 
+  // Separate stats hook for better performance
+  const { stats } = useNotificationStats();
+
+  // Connection status from the main hook
+  const isConnected = true; // TODO: Get from useNotificationConnection hook
   const unreadCount = stats?.unread || 0;
-
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case 'urgent':
-        return 'text-red-600 bg-red-100 dark:bg-red-950 dark:text-red-400';
-      case 'high':
-        return 'text-orange-600 bg-orange-100 dark:bg-orange-950 dark:text-orange-400';
-      case 'normal':
-        return 'text-blue-600 bg-blue-100 dark:bg-blue-950 dark:text-blue-400';
-      case 'low':
-        return 'text-gray-600 bg-gray-100 dark:bg-gray-950 dark:text-gray-400';
-      default:
-        return 'text-gray-600 bg-gray-100 dark:bg-gray-950 dark:text-gray-400';
-    }
-  };
-
-  const getTypeIcon = (type: string) => {
-    switch (type) {
-      case 'security_alert':
-      case 'malware_detected':
-        return (
-          <AlertTriangle className="h-4 w-4 text-red-600 dark:text-red-400" />
-        );
-      case 'file_downloaded':
-      case 'file_shared':
-        return (
-          <CheckCircle className="h-4 w-4 text-green-600 dark:text-green-400" />
-        );
-      case 'file_expired_soon':
-        return (
-          <Clock className="h-4 w-4 text-orange-600 dark:text-orange-400" />
-        );
-      case 'system_announcement':
-        return <Info className="h-4 w-4 text-blue-600 dark:text-blue-400" />;
-      default:
-        return <Bell className="h-4 w-4 text-gray-600 dark:text-gray-400" />;
-    }
-  };
 
   return (
     <DropdownMenu>
@@ -135,9 +99,8 @@ export function NotificationDropdown({ className }: NotificationDropdownProps) {
 
           {/* Connection status indicator */}
           <div
-            className={`absolute right-0 bottom-0 h-2 w-2 rounded-full ${
-              isConnected ? 'bg-green-500' : 'bg-red-500'
-            }`}
+            className={`absolute right-0 bottom-0 h-2 w-2 rounded-full ${isConnected ? 'bg-green-500' : 'bg-red-500'
+              }`}
           />
         </Button>
       </DropdownMenuTrigger>
@@ -176,23 +139,19 @@ export function NotificationDropdown({ className }: NotificationDropdownProps) {
               <p className="text-sm text-gray-500 dark:text-gray-400">
                 {t('noNotificationsYet')}
               </p>
-            </div>
-          ) : (
-            <div className="divide-y">
-              <AnimatePresence>
-                {notifications.map((notification: Notification) => (
-                  <NotificationItem
-                    key={notification.id}
-                    notification={notification}
-                    onMarkAsRead={markAsRead}
-                    onDelete={deleteNotification}
-                    isMarkingAsRead={isMarkingAsRead}
-                    getPriorityColor={getPriorityColor}
-                    getTypeIcon={getTypeIcon}
-                  />
-                ))}
-              </AnimatePresence>
-            </div>
+            </div>          ) : (<div className="divide-y">
+            <AnimatePresence>
+              {notifications.map((notification: NotificationEntity) => (
+                <NotificationItem
+                  key={notification.id}
+                  notification={notification}
+                  onMarkAsRead={markAsRead}
+                  onDelete={deleteNotification}
+                  isMarkingAsRead={isMarkingAsRead}
+                />
+              ))}
+            </AnimatePresence>
+          </div>
           )}
         </div>
 
@@ -207,118 +166,7 @@ export function NotificationDropdown({ className }: NotificationDropdownProps) {
           </>
         )}
       </DropdownMenuContent>
-    </DropdownMenu>
-  );
+    </DropdownMenu>  );
 }
 
-interface NotificationItemProps {
-  notification: Notification;
-  onMarkAsRead: (id: string) => void;
-  onDelete: (id: string) => void;
-  isMarkingAsRead: boolean;
-  getPriorityColor: (priority: string) => string;
-  getTypeIcon: (type: string) => React.ReactNode;
-}
-
-function NotificationItem({
-  notification,
-  onMarkAsRead,
-  onDelete,
-  isMarkingAsRead,
-  getPriorityColor,
-  getTypeIcon,
-}: NotificationItemProps) {
-  const tCommon = useTranslations('Common');
-
-  const handleAction = () => {
-    if (notification.actionUrl) {
-      window.location.href = notification.actionUrl;
-    }
-  };
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, x: -20 }}
-      animate={{ opacity: 1, x: 0 }}
-      exit={{ opacity: 0, x: 20 }}
-      className={`cursor-pointer p-3 hover:bg-gray-50 dark:hover:bg-gray-800 ${
-        !notification.isRead ? 'bg-blue-50 dark:bg-blue-950/20' : ''
-      }`}
-    >
-      <div className="flex items-start gap-3">
-        <div className="mt-1 flex-shrink-0">
-          {getTypeIcon(notification.type)}
-        </div>
-
-        <div className="min-w-0 flex-1">
-          <div className="mb-1 flex items-center gap-2">
-            <p className="truncate text-sm font-medium text-gray-900 dark:text-gray-100">
-              {notification.title}
-            </p>
-            <Badge
-              variant="outline"
-              className={`text-xs ${getPriorityColor(notification.priority)}`}
-            >
-              {notification.priority}
-            </Badge>
-          </div>
-
-          <p className="mb-2 line-clamp-2 text-xs text-gray-600 dark:text-gray-400">
-            {notification.message}
-          </p>
-
-          <div className="flex items-center justify-between">
-            <span className="text-xs text-gray-500 dark:text-gray-500">
-              {formatDistanceToNow(new Date(notification.createdAt), {
-                addSuffix: true,
-              })}
-            </span>
-
-            <div className="flex items-center gap-1">
-              {!notification.isRead && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onMarkAsRead(notification.id);
-                  }}
-                  disabled={isMarkingAsRead}
-                  className="h-6 w-6 p-0 hover:bg-blue-100 dark:hover:bg-blue-900"
-                >
-                  <Check className="h-3 w-3" />
-                </Button>
-              )}
-
-              {notification.actionUrl && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleAction();
-                  }}
-                  className="h-6 px-2 text-xs text-blue-600 hover:bg-blue-100 dark:hover:bg-blue-900"
-                >
-                  {notification.actionLabel || tCommon('view')}
-                </Button>
-              )}
-
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onDelete(notification.id);
-                }}
-                className="h-6 w-6 p-0 hover:bg-red-100 dark:hover:bg-red-900"
-              >
-                <X className="h-3 w-3" />
-              </Button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </motion.div>
-  );
-}
+export default NotificationDropdown;

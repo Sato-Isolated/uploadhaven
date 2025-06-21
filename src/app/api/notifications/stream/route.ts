@@ -1,13 +1,31 @@
 import { auth } from '@/lib/auth/auth';
 import { headers } from 'next/headers';
-import connectDB from '@/lib/database/mongodb';
-import { Notification } from '@/lib/database/models';
+import { RealTimeDeliveryService } from '@/lib/notifications/services/delivery/real-time-delivery';
+import { NotificationService, NotificationValidationService } from '@/lib/notifications/services';
+import { NotificationRepository } from '@/lib/notifications/repository/notification-repository';
+import { UserId } from '@/lib/notifications/domain/types';
+
+// Global delivery service instance for SSE management
+let deliveryService: RealTimeDeliveryService | null = null;
+
+const getDeliveryService = () => {
+  if (!deliveryService) {
+    deliveryService = new RealTimeDeliveryService();
+  }
+  return deliveryService;
+};
+
+const getNotificationService = () => {
+  const repository = new NotificationRepository();
+  const validator = new NotificationValidationService();
+  return new NotificationService(repository, validator);
+};
 
 /**
  * GET /api/notifications/stream
  *
  * Server-Sent Events endpoint for real-time notifications
- * Streams new notifications to authenticated users in real-time
+ * Uses the new notification service architecture for improved reliability
  */
 export async function GET() {
   try {
@@ -20,26 +38,26 @@ export async function GET() {
       return new Response('Unauthorized', { status: 401 });
     }
 
-    const userId = session.user.id;
+    const userId = new UserId(session.user.id);
+    const delivery = getDeliveryService();
 
-    // Connect to database using our connection manager
-    await connectDB();
+    console.log(`🔔 SSE client connecting for user: ${userId.toString()}`);
 
-    // Create SSE response
+    // Create SSE response with manual stream handling
     const encoder = new TextEncoder();
     let isConnectionClosed = false;
 
     // Create a readable stream for SSE
     const stream = new ReadableStream({
       start(controller) {
-        console.log(`🔔 SSE client connected for user: ${userId}`);
+        console.log(`🔔 SSE client connected for user: ${userId.toString()}`);
 
         // Send initial connection message
         const connectMessage = `data: ${JSON.stringify({
           type: 'connected',
           message: 'Notification stream connected',
           timestamp: new Date().toISOString(),
-          userId: userId,
+          userId: userId.toString(),
         })}\n\n`;
 
         try {
@@ -47,47 +65,67 @@ export async function GET() {
         } catch (error) {
           console.error('❌ Failed to send connection message:', error);
           isConnectionClosed = true;
+          return;
         }
 
-        // Send existing unread notifications
-        sendExistingNotifications(controller, encoder, userId);
+        // Send existing notifications
+        sendExistingNotifications(controller, encoder, userId.toString());
 
-        // Set up polling for new notifications with improved error handling
-        const pollInterval = setInterval(async () => {
+        // Subscribe to real-time notifications using the delivery service
+        const unsubscribe = delivery.subscribe(userId, (event) => {
+          if (isConnectionClosed) return;          try {
+            const message = `data: ${JSON.stringify({
+              type: event.type,
+              data: event.data, // Send domain types directly
+              timestamp: event.timestamp.toISOString(),
+            })}\n\n`;
+
+            controller.enqueue(encoder.encode(message));
+          } catch (error) {
+            console.error('❌ Failed to send notification:', error);
+            isConnectionClosed = true;
+          }
+        });
+
+        // Set up heartbeat to keep connection alive
+        const heartbeatInterval = setInterval(() => {
           if (isConnectionClosed) {
-            clearInterval(pollInterval);
+            clearInterval(heartbeatInterval);
             return;
           }
 
           try {
-            await checkForNewNotifications(controller, encoder, userId);
+            const heartbeat = `data: ${JSON.stringify({
+              type: 'heartbeat',
+              timestamp: new Date().toISOString(),
+            })}\n\n`;
+
+            controller.enqueue(encoder.encode(heartbeat));
           } catch (error) {
-            console.error('❌ Error polling notifications:', error);
-            // Don't close stream on polling errors, just continue
+            console.error('❌ Failed to send heartbeat:', error);
+            isConnectionClosed = true;
+            clearInterval(heartbeatInterval);
           }
-        }, 5000); // Poll every 5 seconds
+        }, 30000); // Heartbeat every 30 seconds
 
-        // Cleanup function with better error handling
+        // Cleanup function
         const cleanup = () => {
-          console.log(`🔌 SSE client disconnected for user: ${userId}`);
+          console.log(`🔌 SSE client disconnected for user: ${userId.toString()}`);
           isConnectionClosed = true;
-          clearInterval(pollInterval);
+          clearInterval(heartbeatInterval);
+          unsubscribe();
         };
 
-        // Store cleanup function for later use
-        (
-          controller as ReadableStreamDefaultController & {
-            _cleanup?: () => void;
-          }
-        )._cleanup = cleanup;
+        // Store cleanup function for cancel
+        (controller as any)._cleanup = cleanup;
       },
+
       cancel() {
-        console.log(`🔌 SSE stream cancelled for user: ${userId}`);
+        console.log(`🔌 SSE stream cancelled for user: ${userId.toString()}`);
         isConnectionClosed = true;
-        // Cleanup when stream is closed/cancelled
-        const ctrl = this as ReadableStreamDefaultController & {
-          _cleanup?: () => void;
-        };
+        
+        // Call cleanup if available
+        const ctrl = this as any;
         if (ctrl._cleanup) {
           ctrl._cleanup();
         }
@@ -101,12 +139,13 @@ export async function GET() {
         'Cache-Control': 'no-cache',
         'Connection': 'keep-alive',
         'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Headers': 'Cache-Control',
+        'Access-Control-Allow-Headers': 'Cache-Control, Content-Type',
       },
     });
+
   } catch (error) {
-    console.error('SSE notifications error:', error);
-    return new Response('Internal server error', { status: 500 });
+    console.error('❌ SSE endpoint error:', error);
+    return new Response('Internal Server Error', { status: 500 });
   }
 }
 
@@ -119,116 +158,40 @@ async function sendExistingNotifications(
   userId: string
 ) {
   try {
-    const unreadNotifications = await Notification.find({
-      userId,
-      isRead: false,
-      $or: [
-        { expiresAt: { $exists: false } },
-        { expiresAt: { $gt: new Date() } },
-      ],
-    })
-      .sort({ createdAt: -1 })
-      .limit(10) // Limit to recent 10 unread notifications
-      .lean();
+    const notificationService = getNotificationService();
+    const userIdObj = new UserId(userId);
+    
+    // Get recent unread notifications using the service layer
+    const notifications = await notificationService.getNotifications(userIdObj, {
+      limit: 10,
+      includeRead: false,
+      sortBy: 'createdAt',
+      sortOrder: 'desc',
+    });    // Send initial data message
+    const initialMessage = `data: ${JSON.stringify({
+      type: 'initial_notifications',
+      data: notifications, // Send domain types directly
+      count: notifications.length,
+      timestamp: new Date().toISOString(),
+    })}\n\n`;
 
-    for (const notification of unreadNotifications) {
-      const message = `data: ${JSON.stringify({
-        type: 'notification',
-        data: {
-          id: notification._id.toString(),
-          userId: notification.userId,
-          type: notification.type,
-          title: notification.title,
-          message: notification.message,
-          isRead: notification.isRead,
-          priority: notification.priority,
-          relatedFileId: notification.relatedFileId,
-          actionUrl: notification.actionUrl,
-          actionLabel: notification.actionLabel,
-          createdAt: notification.createdAt,
-          metadata: notification.metadata,
-        },
-      })}\n\n`;
+    controller.enqueue(encoder.encode(initialMessage));
 
-      controller.enqueue(encoder.encode(message));
-    }
+    console.log(`📨 Sent ${notifications.length} existing notifications to user: ${userId}`);
   } catch (error) {
-    console.error('Error sending existing notifications:', error);
-  }
-}
+    console.error('❌ Error sending existing notifications:', error);
+    
+    // Send error message to client
+    const errorMessage = `data: ${JSON.stringify({
+      type: 'error',
+      message: 'Failed to load existing notifications',
+      timestamp: new Date().toISOString(),
+    })}\n\n`;
 
-/**
- * Check for new notifications and send them via SSE
- */
-let lastCheckTime = new Date();
-
-async function checkForNewNotifications(
-  controller: ReadableStreamDefaultController,
-  encoder: TextEncoder,
-  userId: string
-) {
-  try {
-    // Check if controller is still open
-    if (!controller || controller.desiredSize === null) {
-      console.log('⚠️ SSE controller is closed, skipping notification check');
-      return;
+    try {
+      controller.enqueue(encoder.encode(errorMessage));
+    } catch (encodeError) {
+      console.error('❌ Failed to send error message:', encodeError);
     }
-
-    const currentTime = new Date();
-
-    // Find notifications created since last check
-    const newNotifications = await Notification.find({
-      userId,
-      createdAt: { $gt: lastCheckTime },
-      $or: [
-        { expiresAt: { $exists: false } },
-        { expiresAt: { $gt: currentTime } },
-      ],
-    })
-      .sort({ createdAt: -1 })
-      .lean();
-
-    // Send each new notification
-    for (const notification of newNotifications) {
-      // Check if controller is still open before sending
-      if (!controller || controller.desiredSize === null) {
-        console.log('⚠️ SSE controller closed during notification sending');
-        return;
-      }
-
-      const message = `data: ${JSON.stringify({
-        type: 'notification',
-        data: {
-          id: notification._id.toString(),
-          userId: notification.userId,
-          type: notification.type,
-          title: notification.title,
-          message: notification.message,
-          isRead: notification.isRead,
-          priority: notification.priority,
-          relatedFileId: notification.relatedFileId,
-          actionUrl: notification.actionUrl,
-          actionLabel: notification.actionLabel,
-          createdAt: notification.createdAt,
-          metadata: notification.metadata,
-        },
-      })}\n\n`;
-
-      try {
-        controller.enqueue(encoder.encode(message));
-        console.log(
-          `🔔 Sent new notification to user ${userId}: ${notification.title}`
-        );
-      } catch (error) {
-        console.error('❌ Failed to send notification via SSE:', error);
-        return; // Stop trying to send more notifications if there's an error
-      }
-    }
-
-    // Update last check time
-    lastCheckTime = currentTime;
-  } catch (error) {
-    console.error('Error checking for new notifications:', error);
-    throw error;
   }
 }

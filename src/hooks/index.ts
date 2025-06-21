@@ -30,7 +30,20 @@ export { useSignUpForm } from '../components/domains/auth/signup/hooks/useSignUp
 export { useSignInForm } from '../components/domains/auth/signin/hooks/useSignInForm';
 export { useFilesTableLogic } from '../components/domains/admin/filestable/hooks/useFilesTableLogic';
 export { useFileUploader } from '../components/domains/upload/fileuploader/hooks/useFileUploader';
-export { useNotifications } from './useNotifications';
+// Notification hooks - focused and SRP-compliant
+export {
+  useNotificationQuery,
+  useNotificationMutations,
+  useNotificationRealtime,
+  useNotificationStats,
+  useNotificationConnection,
+  useNotifications,
+  useSecurityNotifications,
+  useFileNotifications,
+  useSystemNotifications,
+  useNotificationUI,
+  useNotificationFilters,
+} from './notifications';
 // Real-time hooks using polling (preferred approach)
 export { useRealTimeActivities } from './useRealTimePolling';
 

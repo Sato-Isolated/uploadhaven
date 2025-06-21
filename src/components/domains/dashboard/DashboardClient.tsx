@@ -14,6 +14,7 @@ import { DashboardUploadArea } from './upload/DashboardUploadArea';
 import FilesManager from './components/files/FilesManager';
 import { ErrorBoundary } from './components/common/ErrorBoundary';
 import { useDashboardData } from './hooks';
+import { DebugNotifications } from '../notifications/DebugNotifications';
 
 export function DashboardClient({ session }: DashboardProps) {  // Extract user information
   const userId = session?.user?.id;
@@ -57,8 +58,7 @@ export function DashboardClient({ session }: DashboardProps) {  // Extract user 
                 statsError={error}
               />
             </motion.div>
-            
-            {/* Upload Area */}
+              {/* Upload Area */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -66,7 +66,16 @@ export function DashboardClient({ session }: DashboardProps) {  // Extract user 
             >
               <DashboardUploadArea />
             </motion.div>
-          </div>          {/* Right Column - Files Manager (smaller) */}
+
+            {/* Debug Component - Temporary */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5, duration: 0.5 }}
+            >
+              <DebugNotifications />
+            </motion.div>
+          </div>{/* Right Column - Files Manager (smaller) */}
           <div className="w-full lg:flex-[1] min-w-0">
             <motion.div
               initial={{ opacity: 0, y: 20 }}

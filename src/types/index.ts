@@ -137,3 +137,18 @@ import type { ClientFileData } from './file';
  * @deprecated Use ClientFileData instead
  */
 export type FileInfo = ClientFileData;
+
+// =============================================================================
+// Background Service types
+// =============================================================================
+export interface CleanupStats {
+  deletedCount: number;
+  totalExpired: number;
+  errors: string[];
+}
+
+export interface ExpirationNotificationStats {
+  checked: number;
+  notificationsSent: number;
+  errors: string[];
+}

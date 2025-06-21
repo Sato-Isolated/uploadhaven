@@ -53,10 +53,25 @@ export async function uploadFileZK(
         password: options.password,
         autoGenerateKey: options.autoGenerateKey,
         expiration: options.expiration || '24h',
+        originalType: file.type,
+        originalName: file.name,
       },
-    };
-
-    // Upload to true ZK endpoint
+    };    console.log('🔐 ZK Upload preparing:', {
+      originalFileSize: file.size,
+      encryptedSize: encrypted.encryptedPackage.encryptedData.byteLength,
+      metadataSize: encrypted.encryptedPackage.publicMetadata.size,
+      base64Size: uploadData.encryptedData.length,
+      // Test base64 round-trip (browser compatible)
+      base64DecodeTest: (() => {
+        // Browser-compatible base64 decode test
+        try {
+          const binaryString = atob(uploadData.encryptedData);
+          return binaryString.length;
+        } catch (e) {
+          return 'decode-error';
+        }
+      })()
+    });// Upload to true ZK endpoint
     const response = await fetch('/api/zk-upload', {
       method: 'POST',
       headers: {
@@ -75,10 +90,9 @@ export async function uploadFileZK(
 
     const result = await response.json().catch(() => {
       throw new Error('Failed to parse success response');
-    });    console.log('Upload API response:', result); // Debug log
-
-    // Validate that the result contains required data
+    });    console.log('Upload API response:', result); // Debug log    // Validate that the result contains required data
     if (!result || !result.data?.url) {
+      console.error('Invalid API response:', result);
       throw new Error('Invalid response: missing URL in data');
     }
 
@@ -94,12 +108,29 @@ export async function uploadFileZK(
       url: shareUrl,
       shortUrl: shareUrl,
       data: result,
-    };
-  } catch (error) {
+    };  } catch (error) {
     console.error('ZK Upload failed:', error);
+    
+    // Provide more specific error messages
+    const errorMessage = error instanceof Error ? error.message : 'Upload failed';
+    
+    if (errorMessage.includes('size mismatch')) {
+      return {
+        success: false,
+        error: 'File encryption error: size validation failed. Please try again.'
+      };
+    }
+    
+    if (errorMessage.includes('400')) {
+      return {
+        success: false,
+        error: 'Upload validation failed. Please check your file and try again.'
+      };
+    }
+    
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Upload failed',
+      error: errorMessage,
     };
   }
 }
