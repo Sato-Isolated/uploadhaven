@@ -1,0 +1,18 @@
+{
+  "save": "Enregistrer",
+  "cancel": "Annuler",
+  "continue": "Continuer",
+  "delete": "Supprimer",
+  "edit": "Modifier",
+  "upload": "Télécharger",
+  "download": "Télécharger",
+  "share": "Partager",
+  "copy": "Copier",
+  "close": "Fermer",
+  "confirm": "Confirmer",
+  "loading": "Chargement...",
+  "success": "Succès",
+  "error": "Erreur",
+  "warning": "Avertissement",
+  "info": "Information"
+}

@@ -1,0 +1,2275 @@
+{
+  "knownSymbols": {
+    "withNextIntl": [
+      {
+        "name": "withNextIntl",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\next.config.ts",
+        "isDefault": true
+      }
+    ],
+    "type { NextConfig": [
+      {
+        "name": "type { NextConfig",
+        "module": "next",
+        "isDefault": true
+      }
+    ],
+    "createNextIntlPlugin": [
+      {
+        "name": "createNextIntlPlugin",
+        "module": "next-intl/plugin",
+        "isDefault": true
+      }
+    ],
+    "beforeAll": [
+      {
+        "name": "beforeAll",
+        "module": "vitest",
+        "isDefault": false
+      }
+    ],
+    "vi": [
+      {
+        "name": "vi",
+        "module": "vitest",
+        "isDefault": false
+      }
+    ],
+    "defineConfig": [
+      {
+        "name": "defineConfig",
+        "module": "vitest/config",
+        "isDefault": false
+      },
+      {
+        "name": "defineConfig",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\vitest.config.ts",
+        "isDefault": true
+      }
+    ],
+    "react": [
+      {
+        "name": "react",
+        "module": "@vitejs/plugin-react",
+        "isDefault": true
+      }
+    ],
+    "tsconfigPaths": [
+      {
+        "name": "tsconfigPaths",
+        "module": "vite-tsconfig-paths",
+        "isDefault": true
+      }
+    ],
+    "resolve": [
+      {
+        "name": "resolve",
+        "module": "path",
+        "isDefault": false
+      }
+    ],
+    "const": [
+      {
+        "name": "const",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\i18n\\navigation.ts",
+        "isDefault": false
+      }
+    ],
+    "createNavigation": [
+      {
+        "name": "createNavigation",
+        "module": "next-intl/navigation",
+        "isDefault": false
+      }
+    ],
+    "getRequestConfig": [
+      {
+        "name": "getRequestConfig",
+        "module": "next-intl/server",
+        "isDefault": false
+      },
+      {
+        "name": "getRequestConfig",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\i18n\\request.ts",
+        "isDefault": true
+      }
+    ],
+    "hasLocale": [
+      {
+        "name": "hasLocale",
+        "module": "next-intl",
+        "isDefault": false
+      }
+    ],
+    "Entity": [
+      {
+        "name": "Entity",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\shared\\domain\\types.ts",
+        "type": "abstract class",
+        "isDefault": false
+      }
+    ],
+    "ValueObject": [
+      {
+        "name": "ValueObject",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\shared\\domain\\types.ts",
+        "type": "abstract class",
+        "isDefault": false
+      }
+    ],
+    "Id": [
+      {
+        "name": "Id",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\shared\\domain\\types.ts",
+        "type": "class",
+        "isDefault": false
+      }
+    ],
+    "Timestamp": [
+      {
+        "name": "Timestamp",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\shared\\domain\\types.ts",
+        "type": "class",
+        "isDefault": false
+      }
+    ],
+    "DomainEvent": [
+      {
+        "name": "DomainEvent",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\shared\\domain\\types.ts",
+        "type": "interface",
+        "isDefault": false
+      }
+    ],
+    "Repository": [
+      {
+        "name": "Repository",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\shared\\domain\\types.ts",
+        "type": "interface",
+        "isDefault": false
+      }
+    ],
+    "UseCase": [
+      {
+        "name": "UseCase",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\shared\\domain\\types.ts",
+        "type": "interface",
+        "isDefault": false
+      }
+    ],
+    "AuditEvent": [
+      {
+        "name": "AuditEvent",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\shared\\domain\\types.ts",
+        "type": "interface",
+        "isDefault": false
+      }
+    ],
+    "FileSize": [
+      {
+        "name": "FileSize",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\shared\\domain\\types.ts",
+        "type": "class",
+        "isDefault": false
+      }
+    ],
+    "TTL": [
+      {
+        "name": "TTL",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\file-sharing\\domain\\value-objects\\ttl.vo.ts",
+        "type": "class",
+        "isDefault": false
+      }
+    ],
+    "routing": [
+      {
+        "name": "routing",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\i18n\\routing.ts",
+        "type": "const",
+        "isDefault": false
+      }
+    ],
+    "defineRouting": [
+      {
+        "name": "defineRouting",
+        "module": "next-intl/routing",
+        "isDefault": false
+      }
+    ],
+    "DashboardPage": [
+      {
+        "name": "DashboardPage",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\app\\dashboard\\page.tsx",
+        "type": "function",
+        "isDefault": true
+      }
+    ],
+    "DashboardClient": [
+      {
+        "name": "DashboardClient",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\user-management\\presentation\\components\\DashboardClient.tsx",
+        "type": "function",
+        "isDefault": false
+      },
+      {
+        "name": "DashboardClient",
+        "module": "@/domains/user-management/presentation/components/DashboardClient",
+        "isDefault": false
+      }
+    ],
+    "Header": [
+      {
+        "name": "Header",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\shared\\presentation\\components\\Header.tsx",
+        "type": "function",
+        "isDefault": false
+      },
+      {
+        "name": "Header",
+        "module": "@/shared/presentation/components/Header",
+        "isDefault": false
+      }
+    ],
+    "Footer": [
+      {
+        "name": "Footer",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\shared\\presentation\\components\\Footer.tsx",
+        "type": "function",
+        "isDefault": false
+      },
+      {
+        "name": "Footer",
+        "module": "@/shared/presentation/components/Footer",
+        "isDefault": false
+      }
+    ],
+    "describe": [
+      {
+        "name": "describe",
+        "module": "vitest",
+        "isDefault": false
+      }
+    ],
+    "it": [
+      {
+        "name": "it",
+        "module": "vitest",
+        "isDefault": false
+      }
+    ],
+    "expect": [
+      {
+        "name": "expect",
+        "module": "vitest",
+        "isDefault": false
+      }
+    ],
+    "beforeEach": [
+      {
+        "name": "beforeEach",
+        "module": "vitest",
+        "isDefault": false
+      }
+    ],
+    "afterEach": [
+      {
+        "name": "afterEach",
+        "module": "vitest",
+        "isDefault": false
+      }
+    ],
+    "PrivacyDashboardProps": [
+      {
+        "name": "PrivacyDashboardProps",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\privacy\\presentation\\components\\PrivacyDashboard.tsx",
+        "type": "interface",
+        "isDefault": false
+      }
+    ],
+    "PrivacyDashboard": [
+      {
+        "name": "PrivacyDashboard",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\privacy\\presentation\\components\\PrivacyDashboard.tsx",
+        "type": "function",
+        "isDefault": false
+      }
+    ],
+    "React": [
+      {
+        "name": "React",
+        "module": "react",
+        "isDefault": true
+      }
+    ],
+    "{ useState": [
+      {
+        "name": "{ useState",
+        "module": "react",
+        "isDefault": true
+      }
+    ],
+    "useEffect": [
+      {
+        "name": "useEffect",
+        "module": "react",
+        "isDefault": true
+      }
+    ],
+    "PrivacyGuarantees": [
+      {
+        "name": "PrivacyGuarantees",
+        "module": "@/domains/privacy/presentation/components/PrivacyGuarantees",
+        "isDefault": false
+      },
+      {
+        "name": "PrivacyGuarantees",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\privacy\\presentation\\components\\PrivacyGuarantees.tsx",
+        "type": "function",
+        "isDefault": false
+      }
+    ],
+    "EncryptionServiceAdapter": [
+      {
+        "name": "EncryptionServiceAdapter",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\encryption\\infrastructure\\adapters\\encryption-service.adapter.ts",
+        "type": "class",
+        "isDefault": false
+      }
+    ],
+    "EncryptionService": [
+      {
+        "name": "EncryptionService",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\encryption\\infrastructure\\crypto\\encryption.service.ts",
+        "type": "class",
+        "isDefault": false
+      }
+    ],
+    "KeyManagementService": [
+      {
+        "name": "KeyManagementService",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\encryption\\infrastructure\\crypto\\encryption.service.ts",
+        "type": "class",
+        "isDefault": false
+      }
+    ],
+    "AdminDashboard": [
+      {
+        "name": "AdminDashboard",
+        "module": "@/domains/admin/presentation/components/AdminDashboard",
+        "isDefault": false
+      },
+      {
+        "name": "AdminDashboard",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\admin\\presentation\\components\\AdminDashboard.tsx",
+        "type": "function",
+        "isDefault": false
+      }
+    ],
+    "useState": [
+      {
+        "name": "useState",
+        "module": "react",
+        "isDefault": false
+      }
+    ],
+    "PrivacyIndicatorType": [
+      {
+        "name": "PrivacyIndicatorType",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\privacy\\presentation\\components\\PrivacyIndicator.tsx",
+        "type": "type",
+        "isDefault": false
+      }
+    ],
+    "PrivacyIndicatorProps": [
+      {
+        "name": "PrivacyIndicatorProps",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\privacy\\presentation\\components\\PrivacyIndicator.tsx",
+        "type": "interface",
+        "isDefault": false
+      }
+    ],
+    "PrivacyIndicator": [
+      {
+        "name": "PrivacyIndicator",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\privacy\\presentation\\components\\PrivacyIndicator.tsx",
+        "type": "function",
+        "isDefault": false
+      }
+    ],
+    "PrivacyStatusGridProps": [
+      {
+        "name": "PrivacyStatusGridProps",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\privacy\\presentation\\components\\PrivacyIndicator.tsx",
+        "type": "interface",
+        "isDefault": false
+      }
+    ],
+    "PrivacyStatusGrid": [
+      {
+        "name": "PrivacyStatusGrid",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\privacy\\presentation\\components\\PrivacyIndicator.tsx",
+        "type": "function",
+        "isDefault": false
+      }
+    ],
+    "PrivacyBannerProps": [
+      {
+        "name": "PrivacyBannerProps",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\privacy\\presentation\\components\\PrivacyIndicator.tsx",
+        "type": "interface",
+        "isDefault": false
+      }
+    ],
+    "PrivacyBanner": [
+      {
+        "name": "PrivacyBanner",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\privacy\\presentation\\components\\PrivacyIndicator.tsx",
+        "type": "function",
+        "isDefault": false
+      }
+    ],
+    "LogAdminActionRequest": [
+      {
+        "name": "LogAdminActionRequest",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\admin\\application\\usecases\\LogAdminAction.usecase.ts",
+        "type": "interface",
+        "isDefault": false
+      }
+    ],
+    "LogAdminActionResponse": [
+      {
+        "name": "LogAdminActionResponse",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\admin\\application\\usecases\\LogAdminAction.usecase.ts",
+        "type": "interface",
+        "isDefault": false
+      }
+    ],
+    "LogAdminActionUseCase": [
+      {
+        "name": "LogAdminActionUseCase",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\admin\\application\\usecases\\LogAdminAction.usecase.ts",
+        "type": "class",
+        "isDefault": false
+      }
+    ],
+    "PrivacyStatus": [
+      {
+        "name": "PrivacyStatus",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\privacy\\presentation\\hooks\\usePrivacyMonitoring.ts",
+        "type": "interface",
+        "isDefault": false
+      }
+    ],
+    "AuditEventInput": [
+      {
+        "name": "AuditEventInput",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\privacy\\presentation\\hooks\\usePrivacyMonitoring.ts",
+        "type": "interface",
+        "isDefault": false
+      }
+    ],
+    "UsePrivacyMonitoringReturn": [
+      {
+        "name": "UsePrivacyMonitoringReturn",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\privacy\\presentation\\hooks\\usePrivacyMonitoring.ts",
+        "type": "interface",
+        "isDefault": false
+      }
+    ],
+    "usePrivacyMonitoring": [
+      {
+        "name": "usePrivacyMonitoring",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\privacy\\presentation\\hooks\\usePrivacyMonitoring.ts",
+        "type": "function",
+        "isDefault": false
+      }
+    ],
+    "useCallback": [
+      {
+        "name": "useCallback",
+        "module": "react",
+        "isDefault": false
+      }
+    ],
+    "WebCryptoEncryptionService": [
+      {
+        "name": "WebCryptoEncryptionService",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\encryption\\infrastructure\\crypto\\WebCryptoEncryptionService.ts",
+        "type": "class",
+        "isDefault": false
+      }
+    ],
+    "EncryptionState": [
+      {
+        "name": "EncryptionState",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\encryption\\presentation\\hooks\\useClientEncryption.ts",
+        "type": "interface",
+        "isDefault": false
+      }
+    ],
+    "UseClientEncryptionResult": [
+      {
+        "name": "UseClientEncryptionResult",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\encryption\\presentation\\hooks\\useClientEncryption.ts",
+        "type": "interface",
+        "isDefault": false
+      }
+    ],
+    "useClientEncryption": [
+      {
+        "name": "useClientEncryption",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\encryption\\presentation\\hooks\\useClientEncryption.ts",
+        "type": "function",
+        "isDefault": false
+      }
+    ],
+    "InitializationVector": [
+      {
+        "name": "InitializationVector",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\encryption\\domain\\value-objects\\InitializationVector.ts",
+        "type": "class",
+        "isDefault": false
+      }
+    ],
+    "EncryptionKey": [
+      {
+        "name": "EncryptionKey",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\encryption\\domain\\entities\\encryption-key.entity.ts",
+        "type": "class",
+        "isDefault": false
+      }
+    ],
+    "IEncryptionService": [
+      {
+        "name": "IEncryptionService",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\encryption\\domain\\services\\IEncryptionService.ts",
+        "type": "interface",
+        "isDefault": false
+      }
+    ],
+    "IKeyManagementService": [
+      {
+        "name": "IKeyManagementService",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\encryption\\application\\interfaces\\encryption.interface.ts",
+        "type": "interface",
+        "isDefault": false
+      }
+    ],
+    "EncryptionValidationError": [
+      {
+        "name": "EncryptionValidationError",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\encryption\\application\\usecases\\encrypt-file.usecase.ts",
+        "type": "class",
+        "isDefault": false
+      }
+    ],
+    "EncryptionResult": [
+      {
+        "name": "EncryptionResult",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\encryption\\domain\\services\\IEncryptionService.ts",
+        "type": "interface",
+        "isDefault": false
+      }
+    ],
+    "DecryptionResult": [
+      {
+        "name": "DecryptionResult",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\encryption\\application\\usecases\\decrypt-file.usecase.ts",
+        "type": "interface",
+        "isDefault": false
+      }
+    ],
+    "ENCRYPTION_CONFIG": [
+      {
+        "name": "ENCRYPTION_CONFIG",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\encryption\\domain\\services\\IEncryptionService.ts",
+        "type": "const",
+        "isDefault": false
+      }
+    ],
+    "RawSecurityContext": [
+      {
+        "name": "RawSecurityContext",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\privacy\\domain\\services\\IPrivacySanitizer.ts",
+        "type": "interface",
+        "isDefault": false
+      }
+    ],
+    "SanitizationResult": [
+      {
+        "name": "SanitizationResult",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\privacy\\domain\\services\\IPrivacySanitizer.ts",
+        "type": "interface",
+        "isDefault": false
+      }
+    ],
+    "IPrivacySanitizer": [
+      {
+        "name": "IPrivacySanitizer",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\privacy\\domain\\services\\IPrivacySanitizer.ts",
+        "type": "interface",
+        "isDefault": false
+      }
+    ],
+    "SanitizationRules": [
+      {
+        "name": "SanitizationRules",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\privacy\\domain\\services\\IPrivacySanitizer.ts",
+        "type": "interface",
+        "isDefault": false
+      }
+    ],
+    "PrivacyComplianceResult": [
+      {
+        "name": "PrivacyComplianceResult",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\privacy\\domain\\services\\IPrivacySanitizer.ts",
+        "type": "interface",
+        "isDefault": false
+      }
+    ],
+    "SecurityEventQuery": [
+      {
+        "name": "SecurityEventQuery",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\privacy\\domain\\repositories\\ISecurityEventRepository.ts",
+        "type": "interface",
+        "isDefault": false
+      }
+    ],
+    "SecurityEventStats": [
+      {
+        "name": "SecurityEventStats",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\privacy\\domain\\repositories\\ISecurityEventRepository.ts",
+        "type": "interface",
+        "isDefault": false
+      }
+    ],
+    "ISecurityEventRepository": [
+      {
+        "name": "ISecurityEventRepository",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\privacy\\domain\\repositories\\ISecurityEventRepository.ts",
+        "type": "interface",
+        "isDefault": false
+      }
+    ],
+    "SecurityEventSeverity": [
+      {
+        "name": "SecurityEventSeverity",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\privacy\\domain\\entities\\SecurityEvent.entity.ts",
+        "type": "type",
+        "isDefault": false
+      }
+    ],
+    "SecurityEventContext": [
+      {
+        "name": "SecurityEventContext",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\privacy\\domain\\entities\\SecurityEvent.entity.ts",
+        "type": "interface",
+        "isDefault": false
+      }
+    ],
+    "SecurityEventMetadata": [
+      {
+        "name": "SecurityEventMetadata",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\privacy\\domain\\entities\\SecurityEvent.entity.ts",
+        "type": "interface",
+        "isDefault": false
+      }
+    ],
+    "SecurityEvent": [
+      {
+        "name": "SecurityEvent",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\privacy\\domain\\entities\\SecurityEvent.entity.ts",
+        "type": "class",
+        "isDefault": false
+      }
+    ],
+    "PrivacySanitizer": [
+      {
+        "name": "PrivacySanitizer",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\privacy\\infrastructure\\sanitization\\privacy-sanitizer.service.ts",
+        "type": "class",
+        "isDefault": false
+      }
+    ],
+    "crypto": [
+      {
+        "name": "crypto",
+        "module": "crypto",
+        "isDefault": true
+      }
+    ],
+    "LogSecurityEventRequest": [
+      {
+        "name": "LogSecurityEventRequest",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\privacy\\application\\usecases\\LogSecurityEvent.usecase.ts",
+        "type": "interface",
+        "isDefault": false
+      }
+    ],
+    "LogSecurityEventResponse": [
+      {
+        "name": "LogSecurityEventResponse",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\privacy\\application\\usecases\\LogSecurityEvent.usecase.ts",
+        "type": "interface",
+        "isDefault": false
+      }
+    ],
+    "LogSecurityEventUseCase": [
+      {
+        "name": "LogSecurityEventUseCase",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\privacy\\application\\usecases\\LogSecurityEvent.usecase.ts",
+        "type": "class",
+        "isDefault": false
+      }
+    ],
+    "PrivacyLevelValue": [
+      {
+        "name": "PrivacyLevelValue",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\privacy\\domain\\value-objects\\PrivacyLevel.vo.ts",
+        "type": "type",
+        "isDefault": false
+      }
+    ],
+    "PrivacyLevel": [
+      {
+        "name": "PrivacyLevel",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\privacy\\domain\\value-objects\\PrivacyLevel.vo.ts",
+        "type": "class",
+        "isDefault": false
+      }
+    ],
+    "SecurityEventTypeValue": [
+      {
+        "name": "SecurityEventTypeValue",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\privacy\\domain\\value-objects\\EventType.vo.ts",
+        "type": "type",
+        "isDefault": false
+      }
+    ],
+    "EventType": [
+      {
+        "name": "EventType",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\privacy\\domain\\value-objects\\EventType.vo.ts",
+        "type": "class",
+        "isDefault": false
+      }
+    ],
+    "AnonymizedIdentifierType": [
+      {
+        "name": "AnonymizedIdentifierType",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\privacy\\domain\\value-objects\\AnonymizedIdentifier.vo.ts",
+        "type": "type",
+        "isDefault": false
+      }
+    ],
+    "AnonymizedIdentifier": [
+      {
+        "name": "AnonymizedIdentifier",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\privacy\\domain\\value-objects\\AnonymizedIdentifier.vo.ts",
+        "type": "class",
+        "isDefault": false
+      }
+    ],
+    "EncryptFileRequest": [
+      {
+        "name": "EncryptFileRequest",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\encryption\\application\\usecases\\encrypt-file.usecase.ts",
+        "type": "interface",
+        "isDefault": false
+      }
+    ],
+    "EncryptFileResponse": [
+      {
+        "name": "EncryptFileResponse",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\encryption\\application\\usecases\\encrypt-file.usecase.ts",
+        "type": "interface",
+        "isDefault": false
+      }
+    ],
+    "EncryptFileUseCase": [
+      {
+        "name": "EncryptFileUseCase",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\encryption\\application\\usecases\\encrypt-file.usecase.ts",
+        "type": "class",
+        "isDefault": false
+      }
+    ],
+    "DecryptFileRequest": [
+      {
+        "name": "DecryptFileRequest",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\encryption\\application\\usecases\\decrypt-file.usecase.ts",
+        "type": "interface",
+        "isDefault": false
+      }
+    ],
+    "DecryptFileResponse": [
+      {
+        "name": "DecryptFileResponse",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\encryption\\application\\usecases\\DecryptFileUseCase.ts",
+        "type": "interface",
+        "isDefault": false
+      }
+    ],
+    "DecryptFileUseCase": [
+      {
+        "name": "DecryptFileUseCase",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\encryption\\application\\usecases\\decrypt-file.usecase.ts",
+        "type": "class",
+        "isDefault": false
+      }
+    ],
+    "RawAuditEvent": [
+      {
+        "name": "RawAuditEvent",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\privacy\\infrastructure\\logging\\audit.service.ts",
+        "type": "interface",
+        "isDefault": false
+      }
+    ],
+    "AuditResult": [
+      {
+        "name": "AuditResult",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\privacy\\infrastructure\\logging\\audit.service.ts",
+        "type": "interface",
+        "isDefault": false
+      }
+    ],
+    "AuditService": [
+      {
+        "name": "AuditService",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\privacy\\infrastructure\\logging\\audit.service.ts",
+        "type": "class",
+        "isDefault": false
+      }
+    ],
+    "DecryptFileFromUrlRequest": [
+      {
+        "name": "DecryptFileFromUrlRequest",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\encryption\\application\\usecases\\decrypt-file.usecase.ts",
+        "type": "interface",
+        "isDefault": false
+      }
+    ],
+    "DecryptionError": [
+      {
+        "name": "DecryptionError",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\encryption\\application\\usecases\\decrypt-file.usecase.ts",
+        "type": "class",
+        "isDefault": false
+      }
+    ],
+    "EncryptionStatus": [
+      {
+        "name": "EncryptionStatus",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\encryption\\presentation\\components\\EncryptionIndicator.tsx",
+        "type": "type",
+        "isDefault": false
+      }
+    ],
+    "EncryptionIndicatorProps": [
+      {
+        "name": "EncryptionIndicatorProps",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\encryption\\presentation\\components\\EncryptionIndicator.tsx",
+        "type": "interface",
+        "isDefault": false
+      }
+    ],
+    "EncryptionIndicator": [
+      {
+        "name": "EncryptionIndicator",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\encryption\\presentation\\components\\EncryptionIndicator.tsx",
+        "type": "function",
+        "isDefault": false
+      }
+    ],
+    "ZeroKnowledgeIndicator": [
+      {
+        "name": "ZeroKnowledgeIndicator",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\encryption\\presentation\\components\\EncryptionIndicator.tsx",
+        "type": "function",
+        "isDefault": false
+      }
+    ],
+    "PrivacyGuarantee": [
+      {
+        "name": "PrivacyGuarantee",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\encryption\\presentation\\components\\EncryptionIndicator.tsx",
+        "type": "function",
+        "isDefault": false
+      }
+    ],
+    "cn": [
+      {
+        "name": "cn",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\shared\\presentation\\utils.ts",
+        "type": "function",
+        "isDefault": false
+      },
+      {
+        "name": "cn",
+        "module": "@/shared/presentation",
+        "isDefault": false
+      }
+    ],
+    "ShieldCheckIcon": [
+      {
+        "name": "ShieldCheckIcon",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\shared\\presentation\\icons.tsx",
+        "type": "function",
+        "isDefault": false
+      },
+      {
+        "name": "ShieldCheckIcon",
+        "module": "@/shared/presentation",
+        "isDefault": false
+      }
+    ],
+    "AlertCircleIcon": [
+      {
+        "name": "AlertCircleIcon",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\shared\\presentation\\icons.tsx",
+        "type": "function",
+        "isDefault": false
+      },
+      {
+        "name": "AlertCircleIcon",
+        "module": "@/shared/presentation",
+        "isDefault": false
+      }
+    ],
+    "LoadingIcon": [
+      {
+        "name": "LoadingIcon",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\shared\\presentation\\icons.tsx",
+        "type": "function",
+        "isDefault": false
+      },
+      {
+        "name": "LoadingIcon",
+        "module": "@/shared/presentation",
+        "isDefault": false
+      }
+    ],
+    "IEncryptedFileRepository": [
+      {
+        "name": "IEncryptedFileRepository",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\encryption\\domain\\repositories\\IEncryptedFileRepository.ts",
+        "type": "interface",
+        "isDefault": false
+      }
+    ],
+    "MongoSecurityEventRepository": [
+      {
+        "name": "MongoSecurityEventRepository",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\privacy\\infrastructure\\database\\mongo-security-event.repository.ts",
+        "type": "class",
+        "isDefault": false
+      }
+    ],
+    "Collection": [
+      {
+        "name": "Collection",
+        "module": "mongodb",
+        "isDefault": false
+      }
+    ],
+    "MongoClient": [
+      {
+        "name": "MongoClient",
+        "module": "mongodb",
+        "isDefault": false
+      }
+    ],
+    "ObjectId": [
+      {
+        "name": "ObjectId",
+        "module": "mongodb",
+        "isDefault": false
+      }
+    ],
+    "EncryptedFile": [
+      {
+        "name": "EncryptedFile",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\encryption\\domain\\entities\\encrypted-file.entity.ts",
+        "type": "class",
+        "isDefault": false
+      }
+    ],
+    "EncryptedFileMetadata": [
+      {
+        "name": "EncryptedFileMetadata",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\encryption\\domain\\entities\\encrypted-file.entity.ts",
+        "type": "interface",
+        "isDefault": false
+      }
+    ],
+    "UserService": [
+      {
+        "name": "UserService",
+        "module": "@/shared/infrastructure/di/dependency-container",
+        "isDefault": false
+      },
+      {
+        "name": "UserService",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\shared\\infrastructure\\services\\user.service.ts",
+        "type": "class",
+        "isDefault": false
+      }
+    ],
+    "SystemService": [
+      {
+        "name": "SystemService",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\shared\\infrastructure\\services\\system.service.ts",
+        "type": "class",
+        "isDefault": false
+      }
+    ],
+    "SecurityService": [
+      {
+        "name": "SecurityService",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\shared\\infrastructure\\services\\security.service.ts",
+        "type": "class",
+        "isDefault": false
+      }
+    ],
+    "FileService": [
+      {
+        "name": "FileService",
+        "module": "@/shared/infrastructure/di/dependency-container",
+        "isDefault": false
+      },
+      {
+        "name": "FileService",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\shared\\infrastructure\\services\\file.service.ts",
+        "type": "class",
+        "isDefault": false
+      }
+    ],
+    "HomePage": [
+      {
+        "name": "HomePage",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\app\\page.tsx",
+        "type": "function",
+        "isDefault": true
+      }
+    ],
+    "AnonymousUpload": [
+      {
+        "name": "AnonymousUpload",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\file-sharing\\presentation\\components\\AnonymousUpload.tsx",
+        "type": "function",
+        "isDefault": false
+      },
+      {
+        "name": "AnonymousUpload",
+        "module": "@/domains/file-sharing/presentation/components/AnonymousUpload",
+        "isDefault": false
+      }
+    ],
+    "AdminService": [
+      {
+        "name": "AdminService",
+        "module": "@/shared/infrastructure/di/dependency-container",
+        "isDefault": false
+      },
+      {
+        "name": "AdminService",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\shared\\infrastructure\\services\\admin.service.ts",
+        "type": "class",
+        "isDefault": false
+      }
+    ],
+    "metadata": [
+      {
+        "name": "metadata",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\app\\layout.tsx",
+        "type": "const",
+        "isDefault": false
+      }
+    ],
+    "RootLayout": [
+      {
+        "name": "RootLayout",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\app\\layout.tsx",
+        "type": "function",
+        "isDefault": true
+      }
+    ],
+    "type { Metadata": [
+      {
+        "name": "type { Metadata",
+        "module": "next",
+        "isDefault": true
+      }
+    ],
+    "Inter": [
+      {
+        "name": "Inter",
+        "module": "next/font/google",
+        "isDefault": false
+      }
+    ],
+    "AdminPage": [
+      {
+        "name": "AdminPage",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\app\\admin\\page.tsx",
+        "type": "function",
+        "isDefault": true
+      }
+    ],
+    "SignUpPage": [
+      {
+        "name": "SignUpPage",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\app\\auth\\signup\\page.tsx",
+        "type": "function",
+        "isDefault": true
+      }
+    ],
+    "SignUpForm": [
+      {
+        "name": "SignUpForm",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\user-management\\presentation\\components\\SignUpForm.tsx",
+        "type": "function",
+        "isDefault": false
+      },
+      {
+        "name": "SignUpForm",
+        "module": "@/domains/user-management/presentation/components/SignUpForm",
+        "isDefault": false
+      }
+    ],
+    "FilePage": [
+      {
+        "name": "FilePage",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\app\\s\\[id]\\page.tsx",
+        "type": "function",
+        "isDefault": true
+      }
+    ],
+    "AnonymousDownload": [
+      {
+        "name": "AnonymousDownload",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\file-sharing\\presentation\\components\\AnonymousDownload.tsx",
+        "type": "function",
+        "isDefault": false
+      },
+      {
+        "name": "AnonymousDownload",
+        "module": "@/domains/file-sharing/presentation/components/AnonymousDownload",
+        "isDefault": false
+      }
+    ],
+    "MongoAdminActionRepository": [
+      {
+        "name": "MongoAdminActionRepository",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\admin\\infrastructure\\database\\mongo-admin-action.repository.ts",
+        "type": "class",
+        "isDefault": false
+      }
+    ],
+    "Db": [
+      {
+        "name": "Db",
+        "module": "mongodb",
+        "isDefault": false
+      }
+    ],
+    "SignInPage": [
+      {
+        "name": "SignInPage",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\app\\auth\\signin\\page.tsx",
+        "type": "function",
+        "isDefault": true
+      }
+    ],
+    "SignInForm": [
+      {
+        "name": "SignInForm",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\user-management\\presentation\\components\\SignInForm.tsx",
+        "type": "function",
+        "isDefault": false
+      },
+      {
+        "name": "SignInForm",
+        "module": "@/domains/user-management/presentation/components/SignInForm",
+        "isDefault": false
+      }
+    ],
+    "POST": [
+      {
+        "name": "POST",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\app\\api\\zk-upload\\route.ts",
+        "type": "const",
+        "isDefault": false
+      }
+    ],
+    "async": [
+      {
+        "name": "async",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\shared\\infrastructure\\database\\unified-database.service.ts",
+        "isDefault": false
+      }
+    ],
+    "NextRequest": [
+      {
+        "name": "NextRequest",
+        "module": "next/server",
+        "isDefault": false
+      }
+    ],
+    "z": [
+      {
+        "name": "z",
+        "module": "zod",
+        "isDefault": false
+      }
+    ],
+    "createSuccessResponse": [
+      {
+        "name": "createSuccessResponse",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\shared\\infrastructure\\api\\responses.ts",
+        "type": "function",
+        "isDefault": false
+      },
+      {
+        "name": "createSuccessResponse",
+        "module": "@/shared/infrastructure/api/responses",
+        "isDefault": false
+      }
+    ],
+    "createErrorResponse": [
+      {
+        "name": "createErrorResponse",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\shared\\infrastructure\\api\\responses.ts",
+        "type": "function",
+        "isDefault": false
+      },
+      {
+        "name": "createErrorResponse",
+        "module": "@/shared/infrastructure/api/responses",
+        "isDefault": false
+      }
+    ],
+    "withOptionalAuth": [
+      {
+        "name": "withOptionalAuth",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\shared\\infrastructure\\middleware\\auth.ts",
+        "type": "function",
+        "isDefault": false
+      },
+      {
+        "name": "withOptionalAuth",
+        "module": "@/shared/infrastructure/middleware/auth",
+        "isDefault": false
+      }
+    ],
+    "AuthenticatedRequest": [
+      {
+        "name": "AuthenticatedRequest",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\shared\\infrastructure\\middleware\\auth.ts",
+        "type": "interface",
+        "isDefault": false
+      },
+      {
+        "name": "AuthenticatedRequest",
+        "module": "@/shared/infrastructure/middleware/auth",
+        "isDefault": false
+      }
+    ],
+    "AdminActionFilters": [
+      {
+        "name": "AdminActionFilters",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\admin\\domain\\repositories\\IAdminActionRepository.ts",
+        "type": "interface",
+        "isDefault": false
+      }
+    ],
+    "AdminActionStats": [
+      {
+        "name": "AdminActionStats",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\admin\\domain\\repositories\\IAdminActionRepository.ts",
+        "type": "interface",
+        "isDefault": false
+      }
+    ],
+    "IAdminActionRepository": [
+      {
+        "name": "IAdminActionRepository",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\admin\\domain\\repositories\\IAdminActionRepository.ts",
+        "type": "interface",
+        "isDefault": false
+      }
+    ],
+    "ADMIN_ACTION_TYPES": [
+      {
+        "name": "ADMIN_ACTION_TYPES",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\admin\\domain\\value-objects\\ActionType.vo.ts",
+        "type": "const",
+        "isDefault": false
+      }
+    ],
+    "AdminActionTypeValue": [
+      {
+        "name": "AdminActionTypeValue",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\admin\\domain\\value-objects\\ActionType.vo.ts",
+        "type": "type",
+        "isDefault": false
+      }
+    ],
+    "ActionType": [
+      {
+        "name": "ActionType",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\admin\\domain\\value-objects\\ActionType.vo.ts",
+        "type": "class",
+        "isDefault": false
+      }
+    ],
+    "request": [
+      {
+        "name": "request",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\admin\\domain\\value-objects\\ActionType.vo.ts",
+        "isDefault": false
+      }
+    ],
+    "AdminActionId": [
+      {
+        "name": "AdminActionId",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\admin\\domain\\value-objects\\AdminActionId.vo.ts",
+        "type": "class",
+        "isDefault": false
+      }
+    ],
+    "nanoid": [
+      {
+        "name": "nanoid",
+        "module": "nanoid",
+        "isDefault": false
+      }
+    ],
+    "AdminUserId": [
+      {
+        "name": "AdminUserId",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\admin\\domain\\value-objects\\AdminUserId.vo.ts",
+        "type": "class",
+        "isDefault": false
+      }
+    ],
+    "randomUUID": [
+      {
+        "name": "randomUUID",
+        "module": "crypto",
+        "isDefault": false
+      }
+    ],
+    "buildShortUrl": [
+      {
+        "name": "buildShortUrl",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\shared\\infrastructure\\utils\\server-utils.ts",
+        "type": "function",
+        "isDefault": false
+      }
+    ],
+    "bcrypt": [
+      {
+        "name": "bcrypt",
+        "module": "bcryptjs",
+        "isDefault": true,
+        "asDefinition": "* as bcrypt"
+      }
+    ],
+    "GET": [
+      {
+        "name": "GET",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\app\\api\\admin\\users\\route.ts",
+        "type": "const",
+        "isDefault": false
+      }
+    ],
+    "withAdminAPI": [
+      {
+        "name": "withAdminAPI",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\shared\\infrastructure\\middleware\\auth.ts",
+        "type": "const",
+        "isDefault": false
+      },
+      {
+        "name": "withAdminAPI",
+        "module": "@/shared/infrastructure/middleware/auth",
+        "isDefault": false
+      }
+    ],
+    "NextResponse": [
+      {
+        "name": "NextResponse",
+        "module": "next/server",
+        "isDefault": false
+      }
+    ],
+    "headers": [
+      {
+        "name": "headers",
+        "module": "next/headers",
+        "isDefault": false
+      }
+    ],
+    "afterAll": [
+      {
+        "name": "afterAll",
+        "module": "vitest",
+        "isDefault": false
+      }
+    ],
+    "IUserRepository": [
+      {
+        "name": "IUserRepository",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\user-management\\domain\\repositories\\IUserRepository.ts",
+        "type": "interface",
+        "isDefault": false
+      }
+    ],
+    "UserRegistration": [
+      {
+        "name": "UserRegistration",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\user-management\\presentation\\components\\UserRegistration.tsx",
+        "type": "function",
+        "isDefault": false
+      }
+    ],
+    "RegisterUserRequest": [
+      {
+        "name": "RegisterUserRequest",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\user-management\\application\\usecases\\RegisterUser.usecase.ts",
+        "type": "interface",
+        "isDefault": false
+      }
+    ],
+    "RegisterUserResponse": [
+      {
+        "name": "RegisterUserResponse",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\user-management\\application\\usecases\\RegisterUser.usecase.ts",
+        "type": "interface",
+        "isDefault": false
+      }
+    ],
+    "RegisterUserUseCase": [
+      {
+        "name": "RegisterUserUseCase",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\user-management\\application\\usecases\\RegisterUser.usecase.ts",
+        "type": "class",
+        "isDefault": false
+      }
+    ],
+    "MongoUserRepository": [
+      {
+        "name": "MongoUserRepository",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\user-management\\infrastructure\\database\\mongo-user.repository.ts",
+        "type": "class",
+        "isDefault": false
+      }
+    ],
+    "UploadAnonymousRequest": [
+      {
+        "name": "UploadAnonymousRequest",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\file-sharing\\application\\usecases\\upload-anonymous.usecase.ts",
+        "type": "interface",
+        "isDefault": false
+      }
+    ],
+    "UploadAnonymousResponse": [
+      {
+        "name": "UploadAnonymousResponse",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\file-sharing\\application\\usecases\\upload-anonymous.usecase.ts",
+        "type": "interface",
+        "isDefault": false
+      }
+    ],
+    "UploadAnonymousUseCase": [
+      {
+        "name": "UploadAnonymousUseCase",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\file-sharing\\application\\usecases\\upload-anonymous.usecase.ts",
+        "type": "class",
+        "isDefault": false
+      }
+    ],
+    "DownloadFileRequest": [
+      {
+        "name": "DownloadFileRequest",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\file-sharing\\application\\usecases\\download-file.usecase.ts",
+        "type": "interface",
+        "isDefault": false
+      }
+    ],
+    "DownloadFileResponse": [
+      {
+        "name": "DownloadFileResponse",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\file-sharing\\application\\usecases\\download-file.usecase.ts",
+        "type": "interface",
+        "isDefault": false
+      }
+    ],
+    "DownloadFileUseCase": [
+      {
+        "name": "DownloadFileUseCase",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\file-sharing\\application\\usecases\\download-file.usecase.ts",
+        "type": "class",
+        "isDefault": false
+      }
+    ],
+    "DatabaseConfig": [
+      {
+        "name": "DatabaseConfig",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\shared\\infrastructure\\database\\unified-database.service.ts",
+        "type": "interface",
+        "isDefault": false
+      }
+    ],
+    "DatabaseConnection": [
+      {
+        "name": "DatabaseConnection",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\file-sharing\\infrastructure\\database\\connection.ts",
+        "type": "class",
+        "isDefault": false
+      }
+    ],
+    "getDatabase": [
+      {
+        "name": "getDatabase",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\file-sharing\\infrastructure\\database\\connection.ts",
+        "type": "const",
+        "isDefault": false
+      }
+    ],
+    "mongoose": [
+      {
+        "name": "mongoose",
+        "module": "mongoose",
+        "isDefault": true
+      }
+    ],
+    "IFileRepository": [
+      {
+        "name": "IFileRepository",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\file-sharing\\application\\interfaces\\file.repository.interface.ts",
+        "type": "interface",
+        "isDefault": false
+      }
+    ],
+    "FileStorageStats": [
+      {
+        "name": "FileStorageStats",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\file-sharing\\application\\interfaces\\file.repository.interface.ts",
+        "type": "interface",
+        "isDefault": false
+      }
+    ],
+    "StorageIntegrityReport": [
+      {
+        "name": "StorageIntegrityReport",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\file-sharing\\application\\interfaces\\file.repository.interface.ts",
+        "type": "interface",
+        "isDefault": false
+      }
+    ],
+    "RepositoryHealth": [
+      {
+        "name": "RepositoryHealth",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\file-sharing\\application\\interfaces\\file.repository.interface.ts",
+        "type": "interface",
+        "isDefault": false
+      }
+    ],
+    "MongoFileRepository": [
+      {
+        "name": "MongoFileRepository",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\file-sharing\\infrastructure\\database\\mongo-file.repository.ts",
+        "type": "class",
+        "isDefault": false
+      }
+    ],
+    "createFileRepository": [
+      {
+        "name": "createFileRepository",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\file-sharing\\infrastructure\\database\\mongo-file.repository.ts",
+        "type": "const",
+        "isDefault": false
+      }
+    ],
+    "EncryptedFieldData": [
+      {
+        "name": "EncryptedFieldData",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\user-management\\domain\\value-objects\\EncryptedField.vo.ts",
+        "type": "interface",
+        "isDefault": false
+      }
+    ],
+    "EncryptedField": [
+      {
+        "name": "EncryptedField",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\user-management\\domain\\value-objects\\EncryptedField.vo.ts",
+        "type": "class",
+        "isDefault": false
+      }
+    ],
+    "useFileSharing": [
+      {
+        "name": "useFileSharing",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\file-sharing\\presentation\\hooks\\useFileSharing.ts",
+        "type": "function",
+        "isDefault": false
+      }
+    ],
+    "UserId": [
+      {
+        "name": "UserId",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\user-management\\domain\\value-objects\\UserId.vo.ts",
+        "type": "class",
+        "isDefault": false
+      }
+    ],
+    "EmailHash": [
+      {
+        "name": "EmailHash",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\user-management\\domain\\value-objects\\EmailHash.vo.ts",
+        "type": "class",
+        "isDefault": false
+      }
+    ],
+    "AccountStatusValue": [
+      {
+        "name": "AccountStatusValue",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\user-management\\domain\\value-objects\\AccountStatus.vo.ts",
+        "type": "type",
+        "isDefault": false
+      }
+    ],
+    "AccountStatusData": [
+      {
+        "name": "AccountStatusData",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\user-management\\domain\\value-objects\\AccountStatus.vo.ts",
+        "type": "interface",
+        "isDefault": false
+      }
+    ],
+    "AccountStatus": [
+      {
+        "name": "AccountStatus",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\user-management\\domain\\value-objects\\AccountStatus.vo.ts",
+        "type": "class",
+        "isDefault": false
+      }
+    ],
+    "useAnonymousUpload": [
+      {
+        "name": "useAnonymousUpload",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\file-sharing\\presentation\\hooks\\useAnonymousUpload.ts",
+        "type": "function",
+        "isDefault": false
+      }
+    ],
+    "UserPreferencesData": [
+      {
+        "name": "UserPreferencesData",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\user-management\\domain\\value-objects\\UserPreferences.vo.ts",
+        "type": "interface",
+        "isDefault": false
+      }
+    ],
+    "UserPreferences": [
+      {
+        "name": "UserPreferences",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\user-management\\domain\\value-objects\\UserPreferences.vo.ts",
+        "type": "class",
+        "isDefault": false
+      }
+    ],
+    "ISharedFileDocument": [
+      {
+        "name": "ISharedFileDocument",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\file-sharing\\infrastructure\\database\\shared-file.model.ts",
+        "type": "interface",
+        "isDefault": false
+      }
+    ],
+    "SharedFileModel": [
+      {
+        "name": "SharedFileModel",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\file-sharing\\infrastructure\\database\\shared-file.model.ts",
+        "type": "const",
+        "isDefault": true
+      }
+    ],
+    "withAuth": [
+      {
+        "name": "withAuth",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\shared\\infrastructure\\middleware\\auth.ts",
+        "type": "function",
+        "isDefault": false
+      }
+    ],
+    "withAdminAuth": [
+      {
+        "name": "withAdminAuth",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\shared\\infrastructure\\middleware\\auth.ts",
+        "type": "function",
+        "isDefault": false
+      }
+    ],
+    "AdminActionData": [
+      {
+        "name": "AdminActionData",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\admin\\domain\\entities\\AdminAction.entity.ts",
+        "type": "interface",
+        "isDefault": false
+      }
+    ],
+    "AdminAction": [
+      {
+        "name": "AdminAction",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\admin\\domain\\entities\\AdminAction.entity.ts",
+        "type": "class",
+        "isDefault": false
+      }
+    ],
+    "useDomainTranslation": [
+      {
+        "name": "useDomainTranslation",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\shared\\i18n\\useDomainTranslation.ts",
+        "type": "function",
+        "isDefault": false
+      }
+    ],
+    "UserData": [
+      {
+        "name": "UserData",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\user-management\\domain\\entities\\User.entity.ts",
+        "type": "interface",
+        "isDefault": false
+      }
+    ],
+    "User": [
+      {
+        "name": "User",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\user-management\\domain\\entities\\User.entity.ts",
+        "type": "class",
+        "isDefault": false
+      }
+    ],
+    "ShareUrl": [
+      {
+        "name": "ShareUrl",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\file-sharing\\domain\\value-objects\\share-url.vo.ts",
+        "type": "class",
+        "isDefault": false
+      }
+    ],
+    "SharedFile": [
+      {
+        "name": "SharedFile",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\file-sharing\\domain\\entities\\shared-file.entity.ts",
+        "type": "class",
+        "isDefault": false
+      }
+    ],
+    "FileMetadata": [
+      {
+        "name": "FileMetadata",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\file-sharing\\domain\\value-objects\\file-metadata.vo.ts",
+        "type": "class",
+        "isDefault": false
+      }
+    ],
+    "FileId": [
+      {
+        "name": "FileId",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\file-sharing\\domain\\value-objects\\file-id.vo.ts",
+        "type": "class",
+        "isDefault": false
+      }
+    ],
+    "DownloadLimits": [
+      {
+        "name": "DownloadLimits",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\file-sharing\\domain\\value-objects\\download-limits.vo.ts",
+        "type": "class",
+        "isDefault": false
+      }
+    ],
+    "render": [
+      {
+        "name": "render",
+        "module": "@testing-library/react",
+        "isDefault": false
+      }
+    ],
+    "screen": [
+      {
+        "name": "screen",
+        "module": "@testing-library/react",
+        "isDefault": false
+      }
+    ],
+    "fireEvent": [
+      {
+        "name": "fireEvent",
+        "module": "@testing-library/react",
+        "isDefault": false
+      }
+    ],
+    "waitFor": [
+      {
+        "name": "waitFor",
+        "module": "@testing-library/react",
+        "isDefault": false
+      }
+    ],
+    "RegisterUserData": [
+      {
+        "name": "RegisterUserData",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\user-management\\presentation\\hooks\\useUserAccount.ts",
+        "type": "interface",
+        "isDefault": false
+      }
+    ],
+    "UserAccountState": [
+      {
+        "name": "UserAccountState",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\user-management\\presentation\\hooks\\useUserAccount.ts",
+        "type": "interface",
+        "isDefault": false
+      }
+    ],
+    "UserAccountOperations": [
+      {
+        "name": "UserAccountOperations",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\user-management\\presentation\\hooks\\useUserAccount.ts",
+        "type": "interface",
+        "isDefault": false
+      }
+    ],
+    "useUserAccount": [
+      {
+        "name": "useUserAccount",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\user-management\\presentation\\hooks\\useUserAccount.ts",
+        "type": "function",
+        "isDefault": false
+      }
+    ],
+    "useUserRegistration": [
+      {
+        "name": "useUserRegistration",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\user-management\\presentation\\hooks\\useUserAccount.ts",
+        "type": "function",
+        "isDefault": false
+      }
+    ],
+    "useEmailAvailability": [
+      {
+        "name": "useEmailAvailability",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\user-management\\presentation\\hooks\\useUserAccount.ts",
+        "type": "function",
+        "isDefault": false
+      }
+    ],
+    "useAuthStatus": [
+      {
+        "name": "useAuthStatus",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\user-management\\presentation\\hooks\\useUserAccount.ts",
+        "type": "function",
+        "isDefault": false
+      }
+    ],
+    "useMutation": [
+      {
+        "name": "useMutation",
+        "module": "@tanstack/react-query",
+        "isDefault": false
+      }
+    ],
+    "useQuery": [
+      {
+        "name": "useQuery",
+        "module": "@tanstack/react-query",
+        "isDefault": false
+      }
+    ],
+    "useQueryClient": [
+      {
+        "name": "useQueryClient",
+        "module": "@tanstack/react-query",
+        "isDefault": false
+      }
+    ],
+    "AuthSession": [
+      {
+        "name": "AuthSession",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\user-management\\application\\services\\AuthenticationService.ts",
+        "type": "interface",
+        "isDefault": false
+      }
+    ],
+    "AuthenticationRequest": [
+      {
+        "name": "AuthenticationRequest",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\user-management\\application\\services\\AuthenticationService.ts",
+        "type": "interface",
+        "isDefault": false
+      }
+    ],
+    "AuthenticationService": [
+      {
+        "name": "AuthenticationService",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\domains\\user-management\\application\\services\\AuthenticationService.ts",
+        "type": "class",
+        "isDefault": false
+      }
+    ],
+    "DomainContainer": [
+      {
+        "name": "DomainContainer",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\shared\\infrastructure\\di\\domain-container.ts",
+        "type": "class",
+        "isDefault": false
+      }
+    ],
+    "ApiServices": [
+      {
+        "name": "ApiServices",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\shared\\infrastructure\\di\\dependency-container.ts",
+        "type": "class",
+        "isDefault": false
+      }
+    ],
+    "designTokens": [
+      {
+        "name": "designTokens",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\shared\\presentation\\utils.ts",
+        "type": "const",
+        "isDefault": false
+      }
+    ],
+    "privacyStates": [
+      {
+        "name": "privacyStates",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\shared\\presentation\\utils.ts",
+        "type": "const",
+        "isDefault": false
+      }
+    ],
+    "a11y": [
+      {
+        "name": "a11y",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\shared\\presentation\\utils.ts",
+        "type": "const",
+        "isDefault": false
+      }
+    ],
+    "animations": [
+      {
+        "name": "animations",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\shared\\presentation\\utils.ts",
+        "type": "const",
+        "isDefault": false
+      }
+    ],
+    "PrivacyState": [
+      {
+        "name": "PrivacyState",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\shared\\presentation\\utils.ts",
+        "type": "type",
+        "isDefault": false
+      }
+    ],
+    "DesignToken": [
+      {
+        "name": "DesignToken",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\shared\\presentation\\utils.ts",
+        "type": "type",
+        "isDefault": false
+      }
+    ],
+    "clsx": [
+      {
+        "name": "clsx",
+        "module": "clsx",
+        "isDefault": false
+      }
+    ],
+    "type ClassValue": [
+      {
+        "name": "type ClassValue",
+        "module": "clsx",
+        "isDefault": false
+      }
+    ],
+    "twMerge": [
+      {
+        "name": "twMerge",
+        "module": "tailwind-merge",
+        "isDefault": false
+      }
+    ],
+    "type": [
+      {
+        "name": "type",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\shared\\presentation\\index.ts",
+        "isDefault": false
+      }
+    ],
+    "KeyIcon": [
+      {
+        "name": "KeyIcon",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\shared\\presentation\\icons.tsx",
+        "type": "function",
+        "isDefault": false
+      }
+    ],
+    "ClockIcon": [
+      {
+        "name": "ClockIcon",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\shared\\presentation\\icons.tsx",
+        "type": "function",
+        "isDefault": false
+      }
+    ],
+    "UserSecretIcon": [
+      {
+        "name": "UserSecretIcon",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\shared\\presentation\\icons.tsx",
+        "type": "function",
+        "isDefault": false
+      }
+    ],
+    "UploadIcon": [
+      {
+        "name": "UploadIcon",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\shared\\presentation\\icons.tsx",
+        "type": "function",
+        "isDefault": false
+      }
+    ],
+    "CheckCircleIcon": [
+      {
+        "name": "CheckCircleIcon",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\shared\\presentation\\icons.tsx",
+        "type": "function",
+        "isDefault": false
+      }
+    ],
+    "InfoIcon": [
+      {
+        "name": "InfoIcon",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\shared\\presentation\\icons.tsx",
+        "type": "function",
+        "isDefault": false
+      }
+    ],
+    "CopyIcon": [
+      {
+        "name": "CopyIcon",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\shared\\presentation\\icons.tsx",
+        "type": "function",
+        "isDefault": false
+      }
+    ],
+    "Icons": [
+      {
+        "name": "Icons",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\shared\\presentation\\icons.tsx",
+        "type": "const",
+        "isDefault": false
+      }
+    ],
+    "ButtonProps": [
+      {
+        "name": "ButtonProps",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\shared\\presentation\\components.tsx",
+        "type": "interface",
+        "isDefault": false
+      }
+    ],
+    "InputProps": [
+      {
+        "name": "InputProps",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\shared\\presentation\\components.tsx",
+        "type": "interface",
+        "isDefault": false
+      }
+    ],
+    "BadgeProps": [
+      {
+        "name": "BadgeProps",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\shared\\presentation\\components.tsx",
+        "type": "interface",
+        "isDefault": false
+      }
+    ],
+    "Slot": [
+      {
+        "name": "Slot",
+        "module": "@radix-ui/react-slot",
+        "isDefault": false
+      }
+    ],
+    "cva": [
+      {
+        "name": "cva",
+        "module": "class-variance-authority",
+        "isDefault": false
+      }
+    ],
+    "type VariantProps": [
+      {
+        "name": "type VariantProps",
+        "module": "class-variance-authority",
+        "isDefault": false
+      }
+    ],
+    "ProgressPrimitive": [
+      {
+        "name": "ProgressPrimitive",
+        "module": "@radix-ui/react-progress",
+        "isDefault": true,
+        "asDefinition": "* as ProgressPrimitive"
+      }
+    ],
+    "ApiSuccessResponse": [
+      {
+        "name": "ApiSuccessResponse",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\shared\\infrastructure\\api\\responses.ts",
+        "type": "interface",
+        "isDefault": false
+      }
+    ],
+    "ApiErrorResponse": [
+      {
+        "name": "ApiErrorResponse",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\shared\\infrastructure\\api\\responses.ts",
+        "type": "interface",
+        "isDefault": false
+      }
+    ],
+    "createValidationErrorResponse": [
+      {
+        "name": "createValidationErrorResponse",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\shared\\infrastructure\\api\\responses.ts",
+        "type": "function",
+        "isDefault": false
+      }
+    ],
+    "createNotFoundResponse": [
+      {
+        "name": "createNotFoundResponse",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\shared\\infrastructure\\api\\responses.ts",
+        "type": "function",
+        "isDefault": false
+      }
+    ],
+    "createUnauthorizedResponse": [
+      {
+        "name": "createUnauthorizedResponse",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\shared\\infrastructure\\api\\responses.ts",
+        "type": "function",
+        "isDefault": false
+      }
+    ],
+    "createForbiddenResponse": [
+      {
+        "name": "createForbiddenResponse",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\shared\\infrastructure\\api\\responses.ts",
+        "type": "function",
+        "isDefault": false
+      }
+    ],
+    "createInternalErrorResponse": [
+      {
+        "name": "createInternalErrorResponse",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\shared\\infrastructure\\api\\responses.ts",
+        "type": "function",
+        "isDefault": false
+      }
+    ],
+    "ConnectionHealth": [
+      {
+        "name": "ConnectionHealth",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\shared\\infrastructure\\database\\unified-database.service.ts",
+        "type": "interface",
+        "isDefault": false
+      }
+    ],
+    "UnifiedDatabaseService": [
+      {
+        "name": "UnifiedDatabaseService",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\shared\\infrastructure\\database\\unified-database.service.ts",
+        "type": "class",
+        "isDefault": false
+      }
+    ],
+    "getUnifiedDatabase": [
+      {
+        "name": "getUnifiedDatabase",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\src\\shared\\infrastructure\\database\\unified-database.service.ts",
+        "type": "function",
+        "isDefault": false
+      }
+    ],
+    "{ Connection": [
+      {
+        "name": "{ Connection",
+        "module": "mongoose",
+        "isDefault": true
+      }
+    ],
+    "Link": [
+      {
+        "name": "Link",
+        "module": "next/link",
+        "isDefault": true
+      }
+    ],
+    "unstable_cacheLife": [
+      {
+        "name": "unstable_cacheLife",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\.next\\types\\cache-life.d.ts",
+        "type": "function",
+        "isDefault": false
+      }
+    ],
+    "PageProps": [
+      {
+        "name": "PageProps",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\.next\\types\\app\\api\\auth\\signup\\route.ts",
+        "type": "interface",
+        "isDefault": false
+      }
+    ],
+    "LayoutProps": [
+      {
+        "name": "LayoutProps",
+        "path": "c:\\Users\\ismys\\Documents\\GitHub\\uploadhaven\\.next\\types\\app\\api\\auth\\signup\\route.ts",
+        "type": "interface",
+        "isDefault": false
+      }
+    ],
+    "type { ResolvingMetadata": [
+      {
+        "name": "type { ResolvingMetadata",
+        "module": "next/dist/lib/metadata/types/metadata-interface.js",
+        "isDefault": true
+      }
+    ],
+    "ResolvingViewport": [
+      {
+        "name": "ResolvingViewport",
+        "module": "next/dist/lib/metadata/types/metadata-interface.js",
+        "isDefault": true
+      }
+    ],
+    "type { NextRequest": [
+      {
+        "name": "type { NextRequest",
+        "module": "next/server.js",
+        "isDefault": true
+      }
+    ]
+  }
+}

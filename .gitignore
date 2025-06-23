@@ -51,7 +51,7 @@ next-env.d.ts
 
 # thumbnail cache
 /cache/
-
+todo-v2
 # local test files
 /test-files
 /test-output

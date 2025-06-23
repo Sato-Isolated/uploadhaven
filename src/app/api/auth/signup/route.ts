@@ -1,47 +1,69 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { headers } from 'next/headers';
-import { auth } from '@/lib/auth/auth';
-import { User } from '@/lib/database/models';
-import { logSecurityEvent } from '@/lib/audit/audit-service';
+import { UserService } from '@/shared/infrastructure/di/dependency-container';
 
+/**
+ * POST /api/auth/signup
+ *
+ * User registration endpoint (DDD Architecture).
+ * Handles user signup with privacy-compliant logging and activity tracking.
+ * 
+ * @architecture DDD - Uses user-management domain services
+ * @privacy Privacy-aware - Minimal logging, encrypted user data
+ */
 export async function POST(request: NextRequest) {
   try {
-    // Get client IP and user agent
-    const clientIP =
-      request.headers.get('x-forwarded-for') ||
+    // Get client metadata for privacy and security
+    const clientIP = request.headers.get('x-forwarded-for') ||
       request.headers.get('x-real-ip') ||
       '127.0.0.1';
     const userAgent = request.headers.get('user-agent') || '';
 
-    // Get the request body
+    // Get request body
     const body = await request.json();
 
-    // Call the original better-auth signup endpoint
-    const authResponse = await auth.api.signUpEmail({
-      body,
-      headers: await headers(),
-    }); // If signup was successful, log the activity and update lastActivity
-    if (authResponse && 'user' in authResponse && authResponse.user) {
-      try {
-        // Update user's lastActivity
-        await User.findByIdAndUpdate(authResponse.user.id, {
-          lastActivity: new Date(),
-        });        await logSecurityEvent(
-          'user_registration',
-          `User registered: ${authResponse.user.email}`,
-          'low',
-          true,
-          { userId: authResponse.user.id },
-          clientIP
-        );
-      } catch (error) {
-        console.error('Failed to log user registration:', error);
-      }
-    }
+    console.log('🔐 User signup attempt:', {
+      email: body.email ? '***@' + body.email.split('@')[1] : 'unknown',
+      hasPassword: !!body.password,
+      clientIP: clientIP.split('.')[0] + '.***'
+    });
 
-    return NextResponse.json(authResponse);
+    // Use Domain Service through Service Layer for registration
+    const registrationResult = await UserService.registerUser({
+      email: body.email,
+      password: body.password,
+      name: body.name,
+      clientIP,
+      userAgent,
+    });
+
+    console.log('✅ User registration successful:', {
+      userId: registrationResult.user?.id?.slice(-8),
+      email: registrationResult.user?.email ? '***@' + registrationResult.user.email.split('@')[1] : 'unknown'
+    });
+
+    return NextResponse.json(registrationResult);
+
   } catch (error) {
-    console.error('Signup error:', error);
-    return NextResponse.json({ error: 'Registration failed' }, { status: 500 });
+    console.error('❌ Signup failed:', error);
+
+    // Log security event through Domain Service
+    const clientIP = request.headers.get('x-forwarded-for') ||
+      request.headers.get('x-real-ip') ||
+      '127.0.0.1';
+    const userAgent = request.headers.get('user-agent') || '';
+
+    await UserService.logAuthenticationEvent({
+      type: 'registration_failed',
+      message: `User registration failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      severity: 'medium',
+      clientIP,
+      userAgent,
+    });
+
+    return NextResponse.json({
+      error: 'Registration failed',
+      message: 'Unable to create account at this time'
+    }, { status: 500 });
   }
 }

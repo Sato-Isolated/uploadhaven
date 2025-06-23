@@ -1,0 +1,21 @@
+{
+  "encrypt": "Encrypt",
+  "decrypt": "Decrypt",
+  "encrypting": "Encrypting...",
+  "decrypting": "Decrypting...",
+  "encrypted": "Encrypted",
+  "decrypted": "Decrypted",
+  "zeroKnowledge": "Zero-Knowledge",
+  "aesEncryption": "AES-256-GCM Encryption",
+  "clientSideOnly": "Client-side only",
+  "serverCannotDecrypt": "Server cannot decrypt your files",
+  "privacyGuarantee": "Privacy Guarantee",
+  "encryptionIndicator": "Encryption Status",
+  "keyGeneration": "Key Generation",
+  "secureRandomKey": "Secure random key generated",
+  "passwordProtection": "Password Protection",
+  "encryptionComplete": "Encryption completed successfully",
+  "decryptionComplete": "Decryption completed successfully",
+  "encryptionFailed": "Encryption failed",
+  "decryptionFailed": "Decryption failed"
+}

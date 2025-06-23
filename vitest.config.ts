@@ -10,7 +10,7 @@ export default defineConfig({
     globals: true,
     setupFiles: ['./vitest.setup.ts'],
     css: true,
-    
+
     // Performance optimizations
     pool: 'threads',
     poolOptions: {
@@ -18,7 +18,7 @@ export default defineConfig({
         singleThread: false,
       },
     },
-    
+
     // Coverage
     coverage: {
       provider: 'v8',
@@ -31,13 +31,14 @@ export default defineConfig({
         '**/coverage/**',
       ],
     },
-    
+
     // File patterns
-    include: ['**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
-    exclude: [
+    include: ['**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'], exclude: [
       '**/node_modules/**',
       '**/dist/**',
       '**/cypress/**',
+      '**/legacy/**',
+      '**/archive/**',
       '**/.{idea,git,cache,output,temp}/**',
       '**/{karma,rollup,webpack,vite,vitest,jest,ava,babel,nyc,cypress,tsup,build}.config.*'
     ],

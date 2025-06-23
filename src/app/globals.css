@@ -1,156 +1,83 @@
 @import 'tailwindcss';
-@import 'tw-animate-css';
-
-@custom-variant dark (&:is(.dark *));
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-  --color-sidebar-ring: var(--sidebar-ring);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar: var(--sidebar);
-  --color-chart-5: var(--chart-5);
-  --color-chart-4: var(--chart-4);
-  --color-chart-3: var(--chart-3);
-  --color-chart-2: var(--chart-2);
-  --color-chart-1: var(--chart-1);
-  --color-ring: var(--ring);
-  --color-input: var(--input);
-  --color-border: var(--border);
-  --color-destructive: var(--destructive);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-accent: var(--accent);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-muted: var(--muted);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-secondary: var(--secondary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-primary: var(--primary);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-popover: var(--popover);
-  --color-card-foreground: var(--card-foreground);
-  --color-card: var(--card);
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
-}
 
 :root {
   --radius: 0.625rem;
 
-  /* UploadHaven Brand Colors - Modern Blue/Purple Gradient Theme */
-  --background: oklch(0.99 0.005 270);
-  --foreground: oklch(0.15 0.02 270);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.15 0.02 270);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.15 0.02 270);
+  /* UploadHaven Brand Colors - Modern Blue/Purple Theme */
+  --background: 255 255 255;
+  --foreground: 15 23 42;
+  --card: 255 255 255;
+  --card-foreground: 15 23 42;
+  --popover: 255 255 255;
+  --popover-foreground: 15 23 42;
 
   /* Primary: Modern Electric Blue */
-  --primary: oklch(0.6 0.25 240);
-  --primary-foreground: oklch(0.99 0 0);
+  --primary: 59 130 246;
+  --primary-foreground: 255 255 255;
 
   /* Secondary: Soft Purple-Gray */
-  --secondary: oklch(0.95 0.02 270);
-  --secondary-foreground: oklch(0.4 0.08 270);
+  --secondary: 241 245 249;
+  --secondary-foreground: 15 23 42;
 
   /* Muted: Subtle Purple Tint */
-  --muted: oklch(0.96 0.01 270);
-  --muted-foreground: oklch(0.5 0.05 270);
+  --muted: 248 250 252;
+  --muted-foreground: 100 116 139;
 
   /* Accent: Vibrant Purple */
-  --accent: oklch(0.65 0.2 280);
-  --accent-foreground: oklch(0.99 0 0);
+  --accent: 139 92 246;
+  --accent-foreground: 255 255 255;
 
-  --destructive: oklch(0.65 0.25 20);
+  --destructive: 239 68 68;
+  --destructive-foreground: 255 255 255;
 
-  /* Borders with subtle purple hint */
-  --border: oklch(0.9 0.01 270);
-  --input: oklch(0.97 0.005 270);
-  --ring: oklch(0.6 0.25 240);
-
-  /* Chart colors - Modern palette */
-  --chart-1: oklch(0.6 0.25 240); /* Electric Blue */
-  --chart-2: oklch(0.65 0.2 280); /* Purple */
-  --chart-3: oklch(0.7 0.15 320); /* Pink-Purple */
-  --chart-4: oklch(0.55 0.2 200); /* Cyan */
-  --chart-5: oklch(0.75 0.15 160); /* Teal */
-
-  /* Sidebar matching theme */
-  --sidebar: oklch(0.99 0.005 270);
-  --sidebar-foreground: oklch(0.15 0.02 270);
-  --sidebar-primary: oklch(0.6 0.25 240);
-  --sidebar-primary-foreground: oklch(0.99 0 0);
-  --sidebar-accent: oklch(0.95 0.02 270);
-  --sidebar-accent-foreground: oklch(0.4 0.08 270);
-  --sidebar-border: oklch(0.9 0.01 270);
-  --sidebar-ring: oklch(0.6 0.25 240);
+  /* Borders */
+  --border: 226 232 240;
+  --input: 226 232 240;
+  --ring: 59 130 246;
 }
 
 .dark {
-  /* UploadHaven Dark Theme - Modern Electric Blue/Purple */
-  --background: oklch(0.08 0.02 270);
-  --foreground: oklch(0.95 0.005 270);
-  --card: oklch(0.12 0.02 270);
-  --card-foreground: oklch(0.95 0.005 270);
-  --popover: oklch(0.12 0.02 270);
-  --popover-foreground: oklch(0.95 0.005 270);
+  /* UploadHaven Dark Theme */
+  --background: 2 6 23;
+  --foreground: 248 250 252;
+  --card: 15 23 42;
+  --card-foreground: 248 250 252;
+  --popover: 15 23 42;
+  --popover-foreground: 248 250 252;
 
   /* Primary: Brighter electric blue for dark mode */
-  --primary: oklch(0.7 0.25 240);
-  --primary-foreground: oklch(0.08 0.02 270);
+  --primary: 59 130 246;
+  --primary-foreground: 15 23 42;
 
   /* Secondary: Purple-gray for dark */
-  --secondary: oklch(0.2 0.05 270);
-  --secondary-foreground: oklch(0.9 0.01 270);
+  --secondary: 30 41 59;
+  --secondary-foreground: 248 250 252;
 
   /* Muted: Dark purple tint */
-  --muted: oklch(0.15 0.03 270);
-  --muted-foreground: oklch(0.65 0.05 270);
+  --muted: 30 41 59;
+  --muted-foreground: 148 163 184;
 
   /* Accent: Vibrant purple for dark mode */
-  --accent: oklch(0.7 0.2 280);
-  --accent-foreground: oklch(0.08 0.02 270);
+  --accent: 139 92 246;
+  --accent-foreground: 15 23 42;
 
-  --destructive: oklch(0.7 0.25 20);
+  --destructive: 239 68 68;
+  --destructive-foreground: 255 255 255;
 
-  /* Dark borders with purple hint */
-  --border: oklch(0.25 0.03 270);
-  --input: oklch(0.18 0.03 270);
-  --ring: oklch(0.7 0.25 240);
-
-  /* Chart colors for dark mode */
-  --chart-1: oklch(0.7 0.25 240); /* Bright Electric Blue */
-  --chart-2: oklch(0.75 0.2 280); /* Bright Purple */
-  --chart-3: oklch(0.8 0.15 320); /* Bright Pink-Purple */
-  --chart-4: oklch(0.65 0.2 200); /* Bright Cyan */
-  --chart-5: oklch(0.8 0.15 160); /* Bright Teal */
-
-  /* Dark sidebar */
-  --sidebar: oklch(0.12 0.02 270);
-  --sidebar-foreground: oklch(0.95 0.005 270);
-  --sidebar-primary: oklch(0.7 0.25 240);
-  --sidebar-primary-foreground: oklch(0.08 0.02 270);
-  --sidebar-accent: oklch(0.2 0.05 270);
-  --sidebar-accent-foreground: oklch(0.9 0.01 270);
-  --sidebar-border: oklch(0.25 0.03 270);
-  --sidebar-ring: oklch(0.7 0.25 240);
+  /* Dark borders */
+  --border: 51 65 85;
+  --input: 51 65 85;
+  --ring: 59 130 246;
 }
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    border-color: hsl(var(--border));
   }
+  
   body {
-    @apply bg-background text-foreground;
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
   }
 }
 
