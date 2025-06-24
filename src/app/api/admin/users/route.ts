@@ -1,4 +1,3 @@
-import { NextRequest } from 'next/server';
 // Using proper DDD architecture - no legacy imports
 import { createSuccessResponse, createErrorResponse } from '@/shared/infrastructure/api/responses';
 import { withAdminAPI, AuthenticatedRequest } from '@/shared/infrastructure/middleware/auth';

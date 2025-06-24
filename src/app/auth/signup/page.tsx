@@ -1,6 +1,7 @@
 import { SignUpForm } from '@/domains/user-management/presentation/components/SignUpForm';
 import { Header } from '@/shared/presentation/components/Header';
 import { Footer } from '@/shared/presentation/components/Footer';
+import Link from 'next/link';
 
 export default function SignUpPage() {
   return (
@@ -25,9 +26,8 @@ export default function SignUpPage() {
               <div className="flex items-center space-x-2">
                 <span className="text-blue-600">🔐</span>
                 <span className="font-medium text-blue-800">Same Zero-Knowledge Protection</span>
-              </div>
-              <ul className="text-blue-700 space-y-1 ml-6">
-                <li>• Files remain encrypted - we can't see them</li>
+              </div>              <ul className="text-blue-700 space-y-1 ml-6">
+                <li>• Files remain encrypted - we can&apos;t see them</li>
                 <li>• Account adds file management features</li>
                 <li>• Still anonymous uploads available</li>
                 <li>• Data encrypted with your password</li>
@@ -36,21 +36,19 @@ export default function SignUpPage() {
           </div>
 
           {/* Sign Up Form */}
-          <SignUpForm />
-
-          {/* Footer Links */}
+          <SignUpForm />          {/* Footer Links */}
           <div className="text-center space-y-2">
             <p className="text-sm text-gray-600">
               Already have an account?{' '}
-              <a href="/auth/signin" className="text-blue-600 hover:text-blue-700 font-medium">
+              <Link href="/auth/signin" className="text-blue-600 hover:text-blue-700 font-medium">
                 Sign in
-              </a>
+              </Link>
             </p>
             <p className="text-xs text-gray-500">
               Or continue{' '}
-              <a href="/" className="text-blue-600 hover:text-blue-700">
+              <Link href="/" className="text-blue-600 hover:text-blue-700">
                 sharing anonymously
-              </a>
+              </Link>
             </p>
           </div>
         </div>

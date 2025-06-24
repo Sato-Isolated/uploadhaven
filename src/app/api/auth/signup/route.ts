@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { headers } from 'next/headers';
 import { UserService } from '@/shared/infrastructure/di/dependency-container';
 
 /**

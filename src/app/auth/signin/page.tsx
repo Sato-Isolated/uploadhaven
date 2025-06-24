@@ -1,6 +1,7 @@
 import { SignInForm } from '@/domains/user-management/presentation/components/SignInForm';
 import { Header } from '@/shared/presentation/components/Header';
 import { Footer } from '@/shared/presentation/components/Footer';
+import Link from 'next/link';
 
 export default function SignInPage() {
   return (
@@ -31,21 +32,19 @@ export default function SignInPage() {
           </div>
 
           {/* Sign In Form */}
-          <SignInForm />
-
-          {/* Footer Links */}
+          <SignInForm />          {/* Footer Links */}
           <div className="text-center space-y-2">
             <p className="text-sm text-gray-600">
-              Don't have an account?{' '}
-              <a href="/auth/signup" className="text-blue-600 hover:text-blue-700 font-medium">
+              Don&apos;t have an account?{' '}
+              <Link href="/auth/signup" className="text-blue-600 hover:text-blue-700 font-medium">
                 Create one
-              </a>
+              </Link>
             </p>
             <p className="text-xs text-gray-500">
               Or continue{' '}
-              <a href="/" className="text-blue-600 hover:text-blue-700">
+              <Link href="/" className="text-blue-600 hover:text-blue-700">
                 sharing anonymously
-              </a>
+              </Link>
             </p>
           </div>
         </div>

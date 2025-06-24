@@ -43,9 +43,6 @@ export class EncryptionService implements IEncryptionService {
     // Validate inputs
     this.validateEncryptionInputs(file, key, 'AES-256-GCM');
 
-    // Generate IV
-    const iv = InitializationVector.generate();
-
     // Create file metadata
     const metadata = {
       filename: file.name,
@@ -57,12 +54,12 @@ export class EncryptionService implements IEncryptionService {
     const fileBuffer = await file.arrayBuffer();
     const fileData = new Uint8Array(fileBuffer);
 
-    // Encrypt file data
-    const { encryptedData } = await this.encryptData(fileData, key);
+    // Encrypt file data (this generates and uses the correct IV)
+    const encryptionResult = await this.encryptData(fileData, key);
 
     return {
-      encryptedData,
-      iv,
+      encryptedData: encryptionResult.encryptedData,
+      iv: encryptionResult.iv, // Use the IV that was actually used for encryption
       originalMetadata: metadata
     };
   }
@@ -163,38 +160,48 @@ export class EncryptionService implements IEncryptionService {
       iv
     };
   }
-
   /**
    * Decrypt arbitrary data
    * CLIENT-SIDE ONLY
-   */
-  async decryptData(
+   */  async decryptData(
     encryptedData: Uint8Array,
     key: EncryptionKey,
     iv: InitializationVector
   ): Promise<Uint8Array> {
-    // Get the raw key bytes
-    const keyBytes = key.toBytes();
+    try {
+      // Get the raw key bytes
+      const keyBytes = key.toBytes();
 
-    // Import key for Web Crypto API
-    const cryptoKey = await crypto.subtle.importKey(
-      'raw',
-      keyBytes,
-      { name: 'AES-GCM' },
-      false,
-      ['decrypt']
-    );
-    // Decrypt the data
-    const decryptedBuffer = await crypto.subtle.decrypt(
-      {
-        name: 'AES-GCM',
-        iv: iv.getBytes()
-      },
-      cryptoKey,
-      encryptedData
-    );
+      // Import key for Web Crypto API
+      const cryptoKey = await crypto.subtle.importKey(
+        'raw',
+        keyBytes,
+        { name: 'AES-GCM' },
+        false,
+        ['decrypt']
+      );
 
-    return new Uint8Array(decryptedBuffer);
+      // Get IV bytes
+      const ivBytes = iv.getBytes();
+
+      // Decrypt the data
+      const decryptedBuffer = await crypto.subtle.decrypt(
+        {
+          name: 'AES-GCM',
+          iv: ivBytes
+        },
+        cryptoKey,
+        encryptedData
+      );
+
+      return new Uint8Array(decryptedBuffer);
+
+    } catch (error) {
+      // Re-throw with context for debugging
+      throw new Error(
+        `Decryption failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
+    }
   }
 
   /**

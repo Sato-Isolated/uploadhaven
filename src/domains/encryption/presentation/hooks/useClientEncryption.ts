@@ -5,10 +5,11 @@
  * Handles zero-knowledge patterns and UX states.
  */
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { EncryptFileUseCase } from '../../application/usecases/encrypt-file.usecase';
 import { DecryptFileUseCase } from '../../application/usecases/decrypt-file.usecase';
 import { EncryptionService } from '../../infrastructure/crypto/encryption.service';
+import { EncryptedFile } from '../../domain/entities/encrypted-file.entity';
 
 export interface EncryptionState {
   isEncrypting: boolean;
@@ -27,14 +28,20 @@ export interface EncryptionState {
   } | null;
 }
 
-export interface UseClientEncryptionResult {
+export interface FileMetadata {
+  originalSize: number;
+  algorithm: string;
+  timestamp: Date;
+}
+
+interface UseClientEncryptionResult {
   state: EncryptionState;  encryptFile: (file: File, options?: {
     password?: string;
     baseUrl?: string;
     ttlHours?: number;
     maxDownloads?: number;
   }) => Promise<void>;
-  decryptFromUrl: (shareUrl: string, encryptedBlob: Uint8Array, iv: Uint8Array, metadata: any) => Promise<void>;
+  decryptFromUrl: (shareUrl: string, encryptedBlob: Uint8Array, iv: Uint8Array, metadata: FileMetadata) => Promise<void>;
   reset: () => void;
   clearError: () => void;
 }
@@ -50,13 +57,12 @@ export function useClientEncryption(): UseClientEncryptionResult {
     error: null,
     result: null
   });
-
-  // Initialize services (would be dependency injected in real app)
-  const encryptionService = new EncryptionService();
-  const encryptUseCase = new EncryptFileUseCase(encryptionService);
-  const decryptUseCase = new DecryptFileUseCase(encryptionService);
+  // Initialize services (memoized to prevent recreation on every render)
+  const encryptionService = useMemo(() => new EncryptionService(), []);
+  const encryptUseCase = useMemo(() => new EncryptFileUseCase(encryptionService), [encryptionService]);
+  const decryptUseCase = useMemo(() => new DecryptFileUseCase(encryptionService), [encryptionService]);
   // Upload encrypted file to API
-  const uploadEncryptedFile = async (encryptedFile: any, options: {
+  const uploadEncryptedFile = async (encryptedFile: EncryptedFile, options: {
     ttlHours?: number;
     maxDownloads?: number;
     password?: string;
@@ -137,12 +143,9 @@ export function useClientEncryption(): UseClientEncryptionResult {
         password: options.password,
       });
 
-      // Extract the encryption key from the original share URL
-      const originalUrl = result.shareUrl;
-      const encryptionKey = originalUrl.split('#')[1];
-      
-      // Construct the final share URL with the encryption key
-      // The server returns a base URL, we add the encryption key fragment
+      // The encryption use case already generated a complete share URL with key
+      // We just need to replace the base URL with the server's URL for the file ID
+      const encryptionKey = result.shareUrl.split('#')[1];
       const finalShareUrl = `${uploadResponse.shareUrl}#${encryptionKey}`;
 
       setState(prev => ({

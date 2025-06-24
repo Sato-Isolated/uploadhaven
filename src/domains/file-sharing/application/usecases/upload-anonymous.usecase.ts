@@ -86,12 +86,10 @@ export class UploadAnonymousUseCase {
         maxDownloads: request.maxDownloads !== undefined ? sharedFile.maxDownloads : null, // null = unlimited
         size: sharedFile.size,
         isPasswordProtected: !!request.isPasswordProtected,
-      };
-
-    } catch (error) {
+      };    } catch (error) {
       // Log error without sensitive data
       console.error('Anonymous upload failed:', {
-        fileSize: request.encryptedData.byteLength,
+        fileSize: request.encryptedData?.byteLength || 0,
         error: error instanceof Error ? error.message : 'Unknown error',
       });
 
@@ -113,12 +111,24 @@ export class UploadAnonymousUseCase {
     }
 
     if (request.encryptedData.byteLength > 100 * 1024 * 1024) { // 100MB limit
-      throw new Error('File size exceeds maximum limit of 100MB');
-    }
+      throw new Error('File size exceeds maximum limit of 100MB');    }
 
     // Validate metadata
     if (!request.metadata) {
       throw new Error('Metadata is required');
+    }
+
+    if (!request.metadata.algorithm || request.metadata.algorithm.trim() === '') {
+      throw new Error('Encryption algorithm is required');
+    }
+
+    if (!request.metadata.iv || request.metadata.iv.trim() === '') {
+      throw new Error('Initialization vector is required');
+    }    if (!request.metadata.salt || request.metadata.salt.trim() === '') {
+      // Salt is only required for password-protected uploads
+      if (request.isPasswordProtected) {
+        throw new Error('Salt is required for password-protected files');
+      }
     }
 
     if (request.metadata.size !== request.encryptedData.byteLength) {

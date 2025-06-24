@@ -82,11 +82,7 @@ export const POST = withOptionalAuth(async (request: NextRequest & { user?: Auth
     // Verify buffer size matches metadata
     if (encryptedBuffer.length !== metadata.size) {
       return createErrorResponse('Encrypted data size mismatch', 'SIZE_MISMATCH', 400);
-    }    // Create a File object from the encrypted data (for legacy compatibility, not used in new DDD flow)
-    const fileBlob = new Blob([encryptedBuffer], { type: userOptions.originalType || 'application/octet-stream' });
-    const _file = new File([fileBlob], userOptions.originalName || 'upload.bin', {
-      type: userOptions.originalType || 'application/octet-stream'
-    });// Get domain container and use case
+    }    // Note: File object creation removed as it's not used in DDD flow// Get domain container and use case
     const domainContainer = DomainContainer.getInstance();
     await domainContainer.waitForInitialization();
     const uploadUseCase = await domainContainer.getUploadAnonymousUseCase();    // Convert buffer to ArrayBuffer for the use case

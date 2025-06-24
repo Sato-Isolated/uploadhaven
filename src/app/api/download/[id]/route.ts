@@ -37,7 +37,7 @@ function createErrorResponse(message: string, code: string, status: number) {
 /**
  * Create success response
  */
-function createSuccessResponse(data: any) {
+function createSuccessResponse(data: Record<string, unknown>) {
   return NextResponse.json({
     success: true,
     data,
@@ -86,11 +86,9 @@ export async function GET(
       size: downloadResult.size,
       remainingDownloads: downloadResult.remainingDownloads,
       downloadCount: downloadResult.downloadCount
-    });
-
-    return createSuccessResponse({
+    });    return createSuccessResponse({
       fileId: downloadResult.fileId,
-      encryptedBlob: Array.from(downloadResult.encryptedBlob), // Convert Uint8Array to array for JSON
+      encryptedBlob: Buffer.from(downloadResult.encryptedBlob).toString('base64'), // Convert to base64 for safe JSON transmission
       iv: downloadResult.iv,
       size: downloadResult.size,
       expiresAt: downloadResult.expiresAt,

@@ -2,6 +2,7 @@ import { AnonymousDownload } from '@/domains/file-sharing/presentation/component
 import { Header } from '@/shared/presentation/components/Header';
 import { Footer } from '@/shared/presentation/components/Footer';
 import { PrivacyGuarantees } from '@/domains/privacy/presentation/components/PrivacyGuarantees';
+import Link from 'next/link';
 
 interface FilePageProps {
   params: Promise<{
@@ -41,9 +42,8 @@ export default async function FilePage({ params }: FilePageProps) {
               <h2 className="text-lg font-semibold text-blue-900">
                 🛡️ Zero-Knowledge Security
               </h2>
-              <div className="text-sm text-blue-800 space-y-2">
-                <p>
-                  • Files are encrypted with AES-256-GCM in the sender's browser
+              <div className="text-sm text-blue-800 space-y-2">                <p>
+                  • Files are encrypted with AES-256-GCM in the sender&apos;s browser
                 </p>
                 <p>
                   • Decryption keys are never sent to our servers
@@ -65,13 +65,12 @@ export default async function FilePage({ params }: FilePageProps) {
             </h2>
             <p className="text-gray-600 mb-4">
               Upload files anonymously with zero-knowledge encryption
-            </p>
-            <a
+            </p>            <Link
               href="/"
               className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
             >
               🔒 Upload Anonymously
-            </a>
+            </Link>
           </section>
         </div>
       </main>

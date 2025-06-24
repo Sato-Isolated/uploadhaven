@@ -1,4 +1,0 @@
-This is a test file for UploadHaven zero-knowledge encryption.
-It contains some sample text to verify the upload and download process works correctly.
-
-Privacy is a fundamental right! 🔒

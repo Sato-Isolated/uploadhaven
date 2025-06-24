@@ -11,14 +11,14 @@
 
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useClientDecryption } from '../../../encryption/presentation/hooks/useClientDecryption';
 
 // Privacy-focused UI components
-import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle, Input, Progress, Badge, Alert, AlertDescription } from '../../../../shared/presentation/components';
+import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle, Input, Progress, Badge } from '../../../../shared/presentation/components';
 
 // Icons
-import { UploadIcon, ShieldCheckIcon, KeyIcon, ClockIcon, Download, Clock, Eye, Shield, Lock } from 'lucide-react';
+import { UploadIcon, ShieldCheckIcon, KeyIcon, ClockIcon } from 'lucide-react';
 
 interface AnonymousDownloadProps {
   fileId: string;
@@ -38,7 +38,7 @@ export function AnonymousDownload({
 }: AnonymousDownloadProps) {
   // File sharing hook for download operations
   // Use the new zero-knowledge decryption hook
-  const { downloadAndDecrypt, triggerDownload, isDecrypting, progress, error, result, reset, clearError } = useClientDecryption();
+  const { downloadAndDecrypt, triggerDownload, isDecrypting, progress, error, result, reset } = useClientDecryption();
 
   // Component state
   const [password, setPassword] = useState('');
@@ -48,19 +48,35 @@ export function AnonymousDownload({
     downloadCount: number;
     isPasswordProtected: boolean;
   } | null>(null);
-  const [showPasswordForm, setShowPasswordForm] = useState(false);
+  const [showPasswordForm, setShowPasswordForm] = useState(false);  // Extract encryption key from URL fragment on mount
+  const [extractedKey, setExtractedKey] = useState<string>('');
+  
+  useEffect(() => {
+    // Extract encryption key from URL fragment (zero-knowledge pattern)
+    const fragment = window.location.hash.slice(1); // Remove the # symbol
+    if (fragment) {
+      console.log('🔑 [AnonymousDownload] Encryption key extracted from URL fragment', {
+        fragmentLength: fragment.length,
+        timestamp: new Date().toISOString()
+      });
+      setExtractedKey(fragment);
+    } else {
+      console.warn('⚠️ [AnonymousDownload] No encryption key found in URL fragment');
+    }
+  }, []);
 
   // Load file information on mount
   useEffect(() => {
     loadFileInfo();
-  }, [fileId]);
+  }, [fileId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Check if password is required
   useEffect(() => {
-    if (fileInfo?.isPasswordProtected && !encryptionKey) {
+    const activeKey = encryptionKey || extractedKey;
+    if (fileInfo?.isPasswordProtected && !activeKey) {
       setShowPasswordForm(true);
     }
-  }, [fileInfo, encryptionKey]);  const loadFileInfo = async () => {
+  }, [fileInfo, encryptionKey, extractedKey]);const loadFileInfo = useCallback(async () => {
     try {
       // Call file-info API to get actual metadata
       const response = await fetch(`/api/file-info/${fileId}`);
@@ -92,20 +108,34 @@ export function AnonymousDownload({
         maxDownloads: 1000,
         downloadCount: 0,
         isPasswordProtected: false,
-      });
-    }
-  };  const handleDownload = async () => {
+      });    }
+  }, [fileId]);  const handleDownload = async () => {
     try {
-      if (!fileId || !encryptionKey) {
-        console.error('Missing fileId or encryptionKey');
+      const activeKey = encryptionKey || extractedKey;
+      
+      if (!fileId) {
+        console.error('❌ [AnonymousDownload] Missing fileId');
         return;
       }
-
-      // Use the new zero-knowledge decryption system
+      
+      if (!activeKey) {
+        console.error('❌ [AnonymousDownload] Missing encryption key', {
+          encryptionKeyProvided: !!encryptionKey,
+          extractedKeyFromFragment: !!extractedKey,
+          urlFragment: window.location.hash
+        });
+        return;
+      }
+      
+      console.log('🔒 [AnonymousDownload] Starting download with key', {
+        fileId,
+        keyLength: activeKey.length,
+        keyStart: activeKey.substring(0, 10) + '...',
+        timestamp: new Date().toISOString()
+      });// Use the new zero-knowledge decryption system
       const result = await downloadAndDecrypt(
         fileId, 
-        encryptionKey, 
-        fileInfo?.isPasswordProtected ? password : undefined
+        activeKey
       );
 
       if (result) {
@@ -160,8 +190,8 @@ export function AnonymousDownload({
     if (!fileInfo) return false;
     const remainingDownloads = getRemainingDownloads();
     return new Date() > fileInfo.expiresAt || (remainingDownloads !== null && remainingDownloads === 0);
-  };
-  if (!isDecrypting && result) {
+  };  // Show success only if decryption completed successfully AND there's no error
+  if (!isDecrypting && result && !error) {
     return (
       <Card className={className}>
         <CardHeader className="text-center">
@@ -187,6 +217,50 @@ export function AnonymousDownload({
               variant="outline"
             >
               Download Another File
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // Show error state if there's an error
+  if (error) {
+    return (
+      <Card className={className}>
+        <CardHeader className="text-center">
+          <div className="mx-auto w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4">
+            <KeyIcon className="w-8 h-8 text-red-600" />
+          </div>
+          <CardTitle className="text-red-600">Decryption Failed</CardTitle>
+          <CardDescription>
+            Unable to decrypt the file. This may be due to an incorrect encryption key.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="p-4 bg-red-50 rounded-lg">
+            <p className="text-sm text-red-800">
+              <strong>❌ Error:</strong> {error}
+            </p>
+            <p className="text-sm text-red-700 mt-2">
+              • Make sure you have the complete share URL with the encryption key
+              • The file may have been uploaded with a different encryption method
+              • Try uploading a new file to test the current system
+            </p>
+          </div>
+
+          <div className="text-center space-x-3">
+            <Button
+              onClick={reset}
+              variant="outline"
+            >
+              Try Again
+            </Button>
+            <Button
+              onClick={() => window.location.href = '/'}
+              variant="default"
+            >
+              Upload New File
             </Button>
           </div>
         </CardContent>

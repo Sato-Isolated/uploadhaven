@@ -84,7 +84,6 @@ export class EncryptFileUseCase {
       shareUrl
     };
   }
-
   /**
    * Validate file for encryption
    */
@@ -93,14 +92,15 @@ export class EncryptFileUseCase {
 
     if (!file) {
       errors.push('File is required');
-    }
+    } else {
+      // Only validate properties if file exists
+      if (file.size === 0) {
+        errors.push('File cannot be empty');
+      }
 
-    if (file.size === 0) {
-      errors.push('File cannot be empty');
-    }
-
-    if (file.size > 100 * 1024 * 1024) { // 100MB limit
-      errors.push('File too large (maximum 100MB)');
+      if (file.size > 100 * 1024 * 1024) { // 100MB limit
+        errors.push('File too large (maximum 100MB)');
+      }
     }
 
     if (errors.length > 0) {

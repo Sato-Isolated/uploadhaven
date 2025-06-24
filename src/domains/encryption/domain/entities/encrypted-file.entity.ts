@@ -102,8 +102,7 @@ export class EncryptedFile {
       iv,
       metadata
     );
-  }
-  /**
+  }  /**
    * ✅ SAFE: Reconstitute encrypted file from stored data
    * Used by repository when loading from database
    */
@@ -113,8 +112,12 @@ export class EncryptedFile {
     iv: string,
     encryptedSize: number
   ): EncryptedFile {
-    // Convert base64 IV back to Uint8Array
-    const ivBytes = new Uint8Array(Buffer.from(iv, 'base64'));
+    // Convert base64 IV back to Uint8Array (browser-compatible)
+    const ivBytes = new Uint8Array(
+      atob(iv)
+        .split('')
+        .map(char => char.charCodeAt(0))
+    );
 
     // Create minimal metadata for stored files
     const metadata: EncryptedFileMetadata = {
@@ -171,40 +174,45 @@ export class EncryptedFile {
    */
   get clientMetadata(): EncryptedFileMetadata {
     return { ...this._metadata };
-  }
-  /**
+  }  /**
    * ✅ SAFE: Decrypt file on client-side
-   */
-  async decrypt(encryptionKey?: EncryptionKey): Promise<File> {
+   */  async decrypt(encryptionKey?: EncryptionKey): Promise<File> {
     // Validate encryption key parameter
     if (!encryptionKey) {
       throw new Error('PRIVACY VIOLATION: Encryption key is required for decryption');
     }
 
-    // Import key for Web Crypto API
-    const cryptoKey = await crypto.subtle.importKey(
-      'raw',
-      encryptionKey.toBytes(),
-      { name: 'AES-GCM' },
-      false,
-      ['decrypt']
-    );
+    try {
+      // Import key for Web Crypto API
+      const cryptoKey = await crypto.subtle.importKey(
+        'raw',
+        encryptionKey.toBytes(),
+        { name: 'AES-GCM' },
+        false,
+        ['decrypt']
+      );
 
-    // Decrypt file content
-    const decryptedBuffer = await crypto.subtle.decrypt(
-      {
-        name: 'AES-GCM',
-        iv: this._iv
-      },
-      cryptoKey,
-      this._encryptedBlob
-    );
+      // Decrypt file content
+      const decryptedBuffer = await crypto.subtle.decrypt(
+        {
+          name: 'AES-GCM',
+          iv: this._iv
+        },
+        cryptoKey,
+        this._encryptedBlob
+      );
 
-    // Recreate File object
-    const filename = this._metadata.filename || 'download';
-    const mimeType = this._metadata.mimeType || 'application/octet-stream';
+      // Recreate File object
+      const filename = this._metadata.filename || 'download';
+      const mimeType = this._metadata.mimeType || 'application/octet-stream';
 
-    return new File([decryptedBuffer], filename, { type: mimeType });
+      const file = new File([decryptedBuffer], filename, { type: mimeType });
+      return file;
+    } catch (error) {
+      throw new Error(
+        `Decryption failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
+    }
   }
 
   /**

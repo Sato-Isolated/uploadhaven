@@ -180,11 +180,10 @@ export class SharedFile {
 
   get encryptedBlob(): Uint8Array {
     return this._encryptedFile.encryptedBlob;
-  }
-  get iv(): string {
-    // Convert Uint8Array IV to base64 string for storage/transmission
+  }  get iv(): string {
+    // Convert Uint8Array IV to base64 string for storage/transmission (browser-compatible)
     const ivBytes = this._encryptedFile.iv;
-    return Buffer.from(ivBytes).toString('base64');
+    return btoa(String.fromCharCode(...ivBytes));
   }
 
   // =============================================================================
