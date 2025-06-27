@@ -1,24 +1,24 @@
 import bcrypt from 'bcrypt';
 
 export class PasswordService {
-  private static readonly SALT_ROUNDS = 12; // Bon équilibre sécurité/performance
+  private static readonly SALT_ROUNDS = 12; // Good balance between security and performance
 
   /**
-   * Hache un mot de passe
+   * Hash a password
    */
   static async hash(password: string): Promise<string> {
     return bcrypt.hash(password, this.SALT_ROUNDS);
   }
 
   /**
-   * Vérifie un mot de passe contre son hash
+   * Verify a password against its hash
    */
   static async verify(password: string, hash: string): Promise<boolean> {
     return bcrypt.compare(password, hash);
   }
 
   /**
-   * Vérifie qu'un mot de passe respecte les critères de sécurité
+   * Verify that a password meets security criteria
    */
   static validatePassword(password: string): { isValid: boolean; errors: string[] } {
     const errors: string[] = [];
@@ -31,7 +31,7 @@ export class PasswordService {
       errors.push('Password must be less than 128 characters long');
     }
 
-    // Optionnel : ajouter d'autres critères de sécurité
+    // Optional: add other security criteria
     // if (!/[A-Z]/.test(password)) {
     //   errors.push('Password must contain at least one uppercase letter');
     // }

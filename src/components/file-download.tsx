@@ -23,7 +23,7 @@ export function FileDownload({ shareId }: FileDownloadProps) {
     prefetchFileInfo(shareId);
   }, [shareId, prefetchFileInfo]);
 
-  // Détecter les erreurs de query
+  // Detect query errors
   const displayError = error || (queryError ? queryError.message : null);
   const requiresPassword = fileInfo?.passwordProtected || false;
 

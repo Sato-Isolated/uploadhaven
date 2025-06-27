@@ -16,7 +16,7 @@ export async function connectToDatabase(): Promise<Db> {
   const client = new MongoClient(uri);
   await client.connect();
 
-  const db = client.db(process.env.MONGODB_DB || 'zero-knowledge-file-share');
+  const db = client.db(process.env.MONGODB_DB || 'uploadhaven');
 
   cachedClient = client;
   cachedDb = db;

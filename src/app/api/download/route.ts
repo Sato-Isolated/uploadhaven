@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
         throw new MaxDownloadsReachedError(fileId);
       }
 
-      // Vérifier le mot de passe si le fichier est protégé
+      // Check password if file is protected
       if (file.isPasswordProtected()) {
         if (!password) {
           return NextResponse.json({ error: 'Password required' }, { status: 401 });

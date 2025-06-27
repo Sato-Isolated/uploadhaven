@@ -10,7 +10,7 @@ export interface FileMetadata {
   expiresAt: Date;
   downloadCount: number;
   maxDownloads?: number;
-  passwordHash?: string; // Hash du mot de passe si protégé
+  passwordHash?: string; // Password hash if protected
 }
 
 export class FileEntity {

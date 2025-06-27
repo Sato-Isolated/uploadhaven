@@ -53,7 +53,7 @@ export const queryKeys = {
   fileInfo: (shareId: string) => ['fileInfo', shareId] as const,
 };
 
-// Hook pour récupérer les informations d'un fichier
+// Hook to retrieve file information
 export function useFileInfo(shareId: string) {
   return useQuery({
     queryKey: queryKeys.fileInfo(shareId),
@@ -67,10 +67,10 @@ export function useFileInfo(shareId: string) {
       }
       return response.json();
     },
-    staleTime: 30 * 1000, // 30 secondes - info des fichiers change peu
+    staleTime: 30 * 1000, // 30 seconds - file info changes rarely
     gcTime: 5 * 60 * 1000, // 5 minutes cache
     retry: (failureCount, error: Error) => {
-      // Ne pas retry pour les 404
+      // Don't retry for 404 errors
       if (error.message?.includes('not found')) {
         return false;
       }
@@ -80,7 +80,7 @@ export function useFileInfo(shareId: string) {
   });
 }
 
-// Hook pour l'upload de fichier
+// Hook for file upload
 export function useUploadFile() {
   return useMutation({
     mutationFn: async (formData: FormData): Promise<UploadResult> => {
@@ -115,7 +115,7 @@ export function useUploadFile() {
   });
 }
 
-// Hook pour le téléchargement de fichier
+// Hook for file download
 export function useDownloadFile() {
   const queryClient = useQueryClient();
 
@@ -137,7 +137,7 @@ export function useDownloadFile() {
       return response.json();
     },
     onSuccess: () => {
-      // Invalider les informations du fichier pour mettre à jour le compteur de téléchargements
+      // Invalidate file information to update download count
       queryClient.invalidateQueries({
         predicate: (query) => {
           return query.queryKey[0] === 'fileInfo';
@@ -147,7 +147,7 @@ export function useDownloadFile() {
   });
 }
 
-// Hook pour prefetch (pré-charger) les informations d'un fichier
+// Hook to prefetch (preload) file information
 export function usePrefetchFileInfo() {
   const queryClient = useQueryClient();
 

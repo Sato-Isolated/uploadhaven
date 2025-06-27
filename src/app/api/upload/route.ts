@@ -50,7 +50,7 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
       }
 
-      // Valider et hacher le mot de passe si fourni
+      // Validate and hash password if provided
       let passwordHash: string | undefined;
       if (passwordProtected && password) {
         const validation = PasswordService.validatePassword(password);
@@ -83,7 +83,7 @@ export async function POST(request: NextRequest) {
         encryptedPath: '', // Will be set after storage
         expirationHours,
         maxDownloads,
-        passwordHash, // Stocker le hash du mot de passe
+        passwordHash, // Store password hash
       });
 
       // Generate storage path and save encrypted file with performance monitoring
