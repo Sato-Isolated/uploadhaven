@@ -1,5 +1,5 @@
-@import 'tailwindcss';
-@import 'tw-animate-css';
+@import "tailwindcss";
+@import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -45,104 +45,71 @@
 
 :root {
   --radius: 0.625rem;
-
-  /* UploadHaven Brand Colors - Modern Blue/Purple Gradient Theme */
-  --background: oklch(0.99 0.005 270);
-  --foreground: oklch(0.15 0.02 270);
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.15 0.02 270);
+  --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.15 0.02 270);
-
-  /* Primary: Modern Electric Blue */
-  --primary: oklch(0.6 0.25 240);
-  --primary-foreground: oklch(0.99 0 0);
-
-  /* Secondary: Soft Purple-Gray */
-  --secondary: oklch(0.95 0.02 270);
-  --secondary-foreground: oklch(0.4 0.08 270);
-
-  /* Muted: Subtle Purple Tint */
-  --muted: oklch(0.96 0.01 270);
-  --muted-foreground: oklch(0.5 0.05 270);
-
-  /* Accent: Vibrant Purple */
-  --accent: oklch(0.65 0.2 280);
-  --accent-foreground: oklch(0.99 0 0);
-
-  --destructive: oklch(0.65 0.25 20);
-
-  /* Borders with subtle purple hint */
-  --border: oklch(0.9 0.01 270);
-  --input: oklch(0.97 0.005 270);
-  --ring: oklch(0.6 0.25 240);
-
-  /* Chart colors - Modern palette */
-  --chart-1: oklch(0.6 0.25 240); /* Electric Blue */
-  --chart-2: oklch(0.65 0.2 280); /* Purple */
-  --chart-3: oklch(0.7 0.15 320); /* Pink-Purple */
-  --chart-4: oklch(0.55 0.2 200); /* Cyan */
-  --chart-5: oklch(0.75 0.15 160); /* Teal */
-
-  /* Sidebar matching theme */
-  --sidebar: oklch(0.99 0.005 270);
-  --sidebar-foreground: oklch(0.15 0.02 270);
-  --sidebar-primary: oklch(0.6 0.25 240);
-  --sidebar-primary-foreground: oklch(0.99 0 0);
-  --sidebar-accent: oklch(0.95 0.02 270);
-  --sidebar-accent-foreground: oklch(0.4 0.08 270);
-  --sidebar-border: oklch(0.9 0.01 270);
-  --sidebar-ring: oklch(0.6 0.25 240);
+  --popover-foreground: oklch(0.145 0 0);
+  --primary: oklch(0.205 0 0);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.97 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  --ring: oklch(0.708 0 0);
+  --chart-1: oklch(0.646 0.222 41.116);
+  --chart-2: oklch(0.6 0.118 184.704);
+  --chart-3: oklch(0.398 0.07 227.392);
+  --chart-4: oklch(0.828 0.189 84.429);
+  --chart-5: oklch(0.769 0.188 70.08);
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: oklch(0.205 0 0);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.708 0 0);
 }
 
 .dark {
-  /* UploadHaven Dark Theme - Modern Electric Blue/Purple */
-  --background: oklch(0.08 0.02 270);
-  --foreground: oklch(0.95 0.005 270);
-  --card: oklch(0.12 0.02 270);
-  --card-foreground: oklch(0.95 0.005 270);
-  --popover: oklch(0.12 0.02 270);
-  --popover-foreground: oklch(0.95 0.005 270);
-
-  /* Primary: Brighter electric blue for dark mode */
-  --primary: oklch(0.7 0.25 240);
-  --primary-foreground: oklch(0.08 0.02 270);
-
-  /* Secondary: Purple-gray for dark */
-  --secondary: oklch(0.2 0.05 270);
-  --secondary-foreground: oklch(0.9 0.01 270);
-
-  /* Muted: Dark purple tint */
-  --muted: oklch(0.15 0.03 270);
-  --muted-foreground: oklch(0.65 0.05 270);
-
-  /* Accent: Vibrant purple for dark mode */
-  --accent: oklch(0.7 0.2 280);
-  --accent-foreground: oklch(0.08 0.02 270);
-
-  --destructive: oklch(0.7 0.25 20);
-
-  /* Dark borders with purple hint */
-  --border: oklch(0.25 0.03 270);
-  --input: oklch(0.18 0.03 270);
-  --ring: oklch(0.7 0.25 240);
-
-  /* Chart colors for dark mode */
-  --chart-1: oklch(0.7 0.25 240); /* Bright Electric Blue */
-  --chart-2: oklch(0.75 0.2 280); /* Bright Purple */
-  --chart-3: oklch(0.8 0.15 320); /* Bright Pink-Purple */
-  --chart-4: oklch(0.65 0.2 200); /* Bright Cyan */
-  --chart-5: oklch(0.8 0.15 160); /* Bright Teal */
-
-  /* Dark sidebar */
-  --sidebar: oklch(0.12 0.02 270);
-  --sidebar-foreground: oklch(0.95 0.005 270);
-  --sidebar-primary: oklch(0.7 0.25 240);
-  --sidebar-primary-foreground: oklch(0.08 0.02 270);
-  --sidebar-accent: oklch(0.2 0.05 270);
-  --sidebar-accent-foreground: oklch(0.9 0.01 270);
-  --sidebar-border: oklch(0.25 0.03 270);
-  --sidebar-ring: oklch(0.7 0.25 240);
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.205 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.922 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.556 0 0);
+  --chart-1: oklch(0.488 0.243 264.376);
+  --chart-2: oklch(0.696 0.17 162.48);
+  --chart-3: oklch(0.769 0.188 70.08);
+  --chart-4: oklch(0.627 0.265 303.9);
+  --chart-5: oklch(0.645 0.246 16.439);
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.556 0 0);
 }
 
 @layer base {
@@ -152,78 +119,4 @@
   body {
     @apply bg-background text-foreground;
   }
-}
-
-/* Blob animations for admin panel */
-@keyframes blob {
-  0% {
-    transform: translate(0px, 0px) scale(1);
-  }
-  33% {
-    transform: translate(30px, -50px) scale(1.1);
-  }
-  66% {
-    transform: translate(-20px, 20px) scale(0.9);
-  }
-  100% {
-    transform: translate(0px, 0px) scale(1);
-  }
-}
-
-.animate-blob {
-  animation: blob 7s infinite;
-}
-
-.animation-delay-2000 {
-  animation-delay: 2s;
-}
-
-.animation-delay-4000 {
-  animation-delay: 4s;
-}
-
-/* Custom scrollbar styles for file list */
-.scrollbar-thin {
-  scrollbar-width: thin;
-}
-
-.scrollbar-thumb-gray-300 {
-  scrollbar-color: rgb(209 213 219) transparent;
-}
-
-.scrollbar-track-transparent {
-  scrollbar-color: rgb(209 213 219) transparent;
-}
-
-/* Webkit scrollbar styles */
-.scrollbar-thin::-webkit-scrollbar {
-  width: 6px;
-}
-
-.scrollbar-thin::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.scrollbar-thin::-webkit-scrollbar-thumb {
-  background-color: rgb(209 213 219);
-  border-radius: 3px;
-  transition: background-color 0.2s ease;
-}
-
-.scrollbar-thin::-webkit-scrollbar-thumb:hover {
-  background-color: rgb(156 163 175);
-}
-
-/* Dark mode scrollbar */
-.dark .scrollbar-thin::-webkit-scrollbar-thumb {
-  background-color: rgb(75 85 99);
-}
-
-.dark .scrollbar-thin::-webkit-scrollbar-thumb:hover {
-  background-color: rgb(107 114 128);
-}
-
-/* Firefox dark mode */
-.dark .scrollbar-thumb-gray-300 {
-  scrollbar-color: rgb(75 85 99) transparent;
 }

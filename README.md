@@ -44,6 +44,26 @@ pnpm dev
 
 Visit `http://localhost:3000` and start sharing files! 🎉
 
+## 🧪 Testing
+
+UploadHaven includes comprehensive testing to ensure security and reliability:
+
+```bash
+# Run the complete upload/download test
+node test-real-api.js
+
+# Prerequisites: Server must be running
+pnpm dev
+```
+
+**✅ Current Test Status:**
+- Upload flow: Fully tested with real API
+- Download flow: Fully tested with real API  
+- Zero-knowledge security: Validated
+- Data integrity: Verified
+
+See [TESTING-STATUS.md](TESTING-STATUS.md) for detailed test results.
+
 ## 📚 Documentation
 
 | Topic | Description |
