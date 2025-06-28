@@ -6,7 +6,7 @@ export interface ShareRepository {
   findByFileId(fileId: string): Promise<ShareEntity | null>;
   delete(id: string): Promise<void>;
   incrementAccessCount(id: string): Promise<void>;
-  cleanup(): Promise<void>; // Remove expired shares
+  cleanup(): Promise<number>; // Remove expired shares and return count of removed shares
 }
 
 export class ShareNotFoundError extends Error {

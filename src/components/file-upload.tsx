@@ -92,9 +92,13 @@ export function FileUpload() {
       // Create form data with encrypted file
       const formData = new FormData();
       const encryptedBlob = new Blob([encryptionResult.encryptedData], { type: 'application/octet-stream' });
+      
+      // Ensure we have a valid MIME type (some files like .env might not have one)
+      const fileMimeType = file.type || 'application/octet-stream';
+      
       formData.append("file", encryptedBlob, file.name);
       formData.append("originalName", file.name);
-      formData.append("mimeType", file.type);
+      formData.append("mimeType", fileMimeType);
       formData.append("size", file.size.toString());
       formData.append("expirationHours", expirationHours.toString());
       formData.append("passwordProtected", enablePasswordProtection ? "true" : "false");
@@ -103,6 +107,12 @@ export function FileUpload() {
       }
       if (maxDownloads) {
         formData.append("maxDownloads", maxDownloads.toString());
+      }
+
+      // Log form data for debugging
+      console.log('FormData contents before upload:');
+      for (const [key, value] of formData.entries()) {
+        console.log(`${key}:`, value);
       }
 
       // Use React Query mutation for upload

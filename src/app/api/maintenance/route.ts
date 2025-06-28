@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { MongoFileRepository } from '@/infrastructure/database/mongo-file-repository';
-import { MongoShareRepository } from '@/infrastructure/database/mongo-share-repository';
+import { FileRepository } from '@/infrastructure/database/mongo-file-repository';
+import { ShareRepository } from '@/infrastructure/database/mongo-share-repository';
 import { DiskStorageService } from '@/infrastructure/storage/disk-storage-service';
 import { performanceMonitor } from '@/lib/performance';
 
@@ -19,8 +19,8 @@ export async function POST(request: NextRequest) {
     const { action } = body;
 
     // Initialize services
-    const fileRepository = new MongoFileRepository();
-    const shareRepository = new MongoShareRepository();
+    const fileRepository = new FileRepository();
+    const shareRepository = new ShareRepository();
     const storageService = new DiskStorageService();
 
     let result: unknown;

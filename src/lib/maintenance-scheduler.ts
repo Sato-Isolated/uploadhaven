@@ -2,8 +2,8 @@
  * Maintenance scheduler for automatic cleanup and monitoring
  */
 
-import { MongoFileRepository } from '@/infrastructure/database/mongo-file-repository';
-import { MongoShareRepository } from '@/infrastructure/database/mongo-share-repository';
+import { FileRepository } from '@/infrastructure/database/mongo-file-repository';
+import { ShareRepository } from '@/infrastructure/database/mongo-share-repository';
 import { DiskStorageService } from '@/infrastructure/storage/disk-storage-service';
 import { serverPerformanceMonitor } from '@/lib/performance/server-performance-monitor';
 
@@ -14,11 +14,11 @@ export class MaintenanceScheduler {
   constructor(
     private cleanupIntervalMs: number = 6 * 60 * 60 * 1000, // 6 hours
     private monitoringIntervalMs: number = 5 * 60 * 1000 // 5 minutes
-  ) {}
+  ) { }
 
   start() {
     console.log('Starting maintenance scheduler...');
-    
+
     // Schedule cleanup task
     this.cleanupInterval = setInterval(() => {
       this.performCleanup().catch(console.error);
@@ -31,7 +31,7 @@ export class MaintenanceScheduler {
 
     // Run initial cleanup
     this.performCleanup().catch(console.error);
-    
+
     console.log(`Maintenance scheduled: cleanup every ${this.cleanupIntervalMs / 1000 / 60 / 60}h, monitoring every ${this.monitoringIntervalMs / 1000 / 60}min`);
   }
 
@@ -40,21 +40,21 @@ export class MaintenanceScheduler {
       clearInterval(this.cleanupInterval);
       this.cleanupInterval = null;
     }
-    
+
     if (this.monitoringInterval) {
       clearInterval(this.monitoringInterval);
       this.monitoringInterval = null;
     }
-    
+
     console.log('Maintenance scheduler stopped');
   }
 
   async performCleanup(): Promise<void> {
     try {
       console.log('Starting scheduled cleanup...');
-      
-      const fileRepository = new MongoFileRepository();
-      const shareRepository = new MongoShareRepository();
+
+      const fileRepository = new FileRepository();
+      const shareRepository = new ShareRepository();
       const storageService = new DiskStorageService();
 
       // Perform cleanup in parallel

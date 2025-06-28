@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { serverPerformanceMonitor } from '@/lib/performance/server-performance-monitor';
-import { MongoFileRepository } from '@/infrastructure/database/mongo-file-repository';
+import { FileRepository } from '@/infrastructure/database/mongo-file-repository';
 import { DiskStorageService } from '@/infrastructure/storage/disk-storage-service';
 import { PasswordService } from '@/lib/password-service';
 import { FileNotFoundError, FileExpiredError, MaxDownloadsReachedError } from '@/domains/file/file-repository';
@@ -15,14 +15,14 @@ export async function POST(request: NextRequest) {
       }
 
       // Initialize services
-      const fileRepository = new MongoFileRepository();
+      const fileRepository = new FileRepository();
       const storageService = new DiskStorageService();
 
       // Find file with performance monitoring
       const file = await serverPerformanceMonitor.measureDbOperation('file-find', () =>
         fileRepository.findById(fileId)
       );
-      
+
       if (!file) {
         throw new FileNotFoundError(fileId);
       }
@@ -68,20 +68,20 @@ export async function POST(request: NextRequest) {
       });
     } catch (error: unknown) {
       console.error('Download error:', error);
-      
+
       // Handle specific file errors with appropriate HTTP status codes
       if (error instanceof FileNotFoundError) {
         return NextResponse.json({ error: error.message }, { status: 404 });
       }
-      
+
       if (error instanceof FileExpiredError) {
         return NextResponse.json({ error: error.message }, { status: 410 }); // Gone
       }
-      
+
       if (error instanceof MaxDownloadsReachedError) {
         return NextResponse.json({ error: error.message }, { status: 403 }); // Forbidden
       }
-      
+
       // Handle other errors
       const errorMessage = error instanceof Error ? error.message : 'Internal server error';
       return NextResponse.json(

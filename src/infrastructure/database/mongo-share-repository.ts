@@ -1,99 +1,111 @@
-import { ShareRepository } from '../../domains/share/share-repository';
+import { getDb } from './mongodb';
 import { ShareEntity, ShareMetadata } from '../../domains/share/share-entity';
-import { getCollection } from './mongodb';
-import { Document } from 'mongodb';
+import { logger } from '../../lib/logger';
 
-interface ShareDocument extends Document {
-  id: string;
-  fileId: string;
-  shareUrl: string;
-  createdAt: Date;
-  expiresAt: Date;
-  accessCount: number;
-  maxAccess?: number;
-  passwordProtected: boolean;
-}
-
-export class MongoShareRepository implements ShareRepository {
+export class ShareRepository {
   private readonly collectionName = 'shares';
 
   async save(share: ShareEntity): Promise<void> {
-    const collection = await getCollection<ShareDocument>(this.collectionName);
+    const db = await getDb();
+    const collection = db.collection(this.collectionName);
     const metadata = share.toMetadata();
-    
-    await collection.replaceOne(
-      { id: share.id },
-      {
-        id: metadata.id,
-        fileId: metadata.fileId,
-        shareUrl: metadata.shareUrl,
-        createdAt: metadata.createdAt,
-        expiresAt: metadata.expiresAt,
-        accessCount: metadata.accessCount,
-        maxAccess: metadata.maxAccess,
-        passwordProtected: metadata.passwordProtected,
-      },
-      { upsert: true }
-    );
+    const now = new Date();
+    const document = {
+      id: metadata.id,
+      fileId: metadata.fileId,
+      shareUrl: metadata.shareUrl,
+      createdAt: metadata.createdAt || now,
+      updatedAt: now,
+      expiresAt: metadata.expiresAt,
+      accessCount: metadata.accessCount,
+      maxAccess: metadata.maxAccess,
+      passwordProtected: metadata.passwordProtected,
+      passwordHash: metadata.passwordHash,
+    };
+    try {
+      await collection.updateOne(
+        { id: share.id },
+        { $set: document },
+        { upsert: true }
+      );
+      logger.debug('Share saved successfully', { shareId: share.id });
+    } catch (error) {
+      logger.error('Failed to save share', { shareId: share.id, error });
+      throw error;
+    }
   }
 
   async findById(id: string): Promise<ShareEntity | null> {
-    const collection = await getCollection<ShareDocument>(this.collectionName);
-    const document = await collection.findOne({ id });
-    
-    if (!document) {
-      return null;
+    const db = await getDb();
+    const collection = db.collection(this.collectionName);
+    try {
+      const document = await collection.findOne({ id }, { projection: { _id: 0 } });
+      if (!document) return null;
+      return ShareEntity.fromMetadata(document as ShareMetadata);
+    } catch (error) {
+      logger.error('Failed to find share by id', { shareId: id, error });
+      throw error;
     }
-
-    const metadata: ShareMetadata = {
-      id: document.id,
-      fileId: document.fileId,
-      shareUrl: document.shareUrl,
-      createdAt: document.createdAt,
-      expiresAt: document.expiresAt,
-      accessCount: document.accessCount,
-      maxAccess: document.maxAccess,
-      passwordProtected: document.passwordProtected,
-    };
-
-    return ShareEntity.fromMetadata(metadata);
   }
 
   async findByFileId(fileId: string): Promise<ShareEntity | null> {
-    const collection = await getCollection<ShareDocument>(this.collectionName);
-    const document = await collection.findOne({ fileId });
-    
-    if (!document) {
-      return null;
+    const db = await getDb();
+    const collection = db.collection(this.collectionName);
+    try {
+      const document = await collection.findOne(
+        { fileId },
+        { projection: { _id: 0 }, sort: { createdAt: -1 } }
+      );
+      if (!document) return null;
+      return ShareEntity.fromMetadata(document as ShareMetadata);
+    } catch (error) {
+      logger.error('Failed to find share by fileId', { fileId, error });
+      throw error;
     }
-
-    const metadata: ShareMetadata = {
-      id: document.id,
-      fileId: document.fileId,
-      shareUrl: document.shareUrl,
-      createdAt: document.createdAt,
-      expiresAt: document.expiresAt,
-      accessCount: document.accessCount,
-      maxAccess: document.maxAccess,
-      passwordProtected: document.passwordProtected,
-    };
-
-    return ShareEntity.fromMetadata(metadata);
   }
 
   async delete(id: string): Promise<void> {
-    const collection = await getCollection<ShareDocument>(this.collectionName);
-    await collection.deleteOne({ id });
+    const db = await getDb();
+    const collection = db.collection(this.collectionName);
+    try {
+      const result = await collection.deleteOne({ id });
+      if (result.deletedCount === 0) throw new Error('Share not found');
+      logger.debug('Share deleted successfully', { shareId: id });
+    } catch (error) {
+      logger.error('Failed to delete share', { shareId: id, error });
+      throw error;
+    }
   }
 
   async incrementAccessCount(id: string): Promise<void> {
-    const collection = await getCollection<ShareDocument>(this.collectionName);
-    await collection.updateOne({ id }, { $inc: { accessCount: 1 } });
+    const db = await getDb();
+    const collection = db.collection(this.collectionName);
+    try {
+      const result = await collection.updateOne(
+        { id },
+        { $inc: { accessCount: 1 }, $set: { updatedAt: new Date() } }
+      );
+      if (result.matchedCount === 0) throw new Error('Share not found');
+      logger.debug('Access count incremented', { shareId: id });
+    } catch (error) {
+      logger.error('Failed to increment access count', { shareId: id, error });
+      throw error;
+    }
   }
 
-  async cleanup(): Promise<void> {
-    const collection = await getCollection<ShareDocument>(this.collectionName);
+  async cleanup(): Promise<number> {
+    const db = await getDb();
+    const collection = db.collection(this.collectionName);
     const now = new Date();
-    await collection.deleteMany({ expiresAt: { $lt: now } });
+    try {
+      const result = await collection.deleteMany({ expiresAt: { $lt: now } });
+      if (result.deletedCount > 0) {
+        logger.info('Cleaned up expired shares', { count: result.deletedCount });
+      }
+      return result.deletedCount;
+    } catch (error) {
+      logger.error('Failed to clean up expired shares', { error });
+      throw error;
+    }
   }
 }

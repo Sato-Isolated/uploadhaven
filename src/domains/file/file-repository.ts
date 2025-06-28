@@ -5,7 +5,7 @@ export interface FileRepository {
   findById(id: string): Promise<FileEntity | null>;
   delete(id: string): Promise<void>;
   incrementDownloadCount(id: string): Promise<void>;
-  cleanup(): Promise<void>; // Remove expired files
+  cleanup(): Promise<number>; // Remove expired files and return count of removed files
 }
 
 export class FileNotFoundError extends Error {

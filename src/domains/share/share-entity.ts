@@ -9,6 +9,7 @@ export interface ShareMetadata {
   accessCount: number;
   maxAccess?: number;
   passwordProtected: boolean;
+  passwordHash?: string;
 }
 
 export class ShareEntity {
@@ -20,7 +21,8 @@ export class ShareEntity {
     public readonly expiresAt: Date,
     public readonly accessCount: number = 0,
     public readonly maxAccess?: number,
-    public readonly passwordProtected: boolean = false
+    public readonly passwordProtected: boolean = false,
+    public readonly passwordHash?: string
   ) {}
 
   static create(params: {
@@ -29,6 +31,7 @@ export class ShareEntity {
     expirationHours?: number;
     maxAccess?: number;
     passwordProtected?: boolean;
+    passwordHash?: string;
   }): ShareEntity {
     const id = randomUUID();
     const shareUrl = `${params.baseUrl}/share/${id}`;
@@ -56,7 +59,8 @@ export class ShareEntity {
       metadata.expiresAt,
       metadata.accessCount,
       metadata.maxAccess,
-      metadata.passwordProtected
+      metadata.passwordProtected,
+      metadata.passwordHash
     );
   }
 
