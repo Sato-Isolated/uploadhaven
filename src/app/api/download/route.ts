@@ -1,13 +1,23 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { serverPerformanceMonitor } from '@/lib/performance/server-performance-monitor';
-import { FileRepository } from '@/infrastructure/database/mongo-file-repository';
+import { MongoFileRepository } from '@/infrastructure/database/mongo-file-repository';
+import { MongoShareRepository } from '@/infrastructure/database/mongo-share-repository';
 import { DiskStorageService } from '@/infrastructure/storage/disk-storage-service';
-import { PasswordService } from '@/lib/password-service';
-import { FileNotFoundError, FileExpiredError, MaxDownloadsReachedError } from '@/domains/file/file-repository';
+import { WebCryptoService } from '@/domains/security/web-crypto-service';
+import { FileApplicationService } from '@/application/file-application-service';
+import { CommandFactory } from '@/application/commands';
+import { ConfigurationService, DEFAULT_CONFIGURATION } from '@/domains/shared/configuration';
 
 export async function POST(request: NextRequest) {
   return serverPerformanceMonitor.measureApiOperation('download', async () => {
     try {
+      // Get client metadata
+      const clientIP = request.headers.get('x-forwarded-for') ||
+        request.headers.get('x-real-ip') ||
+        'unknown';
+      const userAgent = request.headers.get('user-agent') || 'unknown';
+
+      // Parse request body
       const { fileId, password } = await request.json();
 
       if (!fileId) {
@@ -15,77 +25,64 @@ export async function POST(request: NextRequest) {
       }
 
       // Initialize services
-      const fileRepository = new FileRepository();
+      const fileRepository = new MongoFileRepository();
+      const shareRepository = new MongoShareRepository();
       const storageService = new DiskStorageService();
+      const cryptoService = new WebCryptoService();
+      const configService = new ConfigurationService(DEFAULT_CONFIGURATION);
+      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
 
-      // Find file with performance monitoring
-      const file = await serverPerformanceMonitor.measureDbOperation('file-find', () =>
-        fileRepository.findById(fileId)
+      // Initialize application service
+      const fileAppService = new FileApplicationService(
+        fileRepository,
+        shareRepository,
+        storageService,
+        cryptoService,
+        configService,
+        baseUrl
       );
 
-      if (!file) {
-        throw new FileNotFoundError(fileId);
-      }
-
-      // Check if file has expired
-      if (file.isExpired()) {
-        throw new FileExpiredError(fileId);
-      }
-
-      // Check if max downloads reached
-      if (file.hasReachedMaxDownloads()) {
-        throw new MaxDownloadsReachedError(fileId);
-      }
-
-      // Check password if file is protected
-      if (file.isPasswordProtected()) {
-        if (!password) {
-          return NextResponse.json({ error: 'Password required' }, { status: 401 });
+      // Create download command
+      const downloadCommand = CommandFactory.downloadFile({
+        fileId,
+        password,
+        metadata: {
+          userAgent,
+          ipAddress: clientIP
         }
+      });
 
-        const isPasswordValid = await PasswordService.verify(password, file.passwordHash!);
-        if (!isPasswordValid) {
-          return NextResponse.json({ error: 'Invalid password' }, { status: 401 });
-        }
+      // Execute download via application service
+      const result = await fileAppService.downloadFile(downloadCommand);
+
+      if (!result.success) {
+        const statusCode = result.error?.code === 'FILE_NOT_FOUND' ? 404 :
+                          result.error?.code === 'FILE_NOT_ACCESSIBLE' ? 410 :
+                          result.error?.code === 'VALIDATION_ERROR' ? 401 : 500;
+        
+        return NextResponse.json(
+          { 
+            error: result.error?.message || 'Download failed',
+            code: result.error?.code
+          },
+          { status: statusCode }
+        );
       }
 
-      // Read encrypted file from storage (already encrypted by client)
-      const encryptedData = await storageService.read(file.encryptedPath);
-
-      // Increment download count with performance monitoring
-      await serverPerformanceMonitor.measureDbOperation('download-count-increment', () =>
-        fileRepository.incrementDownloadCount(file.id)
-      );
-
-      // Return encrypted data as base64 for client-side decryption
-      const buffer = Buffer.from(encryptedData);
+      // Convert ArrayBuffer to base64 for JSON response
+      const buffer = Buffer.from(result.data!.content);
       const base64Content = buffer.toString('base64');
 
       return NextResponse.json({
-        fileName: file.originalName,
-        mimeType: file.mimeType,
+        fileName: result.data!.fileName,
+        mimeType: result.data!.mimeType,
         content: base64Content,
       });
-    } catch (error: unknown) {
+
+    } catch (error) {
       console.error('Download error:', error);
-
-      // Handle specific file errors with appropriate HTTP status codes
-      if (error instanceof FileNotFoundError) {
-        return NextResponse.json({ error: error.message }, { status: 404 });
-      }
-
-      if (error instanceof FileExpiredError) {
-        return NextResponse.json({ error: error.message }, { status: 410 }); // Gone
-      }
-
-      if (error instanceof MaxDownloadsReachedError) {
-        return NextResponse.json({ error: error.message }, { status: 403 }); // Forbidden
-      }
-
-      // Handle other errors
-      const errorMessage = error instanceof Error ? error.message : 'Internal server error';
       return NextResponse.json(
-        { error: errorMessage },
+        { error: 'Internal server error' },
         { status: 500 }
       );
     }

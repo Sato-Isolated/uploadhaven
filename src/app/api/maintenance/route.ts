@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { FileRepository } from '@/infrastructure/database/mongo-file-repository';
-import { ShareRepository } from '@/infrastructure/database/mongo-share-repository';
+import { MongoFileRepository } from '@/infrastructure/database/mongo-file-repository';
+import { MongoShareRepository } from '@/infrastructure/database/mongo-share-repository';
 import { DiskStorageService } from '@/infrastructure/storage/disk-storage-service';
+import { WebCryptoService } from '@/domains/security/web-crypto-service';
+import { FileApplicationService } from '@/application/file-application-service';
+import { ConfigurationService, DEFAULT_CONFIGURATION } from '@/domains/shared/configuration';
 import { performanceMonitor } from '@/lib/performance';
 
 // API key for security (should be in environment variables)
@@ -19,21 +22,36 @@ export async function POST(request: NextRequest) {
     const { action } = body;
 
     // Initialize services
-    const fileRepository = new FileRepository();
-    const shareRepository = new ShareRepository();
+    const fileRepository = new MongoFileRepository();
+    const shareRepository = new MongoShareRepository();
     const storageService = new DiskStorageService();
+    const cryptoService = new WebCryptoService();
+    const configService = new ConfigurationService(DEFAULT_CONFIGURATION);
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+
+    const fileAppService = new FileApplicationService(
+      fileRepository,
+      shareRepository,
+      storageService,
+      cryptoService,
+      configService,
+      baseUrl
+    );
 
     let result: unknown;
 
     switch (action) {
       case 'cleanup':
-        // Clean up expired files and shares
-        await Promise.all([
-          fileRepository.cleanup(),
-          shareRepository.cleanup(),
-          storageService.cleanup()
-        ]);
-        result = { message: 'Cleanup completed successfully' };
+        // Clean up expired files and shares using the application service
+        const cleanupResult = await fileAppService.cleanupExpiredFiles();
+        if (cleanupResult.success) {
+          result = { 
+            message: 'Cleanup completed successfully',
+            deletedFiles: cleanupResult.data?.deletedCount || 0
+          };
+        } else {
+          throw new Error(cleanupResult.error?.message || 'Cleanup failed');
+        }
         break;
 
       case 'performance-stats':
@@ -43,26 +61,50 @@ export async function POST(request: NextRequest) {
         result = {
           performance: summary,
           memory: memoryUsage,
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
+          configuration: {
+            featuresEnabled: configService.getFeatureFlags(),
+            fileConfig: {
+              maxFileSize: configService.getFileConfig().maxFileSize,
+              maxExpirationHours: configService.getFileConfig().maxExpirationHours
+            }
+          }
         };
         break;
 
       case 'health-check':
-        // Basic health check
+        // Enhanced health check with configuration status
+        const featureFlags = configService.getFeatureFlags();
         result = {
           status: 'healthy',
           timestamp: new Date().toISOString(),
           services: {
             database: 'connected',
             storage: 'accessible',
-            cache: 'active'
-          }
+            cache: 'active',
+            events: 'active'
+          },
+          features: featureFlags
+        };
+        break;
+
+      case 'config-info':
+        // New action to get configuration information
+        result = {
+          fileConfig: configService.getFileConfig(),
+          shareConfig: configService.getShareConfig(),
+          securityConfig: {
+            // Don't expose sensitive settings
+            largeFileSizeThreshold: configService.getSecurityConfig().largeFileSizeThreshold,
+            requirePasswordForLargeFiles: configService.getSecurityConfig().requirePasswordForLargeFiles
+          },
+          features: configService.getFeatureFlags()
         };
         break;
 
       default:
         return NextResponse.json(
-          { error: 'Invalid action. Available: cleanup, performance-stats, health-check' },
+          { error: 'Invalid action. Available: cleanup, performance-stats, health-check, config-info' },
           { status: 400 }
         );
     }
@@ -90,6 +132,9 @@ export async function GET() {
     const summary = performanceMonitor.getSummary();
     const memoryUsage = performanceMonitor.getMemoryUsage();
 
+    // Initialize configuration service for health check
+    const configService = new ConfigurationService(DEFAULT_CONFIGURATION);
+
     // Normalize memory data to match admin dashboard expectations
     const normalizedMemory = memoryUsage ? {
       usedJSSize: ('usedJSSize' in memoryUsage) ? memoryUsage.usedJSSize : (memoryUsage.heapUsed || 0),
@@ -104,11 +149,13 @@ export async function GET() {
       performance: {
         totalMetrics: summary.totalMetrics,
         recentMetrics: summary.recentMetrics,
-        cryptoOperations: summary.cryptoOperations, // Already a number in new system
-        uploads: summary.uploads // Already a number in new system
+        cryptoOperations: summary.cryptoOperations,
+        uploads: summary.uploads
       },
       memory: normalizedMemory,
-      uptime: process.uptime()
+      uptime: process.uptime(),
+      features: configService.getFeatureFlags(),
+      version: '2.0.0' // Updated architecture version
     });
   } catch (error: unknown) {
     console.error('Health check error:', error);

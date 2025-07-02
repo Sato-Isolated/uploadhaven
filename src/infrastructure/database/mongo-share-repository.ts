@@ -1,8 +1,9 @@
 import { getDb } from './mongodb';
 import { ShareEntity, ShareMetadata } from '../../domains/share/share-entity';
+import { ShareRepository as ShareRepositoryInterface } from '../../domains/share/share-repository';
 import { logger } from '../../lib/logger';
 
-export class ShareRepository {
+export class MongoShareRepository implements ShareRepositoryInterface {
   private readonly collectionName = 'shares';
 
   async save(share: ShareEntity): Promise<void> {
@@ -41,7 +42,7 @@ export class ShareRepository {
     try {
       const document = await collection.findOne({ id }, { projection: { _id: 0 } });
       if (!document) return null;
-      return ShareEntity.fromMetadata(document as ShareMetadata);
+      return ShareEntity.fromMetadata(document as unknown as ShareMetadata);
     } catch (error) {
       logger.error('Failed to find share by id', { shareId: id, error });
       throw error;
@@ -57,7 +58,7 @@ export class ShareRepository {
         { projection: { _id: 0 }, sort: { createdAt: -1 } }
       );
       if (!document) return null;
-      return ShareEntity.fromMetadata(document as ShareMetadata);
+      return ShareEntity.fromMetadata(document as unknown as ShareMetadata);
     } catch (error) {
       logger.error('Failed to find share by fileId', { fileId, error });
       throw error;
@@ -77,7 +78,7 @@ export class ShareRepository {
     }
   }
 
-  async incrementAccessCount(id: string): Promise<void> {
+  async incrementCount(id: string): Promise<void> {
     const db = await getDb();
     const collection = db.collection(this.collectionName);
     try {
@@ -91,6 +92,10 @@ export class ShareRepository {
       logger.error('Failed to increment access count', { shareId: id, error });
       throw error;
     }
+  }
+
+  async incrementAccessCount(id: string): Promise<void> {
+    return this.incrementCount(id);
   }
 
   async cleanup(): Promise<number> {

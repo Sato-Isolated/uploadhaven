@@ -34,6 +34,14 @@ interface FileInfo {
   maxDownloads?: number;
   canBeDownloaded: boolean;
   passwordProtected: boolean;
+  shareInfo?: {
+    id: string;
+    shareUrl: string;
+    expiresAt: string;
+    accessCount: number;
+    maxAccess?: number;
+    canBeAccessed: boolean;
+  };
 }
 
 interface UploadResult {
@@ -46,6 +54,12 @@ interface DownloadResult {
   fileName: string;
   mimeType: string;
   content: string; // base64
+}
+
+interface ApiError {
+  error: string;
+  code?: string;
+  details?: any;
 }
 
 // Query Keys
