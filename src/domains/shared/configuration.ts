@@ -71,6 +71,7 @@ export const DEFAULT_CONFIGURATION: AppConfiguration = {
       'image/*',
       'video/*',
       'audio/*',
+      'text/*',
       'application/pdf',
       'application/msword',
       'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
@@ -156,7 +157,7 @@ export class ConfigurationService {
   }
 
   isFeatureEnabled(feature: keyof FeatureFlags): boolean {
-    return this.config.features[feature];
+    return this.config.features[feature] ?? false;
   }
 
   updateConfig(updates: Partial<AppConfiguration>): void {
