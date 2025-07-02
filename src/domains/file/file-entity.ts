@@ -1,4 +1,4 @@
-import { randomUUID } from 'crypto';
+import { BaseEntity, BaseCreateParams, Expirable, Countable, EntityUtils } from '../shared';
 
 export interface FileMetadata {
   id: string;
@@ -13,7 +13,16 @@ export interface FileMetadata {
   passwordHash?: string; // Password hash if protected
 }
 
-export class FileEntity {
+export interface FileCreateParams extends BaseCreateParams {
+  originalName: string;
+  mimeType: string;
+  size: number;
+  encryptedPath: string;
+  maxDownloads?: number;
+  passwordHash?: string;
+}
+
+export class FileEntity implements BaseEntity, Expirable, Countable<FileEntity> {
   private constructor(
     public readonly id: string,
     public readonly originalName: string,
@@ -25,20 +34,26 @@ export class FileEntity {
     public readonly downloadCount: number = 0,
     public readonly maxDownloads?: number,
     public readonly passwordHash?: string
-  ) {}
+  ) { }
 
-  static create(params: {
-    originalName: string;
-    mimeType: string;
-    size: number;
-    encryptedPath: string;
-    expirationHours?: number;
-    maxDownloads?: number;
-    passwordHash?: string;
-  }): FileEntity {
-    const id = randomUUID();
+  // Alias pour l'interface BaseEntity
+  get createdAt(): Date {
+    return this.uploadedAt;
+  }
+
+  // Alias pour l'interface Countable
+  get count(): number {
+    return this.downloadCount;
+  }
+
+  get maxCount(): number | undefined {
+    return this.maxDownloads;
+  }
+
+  static create(params: FileCreateParams): FileEntity {
+    const id = EntityUtils.generateId();
     const uploadedAt = new Date();
-    const expiresAt = new Date(uploadedAt.getTime() + (params.expirationHours || 24) * 60 * 60 * 1000);
+    const expiresAt = EntityUtils.calculateExpirationDate(params.expirationHours);
 
     return new FileEntity(
       id,
@@ -70,15 +85,23 @@ export class FileEntity {
   }
 
   isExpired(): boolean {
-    return new Date() > this.expiresAt;
+    return EntityUtils.isExpired(this.expiresAt);
   }
 
-  hasReachedMaxDownloads(): boolean {
+  hasReachedMaxCount(): boolean {
     return this.maxDownloads != null && this.downloadCount >= this.maxDownloads;
   }
 
+  hasReachedMaxDownloads(): boolean {
+    return this.hasReachedMaxCount();
+  }
+
+  canBeAccessed(): boolean {
+    return !this.isExpired() && !this.hasReachedMaxCount();
+  }
+
   canBeDownloaded(): boolean {
-    return !this.isExpired() && !this.hasReachedMaxDownloads();
+    return this.canBeAccessed();
   }
 
   updateEncryptedPath(newPath: string): FileEntity {
@@ -96,7 +119,7 @@ export class FileEntity {
     );
   }
 
-  incrementDownloadCount(): FileEntity {
+  incrementCount(): FileEntity {
     return new FileEntity(
       this.id,
       this.originalName,
@@ -109,6 +132,10 @@ export class FileEntity {
       this.maxDownloads,
       this.passwordHash
     );
+  }
+
+  incrementDownloadCount(): FileEntity {
+    return this.incrementCount();
   }
 
   isPasswordProtected(): boolean {

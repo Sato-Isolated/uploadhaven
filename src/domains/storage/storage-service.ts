@@ -7,16 +7,8 @@ export interface StorageService {
   cleanup(): Promise<void>; // Remove orphaned files
 }
 
-export class FileNotFoundError extends Error {
-  constructor(path: string) {
-    super(`File not found at path: ${path}`);
-    this.name = 'FileNotFoundError';
-  }
-}
-
-export class StorageError extends Error {
-  constructor(message: string) {
-    super(`Storage error: ${message}`);
-    this.name = 'StorageError';
-  }
-}
+// Les erreurs sont maintenant importées depuis shared/domain-errors.ts
+export { 
+  StorageFileNotFoundError as FileNotFoundError, 
+  StorageError 
+} from '../shared';

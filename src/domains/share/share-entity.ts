@@ -1,4 +1,4 @@
-import { randomUUID } from 'crypto';
+import { BaseEntity, BaseCreateParams, Expirable, Countable, EntityUtils } from '../shared';
 
 export interface ShareMetadata {
   id: string;
@@ -12,7 +12,15 @@ export interface ShareMetadata {
   passwordHash?: string;
 }
 
-export class ShareEntity {
+export interface ShareCreateParams extends BaseCreateParams {
+  fileId: string;
+  baseUrl: string;
+  maxAccess?: number;
+  passwordProtected?: boolean;
+  passwordHash?: string;
+}
+
+export class ShareEntity implements BaseEntity, Expirable, Countable<ShareEntity> {
   private constructor(
     public readonly id: string,
     public readonly fileId: string,
@@ -25,18 +33,20 @@ export class ShareEntity {
     public readonly passwordHash?: string
   ) {}
 
-  static create(params: {
-    fileId: string;
-    baseUrl: string;
-    expirationHours?: number;
-    maxAccess?: number;
-    passwordProtected?: boolean;
-    passwordHash?: string;
-  }): ShareEntity {
-    const id = randomUUID();
+  // Alias pour l'interface Countable
+  get count(): number {
+    return this.accessCount;
+  }
+
+  get maxCount(): number | undefined {
+    return this.maxAccess;
+  }
+
+  static create(params: ShareCreateParams): ShareEntity {
+    const id = EntityUtils.generateId();
     const shareUrl = `${params.baseUrl}/share/${id}`;
     const createdAt = new Date();
-    const expiresAt = new Date(createdAt.getTime() + (params.expirationHours || 24) * 60 * 60 * 1000);
+    const expiresAt = EntityUtils.calculateExpirationDate(params.expirationHours);
 
     return new ShareEntity(
       id,
@@ -46,7 +56,8 @@ export class ShareEntity {
       expiresAt,
       0,
       params.maxAccess,
-      params.passwordProtected || false
+      params.passwordProtected || false,
+      params.passwordHash
     );
   }
 
@@ -65,18 +76,22 @@ export class ShareEntity {
   }
 
   isExpired(): boolean {
-    return new Date() > this.expiresAt;
+    return EntityUtils.isExpired(this.expiresAt);
   }
 
-  hasReachedMaxAccess(): boolean {
+  hasReachedMaxCount(): boolean {
     return this.maxAccess !== undefined && this.accessCount >= this.maxAccess;
   }
 
-  canBeAccessed(): boolean {
-    return !this.isExpired() && !this.hasReachedMaxAccess();
+  hasReachedMaxAccess(): boolean {
+    return this.hasReachedMaxCount();
   }
 
-  incrementAccessCount(): ShareEntity {
+  canBeAccessed(): boolean {
+    return !this.isExpired() && !this.hasReachedMaxCount();
+  }
+
+  incrementCount(): ShareEntity {
     return new ShareEntity(
       this.id,
       this.fileId,
@@ -85,8 +100,13 @@ export class ShareEntity {
       this.expiresAt,
       this.accessCount + 1,
       this.maxAccess,
-      this.passwordProtected
+      this.passwordProtected,
+      this.passwordHash
     );
+  }
+
+  incrementAccessCount(): ShareEntity {
+    return this.incrementCount();
   }
 
   toMetadata(): ShareMetadata {

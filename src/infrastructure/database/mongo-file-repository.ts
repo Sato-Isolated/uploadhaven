@@ -1,8 +1,9 @@
 import { getDb } from './mongodb';
 import { FileEntity, FileMetadata } from '../../domains/file/file-entity';
+import { FileRepository as FileRepositoryInterface } from '../../domains/file/file-repository';
 import { logger } from '../../lib/logger';
 
-export class FileRepository {
+export class MongoFileRepository implements FileRepositoryInterface {
   private readonly collectionName = 'files';
 
   async save(file: FileEntity): Promise<void> {
@@ -43,7 +44,7 @@ export class FileRepository {
     try {
       const document = await collection.findOne({ id }, { projection: { _id: 0 } });
       if (!document) return null;
-      return FileEntity.fromMetadata(document as FileMetadata);
+      return FileEntity.fromMetadata(document as unknown as FileMetadata);
     } catch (error) {
       logger.error('Failed to find file by id', { fileId: id, error });
       throw error;
@@ -63,7 +64,7 @@ export class FileRepository {
     }
   }
 
-  async incrementDownloadCount(id: string): Promise<void> {
+  async incrementCount(id: string): Promise<void> {
     const db = await getDb();
     const collection = db.collection(this.collectionName);
     try {
@@ -77,6 +78,10 @@ export class FileRepository {
       logger.error('Failed to increment download count', { fileId: id, error });
       throw error;
     }
+  }
+
+  async incrementDownloadCount(id: string): Promise<void> {
+    return this.incrementCount(id);
   }
 
   async cleanup(): Promise<number> {

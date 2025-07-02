@@ -15,23 +15,9 @@ export interface EncryptionResult {
   salt: Uint8Array;
 }
 
-export class InvalidPasswordError extends Error {
-  constructor() {
-    super('Invalid password provided for file decryption');
-    this.name = 'InvalidPasswordError';
-  }
-}
-
-export class EncryptionError extends Error {
-  constructor(message: string) {
-    super(`Encryption error: ${message}`);
-    this.name = 'EncryptionError';
-  }
-}
-
-export class DecryptionError extends Error {
-  constructor(message: string) {
-    super(`Decryption error: ${message}`);
-    this.name = 'DecryptionError';
-  }
-}
+// Les erreurs sont maintenant importées depuis shared/domain-errors.ts
+export { 
+  InvalidPasswordError, 
+  EncryptionError, 
+  DecryptionError 
+} from '../shared';
