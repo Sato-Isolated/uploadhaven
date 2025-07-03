@@ -16,10 +16,10 @@
 # next.js
 /.next/
 /out/
-
+/.github
 # production
 /build
-
+/storage
 # misc
 .DS_Store
 *.pem
@@ -31,30 +31,11 @@ yarn-error.log*
 .pnpm-debug.log*
 
 # env files (can opt-in for committing if needed)
-.env.local
+.env*
 
 # vercel
 .vercel
-
+/logs
 # typescript
 *.tsbuildinfo
 next-env.d.ts
-
-# uploads directory
-/uploads/*
-!/uploads/.gitkeep
-
-# local development tools
-/tools/bin/
-/tools/*.zip
-.env.tools
-
-# thumbnail cache
-/cache/
-
-# local test files
-/test-files
-/test-output
-/test-performance
-/public
-/.github

@@ -1,6 +1,6 @@
-# UploadHaven
+# OuterDrop
 
-🚀 **Simple, secure, ephemeral file sharing** - Upload, get link, share. That's it.
+🚀 **Deploy. Share. Vanish.** - Secure file sharing with zero-knowledge encryption.
 
 [![Next.js](https://img.shields.io/badge/Next.js-15.3.3-blue)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue)](https://www.typescriptlang.org/)
@@ -21,8 +21,6 @@ A modern, privacy-first file sharing platform that focuses on simplicity and sec
 - 📁 **Drag & Drop Upload** - Instant file sharing
 - 🔒 **Automatic Encryption** - All files encrypted with AES-256-GCM
 - ⏰ **Auto-Expiration** - Files delete automatically (15min - 7 days)
-- �️ **Security Scanning** - Malware detection built-in
-- 📱 **Mobile Optimized** - Works perfectly on all devices
 - 🔗 **Instant Links** - Share files immediately
 - 🕵️ **Anonymous Mode** - No tracking, no accounts needed
 
@@ -30,8 +28,8 @@ A modern, privacy-first file sharing platform that focuses on simplicity and sec
 
 ```bash
 # Clone and install
-git clone https://github.com/Sato-Isolated/uploadhaven.git
-cd uploadhaven
+git clone https://github.com/Sato-Isolated/outerdrop.git
+cd outerdrop
 pnpm install
 
 # Configure environment
@@ -43,6 +41,26 @@ pnpm dev
 ```
 
 Visit `http://localhost:3000` and start sharing files! 🎉
+
+## 🧪 Testing
+
+OuterDrop includes comprehensive testing to ensure security and reliability:
+
+```bash
+# Run the complete upload/download test
+node test-real-api.js
+
+# Prerequisites: Server must be running
+pnpm dev
+```
+
+**✅ Current Test Status:**
+- Upload flow: Fully tested with real API
+- Download flow: Fully tested with real API  
+- Zero-knowledge security: Validated
+- Data integrity: Verified
+
+See [TESTING-STATUS.md](TESTING-STATUS.md) for detailed test results.
 
 ## 📚 Documentation
 
@@ -65,15 +83,15 @@ Visit `http://localhost:3000` and start sharing files! 🎉
 
 ## 🤝 Contributing
 
-We welcome contributions! UploadHaven is built by the community, for the community.
+We welcome contributions! OuterDrop is built by the community, for the community.
 
-- 💡 **Ideas**: Share your thoughts in [GitHub Discussions](https://github.com/Sato-Isolated/uploadhaven/discussions)
-- 🐛 **Bugs**: Report issues in [GitHub Issues](https://github.com/Sato-Isolated/uploadhaven/issues)
+- 💡 **Ideas**: Share your thoughts in [GitHub Discussions](https://github.com/Sato-Isolated/outerdrop/discussions)
+- 🐛 **Bugs**: Report issues in [GitHub Issues](https://github.com/Sato-Isolated/outerdrop/issues)
 - 🔧 **Code**: See our [Contributing Guide](docs/development/contributing.md)
 
 ## 📦 Self-Hosting
 
-UploadHaven is designed to be easily self-hosted:
+OuterDrop is designed to be easily self-hosted:
 
 ```bash
 # Manual deployment
@@ -94,28 +112,27 @@ See the [Installation Guide](docs/getting-started/installation.md) for detailed 
 - **Password protection** for sensitive files
 - **Transparent decryption** for previews and downloads
 
-Report security issues in [GitHub Issues](https://github.com/Sato-Isolated/uploadhaven/issues)
+Report security issues in [GitHub Issues](https://github.com/Sato-Isolated/outerdrop/issues)
 
 ## 📄 License
 
 MIT License - see [LICENSE](LICENSE) file for details.
 
-## 🌟 Why UploadHaven?
+## 🌟 Why OuterDrop?
 
-Unlike complex file sharing platforms, UploadHaven focuses on **simplicity**:
+Unlike complex file sharing platforms, OuterDrop focuses on **simplicity**:
 
 - ✅ No user accounts required
 - ✅ No complex folder structures
 - ✅ No permanent file storage
-- ✅ No premium features - always free
 
-**Just upload, share, and let files expire naturally.**
+**Just deploy, share, and let files vanish naturally.**
 
 ---
 
 <div align="center">
 
-**[🚀 Get Started](docs/getting-started/quick-start.md)** • **[📖 Documentation](docs/)** • **[💬 Discussions](https://github.com/Sato-Isolated/uploadhaven/discussions)**
+**[🚀 Get Started](docs/getting-started/quick-start.md)** • **[📖 Documentation](docs/)** • **[💬 Discussions](https://github.com/Sato-Isolated/outerdrop/discussions)**
 
 Made with ❤️ by the community
 
