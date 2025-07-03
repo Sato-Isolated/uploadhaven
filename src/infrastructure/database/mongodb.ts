@@ -5,7 +5,7 @@ import { createIndexes } from './indexes';
 let client: MongoClient | null = null;
 let db: Db | null = null;
 
-const DB_NAME = process.env.MONGODB_DB || 'uploadhaven';
+const DB_NAME = process.env.MONGODB_DB || 'outerdrop';
 const MONGODB_URI = process.env.MONGODB_URI;
 
 if (!MONGODB_URI) {

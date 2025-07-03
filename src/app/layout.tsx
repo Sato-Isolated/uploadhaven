@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "UploadHaven - Secure File Sharing",
-  description: "Simple, secure, ephemeral file sharing with zero-knowledge encryption. Upload, get link, share.",
+  title: "OuterDrop - Secure File Sharing",
+  description: "Deploy. Share. Vanish. - Secure file sharing with zero-knowledge encryption.",
 };
 
 export default function RootLayout({

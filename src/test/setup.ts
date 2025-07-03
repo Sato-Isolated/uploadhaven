@@ -113,7 +113,7 @@ vi.mock('next/server', () => ({
 
 // Mock environment variables
 (process.env as any).NODE_ENV = 'test';
-(process.env as any).MONGODB_URI = 'mongodb://localhost:27017/uploadhaven-test';
+(process.env as any).MONGODB_URI = 'mongodb://localhost:27017/outerdrop-test';
 (process.env as any).NEXT_PUBLIC_BASE_URL = 'http://localhost:3000';
 
 // Global test utilities
