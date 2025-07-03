@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500;600&display=swap');
 @import "tailwindcss";
 @import "tw-animate-css";
 
@@ -44,72 +45,53 @@
 }
 
 :root {
-  --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
-}
-
-.dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  --radius: 0.25rem;
+  /* OuterDrop Dark Theme - Palette Outer Heaven */
+  --background: #1c1c1c;              /* Charbon militaire */
+  --foreground: #f5f5f5;              /* Blanc cassé */
+  --card: #2e2e2e;                    /* Acier brut */
+  --card-foreground: #f5f5f5;         /* Blanc cassé */
+  --popover: #2e2e2e;                 /* Acier brut */
+  --popover-foreground: #f5f5f5;      /* Blanc cassé */
+  --primary: #ffd700;                 /* Or militaire */
+  --primary-foreground: #1c1c1c;      /* Charbon militaire */
+  --secondary: #2e2e2e;               /* Acier brut */
+  --secondary-foreground: #f5f5f5;    /* Blanc cassé */
+  --muted: #2a2a2a;                   /* Hover BG */
+  --muted-foreground: #9aa0a6;        /* Gris moderne */
+  --accent: #ffd700;                  /* Or militaire */
+  --accent-foreground: #1c1c1c;       /* Charbon militaire */
+  --destructive: #ff5555;             /* Rouge alerte */
+  --destructive-foreground: #f5f5f5;  /* Blanc cassé */
+  --success: #00b894;                 /* Vert furtif */
+  --success-foreground: #f5f5f5;      /* Blanc cassé */
+  --warning: #ff8c00;                 /* Orange militaire */
+  --warning-foreground: #f5f5f5;      /* Blanc cassé */
+  --border: #424242;                  /* Gris foncé */
+  --input: #2e2e2e;                   /* Acier brut */
+  --ring: #ffd700;                    /* Or militaire */
+  
+  /* Hover states */
+  --hover-bg: #2a2a2a;                /* Fond + 10% luminosité */
+  --hover-surface: #3a3a3a;           /* Surface + 10% luminosité */
+  --hover-accent: #ffed4e;             /* Or + luminosité */
+  
+  /* Charts - Palette tactique */
+  --chart-1: #ffd700;                 /* Or militaire */
+  --chart-2: #00b894;                 /* Vert furtif */
+  --chart-3: #ff8c00;                 /* Orange militaire */
+  --chart-4: #ff5555;                 /* Rouge alerte */
+  --chart-5: #9aa0a6;                 /* Gris moderne */
+  
+  /* Sidebar - Interface tactique */
+  --sidebar: #1c1c1c;                 /* Charbon militaire */
+  --sidebar-foreground: #f5f5f5;      /* Blanc cassé */
+  --sidebar-primary: #ffd700;         /* Or militaire */
+  --sidebar-primary-foreground: #1c1c1c; /* Charbon militaire */
+  --sidebar-accent: #2e2e2e;          /* Acier brut */
+  --sidebar-accent-foreground: #f5f5f5; /* Blanc cassé */
+  --sidebar-border: #424242;          /* Gris foncé */
+  --sidebar-ring: #ffd700;            /* Or militaire */
 }
 
 @layer base {
@@ -118,5 +100,132 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+}
+
+/* OuterDrop MGS-inspired styles */
+@layer components {
+  /* Typography MGS */
+  .font-tactical {
+    font-family: 'JetBrains Mono', 'Courier New', monospace;
+    font-weight: 500;
+    letter-spacing: 0.025em;
+  }
+  
+  /* Geometric elements MGS */
+  .tactical-border {
+    border: 1px solid var(--border);
+    clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px));
+  }
+  
+  .tactical-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    clip-path: polygon(0 0, calc(100% - 6px) 0, 100% 6px, 100% 100%, 6px 100%, 0 calc(100% - 6px));
+    transition: all 0.2s ease;
+  }
+  
+  .tactical-card:hover {
+    background: var(--hover-surface);
+    border-color: var(--primary);
+    box-shadow: 0 0 12px var(--primary)20;
+  }
+  
+  /* Button tactical */
+  .btn-tactical {
+    background: var(--secondary);
+    border: 1px solid var(--border);
+    color: var(--foreground);
+    padding: 0.75rem 1.5rem;
+    clip-path: polygon(0 0, calc(100% - 4px) 0, 100% 4px, 100% 100%, 4px 100%, 0 calc(100% - 4px));
+    transition: all 0.2s ease;
+    font-family: 'Inter', sans-serif;
+    font-weight: 500;
+  }
+  
+  .btn-tactical:hover {
+    background: var(--hover-surface);
+    border-color: var(--primary);
+    box-shadow: 0 0 8px var(--primary)30;
+    transform: translateY(-1px);
+  }
+  
+  .btn-tactical-primary {
+    background: var(--primary);
+    color: var(--primary-foreground);
+    border-color: var(--primary);
+  }
+  
+  .btn-tactical-primary:hover {
+    background: var(--hover-accent);
+    box-shadow: 0 0 12px var(--primary)40;
+  }
+  
+  /* Glow effect subtil */
+  .glow-primary {
+    box-shadow: 0 0 8px var(--primary)20;
+  }
+  
+  .glow-primary:hover {
+    box-shadow: 0 0 16px var(--primary)40;
+  }
+  
+  /* Upload zone tactique */
+  .drop-zone-tactical {
+    background: var(--background);
+    border: 2px dashed var(--border);
+    clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px));
+    transition: all 0.3s ease;
+    position: relative;
+  }
+  
+  .drop-zone-tactical::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, transparent 48%, var(--border)20 49%, var(--border)20 51%, transparent 52%);
+    background-size: 20px 20px;
+    opacity: 0.1;
+    pointer-events: none;
+  }
+  
+  .drop-zone-tactical:hover,
+  .drop-zone-tactical.drag-over {
+    border-color: var(--primary);
+    background: var(--hover-bg);
+    box-shadow: inset 0 0 20px var(--primary)10;
+  }
+  
+  /* Animations discrètes */
+  .fade-in-up {
+    animation: fadeInUp 0.4s ease-out;
+  }
+  
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .pulse-glow {
+    animation: pulseGlow 2s ease-in-out infinite;
+  }
+  
+  @keyframes pulseGlow {
+    0%, 100% {
+      box-shadow: 0 0 8px var(--primary)20;
+    }
+    50% {
+      box-shadow: 0 0 16px var(--primary)40;
+    }
   }
 }

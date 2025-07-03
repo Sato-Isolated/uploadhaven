@@ -110,10 +110,10 @@ export function AdminDashboard() {
 
   if (loading) {
     return (
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8">
+      <div className="tactical-card p-8">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600 dark:text-gray-300">Loading dashboard...</p>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Loading dashboard...</p>
         </div>
       </div>
     );
@@ -121,18 +121,18 @@ export function AdminDashboard() {
 
   if (error) {
     return (
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8">
+      <div className="tactical-card p-8">
         <div className="text-center">
-          <AlertTriangle className="w-12 h-12 text-red-500 mx-auto mb-4" />
-          <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Error</h2>
-          <p className="text-gray-600 dark:text-gray-300">{error}</p>
+          <AlertTriangle className="w-12 h-12 text-destructive mx-auto mb-4" />
+          <h2 className="text-xl font-bold text-foreground mb-2">Error</h2>
+          <p className="text-muted-foreground">{error}</p>
           <button 
             onClick={() => {
               setError(null);
               setLoading(true);
               fetchHealthData();
             }}
-            className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+            className="btn-tactical-primary mt-4"
           >
             Retry
           </button>
@@ -143,79 +143,79 @@ export function AdminDashboard() {
 
   return (
     <div className="space-y-6">
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
-          <Server className="w-6 h-6" />
+      <div className="tactical-card p-6">
+        <h2 className="text-2xl font-bold text-foreground mb-6 flex items-center gap-2">
+          <Server className="w-6 h-6 text-primary" />
           System Dashboard
         </h2>
 
         {/* System Status */}
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-          <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
+          <div className="tactical-card p-4 border-success">
             <div className="flex items-center gap-2 mb-2">
-              <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400" />
-              <span className="font-medium text-green-800 dark:text-green-200">Status</span>
+              <CheckCircle className="w-5 h-5 text-success" />
+              <span className="font-medium text-success">Status</span>
             </div>
-            <p className="text-green-600 dark:text-green-400 capitalize">{healthData?.status}</p>
+            <p className="text-success capitalize font-tactical">{healthData?.status}</p>
           </div>
 
-          <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+          <div className="tactical-card p-4 border-primary">
             <div className="flex items-center gap-2 mb-2">
-              <Clock className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-              <span className="font-medium text-blue-800 dark:text-blue-200">Uptime</span>
+              <Clock className="w-5 h-5 text-primary" />
+              <span className="font-medium text-primary">Uptime</span>
             </div>
-            <p className="text-blue-600 dark:text-blue-400">
+            <p className="text-primary font-tactical">
               {healthData?.uptime ? formatUptime(healthData.uptime) : 'N/A'}
             </p>
           </div>
 
-          <div className="bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg p-4">
+          <div className="tactical-card p-4 border-warning">
             <div className="flex items-center gap-2 mb-2">
-              <Activity className="w-5 h-5 text-purple-600 dark:text-purple-400" />
-              <span className="font-medium text-purple-800 dark:text-purple-200">Recent Metrics</span>
+              <Activity className="w-5 h-5 text-warning" />
+              <span className="font-medium text-warning">Recent Metrics</span>
             </div>
-            <p className="text-purple-600 dark:text-purple-400">
+            <p className="text-warning font-tactical">
               {healthData?.performance.recentMetrics || 0}
             </p>
           </div>
 
-          <div className="bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-lg p-4">
+          <div className="tactical-card p-4 border-destructive">
             <div className="flex items-center gap-2 mb-2">
-              <HardDrive className="w-5 h-5 text-orange-600 dark:text-orange-400" />
-              <span className="font-medium text-orange-800 dark:text-orange-200">Memory Usage</span>
+              <HardDrive className="w-5 h-5 text-destructive" />
+              <span className="font-medium text-destructive">Memory Usage</span>
             </div>
-            <p className="text-orange-600 dark:text-orange-400">
+            <p className="text-destructive font-tactical">
               {healthData?.memory ? `${healthData.memory.usagePercentage.toFixed(1)}%` : 'N/A'}
             </p>
           </div>
         </div>
 
         {/* Performance Metrics */}
-        <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 mb-6">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Performance Metrics</h3>
+        <div className="tactical-card p-4 mb-6">
+          <h3 className="text-lg font-semibold text-foreground mb-4">Performance Metrics</h3>
           <div className="grid md:grid-cols-2 gap-4">
             <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Total Metrics Collected</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">
+              <p className="text-sm text-muted-foreground mb-1">Total Metrics Collected</p>
+              <p className="text-2xl font-bold text-foreground font-tactical">
                 {healthData?.performance.totalMetrics || 0}
               </p>
             </div>
             <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Crypto Operations</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">
+              <p className="text-sm text-muted-foreground mb-1">Crypto Operations</p>
+              <p className="text-2xl font-bold text-foreground font-tactical">
                 {healthData?.performance.cryptoOperations || 0}
               </p>
             </div>
             <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">File Uploads</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">
+              <p className="text-sm text-muted-foreground mb-1">File Uploads</p>
+              <p className="text-2xl font-bold text-foreground font-tactical">
                 {healthData?.performance.uploads || 0}
               </p>
             </div>
             {healthData?.memory && (
               <div>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Memory Used</p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                <p className="text-sm text-muted-foreground mb-1">Memory Used</p>
+                <p className="text-2xl font-bold text-foreground font-tactical">
                   {formatBytes(healthData.memory.usedJSSize || 0)}
                 </p>
               </div>
@@ -224,33 +224,33 @@ export function AdminDashboard() {
         </div>
 
         {/* Maintenance Actions */}
-        <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Maintenance</h3>
+        <div className="tactical-card p-4">
+          <h3 className="text-lg font-semibold text-foreground mb-4">Maintenance</h3>
           <div className="flex flex-wrap gap-2 mb-4">
             <button
               onClick={() => runMaintenance('cleanup')}
               disabled={maintenanceLoading}
-              className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 disabled:opacity-50"
+              className="btn-tactical px-4 py-2 disabled:opacity-50 border-destructive text-destructive hover:border-destructive hover:bg-destructive hover:text-destructive-foreground"
             >
               {maintenanceLoading ? 'Running...' : 'Run Cleanup'}
             </button>
             <button
               onClick={() => runMaintenance('performance-stats')}
               disabled={maintenanceLoading}
-              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
+              className="btn-tactical-primary px-4 py-2 disabled:opacity-50"
             >
               Get Performance Stats
             </button>
             <button
               onClick={fetchHealthData}
               disabled={loading}
-              className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50"
+              className="btn-tactical px-4 py-2 disabled:opacity-50 border-success text-success hover:border-success hover:bg-success hover:text-success-foreground"
             >
               Refresh
             </button>
           </div>
           {lastCleanup && (
-            <p className="text-sm text-gray-600 dark:text-gray-400">
+            <p className="text-sm text-muted-foreground font-tactical">
               Last cleanup: {new Date(lastCleanup).toLocaleString()}
             </p>
           )}
