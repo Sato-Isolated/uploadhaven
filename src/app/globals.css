@@ -478,4 +478,255 @@
       opacity: 1;
     }
   }
+  
+  /* Enhanced animations for new loading components */
+  @keyframes blink {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0; }
+  }
+  
+  .animate-blink {
+    animation: blink 1s step-end infinite;
+  }
+  
+  /* Smooth hover transitions for all interactive elements */
+  .btn-tactical,
+  .tactical-card,
+  .card-hover-scale {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  /* Enhanced hover effects */
+  .btn-tactical:hover {
+    transform: translateY(-1px) scale(1.02);
+    box-shadow: 0 4px 12px var(--primary)30;
+  }
+  
+  .btn-tactical:active {
+    transform: translateY(0) scale(0.98);
+    transition: all 0.1s ease;
+  }
+  
+  /* Micro-interaction for form inputs */
+  input[type="text"],
+  input[type="password"],
+  input[type="number"],
+  input[type="file"],
+  select,
+  textarea {
+    transition: all 0.2s ease;
+    border-color: var(--border);
+  }
+  
+  input[type="text"]:focus,
+  input[type="password"]:focus,
+  input[type="number"]:focus,
+  select:focus,
+  textarea:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 2px var(--primary)20;
+    outline: none;
+  }
+  
+  /* Checkbox enhanced styling */
+  input[type="checkbox"] {
+    appearance: none;
+    width: 1rem;
+    height: 1rem;
+    border: 1px solid var(--border);
+    background: var(--input);
+    position: relative;
+    transition: all 0.2s ease;
+  }
+  
+  input[type="checkbox"]:checked {
+    background: var(--primary);
+    border-color: var(--primary);
+  }
+  
+  input[type="checkbox"]:checked::after {
+    content: '✓';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: var(--primary-foreground);
+    font-size: 0.75rem;
+    font-weight: bold;
+  }
+  
+  input[type="checkbox"]:hover {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 2px var(--primary)20;
+  }
+  
+  /* Enhanced drag and drop animations */
+  .drop-zone-tactical {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .drop-zone-tactical:hover {
+    transform: scale(1.01);
+    border-color: var(--primary);
+  }
+  
+  .drop-zone-tactical.drag-over {
+    transform: scale(1.02);
+    border-color: var(--success);
+    background: var(--hover-bg);
+    box-shadow: inset 0 0 20px var(--primary)15, 0 0 20px var(--primary)10;
+  }
+  
+  /* File preview animations */
+  @keyframes slideInFromBottom {
+    from {
+      opacity: 0;
+      transform: translateY(20px) scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+  
+  .slide-in-from-bottom {
+    animation: slideInFromBottom 0.3s ease-out;
+  }
+  
+  /* Success state animations */
+  @keyframes successPulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+  }
+  
+  .success-pulse {
+    animation: successPulse 0.6s ease-out;
+  }
+  
+  /* Error shake animation */
+  @keyframes errorShake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+  }
+  
+  .error-shake {
+    animation: errorShake 0.5s ease-in-out;
+  }
+  
+  /* Tooltip base styling */
+  .tooltip {
+    position: relative;
+    display: inline-block;
+  }
+  
+  .tooltip::before {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--popover);
+    color: var(--popover-foreground);
+    padding: 0.5rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+    z-index: 1000;
+    margin-bottom: 0.25rem;
+    border: 1px solid var(--border);
+  }
+  
+  .tooltip:hover::before {
+    opacity: 1;
+  }
+  
+  /* Loading state transitions */
+  .loading-enter {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  
+  .loading-enter-active {
+    opacity: 1;
+    transform: scale(1);
+    transition: all 0.2s ease;
+  }
+  
+  .loading-exit {
+    opacity: 1;
+    transform: scale(1);
+  }
+  
+  .loading-exit-active {
+    opacity: 0;
+    transform: scale(0.95);
+    transition: all 0.2s ease;
+  }
+  
+  /* Toast animations */
+  @keyframes slideInFromRight {
+    from {
+      opacity: 0;
+      transform: translateX(100%) scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0) scale(1);
+    }
+  }
+  
+  /* Enhanced card interactions */
+  .tactical-card:hover .transition-transform {
+    transform: scale(1.1);
+  }
+  
+  /* Responsive improvements */
+  @media (max-width: 768px) {
+    .drop-zone-tactical {
+      padding: 2rem 1rem;
+    }
+    
+    .tactical-card {
+      padding: 1rem;
+    }
+    
+    .btn-tactical,
+    .btn-tactical-primary {
+      padding: 0.5rem 1rem;
+      font-size: 0.875rem;
+    }
+    
+    /* Mobile toast positioning */
+    .fixed.top-4.right-4 {
+      top: 1rem;
+      right: 1rem;
+      left: 1rem;
+      max-width: none;
+    }
+    
+    .tactical-card.transition-all {
+      margin-bottom: 0.5rem;
+    }
+  }
+  
+  /* Enhanced focus states for accessibility */
+  button:focus-visible,
+  input:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+    border-color: var(--primary);
+  }
+  
+  /* Improved checkbox focus */
+  input[type="checkbox"]:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+  }
 }

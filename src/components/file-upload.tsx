@@ -1,13 +1,14 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import { Upload, Lock, Clock, Download, Copy, Check, Eye, EyeOff } from "lucide-react";
+import { Upload, Lock, Clock, Download, Copy, Check, Eye, EyeOff, FileIcon, AlertCircle } from "lucide-react";
 import { ClientCryptoService } from "@/lib/client-crypto";
 import { useUploadFile } from "@/hooks/use-api";
 import { useCryptoWorker } from "@/hooks/use-crypto-worker";
 import { performanceMonitor } from "@/lib/performance";
 import { useToast } from "@/components/ui/toast";
-import { TacticalLoading, ProgressBar } from "@/components/ui/loading";
+import { ProgressBar, CryptoLoading } from "@/components/ui/loading";
+import { HelpTooltip, InfoTooltip } from "@/components/ui/tooltip";
 
 interface UploadResult {
   shareUrl: string;
@@ -24,6 +25,8 @@ export function FileUpload() {
   const [maxDownloads, setMaxDownloads] = useState<number | undefined>(undefined);
   const [copied, setCopied] = useState(false);
   const [passwordCopied, setPasswordCopied] = useState(false);
+  const [uploadStage, setUploadStage] = useState<"encrypting" | "uploading" | "processing">("encrypting");
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   // React Query hook for upload
   const uploadMutation = useUploadFile();
@@ -56,6 +59,9 @@ export function FileUpload() {
 
   const handleFileUpload = useCallback(async (file: File) => {
     try {
+      setSelectedFile(file);
+      setUploadStage("encrypting");
+      
       // Generate password if protection is enabled
       let password = "";
       if (enablePasswordProtection) {
@@ -94,6 +100,8 @@ export function FileUpload() {
         );
       }
 
+      setUploadStage("uploading");
+
       // Create form data with encrypted file
       const formData = new FormData();
       const encryptedBlob = new Blob([encryptionResult.encryptedData], { type: 'application/octet-stream' });
@@ -121,6 +129,7 @@ export function FileUpload() {
       }
 
       // Use React Query mutation for upload
+      setUploadStage("processing");
       const result = await uploadMutation.mutateAsync(formData);
       
       // Add encryption key to share URL
@@ -133,6 +142,8 @@ export function FileUpload() {
     } catch (error: unknown) {
       console.error("Upload error:", error);
       // Error is handled by React Query automatically
+    } finally {
+      setSelectedFile(null);
     }
   }, [enablePasswordProtection, generateRandomPassword, expirationHours, maxDownloads, uploadMutation, isWorkerAvailable, encryptFileWorker]);
 
@@ -142,9 +153,44 @@ export function FileUpload() {
     setDragActive(false);
     
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      handleFileUpload(e.dataTransfer.files[0]);
+      const file = e.dataTransfer.files[0];
+      // Add file size validation (50MB limit)
+      if (file.size > 50 * 1024 * 1024) {
+        addToast({
+          type: "error",
+          title: "File Too Large",
+          message: "File size must be less than 50MB"
+        });
+        return;
+      }
+      handleFileUpload(file);
     }
-  }, [handleFileUpload]);
+  }, [handleFileUpload, addToast]);
+
+  const handleFileSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    
+    // Add file size validation
+    if (file.size > 50 * 1024 * 1024) {
+      addToast({
+        type: "error",
+        title: "File Too Large",
+        message: "File size must be less than 50MB"
+      });
+      return;
+    }
+    
+    handleFileUpload(file);
+  }, [handleFileUpload, addToast]);
+
+  const formatFileSize = (bytes: number): string => {
+    if (bytes === 0) return "0 Bytes";
+    const k = 1024;
+    const sizes = ["Bytes", "KB", "MB", "GB"];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
+  };
 
   const copyToClipboard = async () => {
     if (uploadResult) {
@@ -180,6 +226,7 @@ export function FileUpload() {
     setMaxDownloads(undefined);
     setCopied(false);
     setPasswordCopied(false);
+    setSelectedFile(null);
   };
 
   if (uploadResult) {
@@ -227,7 +274,7 @@ export function FileUpload() {
                 </button>
               </div>
               <p className="text-xs text-warning mt-2">
-                ⚠️ Save this password! You'll need it to download the file.
+                ⚠️ Save this password! You&apos;ll need it to download the file.
               </p>
             </div>
           )}
@@ -289,7 +336,7 @@ export function FileUpload() {
       <div
         className={`drop-zone-tactical p-12 text-center ${
           dragActive ? "drag-over" : ""
-        }`}
+        } ${uploadMutation.isPending ? "pointer-events-none opacity-50" : ""}`}
         onDragEnter={handleDrag}
         onDragLeave={handleDrag}
         onDragOver={handleDrag}
@@ -303,14 +350,27 @@ export function FileUpload() {
             <input
               type="file"
               className="hidden"
-              onChange={(e) => e.target.files?.[0] && handleFileUpload(e.target.files[0])}
+              onChange={handleFileSelect}
               disabled={uploadMutation.isPending}
             />
           </label>
         </p>
-        <p className="text-sm text-muted-foreground">
+        <p className="text-sm text-muted-foreground mb-2">
           Files are encrypted in your browser before upload
         </p>
+        <p className="text-xs text-muted-foreground">
+          Maximum file size: 50MB
+        </p>
+        
+        {selectedFile && !uploadResult && (
+          <div className="mt-4 p-3 bg-secondary/50 border border-border tactical-border slide-in-from-bottom">
+            <div className="flex items-center gap-2 text-sm">
+              <FileIcon className="w-4 h-4 text-primary" />
+              <span className="text-foreground font-medium">{selectedFile.name}</span>
+              <span className="text-muted-foreground">({formatFileSize(selectedFile.size)})</span>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Options */}
@@ -328,6 +388,10 @@ export function FileUpload() {
               <span className="text-sm font-medium text-foreground">
                 Enable Password Protection
               </span>
+              <HelpTooltip
+                title="Password Protection"
+                description="When enabled, a random password will be generated and required to download the file. This provides an additional layer of security."
+              />
             </div>
           </label>
           <p className="text-xs text-muted-foreground mt-1 ml-7">
@@ -340,11 +404,12 @@ export function FileUpload() {
             <label className="flex items-center gap-2 text-sm font-medium text-foreground mb-2">
               <Clock className="w-4 h-4 text-warning" />
               Expiration Time
+              <InfoTooltip content="Files will be automatically deleted after this time period" />
             </label>
             <select
               value={expirationHours}
               onChange={(e) => setExpirationHours(Number(e.target.value))}
-              className="w-full px-3 py-2 bg-input border border-border text-foreground"
+              className="w-full px-3 py-2 bg-input border border-border text-foreground transition-all duration-200 hover:border-primary focus:border-primary focus:ring-2 focus:ring-primary/20"
             >
               <option value={1}>1 hour</option>
               <option value={6}>6 hours</option>
@@ -358,6 +423,7 @@ export function FileUpload() {
             <label className="flex items-center gap-2 text-sm font-medium text-foreground mb-2">
               <Download className="w-4 h-4 text-success" />
               Max Downloads (Optional)
+              <InfoTooltip content="File will be deleted after reaching this download count" />
             </label>
             <input
               type="number"
@@ -365,7 +431,8 @@ export function FileUpload() {
               onChange={(e) => setMaxDownloads(e.target.value ? Number(e.target.value) : undefined)}
               placeholder="Unlimited"
               min="1"
-              className="w-full px-3 py-2 bg-input border border-border text-foreground placeholder-muted-foreground"
+              max="100"
+              className="w-full px-3 py-2 bg-input border border-border text-foreground placeholder-muted-foreground transition-all duration-200 hover:border-primary focus:border-primary focus:ring-2 focus:ring-primary/20"
             />
           </div>
         </div>
@@ -373,14 +440,30 @@ export function FileUpload() {
 
       {uploadMutation.isPending && (
         <div className="mt-8 text-center">
-          <TacticalLoading text="Encrypting and uploading" />
+          <CryptoLoading stage={uploadStage} className="mb-4" />
+          <div className="max-w-md mx-auto">
+            <ProgressBar 
+              progress={uploadStage === "encrypting" ? 33 : uploadStage === "uploading" ? 66 : 90} 
+              variant="default"
+              showPercentage={false}
+            />
+            <p className="text-xs text-muted-foreground mt-2">
+              {uploadStage === "encrypting" && "Encrypting file with zero-knowledge encryption..."}
+              {uploadStage === "uploading" && "Uploading encrypted file to server..."}
+              {uploadStage === "processing" && "Processing and generating share link..."}
+            </p>
+          </div>
         </div>
       )}
 
       {uploadMutation.error && (
         <div className="mt-8 text-center">
-          <div className="text-destructive">
-            Upload failed: {uploadMutation.error.message}
+          <div className="tactical-card p-4 border-destructive bg-destructive/10 error-shake">
+            <AlertCircle className="w-6 h-6 text-destructive mx-auto mb-2" />
+            <div className="text-destructive font-medium mb-1">Upload Failed</div>
+            <div className="text-destructive/80 text-sm">
+              {uploadMutation.error.message}
+            </div>
           </div>
         </div>
       )}

@@ -2,7 +2,9 @@
 
 import { useState, useEffect } from "react";
 import { Activity, Server, HardDrive, Clock, AlertTriangle, CheckCircle } from "lucide-react";
-import { TacticalLoading, SkeletonCard } from "@/components/ui/loading";
+import { CryptoLoading, LaserScanLoading } from "@/components/ui/loading";
+import { InfoTooltip, HelpTooltip } from "@/components/ui/tooltip";
+import { useToast } from "@/components/ui/toast";
 
 interface HealthData {
   status: string;
@@ -35,6 +37,9 @@ export function AdminDashboard() {
   const [error, setError] = useState<string | null>(null);
   const [maintenanceLoading, setMaintenanceLoading] = useState(false);
   const [lastCleanup, setLastCleanup] = useState<string | null>(null);
+  
+  // Toast hook
+  const { addToast } = useToast();
 
   // Fetch health data
   const fetchHealthData = async () => {
@@ -73,10 +78,23 @@ export function AdminDashboard() {
       const result: MaintenanceResult = await response.json();
       setLastCleanup(result.timestamp);
       
+      // Success toast
+      addToast({
+        type: "success",
+        title: "Maintenance Complete",
+        message: `${action} completed successfully`
+      });
+      
       // Refresh health data
       await fetchHealthData();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Maintenance failed');
+      const errorMessage = err instanceof Error ? err.message : 'Maintenance failed';
+      setError(errorMessage);
+      addToast({
+        type: "error",
+        title: "Maintenance Failed",
+        message: errorMessage
+      });
     } finally {
       setMaintenanceLoading(false);
     }
@@ -113,7 +131,8 @@ export function AdminDashboard() {
     return (
       <div className="tactical-card p-8">
         <div className="text-center">
-          <TacticalLoading text="Loading dashboard" />
+          <LaserScanLoading text="Scanning system status" className="mb-4" />
+          <p className="text-muted-foreground">Retrieving dashboard data...</p>
         </div>
       </div>
     );
@@ -151,38 +170,42 @@ export function AdminDashboard() {
 
         {/* System Status */}
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-          <div className="tactical-card p-4 border-success">
+          <div className="tactical-card p-4 border-success group">
             <div className="flex items-center gap-2 mb-2">
               <CheckCircle className="w-5 h-5 text-success" />
               <span className="font-medium text-success">Status</span>
+              <InfoTooltip content="Current system operational status" />
             </div>
             <p className="text-success capitalize font-tactical">{healthData?.status}</p>
           </div>
 
-          <div className="tactical-card p-4 border-primary">
+          <div className="tactical-card p-4 border-primary group">
             <div className="flex items-center gap-2 mb-2">
               <Clock className="w-5 h-5 text-primary" />
               <span className="font-medium text-primary">Uptime</span>
+              <InfoTooltip content="Time since the server was last restarted" />
             </div>
             <p className="text-primary font-tactical">
               {healthData?.uptime ? formatUptime(healthData.uptime) : 'N/A'}
             </p>
           </div>
 
-          <div className="tactical-card p-4 border-warning">
+          <div className="tactical-card p-4 border-warning group">
             <div className="flex items-center gap-2 mb-2">
               <Activity className="w-5 h-5 text-warning" />
               <span className="font-medium text-warning">Recent Metrics</span>
+              <InfoTooltip content="Performance metrics collected in the last period" />
             </div>
             <p className="text-warning font-tactical">
               {healthData?.performance.recentMetrics || 0}
             </p>
           </div>
 
-          <div className="tactical-card p-4 border-destructive">
+          <div className="tactical-card p-4 border-destructive group">
             <div className="flex items-center gap-2 mb-2">
               <HardDrive className="w-5 h-5 text-destructive" />
               <span className="font-medium text-destructive">Memory Usage</span>
+              <InfoTooltip content="Percentage of JavaScript heap memory currently in use" />
             </div>
             <p className="text-destructive font-tactical">
               {healthData?.memory ? `${healthData.memory.usagePercentage.toFixed(1)}%` : 'N/A'}
@@ -225,26 +248,40 @@ export function AdminDashboard() {
 
         {/* Maintenance Actions */}
         <div className="tactical-card p-4">
-          <h3 className="text-lg font-semibold text-foreground mb-4">Maintenance</h3>
+          <div className="flex items-center gap-2 mb-4">
+            <h3 className="text-lg font-semibold text-foreground">Maintenance</h3>
+            <HelpTooltip
+              title="System Maintenance"
+              description="Use these tools to perform system cleanup, gather performance statistics, and refresh dashboard data."
+            />
+          </div>
+          
+          {maintenanceLoading && (
+            <div className="mb-4 text-center">
+              <CryptoLoading stage="processing" className="mb-2" />
+              <p className="text-xs text-muted-foreground">Running maintenance task...</p>
+            </div>
+          )}
+          
           <div className="flex flex-wrap gap-2 mb-4">
             <button
               onClick={() => runMaintenance('cleanup')}
               disabled={maintenanceLoading}
-              className="btn-tactical px-4 py-2 disabled:opacity-50 border-destructive text-destructive hover:border-destructive hover:bg-destructive hover:text-destructive-foreground"
+              className="btn-tactical px-4 py-2 disabled:opacity-50 border-destructive text-destructive hover:border-destructive hover:bg-destructive hover:text-destructive-foreground transition-all duration-200"
             >
               {maintenanceLoading ? 'Running...' : 'Run Cleanup'}
             </button>
             <button
               onClick={() => runMaintenance('performance-stats')}
               disabled={maintenanceLoading}
-              className="btn-tactical-primary px-4 py-2 disabled:opacity-50"
+              className="btn-tactical-primary px-4 py-2 disabled:opacity-50 transition-all duration-200"
             >
               Get Performance Stats
             </button>
             <button
               onClick={fetchHealthData}
               disabled={loading}
-              className="btn-tactical px-4 py-2 disabled:opacity-50 border-success text-success hover:border-success hover:bg-success hover:text-success-foreground"
+              className="btn-tactical px-4 py-2 disabled:opacity-50 border-success text-success hover:border-success hover:bg-success hover:text-success-foreground transition-all duration-200"
             >
               Refresh
             </button>

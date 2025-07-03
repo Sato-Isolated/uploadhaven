@@ -53,8 +53,9 @@ export function TacticalLoading({ text = "Loading", className = "" }: TacticalLo
       <div className="relative">
         <div className="w-8 h-8 border-2 border-border tactical-border"></div>
         <div className="absolute inset-0 w-8 h-8 border-2 border-primary tactical-border animate-pulse"></div>
+        <div className="absolute inset-1 w-6 h-6 bg-primary/20 tactical-border animate-ping"></div>
       </div>
-      <span className="text-primary font-tactical animate-pulse">{text}...</span>
+      <span className="text-primary font-tactical typing-animation">{text}...</span>
     </div>
   );
 }
@@ -139,14 +140,15 @@ export function ProgressBar({
       {showPercentage && (
         <div className="flex justify-between text-sm text-muted-foreground font-tactical">
           <span>Progress</span>
-          <span>{Math.round(progress)}%</span>
+          <span className="tabular-nums">{Math.round(progress)}%</span>
         </div>
       )}
-      <div className="w-full bg-secondary border border-border tactical-border h-2 overflow-hidden">
+      <div className="w-full bg-secondary border border-border tactical-border h-2 overflow-hidden relative">
         <div
-          className={`h-full transition-all duration-300 ease-out ${getVariantClasses()}`}
+          className={`h-full transition-all duration-300 ease-out ${getVariantClasses()} relative progress-scan`}
           style={{ width: `${Math.min(Math.max(progress, 0), 100)}%` }}
         />
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-pulse"></div>
       </div>
     </div>
   );
@@ -180,10 +182,119 @@ export function TerminalLoading({ text = "Initializing", className = "" }: Termi
   return (
     <div className={`font-tactical text-primary ${className}`}>
       <div className="flex items-center gap-2">
-        <span className="text-success">{">"}</span>
-        <span className="animate-pulse">{text}</span>
-        <span className="animate-pulse">_</span>
+        <span className="text-success animate-pulse">{">"}</span>
+        <span className="typing-animation">{text}</span>
+        <span className="animate-blink text-primary">_</span>
       </div>
+    </div>
+  );
+}
+
+// New advanced loading components
+interface LaserScanLoadingProps {
+  text?: string;
+  className?: string;
+}
+
+export function LaserScanLoading({ text = "Scanning", className = "" }: LaserScanLoadingProps) {
+  return (
+    <div className={`flex flex-col items-center gap-4 ${className}`}>
+      <div className="relative w-16 h-16 border border-primary/30 tactical-border">
+        <div className="absolute inset-0 border border-primary tactical-border animate-ping"></div>
+        <div className="absolute inset-2 border border-success tactical-border animate-pulse" style={{ animationDelay: '0.5s' }}></div>
+        <div className="absolute inset-4 bg-primary/20 tactical-border animate-pulse" style={{ animationDelay: '1s' }}></div>
+        {/* Scanning line */}
+        <div className="absolute top-0 left-0 w-full h-0.5 bg-primary animate-bounce"></div>
+      </div>
+      <span className="text-primary font-tactical text-sm animate-pulse">{text}...</span>
+    </div>
+  );
+}
+
+interface CryptoLoadingProps {
+  stage?: "encrypting" | "uploading" | "processing" | "downloading" | "decrypting";
+  className?: string;
+}
+
+export function CryptoLoading({ stage = "encrypting", className = "" }: CryptoLoadingProps) {
+  const getStageText = () => {
+    switch (stage) {
+      case "encrypting":
+        return "ENCRYPTING DATA";
+      case "uploading":
+        return "UPLOADING FILE";
+      case "downloading":
+        return "DOWNLOADING FILE";
+      case "decrypting":
+        return "DECRYPTING DATA";
+      case "processing":
+        return "PROCESSING";
+      default:
+        return "PROCESSING";
+    }
+  };
+
+  const getStageIcon = () => {
+    switch (stage) {
+      case "encrypting":
+        return "🔒";
+      case "uploading":
+        return "⬆️";
+      case "downloading":
+        return "⬇️";
+      case "decrypting":
+        return "🔓";
+      case "processing":
+        return "⚙️";
+      default:
+        return "⚙️";
+    }
+  };
+
+  return (
+    <div className={`flex flex-col items-center gap-4 ${className}`}>
+      <div className="relative">
+        <div className="w-12 h-12 border-2 border-primary/30 tactical-border animate-spin"></div>
+        <div className="absolute inset-0 flex items-center justify-center text-lg animate-pulse">
+          {getStageIcon()}
+        </div>
+      </div>
+      <div className="text-center">
+        <div className="text-primary font-tactical text-sm typing-animation">
+          {getStageText()}
+        </div>
+        <div className="flex justify-center mt-2">
+          <LoadingDots />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+interface PulseLoadingProps {
+  size?: "sm" | "md" | "lg";
+  className?: string;
+}
+
+export function PulseLoading({ size = "md", className = "" }: PulseLoadingProps) {
+  const getSizeClasses = () => {
+    switch (size) {
+      case "sm":
+        return "w-4 h-4";
+      case "md":
+        return "w-6 h-6";
+      case "lg":
+        return "w-8 h-8";
+      default:
+        return "w-6 h-6";
+    }
+  };
+
+  return (
+    <div className={`relative ${className}`}>
+      <div className={`${getSizeClasses()} bg-primary/20 tactical-border animate-ping`}></div>
+      <div className={`absolute inset-0 ${getSizeClasses()} bg-primary/40 tactical-border animate-pulse`}></div>
+      <div className={`absolute inset-1 bg-primary tactical-border`}></div>
     </div>
   );
 }
