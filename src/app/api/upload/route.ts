@@ -49,8 +49,8 @@ export async function POST(request: NextRequest) {
       const passwordProtected = formData.get('passwordProtected') === 'true';
       let password: string | undefined = formData.get('password') as string | null || undefined;
 
-      // Detect MIME type if not provided
-      if (!mimeType) {
+      // Use mime-types library for proper MIME type detection
+      if (!mimeType || mimeType === 'application/octet-stream') {
         mimeType = mime.lookup(originalName) || 'application/octet-stream';
       }
 

@@ -18,7 +18,7 @@ export async function POST(request: NextRequest) {
       const userAgent = request.headers.get('user-agent') || 'unknown';
 
       // Parse request body
-      const { fileId, password } = await request.json();
+      const { fileId, password, shareId } = await request.json();
 
       if (!fileId) {
         return NextResponse.json({ error: 'File ID is required' }, { status: 400 });
@@ -41,6 +41,23 @@ export async function POST(request: NextRequest) {
         configService,
         baseUrl
       );
+
+      // If this is a download through a share link, check and increment share access count
+      if (shareId) {
+        const share = await shareRepository.findById(shareId);
+        if (!share) {
+          return NextResponse.json({ error: 'Share not found' }, { status: 404 });
+        }
+
+        // Check if share can be accessed (including access limits)
+        if (!share.canBeAccessed()) {
+          const reason = share.isExpired() ? 'Share has expired' : 'Share access limit reached';
+          return NextResponse.json({ error: reason }, { status: 410 });
+        }
+
+        // Increment share access count
+        await shareRepository.incrementAccessCount(shareId);
+      }
 
       // Create download command
       const downloadCommand = CommandFactory.downloadFile({

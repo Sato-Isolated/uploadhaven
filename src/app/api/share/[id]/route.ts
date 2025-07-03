@@ -65,17 +65,19 @@ export async function GET(
         throw new ShareNotFoundError(shareId);
       }
 
-      // Check if share can be accessed
-      if (!share.canBeAccessed()) {
-        const reason = share.isExpired() ? 'Share has expired' : 'Share access limit reached';
-        throw new Error(reason);
-      }
+      // For info requests, we don't check access limits or increment counts
+      // This allows users to see the share page even if access limit is reached
+      // The actual access limiting happens during download
 
       // Get file info
       const file = await fileRepository.findById(share.fileId);
       if (!file) {
         throw new FileNotFoundError(share.fileId);
       }
+
+      // Check if share is expired (but not access count)
+      const shareExpired = share.isExpired();
+      const fileExpired = file.isExpired();
 
       // Return combined info (no sensitive data)
       return {
@@ -86,7 +88,7 @@ export async function GET(
         expiresAt: file.expiresAt,
         downloadCount: file.downloadCount,
         maxDownloads: file.maxDownloads,
-        canBeDownloaded: file.canBeAccessed(),
+        canBeDownloaded: file.canBeAccessed() && !shareExpired && !fileExpired,
         passwordProtected: file.isPasswordProtected(),
         shareInfo: {
           id: share.id,
@@ -94,7 +96,8 @@ export async function GET(
           expiresAt: share.expiresAt,
           accessCount: share.accessCount,
           maxAccess: share.maxAccess,
-          canBeAccessed: share.canBeAccessed()
+          canBeAccessed: share.canBeAccessed(),
+          isExpired: shareExpired
         }
       };
     }, 30000); // Cache for 30 seconds

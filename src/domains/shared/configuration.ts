@@ -79,7 +79,20 @@ export const DEFAULT_CONFIGURATION: AppConfiguration = {
       'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
       'text/plain',
       'application/zip',
-      'application/x-rar-compressed'
+      'application/x-rar-compressed',
+      'application/json',
+      'application/octet-stream',
+      'application/javascript',
+      'application/typescript',
+      'application/x-yaml',
+      'text/yaml',
+      'text/x-yaml',
+      'application/xml',
+      'text/xml',
+      'text/csv',
+      'application/gzip',
+      'application/x-tar',
+      'application/x-7z-compressed'
     ],
     defaultExpirationHours: 24,
     maxExpirationHours: 168, // 7 jours
@@ -90,6 +103,7 @@ export const DEFAULT_CONFIGURATION: AppConfiguration = {
     defaultExpirationHours: 24,
     maxExpirationHours: 168,
     minExpirationHours: 1,
+    defaultMaxAccess: 100,
     maxMaxAccess: 1000,
     allowPasswordProtection: true
   },

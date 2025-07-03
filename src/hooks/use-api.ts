@@ -41,6 +41,7 @@ interface FileInfo {
     accessCount: number;
     maxAccess?: number;
     canBeAccessed: boolean;
+    isExpired: boolean;
   };
 }
 
@@ -134,13 +135,13 @@ export function useDownloadFile() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ fileId, password }: { fileId: string; password?: string }): Promise<DownloadResult> => {
+    mutationFn: async ({ fileId, password, shareId }: { fileId: string; password?: string; shareId?: string }): Promise<DownloadResult> => {
       const response = await fetch('/api/download', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ fileId, password }),
+        body: JSON.stringify({ fileId, password, shareId }),
       });
 
       if (!response.ok) {

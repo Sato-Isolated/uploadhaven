@@ -47,7 +47,8 @@ export function FileDownload({ shareId }: FileDownloadProps) {
       // Use React Query mutation for download
       const result = await downloadMutation.mutateAsync({ 
         fileId: fileInfo.id, 
-        password: requiresPassword ? password : undefined 
+        password: requiresPassword ? password : undefined,
+        shareId: shareId // Pass shareId to enable access counting
       });
       
       // Convert base64 back to ArrayBuffer
@@ -176,8 +177,17 @@ export function FileDownload({ shareId }: FileDownloadProps) {
           <p className="text-gray-600 dark:text-gray-400 text-sm mt-2">
             {new Date(fileInfo.expiresAt) < new Date() 
               ? "File has expired" 
+              : fileInfo.shareInfo?.isExpired
+              ? "Share link has expired"
+              : !fileInfo.shareInfo?.canBeAccessed
+              ? "Share access limit reached"
               : "Maximum downloads reached"}
           </p>
+          {fileInfo.shareInfo?.maxAccess && (
+            <p className="text-gray-500 dark:text-gray-400 text-xs mt-1">
+              Access count: {fileInfo.shareInfo.accessCount} / {fileInfo.shareInfo.maxAccess}
+            </p>
+          )}
         </div>
       ) : (
         <div className="space-y-4">

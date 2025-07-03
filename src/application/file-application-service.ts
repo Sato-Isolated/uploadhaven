@@ -118,10 +118,12 @@ export class FileApplicationService {
       // Création du partage si la fonctionnalité est activée
       let shareEntity: ShareEntity | null = null;
       if (this.configService.isFeatureEnabled('fileSharing')) {
+        const shareConfig = this.configService.getShareConfig();
         shareEntity = ShareEntity.create({
           fileId: updatedFileEntity.id,
           baseUrl: this.baseUrl,
           expirationHours,
+          maxAccess: shareConfig.defaultMaxAccess,
           passwordProtected: !!payload.password,
           passwordHash: updatedFileEntity.passwordHash
         });

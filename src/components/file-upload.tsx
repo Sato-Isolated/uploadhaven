@@ -93,7 +93,7 @@ export function FileUpload() {
       const formData = new FormData();
       const encryptedBlob = new Blob([encryptionResult.encryptedData], { type: 'application/octet-stream' });
       
-      // Ensure we have a valid MIME type (some files like .env might not have one)
+      // Use browser's native MIME type detection, server will handle fallback with mime-types library
       const fileMimeType = file.type || 'application/octet-stream';
       
       formData.append("file", encryptedBlob, file.name);
