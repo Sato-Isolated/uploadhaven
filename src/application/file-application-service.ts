@@ -23,6 +23,12 @@ import {
   FileUploadResult, 
   FileDownloadResult 
 } from '../domains/file/file-value-objects';
+import { 
+  AppError, 
+  ErrorCode, 
+  ErrorFactory, 
+  ErrorUtils 
+} from '../domains/shared/errors';
 import { logger } from '../lib/logger';
 
 /**
@@ -56,19 +62,19 @@ export class FileApplicationService {
       
       // Vérification des feature flags
       if (!this.configService.isFeatureEnabled('fileSharing')) {
-        return this.createErrorResult('FEATURE_DISABLED', 'File sharing is currently disabled');
+        throw ErrorFactory.featureDisabled('fileSharing');
       }
 
       // Validation de la requête
       const validationResult = this.uploadValidator.validate(payload);
       if (!validationResult.isValid) {
-        return this.createErrorResult('VALIDATION_ERROR', 'Invalid upload request', validationResult.errors);
+        throw ErrorFactory.validationError(validationResult.errors);
       }
 
       // Validation du mot de passe si fourni
       const passwordValidation = this.passwordValidator.validate(payload.password);
       if (!passwordValidation.isValid) {
-        return this.createErrorResult('VALIDATION_ERROR', 'Invalid password', passwordValidation.errors);
+        throw ErrorFactory.validationError(passwordValidation.errors);
       }
 
       // Conversion du fichier en ArrayBuffer
@@ -158,8 +164,17 @@ export class FileApplicationService {
       return this.createSuccessResult(result);
 
     } catch (error) {
-      logger.error('Failed to upload file', { error, command });
-      return this.createErrorResult('UPLOAD_FAILED', 'Failed to upload file', error);
+      const errorDetails = ErrorUtils.extractErrorDetails(error);
+      logger.error('Failed to upload file', { ...errorDetails, command });
+      
+      if (ErrorUtils.isAppError(error)) {
+        return {
+          success: false,
+          error: error.toJSON()
+        };
+      }
+      
+      return this.createErrorResult('UPLOAD_FAILED', 'Failed to upload file', errorDetails);
     }
   }
 
@@ -173,13 +188,16 @@ export class FileApplicationService {
       // Recherche du fichier
       const file = await this.fileRepository.findById(payload.fileId);
       if (!file) {
-        return this.createErrorResult('FILE_NOT_FOUND', 'File not found');
+        throw ErrorFactory.fileNotFound(payload.fileId);
       }
 
       // Vérification de l'accessibilité
       if (!file.canBeAccessed()) {
-        const reason = file.isExpired() ? 'expired' : 'max downloads reached';
-        return this.createErrorResult('FILE_NOT_ACCESSIBLE', `File cannot be downloaded: ${reason}`);
+        if (file.isExpired()) {
+          throw ErrorFactory.fileExpired(payload.fileId);
+        } else if (file.hasReachedMaxDownloads()) {
+          throw ErrorFactory.fileMaxDownloadsReached(payload.fileId);
+        }
       }
 
       // Lecture du fichier chiffré
@@ -223,6 +241,15 @@ export class FileApplicationService {
 
     } catch (error) {
       logger.error('Failed to download file', { error, command });
+      
+      // If it's an AppError, preserve the original error code and details
+      if (ErrorUtils.isAppError(error)) {
+        return {
+          success: false,
+          error: error.toJSON()
+        };
+      }
+      
       return this.createErrorResult('DOWNLOAD_FAILED', 'Failed to download file', error);
     }
   }

@@ -1,4 +1,6 @@
-import { StorageService, FileNotFoundError, StorageError } from '../../domains/storage/storage-service';
+import { StorageService } from '../../domains/storage/storage-service';
+import { StorageFileNotFoundError } from '../../domains/shared';
+import { StorageError as DomainStorageError } from '../../domains/shared/domain-errors';
 import { promises as fs } from 'fs';
 import * as path from 'path';
 
@@ -28,7 +30,7 @@ export class DiskStorageService implements StorageService {
 
       return filePath;
     } catch (error) {
-      throw new StorageError(`Failed to save file: ${error}`);
+      throw new DomainStorageError(`Failed to save file: ${error}`);
     }
   }
 
@@ -44,10 +46,10 @@ export class DiskStorageService implements StorageService {
       return arrayBuffer;
     } catch (error: unknown) {
       if (error && typeof error === 'object' && 'code' in error && error.code === 'ENOENT') {
-        throw new FileNotFoundError(`File not found: ${path}`);
+        throw new StorageFileNotFoundError(filePath);
       }
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      throw new StorageError(`Failed to read file: ${errorMessage}`);
+      throw new DomainStorageError(`Failed to read file: ${errorMessage}`);
     }
   }
 
@@ -68,7 +70,7 @@ export class DiskStorageService implements StorageService {
     } catch (error: unknown) {
       if (error && typeof error === 'object' && 'code' in error && error.code !== 'ENOENT') {
         const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-        throw new StorageError(`Failed to delete file: ${errorMessage}`);
+        throw new DomainStorageError(`Failed to delete file: ${errorMessage}`);
       }
     }
   }
@@ -89,7 +91,7 @@ export class DiskStorageService implements StorageService {
       // For now, just ensure the storage directory exists
       await fs.mkdir(this.basePath, { recursive: true });
     } catch (error) {
-      throw new StorageError(`Failed during cleanup: ${error}`);
+      throw new DomainStorageError(`Failed during cleanup: ${error}`);
     }
   }
 }

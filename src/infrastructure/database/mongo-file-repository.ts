@@ -100,3 +100,6 @@ export class MongoFileRepository implements FileRepositoryInterface {
     }
   }
 }
+
+// Export alias for backward compatibility
+export { MongoFileRepository as FileRepository };

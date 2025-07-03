@@ -2,12 +2,13 @@
   "name": "uploadhaven",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "test": "vitest",
+    "test": "vitest run",
     "test:watch": "vitest --watch",
     "test:ui": "vitest --ui",
     "test:coverage": "vitest --coverage",
@@ -33,7 +34,7 @@
     "tailwind-merge": "^3.3.1",
     "uuid": "^11.1.0",
     "winston": "^3.17.0",
-    "zod": "^3.25.67"
+    "zod": "^3.25.70"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.1",

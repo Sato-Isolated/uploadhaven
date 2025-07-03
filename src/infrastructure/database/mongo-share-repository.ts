@@ -114,3 +114,6 @@ export class MongoShareRepository implements ShareRepositoryInterface {
     }
   }
 }
+
+// Export alias for backward compatibility
+export { MongoShareRepository as ShareRepository };
