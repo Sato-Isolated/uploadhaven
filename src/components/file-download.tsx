@@ -1,9 +1,12 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Download, Lock, AlertCircle, FileIcon } from "lucide-react";
+import { Download, Lock, AlertCircle, FileIcon, Clock, Eye, EyeOff } from "lucide-react";
 import { ClientCryptoService } from "@/lib/client-crypto";
 import { useFileInfo, useDownloadFile, usePrefetchFileInfo } from "@/hooks/use-api";
+import { CryptoLoading, ProgressBar, LaserScanLoading } from "@/components/ui/loading";
+import { HelpTooltip, InfoTooltip } from "@/components/ui/tooltip";
+import { useToast } from "@/components/ui/toast";
 
 interface FileDownloadProps {
   shareId: string;
@@ -12,11 +15,16 @@ interface FileDownloadProps {
 export function FileDownload({ shareId }: FileDownloadProps) {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
+  const [downloadStage, setDownloadStage] = useState<"decrypting" | "downloading" | "processing">("downloading");
 
   // React Query hooks
   const { data: fileInfo, isLoading: loading, error: queryError } = useFileInfo(shareId);
   const downloadMutation = useDownloadFile();
   const prefetchFileInfo = usePrefetchFileInfo();
+  
+  // Toast hook
+  const { addToast } = useToast();
 
   // Prefetch file info on component mount for better UX
   useEffect(() => {
@@ -32,6 +40,7 @@ export function FileDownload({ shareId }: FileDownloadProps) {
     if (!fileInfo) return;
 
     setError(null);
+    setDownloadStage("downloading");
 
     try {
       // Extract encryption key from URL fragment
@@ -51,6 +60,8 @@ export function FileDownload({ shareId }: FileDownloadProps) {
         shareId: shareId // Pass shareId to enable access counting
       });
       
+      setDownloadStage("decrypting");
+      
       // Convert base64 back to ArrayBuffer
       const binaryString = atob(result.content);
       const bytes = new Uint8Array(binaryString.length);
@@ -68,6 +79,8 @@ export function FileDownload({ shareId }: FileDownloadProps) {
         password || undefined
       );
       
+      setDownloadStage("processing");
+      
       const blob = new Blob([decryptedData], { type: result.mimeType });
       const url = URL.createObjectURL(blob);
       
@@ -79,9 +92,22 @@ export function FileDownload({ shareId }: FileDownloadProps) {
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
 
+      // Success toast
+      addToast({
+        type: "success",
+        title: "Download Complete",
+        message: `${result.fileName} has been downloaded successfully`
+      });
+
       // React Query will automatically update the file info (download count)
     } catch (error: unknown) {
-      setError(error instanceof Error ? error.message : "Download failed. Please try again.");
+      const errorMessage = error instanceof Error ? error.message : "Download failed. Please try again.";
+      setError(errorMessage);
+      addToast({
+        type: "error",
+        title: "Download Failed",
+        message: errorMessage
+      });
     }
   };
 
@@ -95,10 +121,10 @@ export function FileDownload({ shareId }: FileDownloadProps) {
 
   if (loading) {
     return (
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8">
+      <div className="tactical-card p-8">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600 dark:text-gray-300">Loading file information...</p>
+          <LaserScanLoading text="Scanning file data" className="mb-4" />
+          <p className="text-muted-foreground">Retrieving file information...</p>
         </div>
       </div>
     );
@@ -106,13 +132,15 @@ export function FileDownload({ shareId }: FileDownloadProps) {
 
   if (displayError) {
     return (
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8">
+      <div className="tactical-card p-8">
         <div className="text-center">
-          <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
-          <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
-            Error
-          </h2>
-          <p className="text-gray-600 dark:text-gray-300">{displayError}</p>
+          <div className="tactical-card p-4 border-destructive bg-destructive/10 error-shake">
+            <AlertCircle className="w-12 h-12 text-destructive mx-auto mb-4" />
+            <h2 className="text-xl font-bold text-foreground mb-2">
+              Error
+            </h2>
+            <p className="text-muted-foreground">{displayError}</p>
+          </div>
         </div>
       </div>
     );
@@ -120,13 +148,13 @@ export function FileDownload({ shareId }: FileDownloadProps) {
 
   if (!fileInfo) {
     return (
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8">
+      <div className="tactical-card p-8">
         <div className="text-center">
-          <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
-          <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
+          <AlertCircle className="w-12 h-12 text-destructive mx-auto mb-4" />
+          <h2 className="text-xl font-bold text-foreground mb-2">
             File Not Found
           </h2>
-          <p className="text-gray-600 dark:text-gray-300">
+          <p className="text-muted-foreground">
             The file you&apos;re looking for doesn&apos;t exist or has expired.
           </p>
         </div>
@@ -135,33 +163,47 @@ export function FileDownload({ shareId }: FileDownloadProps) {
   }
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8">
+    <div className="tactical-card p-8">
       <div className="text-center mb-8">
-        <FileIcon className="w-16 h-16 text-blue-600 dark:text-blue-400 mx-auto mb-4" />
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+        <div className="w-16 h-16 bg-secondary border border-primary tactical-border flex items-center justify-center mx-auto mb-4 glow-primary">
+          <FileIcon className="w-8 h-8 text-primary" />
+        </div>
+        <h2 className="text-2xl font-bold text-foreground mb-2">
           {fileInfo.originalName}
         </h2>
-        <p className="text-gray-600 dark:text-gray-300">
+        <p className="text-muted-foreground">
           {formatFileSize(fileInfo.size)}
         </p>
       </div>
 
-      <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 mb-6 space-y-2 text-sm">
+      <div className="tactical-card p-4 mb-6 space-y-2 text-sm">
         <div className="flex items-center justify-between">
-          <span className="text-gray-600 dark:text-gray-400">Uploaded:</span>
-          <span className="text-gray-900 dark:text-white">
+          <span className="text-muted-foreground flex items-center gap-1">
+            <Clock className="w-3 h-3" />
+            Uploaded:
+          </span>
+          <span className="text-foreground font-tactical">
             {new Date(fileInfo.uploadedAt).toLocaleString()}
           </span>
         </div>
         <div className="flex items-center justify-between">
-          <span className="text-gray-600 dark:text-gray-400">Expires:</span>
-          <span className="text-gray-900 dark:text-white">
+          <span className="text-muted-foreground flex items-center gap-1">
+            <Clock className="w-3 h-3" />
+            Expires:
+          </span>
+          <span className={`font-tactical ${new Date(fileInfo.expiresAt) < new Date() ? 'text-destructive' : 'text-foreground'}`}>
             {new Date(fileInfo.expiresAt).toLocaleString()}
           </span>
         </div>
         <div className="flex items-center justify-between">
-          <span className="text-gray-600 dark:text-gray-400">Downloads:</span>
-          <span className="text-gray-900 dark:text-white">
+          <span className="text-muted-foreground flex items-center gap-1">
+            <Download className="w-3 h-3" />
+            Downloads:
+            {fileInfo.maxDownloads && (
+              <InfoTooltip content="File will be deleted after reaching maximum downloads" />
+            )}
+          </span>
+          <span className="text-foreground font-tactical">
             {fileInfo.downloadCount}
             {fileInfo.maxDownloads ? ` / ${fileInfo.maxDownloads}` : ""}
           </span>
@@ -170,11 +212,11 @@ export function FileDownload({ shareId }: FileDownloadProps) {
 
       {!fileInfo.canBeDownloaded ? (
         <div className="text-center">
-          <AlertCircle className="w-8 h-8 text-red-500 mx-auto mb-4" />
-          <p className="text-red-600 dark:text-red-400 font-medium">
+          <AlertCircle className="w-8 h-8 text-destructive mx-auto mb-4" />
+          <p className="text-destructive font-medium">
             This file is no longer available for download
           </p>
-          <p className="text-gray-600 dark:text-gray-400 text-sm mt-2">
+          <p className="text-muted-foreground text-sm mt-2">
             {new Date(fileInfo.expiresAt) < new Date() 
               ? "File has expired" 
               : fileInfo.shareInfo?.isExpired
@@ -184,7 +226,7 @@ export function FileDownload({ shareId }: FileDownloadProps) {
               : "Maximum downloads reached"}
           </p>
           {fileInfo.shareInfo?.maxAccess && (
-            <p className="text-gray-500 dark:text-gray-400 text-xs mt-1">
+            <p className="text-muted-foreground text-xs mt-1">
               Access count: {fileInfo.shareInfo.accessCount} / {fileInfo.shareInfo.maxAccess}
             </p>
           )}
@@ -193,30 +235,62 @@ export function FileDownload({ shareId }: FileDownloadProps) {
         <div className="space-y-4">
           {requiresPassword && (
             <div>
-              <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                <Lock className="w-4 h-4" />
+              <label className="flex items-center gap-2 text-sm font-medium text-foreground mb-2">
+                <Lock className="w-4 h-4 text-warning" />
                 Password Required
+                <HelpTooltip
+                  title="Password Protection"
+                  description="This file is protected with a password. Enter the password provided by the uploader to download the file."
+                />
               </label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Enter password to download"
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500"
-                onKeyPress={(e) => e.key === "Enter" && downloadFile()}
-              />
+              <div className="flex items-center gap-2">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Enter password to download"
+                  className="flex-1 px-3 py-2 bg-input border border-border text-foreground placeholder-muted-foreground transition-all duration-200 hover:border-primary focus:border-primary focus:ring-2 focus:ring-primary/20"
+                  onKeyPress={(e) => e.key === "Enter" && downloadFile()}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="btn-tactical p-2"
+                  tabIndex={-1}
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
+            </div>
+          )}
+
+          {downloadMutation.isPending && (
+            <div className="mb-4 text-center">
+              <CryptoLoading stage={downloadStage} className="mb-4" />
+              <div className="max-w-md mx-auto">
+                <ProgressBar 
+                  progress={downloadStage === "downloading" ? 33 : downloadStage === "decrypting" ? 66 : 90} 
+                  variant="success"
+                  showPercentage={false}
+                />
+                <p className="text-xs text-muted-foreground mt-2">
+                  {downloadStage === "downloading" && "Downloading encrypted file from server..."}
+                  {downloadStage === "decrypting" && "Decrypting file in your browser..."}
+                  {downloadStage === "processing" && "Preparing file for download..."}
+                </p>
+              </div>
             </div>
           )}
 
           <button
             onClick={downloadFile}
             disabled={downloadMutation.isPending || (requiresPassword && !password)}
-            className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="btn-tactical-primary w-full flex items-center justify-center gap-2 px-6 py-3 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
           >
             {downloadMutation.isPending ? (
               <>
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                Downloading...
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current"></div>
+                Processing...
               </>
             ) : (
               <>
@@ -226,7 +300,7 @@ export function FileDownload({ shareId }: FileDownloadProps) {
             )}
           </button>
 
-          <p className="text-xs text-gray-500 dark:text-gray-400 text-center">
+          <p className="text-xs text-muted-foreground text-center">
             File will be decrypted in your browser before download
           </p>
         </div>

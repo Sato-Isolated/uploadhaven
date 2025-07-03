@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500;600&display=swap');
 @import "tailwindcss";
 @import "tw-animate-css";
 
@@ -44,72 +45,53 @@
 }
 
 :root {
-  --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
-}
-
-.dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  --radius: 0.25rem;
+  /* OuterDrop Dark Theme - Palette Outer Heaven */
+  --background: #1c1c1c;              /* Charbon militaire */
+  --foreground: #f5f5f5;              /* Blanc cassé */
+  --card: #2e2e2e;                    /* Acier brut */
+  --card-foreground: #f5f5f5;         /* Blanc cassé */
+  --popover: #2e2e2e;                 /* Acier brut */
+  --popover-foreground: #f5f5f5;      /* Blanc cassé */
+  --primary: #ffd700;                 /* Or militaire */
+  --primary-foreground: #1c1c1c;      /* Charbon militaire */
+  --secondary: #2e2e2e;               /* Acier brut */
+  --secondary-foreground: #f5f5f5;    /* Blanc cassé */
+  --muted: #2a2a2a;                   /* Hover BG */
+  --muted-foreground: #9aa0a6;        /* Gris moderne */
+  --accent: #ffd700;                  /* Or militaire */
+  --accent-foreground: #1c1c1c;       /* Charbon militaire */
+  --destructive: #ff5555;             /* Rouge alerte */
+  --destructive-foreground: #f5f5f5;  /* Blanc cassé */
+  --success: #00b894;                 /* Vert furtif */
+  --success-foreground: #f5f5f5;      /* Blanc cassé */
+  --warning: #ff8c00;                 /* Orange militaire */
+  --warning-foreground: #f5f5f5;      /* Blanc cassé */
+  --border: #424242;                  /* Gris foncé */
+  --input: #2e2e2e;                   /* Acier brut */
+  --ring: #ffd700;                    /* Or militaire */
+  
+  /* Hover states */
+  --hover-bg: #2a2a2a;                /* Fond + 10% luminosité */
+  --hover-surface: #3a3a3a;           /* Surface + 10% luminosité */
+  --hover-accent: #ffed4e;             /* Or + luminosité */
+  
+  /* Charts - Palette tactique */
+  --chart-1: #ffd700;                 /* Or militaire */
+  --chart-2: #00b894;                 /* Vert furtif */
+  --chart-3: #ff8c00;                 /* Orange militaire */
+  --chart-4: #ff5555;                 /* Rouge alerte */
+  --chart-5: #9aa0a6;                 /* Gris moderne */
+  
+  /* Sidebar - Interface tactique */
+  --sidebar: #1c1c1c;                 /* Charbon militaire */
+  --sidebar-foreground: #f5f5f5;      /* Blanc cassé */
+  --sidebar-primary: #ffd700;         /* Or militaire */
+  --sidebar-primary-foreground: #1c1c1c; /* Charbon militaire */
+  --sidebar-accent: #2e2e2e;          /* Acier brut */
+  --sidebar-accent-foreground: #f5f5f5; /* Blanc cassé */
+  --sidebar-border: #424242;          /* Gris foncé */
+  --sidebar-ring: #ffd700;            /* Or militaire */
 }
 
 @layer base {
@@ -118,5 +100,633 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+}
+
+/* OuterDrop MGS-inspired styles */
+@layer components {
+  /* Typography MGS */
+  .font-tactical {
+    font-family: 'JetBrains Mono', 'Courier New', monospace;
+    font-weight: 500;
+    letter-spacing: 0.025em;
+  }
+  
+  /* Geometric elements MGS */
+  .tactical-border {
+    border: 1px solid var(--border);
+    clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px));
+  }
+  
+  .tactical-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    clip-path: polygon(0 0, calc(100% - 6px) 0, 100% 6px, 100% 100%, 6px 100%, 0 calc(100% - 6px));
+    transition: all 0.2s ease;
+  }
+  
+  .tactical-card:hover {
+    background: var(--hover-surface);
+    border-color: var(--primary);
+    box-shadow: 0 0 12px var(--primary)20;
+  }
+  
+  /* Button tactical */
+  .btn-tactical {
+    background: var(--secondary);
+    border: 1px solid var(--border);
+    color: var(--foreground);
+    padding: 0.75rem 1.5rem;
+    clip-path: polygon(0 0, calc(100% - 4px) 0, 100% 4px, 100% 100%, 4px 100%, 0 calc(100% - 4px));
+    transition: all 0.2s ease;
+    font-family: 'Inter', sans-serif;
+    font-weight: 500;
+  }
+  
+  .btn-tactical:hover {
+    background: var(--hover-surface);
+    border-color: var(--primary);
+    box-shadow: 0 0 8px var(--primary)30;
+    transform: translateY(-1px);
+  }
+  
+  .btn-tactical-primary {
+    background: var(--primary);
+    color: var(--primary-foreground);
+    border-color: var(--primary);
+  }
+  
+  .btn-tactical-primary:hover {
+    background: var(--hover-accent);
+    box-shadow: 0 0 12px var(--primary)40;
+  }
+  
+  /* Glow effect subtil */
+  .glow-primary {
+    box-shadow: 0 0 8px var(--primary)20;
+  }
+  
+  .glow-primary:hover {
+    box-shadow: 0 0 16px var(--primary)40;
+  }
+  
+  /* Upload zone tactique */
+  .drop-zone-tactical {
+    background: var(--background);
+    border: 2px dashed var(--border);
+    clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px));
+    transition: all 0.3s ease;
+    position: relative;
+  }
+  
+  .drop-zone-tactical::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, transparent 48%, var(--border)20 49%, var(--border)20 51%, transparent 52%);
+    background-size: 20px 20px;
+    opacity: 0.1;
+    pointer-events: none;
+  }
+  
+  .drop-zone-tactical:hover,
+  .drop-zone-tactical.drag-over {
+    border-color: var(--primary);
+    background: var(--hover-bg);
+    box-shadow: inset 0 0 20px var(--primary)10;
+  }
+  
+  /* Animations discrètes */
+  .fade-in-up {
+    animation: fadeInUp 0.4s ease-out;
+  }
+  
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .pulse-glow {
+    animation: pulseGlow 2s ease-in-out infinite;
+  }
+  
+  @keyframes pulseGlow {
+    0%, 100% {
+      box-shadow: 0 0 8px var(--primary)20;
+    }
+    50% {
+      box-shadow: 0 0 16px var(--primary)40;
+    }
+  }
+  
+  /* Tactical scan animation */
+  .tactical-scan {
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .tactical-scan::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      var(--primary)10,
+      var(--primary)20,
+      var(--primary)10,
+      transparent
+    );
+    transition: left 0.6s ease-in-out;
+  }
+  
+  .tactical-scan:hover::before {
+    left: 100%;
+  }
+  
+  /* Terminal typing animation */
+  @keyframes typing {
+    from { width: 0; }
+    to { width: 100%; }
+  }
+  
+  @keyframes blink {
+    0%, 50% { border-color: transparent; }
+    51%, 100% { border-color: var(--primary); }
+  }
+  
+  .typing-animation {
+    overflow: hidden;
+    border-right: 2px solid var(--primary);
+    white-space: nowrap;
+    animation: typing 2s steps(40, end), blink 1s step-end infinite;
+  }
+  
+  /* Glitch effect */
+  @keyframes glitch-1 {
+    0%, 100% { transform: translate(0); }
+    20% { transform: translate(-1px, 1px); }
+    40% { transform: translate(-1px, -1px); }
+    60% { transform: translate(1px, 1px); }
+    80% { transform: translate(1px, -1px); }
+  }
+  
+  @keyframes glitch-2 {
+    0%, 100% { transform: translate(0); }
+    20% { transform: translate(1px, 0); }
+    40% { transform: translate(-1px, 0); }
+    60% { transform: translate(0, 1px); }
+    80% { transform: translate(0, -1px); }
+  }
+  
+  .glitch {
+    position: relative;
+  }
+  
+  .glitch::before,
+  .glitch::after {
+    content: attr(data-text);
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+  }
+  
+  .glitch:hover::before {
+    animation: glitch-1 0.3s ease-in-out;
+    color: var(--destructive);
+    opacity: 0.8;
+    z-index: -1;
+  }
+  
+  .glitch:hover::after {
+    animation: glitch-2 0.3s ease-in-out;
+    color: var(--primary);
+    opacity: 0.8;
+    z-index: -1;
+  }
+  
+  /* Progress scan line */
+  @keyframes progressScan {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+  }
+  
+  .progress-scan::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 20%;
+    height: 100%;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      var(--primary)40,
+      transparent
+    );
+    animation: progressScan 2s ease-in-out infinite;
+  }
+  
+  /* Tactical grid background */
+  .tactical-grid {
+    background-image: 
+      linear-gradient(var(--border) 1px, transparent 1px),
+      linear-gradient(90deg, var(--border) 1px, transparent 1px);
+    background-size: 20px 20px;
+    opacity: 0.3;
+  }
+  
+  /* Matrix rain effect (subtle) */
+  @keyframes matrix-rain {
+    0% { transform: translateY(-100vh); opacity: 1; }
+    100% { transform: translateY(100vh); opacity: 0; }
+  }
+  
+  .matrix-char {
+    position: absolute;
+    color: var(--primary);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    animation: matrix-rain 3s linear infinite;
+    opacity: 0.1;
+  }
+  
+  /* Tactical button enhancements */
+  .btn-tactical-enhanced {
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .btn-tactical-enhanced::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      var(--primary)20,
+      transparent
+    );
+    transition: left 0.3s ease;
+  }
+  
+  .btn-tactical-enhanced:hover::before {
+    left: 100%;
+  }
+  
+  /* Smooth entrance animations */
+  .slide-in-bottom {
+    animation: slideInBottom 0.6s ease-out;
+  }
+  
+  @keyframes slideInBottom {
+    from {
+      transform: translateY(30px);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+  
+  .slide-in-left {
+    animation: slideInLeft 0.6s ease-out;
+  }
+  
+  @keyframes slideInLeft {
+    from {
+      transform: translateX(-30px);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+  
+  .slide-in-right {
+    animation: slideInRight 0.6s ease-out;
+  }
+  
+  @keyframes slideInRight {
+    from {
+      transform: translateX(30px);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+  
+  /* Scale on hover for cards */
+  .card-hover-scale {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  
+  .card-hover-scale:hover {
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 8px 25px var(--primary)15;
+  }
+  
+  /* Tactical border animation */
+  @keyframes borderPulse {
+    0%, 100% { border-color: var(--border); }
+    50% { border-color: var(--primary); }
+  }
+  
+  .border-pulse {
+    animation: borderPulse 2s ease-in-out infinite;
+  }
+  
+  /* Loading dots enhanced */
+  .loading-dots-enhanced span {
+    display: inline-block;
+    animation: loadingDots 1.4s infinite ease-in-out both;
+  }
+  
+  .loading-dots-enhanced span:nth-child(1) { animation-delay: -0.32s; }
+  .loading-dots-enhanced span:nth-child(2) { animation-delay: -0.16s; }
+  
+  @keyframes loadingDots {
+    0%, 80%, 100% {
+      transform: scale(0);
+      opacity: 0.5;
+    }
+    40% {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+  
+  /* Enhanced animations for new loading components */
+  @keyframes blink {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0; }
+  }
+  
+  .animate-blink {
+    animation: blink 1s step-end infinite;
+  }
+  
+  /* Smooth hover transitions for all interactive elements */
+  .btn-tactical,
+  .tactical-card,
+  .card-hover-scale {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  /* Enhanced hover effects */
+  .btn-tactical:hover {
+    transform: translateY(-1px) scale(1.02);
+    box-shadow: 0 4px 12px var(--primary)30;
+  }
+  
+  .btn-tactical:active {
+    transform: translateY(0) scale(0.98);
+    transition: all 0.1s ease;
+  }
+  
+  /* Micro-interaction for form inputs */
+  input[type="text"],
+  input[type="password"],
+  input[type="number"],
+  input[type="file"],
+  select,
+  textarea {
+    transition: all 0.2s ease;
+    border-color: var(--border);
+  }
+  
+  input[type="text"]:focus,
+  input[type="password"]:focus,
+  input[type="number"]:focus,
+  select:focus,
+  textarea:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 2px var(--primary)20;
+    outline: none;
+  }
+  
+  /* Checkbox enhanced styling */
+  input[type="checkbox"] {
+    appearance: none;
+    width: 1rem;
+    height: 1rem;
+    border: 1px solid var(--border);
+    background: var(--input);
+    position: relative;
+    transition: all 0.2s ease;
+  }
+  
+  input[type="checkbox"]:checked {
+    background: var(--primary);
+    border-color: var(--primary);
+  }
+  
+  input[type="checkbox"]:checked::after {
+    content: '✓';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: var(--primary-foreground);
+    font-size: 0.75rem;
+    font-weight: bold;
+  }
+  
+  input[type="checkbox"]:hover {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 2px var(--primary)20;
+  }
+  
+  /* Enhanced drag and drop animations */
+  .drop-zone-tactical {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .drop-zone-tactical:hover {
+    transform: scale(1.01);
+    border-color: var(--primary);
+  }
+  
+  .drop-zone-tactical.drag-over {
+    transform: scale(1.02);
+    border-color: var(--success);
+    background: var(--hover-bg);
+    box-shadow: inset 0 0 20px var(--primary)15, 0 0 20px var(--primary)10;
+  }
+  
+  /* File preview animations */
+  @keyframes slideInFromBottom {
+    from {
+      opacity: 0;
+      transform: translateY(20px) scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+  
+  .slide-in-from-bottom {
+    animation: slideInFromBottom 0.3s ease-out;
+  }
+  
+  /* Success state animations */
+  @keyframes successPulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+  }
+  
+  .success-pulse {
+    animation: successPulse 0.6s ease-out;
+  }
+  
+  /* Error shake animation */
+  @keyframes errorShake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+  }
+  
+  .error-shake {
+    animation: errorShake 0.5s ease-in-out;
+  }
+  
+  /* Tooltip base styling */
+  .tooltip {
+    position: relative;
+    display: inline-block;
+  }
+  
+  .tooltip::before {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--popover);
+    color: var(--popover-foreground);
+    padding: 0.5rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+    z-index: 1000;
+    margin-bottom: 0.25rem;
+    border: 1px solid var(--border);
+  }
+  
+  .tooltip:hover::before {
+    opacity: 1;
+  }
+  
+  /* Loading state transitions */
+  .loading-enter {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  
+  .loading-enter-active {
+    opacity: 1;
+    transform: scale(1);
+    transition: all 0.2s ease;
+  }
+  
+  .loading-exit {
+    opacity: 1;
+    transform: scale(1);
+  }
+  
+  .loading-exit-active {
+    opacity: 0;
+    transform: scale(0.95);
+    transition: all 0.2s ease;
+  }
+  
+  /* Toast animations */
+  @keyframes slideInFromRight {
+    from {
+      opacity: 0;
+      transform: translateX(100%) scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0) scale(1);
+    }
+  }
+  
+  /* Enhanced card interactions */
+  .tactical-card:hover .transition-transform {
+    transform: scale(1.1);
+  }
+  
+  /* Responsive improvements */
+  @media (max-width: 768px) {
+    .drop-zone-tactical {
+      padding: 2rem 1rem;
+    }
+    
+    .tactical-card {
+      padding: 1rem;
+    }
+    
+    .btn-tactical,
+    .btn-tactical-primary {
+      padding: 0.5rem 1rem;
+      font-size: 0.875rem;
+    }
+    
+    /* Mobile toast positioning */
+    .fixed.top-4.right-4 {
+      top: 1rem;
+      right: 1rem;
+      left: 1rem;
+      max-width: none;
+    }
+    
+    .tactical-card.transition-all {
+      margin-bottom: 0.5rem;
+    }
+  }
+  
+  /* Enhanced focus states for accessibility */
+  button:focus-visible,
+  input:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+    border-color: var(--primary);
+  }
+  
+  /* Improved checkbox focus */
+  input[type="checkbox"]:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
   }
 }

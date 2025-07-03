@@ -1,11 +1,14 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import { Upload, Lock, Clock, Download, Copy, Check, Eye, EyeOff } from "lucide-react";
+import { Upload, Lock, Clock, Download, Copy, Check, Eye, EyeOff, FileIcon, AlertCircle } from "lucide-react";
 import { ClientCryptoService } from "@/lib/client-crypto";
 import { useUploadFile } from "@/hooks/use-api";
 import { useCryptoWorker } from "@/hooks/use-crypto-worker";
 import { performanceMonitor } from "@/lib/performance";
+import { useToast } from "@/components/ui/toast";
+import { ProgressBar, CryptoLoading } from "@/components/ui/loading";
+import { HelpTooltip, InfoTooltip } from "@/components/ui/tooltip";
 
 interface UploadResult {
   shareUrl: string;
@@ -22,12 +25,17 @@ export function FileUpload() {
   const [maxDownloads, setMaxDownloads] = useState<number | undefined>(undefined);
   const [copied, setCopied] = useState(false);
   const [passwordCopied, setPasswordCopied] = useState(false);
+  const [uploadStage, setUploadStage] = useState<"encrypting" | "uploading" | "processing">("encrypting");
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   // React Query hook for upload
   const uploadMutation = useUploadFile();
   
   // Crypto worker hook
   const { encryptFile: encryptFileWorker, isAvailable: isWorkerAvailable } = useCryptoWorker();
+  
+  // Toast hook
+  const { addToast } = useToast();
 
   // Generate random password
   const generateRandomPassword = useCallback(() => {
@@ -51,6 +59,9 @@ export function FileUpload() {
 
   const handleFileUpload = useCallback(async (file: File) => {
     try {
+      setSelectedFile(file);
+      setUploadStage("encrypting");
+      
       // Generate password if protection is enabled
       let password = "";
       if (enablePasswordProtection) {
@@ -89,6 +100,8 @@ export function FileUpload() {
         );
       }
 
+      setUploadStage("uploading");
+
       // Create form data with encrypted file
       const formData = new FormData();
       const encryptedBlob = new Blob([encryptionResult.encryptedData], { type: 'application/octet-stream' });
@@ -116,6 +129,7 @@ export function FileUpload() {
       }
 
       // Use React Query mutation for upload
+      setUploadStage("processing");
       const result = await uploadMutation.mutateAsync(formData);
       
       // Add encryption key to share URL
@@ -128,6 +142,8 @@ export function FileUpload() {
     } catch (error: unknown) {
       console.error("Upload error:", error);
       // Error is handled by React Query automatically
+    } finally {
+      setSelectedFile(null);
     }
   }, [enablePasswordProtection, generateRandomPassword, expirationHours, maxDownloads, uploadMutation, isWorkerAvailable, encryptFileWorker]);
 
@@ -137,14 +153,54 @@ export function FileUpload() {
     setDragActive(false);
     
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      handleFileUpload(e.dataTransfer.files[0]);
+      const file = e.dataTransfer.files[0];
+      // Add file size validation (50MB limit)
+      if (file.size > 50 * 1024 * 1024) {
+        addToast({
+          type: "error",
+          title: "File Too Large",
+          message: "File size must be less than 50MB"
+        });
+        return;
+      }
+      handleFileUpload(file);
     }
-  }, [handleFileUpload]);
+  }, [handleFileUpload, addToast]);
+
+  const handleFileSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    
+    // Add file size validation
+    if (file.size > 50 * 1024 * 1024) {
+      addToast({
+        type: "error",
+        title: "File Too Large",
+        message: "File size must be less than 50MB"
+      });
+      return;
+    }
+    
+    handleFileUpload(file);
+  }, [handleFileUpload, addToast]);
+
+  const formatFileSize = (bytes: number): string => {
+    if (bytes === 0) return "0 Bytes";
+    const k = 1024;
+    const sizes = ["Bytes", "KB", "MB", "GB"];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
+  };
 
   const copyToClipboard = async () => {
     if (uploadResult) {
       await navigator.clipboard.writeText(uploadResult.shareUrl);
       setCopied(true);
+      addToast({
+        type: "success",
+        title: "Link Copied",
+        message: "Share URL has been copied to clipboard"
+      });
       setTimeout(() => setCopied(false), 2000);
     }
   };
@@ -153,6 +209,11 @@ export function FileUpload() {
     if (generatedPassword) {
       await navigator.clipboard.writeText(generatedPassword);
       setPasswordCopied(true);
+      addToast({
+        type: "success",
+        title: "Password Copied",
+        message: "Generated password has been copied to clipboard"
+      });
       setTimeout(() => setPasswordCopied(false), 2000);
     }
   };
@@ -165,29 +226,30 @@ export function FileUpload() {
     setMaxDownloads(undefined);
     setCopied(false);
     setPasswordCopied(false);
+    setSelectedFile(null);
   };
 
   if (uploadResult) {
     return (
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8">
+      <div className="tactical-card p-8">
         <div className="text-center">
-          <div className="w-16 h-16 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Check className="w-8 h-8 text-green-600 dark:text-green-400" />
+          <div className="w-16 h-16 bg-secondary border border-success tactical-border flex items-center justify-center mx-auto mb-4 glow-primary">
+            <Check className="w-8 h-8 text-success" />
           </div>
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
-            File Uploaded Successfully!
+          <h2 className="text-2xl font-bold text-foreground mb-2">
+            Upload Successful
           </h2>
-          <p className="text-gray-600 dark:text-gray-300 mb-6">
+          <div className="text-muted-foreground text-sm mb-6">
             Your file has been encrypted and is ready to share.
-          </p>
+          </div>
 
           {/* Generated Password Display */}
           {generatedPassword && (
-            <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4 mb-6">
+            <div className="tactical-card p-4 mb-6 border-warning">
               <div className="flex items-center gap-2 mb-2">
-                <Lock className="w-4 h-4 text-yellow-600 dark:text-yellow-400" />
-                <span className="text-sm font-medium text-yellow-800 dark:text-yellow-200">
-                  Generated Password (Required for Download)
+                <Lock className="w-4 h-4 text-warning" />
+                <span className="text-sm font-medium text-warning">
+                  Generated Password
                 </span>
               </div>
               <div className="flex items-center gap-2">
@@ -195,30 +257,30 @@ export function FileUpload() {
                   type={showGeneratedPassword ? "text" : "password"}
                   value={generatedPassword}
                   readOnly
-                  className="flex-1 px-3 py-2 border border-yellow-300 dark:border-yellow-600 rounded-md bg-yellow-100 dark:bg-yellow-900/50 text-yellow-900 dark:text-yellow-100 text-sm font-mono"
+                  className="flex-1 px-3 py-2 bg-input border border-border text-foreground text-sm font-tactical"
                 />
                 <button
                   onClick={() => setShowGeneratedPassword(!showGeneratedPassword)}
-                  className="px-3 py-2 text-yellow-600 dark:text-yellow-400 hover:bg-yellow-200 dark:hover:bg-yellow-800 rounded-md transition-colors"
+                  className="btn-tactical"
                 >
                   {showGeneratedPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
                 <button
                   onClick={copyPasswordToClipboard}
-                  className="flex items-center gap-2 px-4 py-2 bg-yellow-600 text-white rounded-md hover:bg-yellow-700 transition-colors"
+                  className="btn-tactical-primary"
                 >
                   {passwordCopied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-                  {passwordCopied ? "Copied!" : "Copy"}
+                  {passwordCopied ? "Copied" : "Copy"}
                 </button>
               </div>
-              <p className="text-xs text-yellow-700 dark:text-yellow-300 mt-2">
-                ⚠️ Save this password! You&apos;ll need it to download the file. It cannot be recovered.
+              <p className="text-xs text-warning mt-2">
+                ⚠️ Save this password! You&apos;ll need it to download the file.
               </p>
             </div>
           )}
 
-          <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 mb-6">
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <div className="tactical-card p-4 mb-6">
+            <label className="block text-sm font-medium text-muted-foreground mb-2">
               Share URL:
             </label>
             <div className="flex items-center gap-2">
@@ -226,20 +288,20 @@ export function FileUpload() {
                 type="text"
                 value={uploadResult.shareUrl}
                 readOnly
-                className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm"
+                className="flex-1 px-3 py-2 bg-input border border-border text-foreground text-sm font-tactical"
               />
               <button
                 onClick={copyToClipboard}
-                className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+                className="btn-tactical-primary"
               >
                 {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-                {copied ? "Copied!" : "Copy"}
+                {copied ? "Copied" : "Copy"}
               </button>
             </div>
           </div>
 
-          <div className="text-sm text-gray-600 dark:text-gray-400 mb-6">
-            <p className="flex items-center justify-center gap-2 mb-2">
+          <div className="text-sm text-muted-foreground mb-6 space-y-2">
+            <p className="flex items-center justify-center gap-2">
               <Clock className="w-4 h-4" />
               Expires: {new Date(uploadResult.expiresAt).toLocaleString()}
             </p>
@@ -253,7 +315,7 @@ export function FileUpload() {
 
           <button
             onClick={resetUpload}
-            className="px-6 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors"
+            className="btn-tactical"
           >
             Upload Another File
           </button>
@@ -263,73 +325,91 @@ export function FileUpload() {
   }
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8">
-      <h2 className="text-2xl font-bold text-center text-gray-900 dark:text-white mb-8">
-        Upload & Share Files Securely
-      </h2>
+    <div className="tactical-card p-8">
+      <div className="text-center mb-8">
+        <h2 className="text-2xl font-bold text-foreground mb-2">
+          Upload & Share Files Securely
+        </h2>
+      </div>
 
       {/* Upload Area */}
       <div
-        className={`border-2 border-dashed rounded-lg p-12 text-center transition-colors ${
-          dragActive
-            ? "border-blue-400 bg-blue-50 dark:bg-blue-900/20"
-            : "border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500"
-        }`}
+        className={`drop-zone-tactical p-12 text-center ${
+          dragActive ? "drag-over" : ""
+        } ${uploadMutation.isPending ? "pointer-events-none opacity-50" : ""}`}
         onDragEnter={handleDrag}
         onDragLeave={handleDrag}
         onDragOver={handleDrag}
         onDrop={handleDrop}
       >
-        <Upload className="w-12 h-12 text-gray-400 dark:text-gray-500 mx-auto mb-4" />
-        <p className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+        <Upload className="w-12 h-12 text-primary mx-auto mb-4" />
+        <p className="text-lg font-medium text-foreground mb-2">
           Drop your file here, or{" "}
-          <label className="text-blue-600 hover:text-blue-700 cursor-pointer">
+          <label className="text-primary hover:text-hover-accent cursor-pointer">
             browse
             <input
               type="file"
               className="hidden"
-              onChange={(e) => e.target.files?.[0] && handleFileUpload(e.target.files[0])}
+              onChange={handleFileSelect}
               disabled={uploadMutation.isPending}
             />
           </label>
         </p>
-        <p className="text-sm text-gray-600 dark:text-gray-400">
+        <p className="text-sm text-muted-foreground mb-2">
           Files are encrypted in your browser before upload
         </p>
+        <p className="text-xs text-muted-foreground">
+          Maximum file size: 50MB
+        </p>
+        
+        {selectedFile && !uploadResult && (
+          <div className="mt-4 p-3 bg-secondary/50 border border-border tactical-border slide-in-from-bottom">
+            <div className="flex items-center gap-2 text-sm">
+              <FileIcon className="w-4 h-4 text-primary" />
+              <span className="text-foreground font-medium">{selectedFile.name}</span>
+              <span className="text-muted-foreground">({formatFileSize(selectedFile.size)})</span>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Options */}
       <div className="mt-8 space-y-6">
-        <div>
+        <div className="tactical-card p-4">
           <label className="flex items-center gap-3 cursor-pointer">
             <input
               type="checkbox"
               checked={enablePasswordProtection}
               onChange={(e) => setEnablePasswordProtection(e.target.checked)}
-              className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+              className="h-4 w-4 accent-primary border-border focus:ring-primary"
             />
             <div className="flex items-center gap-2">
-              <Lock className="w-4 h-4 text-gray-700 dark:text-gray-300" />
-              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+              <Lock className="w-4 h-4 text-primary" />
+              <span className="text-sm font-medium text-foreground">
                 Enable Password Protection
               </span>
+              <HelpTooltip
+                title="Password Protection"
+                description="When enabled, a random password will be generated and required to download the file. This provides an additional layer of security."
+              />
             </div>
           </label>
-          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 ml-7">
+          <p className="text-xs text-muted-foreground mt-1 ml-7">
             A random password will be generated automatically after upload
           </p>
         </div>
 
         <div className="grid md:grid-cols-2 gap-4">
-          <div>
-            <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              <Clock className="w-4 h-4" />
+          <div className="tactical-card p-4">
+            <label className="flex items-center gap-2 text-sm font-medium text-foreground mb-2">
+              <Clock className="w-4 h-4 text-warning" />
               Expiration Time
+              <InfoTooltip content="Files will be automatically deleted after this time period" />
             </label>
             <select
               value={expirationHours}
               onChange={(e) => setExpirationHours(Number(e.target.value))}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+              className="w-full px-3 py-2 bg-input border border-border text-foreground transition-all duration-200 hover:border-primary focus:border-primary focus:ring-2 focus:ring-primary/20"
             >
               <option value={1}>1 hour</option>
               <option value={6}>6 hours</option>
@@ -339,10 +419,11 @@ export function FileUpload() {
             </select>
           </div>
 
-          <div>
-            <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              <Download className="w-4 h-4" />
+          <div className="tactical-card p-4">
+            <label className="flex items-center gap-2 text-sm font-medium text-foreground mb-2">
+              <Download className="w-4 h-4 text-success" />
               Max Downloads (Optional)
+              <InfoTooltip content="File will be deleted after reaching this download count" />
             </label>
             <input
               type="number"
@@ -350,7 +431,8 @@ export function FileUpload() {
               onChange={(e) => setMaxDownloads(e.target.value ? Number(e.target.value) : undefined)}
               placeholder="Unlimited"
               min="1"
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500"
+              max="100"
+              className="w-full px-3 py-2 bg-input border border-border text-foreground placeholder-muted-foreground transition-all duration-200 hover:border-primary focus:border-primary focus:ring-2 focus:ring-primary/20"
             />
           </div>
         </div>
@@ -358,17 +440,30 @@ export function FileUpload() {
 
       {uploadMutation.isPending && (
         <div className="mt-8 text-center">
-          <div className="inline-flex items-center gap-2 text-blue-600 dark:text-blue-400">
-            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
-            Encrypting and uploading...
+          <CryptoLoading stage={uploadStage} className="mb-4" />
+          <div className="max-w-md mx-auto">
+            <ProgressBar 
+              progress={uploadStage === "encrypting" ? 33 : uploadStage === "uploading" ? 66 : 90} 
+              variant="default"
+              showPercentage={false}
+            />
+            <p className="text-xs text-muted-foreground mt-2">
+              {uploadStage === "encrypting" && "Encrypting file with zero-knowledge encryption..."}
+              {uploadStage === "uploading" && "Uploading encrypted file to server..."}
+              {uploadStage === "processing" && "Processing and generating share link..."}
+            </p>
           </div>
         </div>
       )}
 
       {uploadMutation.error && (
         <div className="mt-8 text-center">
-          <div className="text-red-600 dark:text-red-400">
-            Upload failed: {uploadMutation.error.message}
+          <div className="tactical-card p-4 border-destructive bg-destructive/10 error-shake">
+            <AlertCircle className="w-6 h-6 text-destructive mx-auto mb-2" />
+            <div className="text-destructive font-medium mb-1">Upload Failed</div>
+            <div className="text-destructive/80 text-sm">
+              {uploadMutation.error.message}
+            </div>
           </div>
         </div>
       )}
