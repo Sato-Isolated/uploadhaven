@@ -4,7 +4,7 @@ import { FileUpload } from "@/components/file-upload";
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="bg-background">
       <div className="container mx-auto px-4 py-16">
         {/* Header Section */}
         <div className="text-center mb-16 fade-in-up">
@@ -31,7 +31,7 @@ export default function Home() {
         {/* Features Grid */}
         <div className="mt-16 grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
           {/* Zero Knowledge Card */}
-          <div className="tactical-card p-6 text-center fade-in-up">
+          <div className="tactical-card p-6 text-center fade-in-up card-hover-scale tactical-scan">
             <div className="w-12 h-12 bg-secondary border border-primary/30 tactical-border flex items-center justify-center mx-auto mb-4 glow-primary">
               <svg className="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
@@ -46,7 +46,7 @@ export default function Home() {
           </div>
 
           {/* No Registration Card */}
-          <div className="tactical-card p-6 text-center fade-in-up" style={{animationDelay: '0.1s'}}>
+          <div className="tactical-card p-6 text-center fade-in-up card-hover-scale tactical-scan" style={{animationDelay: '0.1s'}}>
             <div className="w-12 h-12 bg-secondary border border-success/30 tactical-border flex items-center justify-center mx-auto mb-4">
               <svg className="w-6 h-6 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
@@ -61,7 +61,7 @@ export default function Home() {
           </div>
 
           {/* Auto-Expiring Card */}
-          <div className="tactical-card p-6 text-center fade-in-up" style={{animationDelay: '0.2s'}}>
+          <div className="tactical-card p-6 text-center fade-in-up card-hover-scale tactical-scan" style={{animationDelay: '0.2s'}}>
             <div className="w-12 h-12 bg-secondary border border-warning/30 tactical-border flex items-center justify-center mx-auto mb-4">
               <svg className="w-6 h-6 text-warning" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />

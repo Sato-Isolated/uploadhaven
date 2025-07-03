@@ -1,4 +1,5 @@
 import { FileDownload } from '@/components/file-download';
+import { notFound } from 'next/navigation';
 
 interface SharePageProps {
   params: Promise<{
@@ -6,8 +7,30 @@ interface SharePageProps {
   }>;
 }
 
+// Function to check if share exists
+async function checkShareExists(shareId: string): Promise<boolean> {
+  try {
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+    const response = await fetch(`${baseUrl}/api/share/${shareId}`, {
+      method: 'GET',
+      cache: 'no-store', // Don't cache the response
+    });
+    
+    return response.ok;
+  } catch (error) {
+    console.error('Error checking share existence:', error);
+    return false;
+  }
+}
+
 export default async function SharePage({ params }: SharePageProps) {
   const { id } = await params;
+  
+  // Check if share exists, if not redirect to 404
+  const shareExists = await checkShareExists(id);
+  if (!shareExists) {
+    notFound();
+  }
   
   return (
     <div className="min-h-screen bg-background">

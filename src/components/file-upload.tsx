@@ -6,6 +6,8 @@ import { ClientCryptoService } from "@/lib/client-crypto";
 import { useUploadFile } from "@/hooks/use-api";
 import { useCryptoWorker } from "@/hooks/use-crypto-worker";
 import { performanceMonitor } from "@/lib/performance";
+import { useToast } from "@/components/ui/toast";
+import { TacticalLoading, ProgressBar } from "@/components/ui/loading";
 
 interface UploadResult {
   shareUrl: string;
@@ -28,6 +30,9 @@ export function FileUpload() {
   
   // Crypto worker hook
   const { encryptFile: encryptFileWorker, isAvailable: isWorkerAvailable } = useCryptoWorker();
+  
+  // Toast hook
+  const { addToast } = useToast();
 
   // Generate random password
   const generateRandomPassword = useCallback(() => {
@@ -145,6 +150,11 @@ export function FileUpload() {
     if (uploadResult) {
       await navigator.clipboard.writeText(uploadResult.shareUrl);
       setCopied(true);
+      addToast({
+        type: "success",
+        title: "Link Copied",
+        message: "Share URL has been copied to clipboard"
+      });
       setTimeout(() => setCopied(false), 2000);
     }
   };
@@ -153,6 +163,11 @@ export function FileUpload() {
     if (generatedPassword) {
       await navigator.clipboard.writeText(generatedPassword);
       setPasswordCopied(true);
+      addToast({
+        type: "success",
+        title: "Password Copied",
+        message: "Generated password has been copied to clipboard"
+      });
       setTimeout(() => setPasswordCopied(false), 2000);
     }
   };
@@ -358,10 +373,7 @@ export function FileUpload() {
 
       {uploadMutation.isPending && (
         <div className="mt-8 text-center">
-          <div className="inline-flex items-center gap-2 text-primary">
-            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
-            Encrypting and uploading...
-          </div>
+          <TacticalLoading text="Encrypting and uploading" />
         </div>
       )}
 

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Activity, Server, HardDrive, Clock, AlertTriangle, CheckCircle } from "lucide-react";
+import { TacticalLoading, SkeletonCard } from "@/components/ui/loading";
 
 interface HealthData {
   status: string;
@@ -112,8 +113,7 @@ export function AdminDashboard() {
     return (
       <div className="tactical-card p-8">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Loading dashboard...</p>
+          <TacticalLoading text="Loading dashboard" />
         </div>
       </div>
     );
