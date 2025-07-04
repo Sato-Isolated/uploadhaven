@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
           headers: request.headers,
         });
         userId = session?.user?.id;
-      } catch (error) {
+      } catch {
         // Silent fail - anonymous uploads are allowed
         userId = undefined;
       }
@@ -57,11 +57,10 @@ export async function POST(request: NextRequest) {
       const file = formData.get('file') as File;
       const originalName = formData.get('originalName') as string;
       let mimeType = formData.get('mimeType') as string;
-      const size = Number(formData.get('size'));
       const expirationHours = formData.get('expirationHours') ? Number(formData.get('expirationHours')) : undefined;
       const maxDownloads = formData.get('maxDownloads') ? Number(formData.get('maxDownloads')) : undefined;
       const passwordProtected = formData.get('passwordProtected') === 'true';
-      let password: string | undefined = formData.get('password') as string | null || undefined;
+      const password: string | undefined = formData.get('password') as string | null || undefined;
 
       // Use mime-types library for proper MIME type detection
       if (!mimeType || mimeType === 'application/octet-stream') {

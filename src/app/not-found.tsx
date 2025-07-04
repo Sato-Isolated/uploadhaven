@@ -24,7 +24,7 @@ export default function NotFound() {
           {/* Description */}
           <div className="mb-12 fade-in-up" style={{animationDelay: '0.1s'}}>
             <p className="text-xl text-muted-foreground mb-4">
-              The file you're looking for has either vanished or never existed.
+              The file you&apos;re looking for has either vanished or never existed.
             </p>
             <div className="tactical-card p-6 max-w-md mx-auto">
               <div className="text-sm text-muted-foreground space-y-2">
@@ -67,15 +67,15 @@ export default function NotFound() {
             <div className="tactical-card p-4 bg-muted/20 text-left max-w-md mx-auto">
               <div className="font-tactical text-xs text-primary space-y-1">
                 <div className="flex items-center gap-2">
-                  <span className="text-success">{">"}</span>
+                  <span className="text-success">&gt;</span>
                   <span className="typing-animation">Scanning for target...</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="text-destructive">{">"}</span>
+                  <span className="text-destructive">&gt;</span>
                   <span>ERROR: Target not found</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="text-warning">{">"}</span>
+                  <span className="text-warning">&gt;</span>
                   <span>Initiating redirect protocol...</span>
                 </div>
               </div>

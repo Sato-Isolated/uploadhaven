@@ -1,10 +1,10 @@
 import winston from 'winston';
+import fs from 'fs';
+import path from 'path';
 
 const { combine, timestamp, json } = winston.format;
 
 // Create logs directory if it doesn't exist
-const fs = require('fs');
-const path = require('path');
 
 const logDir = 'logs';
 if (!fs.existsSync(logDir)) {

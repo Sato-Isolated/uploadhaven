@@ -1,8 +1,8 @@
 "use client";
 
-import { useSession, signOut } from "@/lib/auth-client";
+import { useSession } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { UserDashboard } from "@/components/dashboard/user-dashboard";
 
 export default function DashboardPage() {

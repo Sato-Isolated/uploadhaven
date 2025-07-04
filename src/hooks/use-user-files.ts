@@ -1,6 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { PaginationParams, FileSearchFilters, PaginatedResult } from '@/domains/user/user-file-types';
-import { FileEntity } from '@/domains/file/file-entity';
 import { useToast } from '@/components/ui/toast';
 
 interface UseUserFilesParams {

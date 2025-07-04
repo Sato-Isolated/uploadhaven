@@ -16,7 +16,6 @@ import {
   UploadFileCommand, 
   DownloadFileCommand, 
   DeleteFileCommand,
-  CreateShareCommand,
   OperationResult 
 } from './commands';
 import { 
@@ -24,8 +23,6 @@ import {
   FileDownloadResult 
 } from '../domains/file/file-value-objects';
 import { 
-  AppError, 
-  ErrorCode, 
   ErrorFactory, 
   ErrorUtils 
 } from '../domains/shared/errors';

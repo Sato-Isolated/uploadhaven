@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { MongoFileRepository } from '@/infrastructure/database/mongo-file-repository';
-import { getDb } from '@/infrastructure/database/mongodb';
 import { PaginationParams, FileSearchFilters } from '@/domains/user/user-file-types';
 import { logger } from '@/lib/logger';
 

@@ -106,7 +106,7 @@ export async function GET(request: NextRequest) {
 /**
  * HEAD /api/health - Health check simple (pour les load balancers)
  */
-export async function HEAD(request: NextRequest) {
+export async function HEAD(_request: NextRequest) {
   try {
     const manager = getHealthCheckManager();
     const result = await manager.runAll();
@@ -143,17 +143,18 @@ function generateTextResponse(result: any): string {
   if ('checks' in result) {
     // Rapport complet
     const lines = [
-      `Status: ${result.status.toUpperCase()}`,
+      `Status: ${String(result.status).toUpperCase()}`,
       `Timestamp: ${result.timestamp}`,
       `Response Time: ${result.totalResponseTime}ms`,
-      `Uptime: ${Math.floor(result.uptime / 1000)}s`,
+      `Uptime: ${Math.floor(Number(result.uptime) / 1000)}s`,
       `Version: ${result.version}`,
       '',
       'Components:'
     ];
 
-    for (const check of result.checks) {
-      const status = check.status.toUpperCase().padEnd(9);
+    const checks = result.checks as Array<Record<string, unknown>>;
+    for (const check of checks) {
+      const status = String(check.status).toUpperCase().padEnd(9);
       const responseTime = check.responseTime ? `${check.responseTime}ms`.padStart(6) : '     -';
       lines.push(`  ${status} ${responseTime} ${check.component} - ${check.message || 'OK'}`);
     }
@@ -161,6 +162,6 @@ function generateTextResponse(result: any): string {
     return lines.join('\n');
   } else {
     // Check individuel
-    return `${result.status.toUpperCase()} - ${result.component}: ${result.message || 'OK'} (${result.responseTime}ms)`;
+    return `${String(result.status).toUpperCase()} - ${result.component}: ${result.message || 'OK'} (${result.responseTime}ms)`;
   }
 }

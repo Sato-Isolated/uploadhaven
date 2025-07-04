@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import { Upload, X, FileIcon, Check, AlertCircle, Lock, Clock, Download } from "lucide-react";
+import { Upload, X, FileIcon, AlertCircle, Lock, Clock, Download } from "lucide-react";
 import { useUploadFile } from "@/hooks/use-api";
 import { useCryptoWorker } from "@/hooks/use-crypto-worker";
 import { useToast } from "@/components/ui/toast";
@@ -138,7 +138,7 @@ export function DashboardUpload({ onUploadComplete }: DashboardUploadProps) {
       }
 
       setUploadStage("processing");
-      const result = await uploadMutation.mutateAsync(formData);
+      await uploadMutation.mutateAsync(formData);
       
       // Invalider les caches pour refresh les données
       queryClient.invalidateQueries({ queryKey: ['user-files'] });

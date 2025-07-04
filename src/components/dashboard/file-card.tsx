@@ -2,8 +2,6 @@
 
 import { useState } from "react";
 import { 
-  FileIcon, 
-  Download, 
   Copy, 
   Trash2, 
   Clock, 

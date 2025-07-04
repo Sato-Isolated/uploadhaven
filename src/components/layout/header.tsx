@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Menu, X, Shield, Server, User, LogOut } from "lucide-react";
+import { Menu, X, Shield, User, LogOut } from "lucide-react";
 import { useSession, signOut } from "@/lib/auth-client";
 
 export function Header() {

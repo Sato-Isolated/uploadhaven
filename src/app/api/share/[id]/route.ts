@@ -1,11 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { MongoFileRepository } from '@/infrastructure/database/mongo-file-repository';
 import { MongoShareRepository } from '@/infrastructure/database/mongo-share-repository';
-import { DiskStorageService } from '@/infrastructure/storage/disk-storage-service';
-import { WebCryptoService } from '@/domains/security/web-crypto-service';
-import { FileApplicationService } from '@/application/file-application-service';
-import { QueryFactory } from '@/application/commands';
-import { ConfigurationService, DEFAULT_CONFIGURATION } from '@/domains/shared/configuration';
 import { getCacheKey, rateLimiter, withCache } from '@/lib/cache';
 import { ShareNotFoundError, FileNotFoundError } from '@/domains/shared';
 
@@ -45,19 +40,6 @@ export async function GET(
       // Initialize services
       const fileRepository = new MongoFileRepository();
       const shareRepository = new MongoShareRepository();
-      const storageService = new DiskStorageService();
-      const cryptoService = new WebCryptoService();
-      const configService = new ConfigurationService(DEFAULT_CONFIGURATION);
-      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
-
-      const fileAppService = new FileApplicationService(
-        fileRepository,
-        shareRepository,
-        storageService,
-        cryptoService,
-        configService,
-        baseUrl
-      );
 
       // Find share
       const share = await shareRepository.findById(shareId);
