@@ -96,7 +96,8 @@ export class FileApplicationService {
         encryptedPath: '', // Sera défini après le stockage
         expirationHours,
         maxDownloads,
-        passwordHash: payload.password ? await this.hashPassword(payload.password) : undefined
+        passwordHash: payload.password ? await this.hashPassword(payload.password) : undefined,
+        userId: payload.metadata?.userId // Associer le fichier à l'utilisateur connecté
       });
 
       // Génération du chemin de stockage et sauvegarde
@@ -125,7 +126,8 @@ export class FileApplicationService {
           expirationHours,
           maxAccess: shareConfig.defaultMaxAccess,
           passwordProtected: !!payload.password,
-          passwordHash: updatedFileEntity.passwordHash
+          passwordHash: updatedFileEntity.passwordHash,
+          userId: payload.metadata?.userId // Associer le partage à l'utilisateur connecté
         });
         
         await this.shareRepository.save(shareEntity);

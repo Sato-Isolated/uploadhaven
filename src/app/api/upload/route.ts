@@ -9,20 +9,34 @@ import { FileApplicationService } from '@/application/file-application-service';
 import { CommandFactory } from '@/application/commands';
 import { ConfigurationService, DEFAULT_CONFIGURATION } from '@/domains/shared/configuration';
 import { rateLimiter } from '@/lib/cache';
+import { auth } from '@/lib/auth';
 import mime from 'mime-types';
 
 export async function POST(request: NextRequest) {
   return serverPerformanceMonitor.measureApiOperation('upload', async () => {
     try {
+      // Check authentication (optional - anonymous uploads are allowed)
+      let userId: string | undefined;
+      try {
+        const session = await auth.api.getSession({
+          headers: request.headers,
+        });
+        userId = session?.user?.id;
+      } catch (error) {
+        // Silent fail - anonymous uploads are allowed
+        userId = undefined;
+      }
+
       // Get client metadata
       const clientIP = request.headers.get('x-forwarded-for') ||
         request.headers.get('x-real-ip') ||
         'unknown';
       const userAgent = request.headers.get('user-agent') || 'unknown';
 
-      // Rate limiting by IP
-      const rateLimitKey = `upload:${clientIP}`;
-      const { allowed, remaining, resetTime } = rateLimiter.check(rateLimitKey, 10, 60000); // 10 uploads per minute
+      // Rate limiting by IP (more lenient for authenticated users)
+      const rateLimitKey = userId ? `upload:user:${userId}` : `upload:ip:${clientIP}`;
+      const uploadLimit = userId ? 20 : 10; // Authenticated users get higher limit
+      const { allowed, remaining, resetTime } = rateLimiter.check(rateLimitKey, uploadLimit, 60000);
 
       if (!allowed) {
         return NextResponse.json(
@@ -93,7 +107,8 @@ export async function POST(request: NextRequest) {
         password,
         metadata: {
           userAgent,
-          ipAddress: clientIP
+          ipAddress: clientIP,
+          userId // Include userId if authenticated
         }
       });
 
