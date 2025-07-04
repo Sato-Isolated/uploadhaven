@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import { Upload, Lock, Clock, Download, Copy, Check, Eye, EyeOff, FileIcon, AlertCircle } from "lucide-react";
+import { Upload, Lock, Clock, Download, Copy, Check, Eye, EyeOff, FileIcon, AlertCircle, User, UserPlus, LogIn } from "lucide-react";
 import { ClientCryptoService } from "@/lib/client-crypto";
 import { useUploadFile } from "@/hooks/use-api";
 import { useCryptoWorker } from "@/hooks/use-crypto-worker";
@@ -9,6 +9,8 @@ import { performanceMonitor } from "@/lib/performance";
 import { useToast } from "@/components/ui/toast";
 import { ProgressBar, CryptoLoading } from "@/components/ui/loading";
 import { HelpTooltip, InfoTooltip } from "@/components/ui/tooltip";
+import { useSession } from "@/lib/auth-client";
+import Link from "next/link";
 
 interface UploadResult {
   shareUrl: string;
@@ -27,6 +29,9 @@ export function FileUpload() {
   const [passwordCopied, setPasswordCopied] = useState(false);
   const [uploadStage, setUploadStage] = useState<"encrypting" | "uploading" | "processing">("encrypting");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+
+  // Authentication
+  const { data: session, isPending } = useSession();
 
   // React Query hook for upload
   const uploadMutation = useUploadFile();
@@ -331,6 +336,60 @@ export function FileUpload() {
           Upload & Share Files Securely
         </h2>
       </div>
+
+      {/* Auth Status */}
+      {!isPending && (
+        <div className="mb-6">
+          {session ? (
+            <div className="tactical-card p-4 border-success bg-success/10">
+              <div className="flex items-center justify-center gap-3 text-center">
+                <div className="w-8 h-8 bg-success/20 border border-success rounded-full flex items-center justify-center">
+                  <User className="w-4 h-4 text-success" />
+                </div>
+                <div>
+                  <p className="text-success font-medium text-sm">
+                    Connected as {session.user.name || session.user.email}
+                  </p>
+                  <p className="text-success/70 text-xs">
+                    Your files will be saved to your account for easy management
+                  </p>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="tactical-card p-4 border-primary bg-primary/10">
+              <div className="text-center">
+                <div className="flex items-center justify-center gap-2 mb-2">
+                  <UserPlus className="w-5 h-5 text-primary" />
+                  <span className="text-primary font-medium">Create an account to manage your files</span>
+                </div>
+                <p className="text-primary/80 text-sm mb-4">
+                  • View upload history • Manage your shares • Delete files anytime
+                </p>
+                <div className="flex items-center justify-center gap-3">
+                  <Link
+                    href="/auth/register"
+                    className="btn-tactical-primary flex items-center gap-2 text-sm"
+                  >
+                    <UserPlus className="w-4 h-4" />
+                    Sign Up
+                  </Link>
+                  <Link
+                    href="/auth/login"
+                    className="btn-tactical flex items-center gap-2 text-sm"
+                  >
+                    <LogIn className="w-4 h-4" />
+                    Sign In
+                  </Link>
+                </div>
+                <p className="text-xs text-muted-foreground mt-3">
+                  You can still upload files anonymously below
+                </p>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Upload Area */}
       <div
