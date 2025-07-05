@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { PaginationParams, PaginatedResult } from "@/domains/user/user-file-types";
+import { PaginationParams, PaginatedResult, SerializedFile } from "@/domains/user/user-file-types";
 import { useDeleteFile, useFileActions } from "@/hooks/use-user-files";
 import { FileCard } from "./file-card";
 import { DeleteConfirmation } from "./delete-confirmation";
@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 
 interface UserFilesListProps {
-  files?: PaginatedResult<any>;
+  files?: PaginatedResult<SerializedFile>;
   isLoading: boolean;
   error: Error | null;
   pagination: PaginationParams;
@@ -33,7 +33,7 @@ export function UserFilesList({
   onPageChange, 
   onSortChange 
 }: UserFilesListProps) {
-  const [fileToDelete, setFileToDelete] = useState<any | null>(null);
+  const [fileToDelete, setFileToDelete] = useState<SerializedFile | null>(null);
   
   const deleteFileMutation = useDeleteFile();
   const { copyShareLink } = useFileActions();

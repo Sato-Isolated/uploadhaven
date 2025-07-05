@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { PaginationParams, FileSearchFilters, PaginatedResult } from '@/domains/user/user-file-types';
+import { PaginationParams, FileSearchFilters, PaginatedResult, SerializedFile } from '@/domains/user/user-file-types';
 import { useToast } from '@/components/ui/toast';
 
 interface UseUserFilesParams {
@@ -10,7 +10,7 @@ interface UseUserFilesParams {
 export function useUserFiles({ pagination, filters }: UseUserFilesParams) {
   return useQuery({
     queryKey: ['user-files', pagination, filters],
-    queryFn: async (): Promise<PaginatedResult<any>> => {
+    queryFn: async (): Promise<PaginatedResult<SerializedFile>> => {
       const searchParams = new URLSearchParams();
       
       // Paramètres de pagination
@@ -62,7 +62,7 @@ export function useDeleteFile() {
       
       return response.json();
     },
-    onSuccess: (_, fileId) => {
+    onSuccess: () => {
       // Invalidate user files cache
       queryClient.invalidateQueries({ queryKey: ['user-files'] });
       queryClient.invalidateQueries({ queryKey: ['user-stats'] });
@@ -115,7 +115,7 @@ export function useFileActions() {
         title: 'Link Copied',
         message: 'Share URL has been copied to clipboard',
       });
-    } catch (error) {
+    } catch {
       addToast({
         type: 'error',
         title: 'Copy Failed',

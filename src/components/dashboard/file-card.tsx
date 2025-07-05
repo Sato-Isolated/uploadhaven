@@ -10,9 +10,10 @@ import {
   Eye,
   MoreHorizontal
 } from "lucide-react";
+import { SerializedFile } from "@/domains/user/user-file-types";
 
 interface FileCardProps {
-  file: any; // FileEntity serialized
+  file: SerializedFile;
   onDelete: () => void;
   onCopyLink: (url: string) => void;
 }

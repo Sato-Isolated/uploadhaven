@@ -69,7 +69,7 @@ export function AdvancedSearch({ initialFilters, onSearch, onCancel }: AdvancedS
           </label>
           <select
             value={filters.status || ''}
-            onChange={(e) => setFilters(prev => ({ ...prev, status: e.target.value as any || undefined }))}
+            onChange={(e) => setFilters(prev => ({ ...prev, status: (e.target.value as 'active' | 'expired' | 'expiring_soon') || undefined }))}
             className="w-full px-3 py-2 bg-input border border-border text-foreground"
           >
             <option value="">All Status</option>

@@ -1,14 +1,10 @@
 "use client";
 
 import { Files, HardDrive, Download, TrendingUp, Clock, AlertTriangle } from "lucide-react";
-import { UserFileStats } from "@/domains/user/user-file-types";
+import { FormattedUserFileStats } from "@/domains/user/user-file-types";
 
 interface DashboardStatsProps {
-  stats?: UserFileStats & {
-    totalSizeFormatted: string;
-    averageFileSizeFormatted: string;
-    averageDownloadsPerFile: number;
-  };
+  stats?: FormattedUserFileStats;
   isLoading: boolean;
 }
 

@@ -1,9 +1,10 @@
 "use client";
 
 import { AlertTriangle, Trash2, X, Loader2 } from "lucide-react";
+import { SerializedFile } from "@/domains/user/user-file-types";
 
 interface DeleteConfirmationProps {
-  file: any; // FileEntity serialized
+  file: SerializedFile;
   onConfirm: () => void;
   onCancel: () => void;
   isDeleting: boolean;
