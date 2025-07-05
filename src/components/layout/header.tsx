@@ -9,9 +9,11 @@ export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { data: session, isPending } = useSession();
 
+  // Filtrer la navigation en fonction du rôle utilisateur
   const navigation = [
     { name: "Home", href: "/" },
-    { name: "Admin", href: "/admin" },
+    // Afficher Admin seulement si l'utilisateur est admin
+    ...((session?.user as any)?.role === 'admin' ? [{ name: "Admin", href: "/admin" }] : []),
   ];
 
   const handleSignOut = async () => {

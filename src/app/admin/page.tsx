@@ -1,6 +1,14 @@
 import { AdminDashboard } from "@/components/admin-dashboard";
+import { isCurrentUserAdmin } from "@/lib/auth-utils";
+import { redirect } from "next/navigation";
 
-export default function AdminPage() {
+export default async function AdminPage() {
+  const isAdmin = await isCurrentUserAdmin();
+  
+  if (!isAdmin) {
+    redirect("/access-denied");
+  }
+
   return (
     <div className="min-h-screen bg-background py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
