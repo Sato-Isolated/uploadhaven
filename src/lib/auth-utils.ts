@@ -23,8 +23,8 @@ export interface UserSession {
 }
 
 /**
- * Vérifier si l'utilisateur actuel est un admin
- * @returns Promise<boolean> - true si admin, false sinon
+ * Check if the current user is an admin
+ * @returns Promise<boolean> - true if admin, false otherwise
  */
 export async function isCurrentUserAdmin(): Promise<boolean> {
   try {
@@ -34,13 +34,13 @@ export async function isCurrentUserAdmin(): Promise<boolean> {
     
     return session?.user?.role === 'admin';
   } catch (error) {
-    console.error('Erreur lors de la vérification des permissions admin:', error);
+    console.error('Error verifying admin permissions:', error);
     return false;
   }
 }
 
 /**
- * Obtenir la session utilisateur actuelle
+ * Get the current user session
  * @returns Promise<UserSession | null>
  */
 export async function getCurrentUserSession(): Promise<UserSession | null> {
@@ -51,13 +51,13 @@ export async function getCurrentUserSession(): Promise<UserSession | null> {
     
     return session;
   } catch (error) {
-    console.error('Erreur lors de la récupération de la session:', error);
+    console.error('Error retrieving session:', error);
     return null;
   }
 }
 
 /**
- * Vérifier si l'utilisateur est connecté
+ * Check if the user is authenticated
  * @returns Promise<boolean>
  */
 export async function isUserAuthenticated(): Promise<boolean> {
@@ -68,14 +68,14 @@ export async function isUserAuthenticated(): Promise<boolean> {
     
     return !!session;
   } catch (error) {
-    console.error('Erreur lors de la vérification de l\'authentification:', error);
+    console.error('Error verifying authentication:', error);
     return false;
   }
 }
 
 /**
- * Vérifier si l'utilisateur a un rôle spécifique
- * @param requiredRole - Le rôle requis
+ * Check if the user has a specific role
+ * @param requiredRole - The required role
  * @returns Promise<boolean>
  */
 export async function hasRole(requiredRole: 'user' | 'admin'): Promise<boolean> {
@@ -86,7 +86,7 @@ export async function hasRole(requiredRole: 'user' | 'admin'): Promise<boolean> 
     
     return session?.user?.role === requiredRole;
   } catch (error) {
-    console.error('Erreur lors de la vérification du rôle:', error);
+    console.error('Error verifying role:', error);
     return false;
   }
 }

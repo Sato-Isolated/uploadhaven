@@ -17,7 +17,7 @@ interface RouteParams {
 
 export async function DELETE(request: NextRequest, { params }: RouteParams) {
   try {
-    // Vérifier l'authentification
+    // Check authentication
     const session = await auth.api.getSession({
       headers: request.headers,
     });
@@ -45,7 +45,7 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     const auditRepository = new MongoAuditRepository(db);
     const auditService = new AuditService(auditRepository);
 
-    // Vérifier que le fichier existe et appartient à l'utilisateur
+    // Check that the file exists and belongs to the user
     const file = await fileRepository.findById(fileId);
     if (!file) {
       return NextResponse.json(
@@ -63,14 +63,14 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
 
     // Supprimer les partages associés
     try {
-      // Trouver le partage pour ce fichier (il n'y en a généralement qu'un)
+      // Find the share for this file (there's usually only one)
       const share = await shareRepository.findByFileId(fileId);
       
       // Supprimer le partage s'il existe
       if (share) {
         await shareRepository.delete(share.id);
         
-        // Log de la suppression du partage
+        // Log share deletion
         await auditService.logShareEvent(
           'share.delete',
           share.id,
@@ -90,10 +90,10 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
         userId, 
         error 
       });
-      // Continuer même si la suppression du partage échoue
+      // Continue even if share deletion fails
     }
 
-    // Supprimer le fichier physique du système de fichiers
+    // Delete physical file from filesystem
     try {
       const filePath = join(process.cwd(), 'uploads', file.encryptedPath);
       await unlink(filePath);
@@ -104,13 +104,13 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
         path: file.encryptedPath, 
         error 
       });
-      // Continuer même si la suppression physique échoue
+      // Continue even if physical deletion fails
     }
 
-    // Supprimer l'enregistrement du fichier en base
+    // Delete file record from database
     await fileRepository.deleteByUserAndId(userId, fileId);
 
-    // Log de l'audit pour la suppression du fichier
+    // Audit log for file deletion
     await auditService.logFileEvent(
       'file.delete',
       fileId,

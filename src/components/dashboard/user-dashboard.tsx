@@ -26,7 +26,7 @@ export function UserDashboard() {
   const [filters, setFilters] = useState<FileSearchFilters>({});
   const [searchTerm, setSearchTerm] = useState('');
 
-  // Récupération des données
+  // Data retrieval
   const { data: files, isLoading: filesLoading, error: filesError } = useUserFiles({
     pagination,
     filters: { ...filters, name: searchTerm || undefined },
@@ -99,7 +99,7 @@ export function UserDashboard() {
             <DashboardUpload 
               onUploadComplete={() => {
                 setShowUpload(false);
-                // Les hooks react-query vont automatiquement revalider
+                // React Query hooks will automatically revalidate
               }} 
             />
           </div>
@@ -155,7 +155,7 @@ export function UserDashboard() {
           )}
         </div>
 
-        {/* Liste des fichiers */}
+        {/* File list */}
         <UserFilesList
           files={files}
           isLoading={filesLoading}

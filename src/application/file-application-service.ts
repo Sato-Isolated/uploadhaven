@@ -74,10 +74,10 @@ export class FileApplicationService {
         throw ErrorFactory.validationError(passwordValidation.errors);
       }
 
-      // Conversion du fichier en ArrayBuffer
+      // Convert file to ArrayBuffer
       const fileBuffer = await payload.file.arrayBuffer();
       
-      // Chiffrement du fichier
+      // Encrypt the file
       const encryptionResult = await this.cryptoService.encryptFile(fileBuffer, payload.password);
       
       // Génération de valeurs par défaut à partir de la configuration
@@ -94,10 +94,10 @@ export class FileApplicationService {
         expirationHours,
         maxDownloads,
         passwordHash: payload.password ? await this.hashPassword(payload.password) : undefined,
-        userId: payload.metadata?.userId // Associer le fichier à l'utilisateur connecté
+        userId: payload.metadata?.userId // Associate file with logged-in user
       });
 
-      // Génération du chemin de stockage et sauvegarde
+      // Generate storage path and save
       const storagePath = this.storageService.generatePath(fileEntity.id);
       const combinedData = this.combineEncryptedData(
         encryptionResult.encryptedData,
@@ -110,7 +110,7 @@ export class FileApplicationService {
       // Mise à jour de l'entité avec le chemin de stockage
       const updatedFileEntity = fileEntity.updateEncryptedPath(storagePath);
       
-      // Sauvegarde en base de données
+      // Save to database
       await this.fileRepository.save(updatedFileEntity);
 
       // Création du partage si la fonctionnalité est activée
@@ -124,7 +124,7 @@ export class FileApplicationService {
           maxAccess: shareConfig.defaultMaxAccess,
           passwordProtected: !!payload.password,
           passwordHash: updatedFileEntity.passwordHash,
-          userId: payload.metadata?.userId // Associer le partage à l'utilisateur connecté
+          userId: payload.metadata?.userId // Associate share with logged-in user
         });
         
         await this.shareRepository.save(shareEntity);
@@ -186,7 +186,7 @@ export class FileApplicationService {
     try {
       const { payload } = command;
       
-      // Recherche du fichier
+      // Find the file
       const file = await this.fileRepository.findById(payload.fileId);
       if (!file) {
         throw ErrorFactory.fileNotFound(payload.fileId);
@@ -201,11 +201,11 @@ export class FileApplicationService {
         }
       }
 
-      // Lecture du fichier chiffré
+      // Read encrypted file
       const combinedData = await this.storageService.read(file.encryptedPath);
       const { encryptedData, iv, salt } = this.separateEncryptedData(combinedData);
 
-      // Déchiffrement
+      // Decryption
       const decryptedData = await this.cryptoService.decryptFile(
         encryptedData,
         iv,
@@ -267,20 +267,20 @@ export class FileApplicationService {
         return this.createErrorResult('FILE_NOT_FOUND', 'File not found');
       }
 
-      // Suppression du fichier physique
+      // Delete physical file
       try {
         await this.storageService.delete(file.encryptedPath);
       } catch (error) {
         logger.warn('Failed to delete physical file', { fileId: file.id, error });
       }
 
-      // Suppression du partage associé
+      // Delete associated share
       const share = await this.shareRepository.findByFileId(file.id);
       if (share) {
         await this.shareRepository.delete(share.id);
       }
 
-      // Suppression de l'enregistrement du fichier
+      // Delete file record
       await this.fileRepository.delete(file.id);
 
       // Génération de l'événement
@@ -314,7 +314,7 @@ export class FileApplicationService {
       const deletedFilesCount = await this.fileRepository.cleanup();
       const deletedSharesCount = await this.shareRepository.cleanup();
       
-      // Nettoyage du stockage (fichiers orphelins)
+      // Clean up storage (orphaned files)
       await this.storageService.cleanup();
 
       logger.info('Cleanup completed', {

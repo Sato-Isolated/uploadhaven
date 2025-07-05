@@ -5,7 +5,7 @@ import { logger } from '@/lib/logger';
 
 export async function GET(request: NextRequest) {
   try {
-    // Vérifier l'authentification
+    // Check authentication
     const session = await auth.api.getSession({
       headers: request.headers,
     });
@@ -19,11 +19,11 @@ export async function GET(request: NextRequest) {
 
     const userId = session.user.id;
 
-    // Récupération des statistiques utilisateur
+    // Retrieve user statistics
     const fileRepository = new MongoFileRepository();
     const stats = await fileRepository.getUserFileStats(userId);
 
-    // Helper pour formater la taille des fichiers
+    // Helper to format file sizes
     const formatFileSize = (bytes: number): string => {
       if (bytes === 0) return '0 B';
       const k = 1024;

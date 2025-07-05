@@ -13,16 +13,16 @@ export class MongoAuditRepository implements AuditRepository {
 
   private async createIndexes(): Promise<void> {
     try {
-      // Index pour les requêtes par utilisateur
+      // Index for user queries
       await this.collection.createIndex({ userId: 1, createdAt: -1 });
       
-      // Index pour les requêtes par action
+      // Index for action queries
       await this.collection.createIndex({ action: 1, createdAt: -1 });
       
-      // Index pour le nettoyage automatique des logs expirés
+      // Index for automatic cleanup of expired logs
       await this.collection.createIndex({ expiresAt: 1 }, { expireAfterSeconds: 0 });
       
-      // Index pour les requêtes par date
+      // Index for date queries
       await this.collection.createIndex({ createdAt: -1 });
       
       logger.info('Audit logs indexes created successfully');

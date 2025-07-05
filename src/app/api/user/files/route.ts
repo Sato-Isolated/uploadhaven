@@ -6,7 +6,7 @@ import { logger } from '@/lib/logger';
 
 export async function GET(request: NextRequest) {
   try {
-    // Vérifier l'authentification
+    // Check authentication
     const session = await auth.api.getSession({
       headers: request.headers,
     });
@@ -60,7 +60,7 @@ export async function GET(request: NextRequest) {
     const maxSize = searchParams.get('maxSize');
     if (maxSize) filters.maxSize = parseInt(maxSize);
 
-    // Récupération des fichiers
+    // Retrieve files
     const fileRepository = new MongoFileRepository();
     const result = await fileRepository.findByUserId(userId, pagination, filters);
 

@@ -102,7 +102,7 @@ export class MongoFileRepository implements FileRepositoryInterface {
     }
   }
 
-  // Nouvelles méthodes pour les utilisateurs
+  // New methods for users
 
   async findByUserId(
     userId: string, 
@@ -283,7 +283,7 @@ export class MongoFileRepository implements FileRepositoryInterface {
         };
       }
       
-      // Trouver le fichier le plus téléchargé
+      // Find the most downloaded file
       const mostDownloaded = result.files
         .sort((a: any, b: any) => b.downloads - a.downloads)[0];
       

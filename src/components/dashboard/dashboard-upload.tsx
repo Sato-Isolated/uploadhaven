@@ -140,18 +140,18 @@ export function DashboardUpload({ onUploadComplete }: DashboardUploadProps) {
       setUploadStage("processing");
       await uploadMutation.mutateAsync(formData);
       
-      // Invalider les caches pour refresh les données
+      // Invalidate caches to refresh data
       queryClient.invalidateQueries({ queryKey: ['user-files'] });
       queryClient.invalidateQueries({ queryKey: ['user-stats'] });
       
-      // Afficher le succès avec les détails
+      // Show success with details
       addToast({
         type: "success",
         title: "Upload Successful",
         message: `${selectedFile.name} has been uploaded and is ready to share.`
       });
 
-      // Si un mot de passe a été généré, l'afficher
+      // If a password was generated, display it
       if (password) {
         addToast({
           type: "info",
@@ -168,7 +168,7 @@ export function DashboardUpload({ onUploadComplete }: DashboardUploadProps) {
       
     } catch (error) {
       console.error("Upload error:", error);
-      // L'erreur est gérée par React Query automatiquement
+      // Error is handled automatically by React Query
     }
   };
 
@@ -217,7 +217,7 @@ export function DashboardUpload({ onUploadComplete }: DashboardUploadProps) {
         </div>
       ) : (
         <div className="space-y-4">
-          {/* Fichier sélectionné */}
+          {/* Selected file */}
           <div className="tactical-card p-4 bg-secondary/30">
             <div className="flex items-center gap-3">
               <FileIcon className="w-5 h-5 text-primary" />
@@ -329,7 +329,7 @@ export function DashboardUpload({ onUploadComplete }: DashboardUploadProps) {
             </div>
           )}
 
-          {/* Erreur */}
+          {/* Error */}
           {uploadMutation.error && (
             <div className="tactical-card p-3 border-destructive bg-destructive/10">
               <div className="flex items-center gap-2 text-destructive">

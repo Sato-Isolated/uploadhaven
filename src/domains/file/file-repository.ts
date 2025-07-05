@@ -5,7 +5,7 @@ import { PaginationParams, FileSearchFilters, UserFileStats, PaginatedResult } f
 export interface FileRepository extends CountableRepository<FileEntity> {
   incrementDownloadCount(id: string): Promise<void>;
   
-  // Méthodes pour les utilisateurs
+  // Methods for users
   findByUserId(userId: string, pagination: PaginationParams, filters?: FileSearchFilters): Promise<PaginatedResult<FileEntity>>;
   countByUserId(userId: string, filters?: FileSearchFilters): Promise<number>;
   deleteByUserAndId(userId: string, fileId: string): Promise<void>;
@@ -13,7 +13,7 @@ export interface FileRepository extends CountableRepository<FileEntity> {
   findExpiredByUserId(userId: string): Promise<FileEntity[]>;
 }
 
-// Les erreurs sont maintenant importées depuis shared/domain-errors.ts
+// Errors are now imported from shared/domain-errors.ts
 export { 
   FileNotFoundError, 
   FileExpiredError, 

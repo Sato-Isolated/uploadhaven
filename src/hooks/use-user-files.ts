@@ -63,7 +63,7 @@ export function useDeleteFile() {
       return response.json();
     },
     onSuccess: (_, fileId) => {
-      // Invalider le cache des fichiers utilisateur
+      // Invalidate user files cache
       queryClient.invalidateQueries({ queryKey: ['user-files'] });
       queryClient.invalidateQueries({ queryKey: ['user-stats'] });
       

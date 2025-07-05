@@ -10,29 +10,29 @@ export function QueryProvider({ children }: { children: React.ReactNode }) {
       new QueryClient({
         defaultOptions: {
           queries: {
-            // Temps avant qu'une requête soit considérée comme "stale"
+            // Time before a query is considered "stale"
             staleTime: 5 * 60 * 1000, // 5 minutes
-            // Temps de cache avant garbage collection
+            // Cache time before garbage collection
             gcTime: 10 * 60 * 1000, // 10 minutes
-            // Retry automatique en cas d'échec
+            // Automatic retry on failure
             retry: (failureCount, error: unknown) => {
-              // Ne pas retry pour les erreurs 4xx (client errors)
+              // Don't retry for 4xx errors (client errors)
               if (error && typeof error === 'object' && 'status' in error) {
                 const status = (error as { status: number }).status;
                 if (status >= 400 && status < 500) {
                   return false;
                 }
               }
-              // Retry jusqu'à 3 fois pour les autres erreurs
+              // Retry up to 3 times for other errors
               return failureCount < 3;
             },
-            // Refetch automatique quand la fenêtre reprend le focus
+            // Automatic refetch when window regains focus
             refetchOnWindowFocus: true,
-            // Refetch automatique lors de la reconnexion
+            // Automatic refetch on reconnection
             refetchOnReconnect: true,
           },
           mutations: {
-            // Retry automatique pour les mutations
+            // Automatic retry for mutations
             retry: 1,
           },
         },
@@ -42,7 +42,7 @@ export function QueryProvider({ children }: { children: React.ReactNode }) {
   return (
     <QueryClientProvider client={queryClient}>
       {children}
-      {/* DevTools uniquement en développement */}
+      {/* DevTools only in development */}
       {process.env.NODE_ENV === 'development' && (
         <ReactQueryDevtools initialIsOpen={false} />
       )}

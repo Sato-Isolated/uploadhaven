@@ -98,7 +98,7 @@ export function DashboardStats({ stats, isLoading }: DashboardStatsProps) {
         </div>
       ))}
 
-      {/* Fichier le plus téléchargé */}
+      {/* Most downloaded file */}
       {stats.mostDownloadedFile && (
         <div className="md:col-span-2 lg:col-span-4">
           <div className="tactical-card p-6 border-success/20 bg-success/5">
