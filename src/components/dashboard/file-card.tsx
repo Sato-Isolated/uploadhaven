@@ -11,6 +11,7 @@ import {
   MoreHorizontal
 } from "lucide-react";
 import { SerializedFile } from "@/domains/user/user-file-types";
+import { FilePreview } from "./file-preview";
 
 interface FileCardProps {
   file: SerializedFile;
@@ -20,6 +21,7 @@ interface FileCardProps {
 
 export function FileCard({ file, onDelete, onCopyLink }: FileCardProps) {
   const [showActions, setShowActions] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
 
   const formatFileSize = (bytes: number): string => {
     if (bytes === 0) return "0 B";
@@ -132,6 +134,16 @@ export function FileCard({ file, onDelete, onCopyLink }: FileCardProps) {
               </button>
               <button
                 onClick={() => {
+                  setShowPreview(true);
+                  setShowActions(false);
+                }}
+                className="w-full flex items-center gap-2 px-2 py-1 text-sm text-foreground hover:bg-secondary"
+              >
+                <Eye className="w-4 h-4" />
+                Preview
+              </button>
+              <button
+                onClick={() => {
                   window.open(shareUrl, '_blank');
                   setShowActions(false);
                 }}
@@ -232,6 +244,14 @@ export function FileCard({ file, onDelete, onCopyLink }: FileCardProps) {
           onClick={() => setShowActions(false)}
         />
       )}
+
+      {/* Modal de prévisualisation */}
+      <FilePreview
+        file={file}
+        isOpen={showPreview}
+        onClose={() => setShowPreview(false)}
+        onDownload={() => window.open(shareUrl, '_blank')}
+      />
     </div>
   );
 }
