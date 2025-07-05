@@ -9,6 +9,7 @@ export type AuditAction =
   | 'file.upload'
   | 'file.download'
   | 'file.delete'
+  | 'file.preview'
   | 'share.create'
   | 'share.access'
   | 'share.delete'
