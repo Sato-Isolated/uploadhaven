@@ -1,8 +1,144 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { X, Download, Eye, EyeOff, AlertTriangle, FileIcon, Shield, Info } from "lucide-react";
+import { X, Download, Eye, EyeOff, AlertTriangle, FileIcon, Shield, Info, Copy } from "lucide-react";
 import { ClientCryptoService } from "@/lib/client-crypto";
+
+// Text file preview component
+interface TextFilePreviewProps {
+  blob: Blob;
+  filename: string;
+  onError: (error: string) => void;
+}
+
+function TextFilePreview({ blob, filename, onError }: TextFilePreviewProps) {
+  const [content, setContent] = useState<string>('');
+  const [isLoading, setIsLoading] = useState(true);
+  const [lineCount, setLineCount] = useState(0);
+
+  useEffect(() => {
+    const loadContent = async () => {
+      try {
+        setIsLoading(true);
+        
+        // Limit preview size to 1MB
+        if (blob.size > 1024 * 1024) {
+          onError('File too large for preview (max 1MB)');
+          return;
+        }
+
+        const text = await blob.text();
+        setContent(text);
+        setLineCount(text.split('\n').length);
+      } catch (error) {
+        onError('Failed to read file content');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadContent();
+  }, [blob, onError]);
+
+  const copyToClipboard = async () => {
+    try {
+      await navigator.clipboard.writeText(content);
+      // Could add a toast notification here
+    } catch (error) {
+      // Fallback for older browsers or when clipboard API fails
+      const textArea = document.createElement('textarea');
+      textArea.value = content;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+    }
+  };
+
+  const getLanguageFromFilename = (filename: string): string => {
+    const extension = filename.toLowerCase().split('.').pop() || '';
+    const languageMap: Record<string, string> = {
+      'js': 'javascript',
+      'jsx': 'javascript',
+      'ts': 'typescript',
+      'tsx': 'typescript',
+      'py': 'python',
+      'java': 'java',
+      'c': 'c',
+      'cpp': 'cpp',
+      'cc': 'cpp',
+      'cxx': 'cpp',
+      'h': 'c',
+      'hpp': 'cpp',
+      'cs': 'csharp',
+      'php': 'php',
+      'rb': 'ruby',
+      'go': 'go',
+      'rs': 'rust',
+      'html': 'html',
+      'htm': 'html',
+      'css': 'css',
+      'scss': 'scss',
+      'sass': 'sass',
+      'less': 'less',
+      'json': 'json',
+      'xml': 'xml',
+      'yaml': 'yaml',
+      'yml': 'yaml',
+      'sql': 'sql',
+      'sh': 'bash',
+      'bash': 'bash',
+      'md': 'markdown',
+      'markdown': 'markdown'
+    };
+    
+    return languageMap[extension] || 'text';
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-64 bg-secondary/20 rounded-lg">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        <span className="ml-3 text-muted-foreground">Loading content...</span>
+      </div>
+    );
+  }
+
+  const language = getLanguageFromFilename(filename);
+
+  return (
+    <div className="bg-secondary/20 rounded-lg overflow-hidden">
+      {/* Header with file info and copy button */}
+      <div className="flex items-center justify-between px-4 py-2 bg-secondary/40 border-b border-border">
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <FileIcon className="w-4 h-4" />
+          <span>{filename}</span>
+          <span>•</span>
+          <span>{lineCount} lines</span>
+          <span>•</span>
+          <span>{language}</span>
+        </div>
+        <button
+          onClick={copyToClipboard}
+          className="flex items-center gap-1 px-2 py-1 text-xs bg-secondary hover:bg-secondary/80 rounded transition-colors"
+          title="Copy content"
+        >
+          <Copy className="w-3 h-3" />
+          Copy
+        </button>
+      </div>
+
+      {/* Content area */}
+      <div className="relative h-96 overflow-auto">
+        <pre className="p-4 text-sm font-mono leading-relaxed whitespace-pre-wrap break-words">
+          <code className={`language-${language}`}>
+            {content}
+          </code>
+        </pre>
+      </div>
+    </div>
+  );
+}
 
 interface FileInfo {
   id: string;
@@ -25,11 +161,75 @@ interface SecureFilePreviewProps {
 
 // MIME types allowed for preview
 const PREVIEW_ALLOWED_TYPES = [
+  // Images
   'image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml',
+  
+  // Documents
   'application/pdf',
+  
+  // Video/Audio
   'video/mp4', 'video/webm', 'video/ogg',
-  'audio/mp3', 'audio/wav', 'audio/ogg', 'audio/mpeg',
-  'text/plain', 'text/csv', 'text/html', 'text/css', 'text/javascript'
+  'audio/mp3', 'audio/wav', 'audio/ogg', 'audio/mpeg', 'audio/mp4',
+  
+  // Text files
+  'text/plain', 'text/csv', 'text/html', 'text/css', 'text/javascript',
+  'text/xml', 'text/markdown', 'text/x-markdown',
+  
+  // Data formats
+  'application/json', 'application/xml', 'text/json',
+  'application/yaml', 'text/yaml', 'text/x-yaml',
+  'application/toml', 'text/toml',
+  
+  // Programming languages
+  'application/javascript', 'text/javascript',
+  'application/typescript', 'text/typescript',
+  'text/x-python', 'application/x-python',
+  'text/x-java', 'application/x-java',
+  'text/x-c', 'text/x-c++', 'text/x-csharp',
+  'text/x-php', 'application/x-php',
+  'text/x-ruby', 'application/x-ruby',
+  'text/x-go', 'application/x-go',
+  'text/x-rust', 'application/x-rust',
+  'text/x-scala', 'application/x-scala',
+  'text/x-kotlin', 'application/x-kotlin',
+  'text/x-swift', 'application/x-swift',
+  
+  // Stylesheets
+  'text/scss', 'text/sass', 'text/less',
+  
+  // Config files
+  'text/x-ini', 'application/x-ini',
+  'text/x-properties', 'application/x-properties',
+  'text/x-dockerfile', 'application/x-dockerfile',
+  'text/x-nginx-conf', 'application/x-nginx-conf',
+  'text/x-apache-conf', 'application/x-apache-conf',
+  
+  // Shell scripts
+  'text/x-shellscript', 'application/x-shellscript',
+  'text/x-bash', 'application/x-bash',
+  'text/x-powershell', 'application/x-powershell',
+  
+  // SQL and databases
+  'text/x-sql', 'application/sql',
+  'text/x-mysql', 'text/x-postgresql',
+  
+  // GraphQL
+  'application/graphql', 'text/x-graphql',
+  
+  // Log files
+  'text/x-log', 'application/x-log',
+  
+  // Environment files
+  'text/x-env', 'application/x-env',
+  
+  // Data files
+  'text/tab-separated-values', 'application/x-tsv',
+  
+  // Documentation
+  'text/x-readme', 'text/x-license',
+  
+  // Generic fallbacks for common extensions
+  'application/octet-stream' // We'll handle this with file extension detection
 ];
 
 // Sensitive types that require extra warning
@@ -53,7 +253,74 @@ export function SecureFilePreview({
   const [error, setError] = useState<string | null>(null);
   const [hasConsentLogged, setHasConsentLogged] = useState(false);
 
-  const canPreview = PREVIEW_ALLOWED_TYPES.includes(fileInfo.mimeType);
+  // Enhanced preview detection with file extension fallback
+  const getFileExtension = (filename: string): string => {
+    return filename.toLowerCase().split('.').pop() || '';
+  };
+
+  const isTextFileByExtension = (filename: string): boolean => {
+    const extension = getFileExtension(filename);
+    const textExtensions = [
+      // Data formats
+      'json', 'xml', 'yaml', 'yml', 'toml', 'ini', 'conf', 'config',
+      
+      // Programming languages
+      'js', 'ts', 'jsx', 'tsx', 'py', 'java', 'c', 'cpp', 'cc', 'cxx', 'h', 'hpp',
+      'cs', 'php', 'rb', 'go', 'rs', 'scala', 'kt', 'swift', 'dart', 'lua',
+      
+      // Web technologies
+      'html', 'htm', 'css', 'scss', 'sass', 'less', 'vue', 'svelte',
+      
+      // Shell scripts
+      'sh', 'bash', 'zsh', 'fish', 'ps1', 'cmd', 'bat',
+      
+      // SQL and query languages
+      'sql', 'graphql', 'gql',
+      
+      // Config and infrastructure
+      'dockerfile', 'docker-compose', 'nginx', 'apache', 'htaccess',
+      'gitignore', 'gitattributes', 'editorconfig',
+      
+      // Documentation
+      'md', 'markdown', 'txt', 'readme', 'license', 'changelog',
+      'rst', 'adoc', 'asciidoc',
+      
+      // Data files
+      'csv', 'tsv', 'log', 'env', 'properties',
+      
+      // Markup and template languages
+      'mustache', 'handlebars', 'hbs', 'twig', 'jinja', 'j2',
+      
+      // Package managers
+      'lock', 'sum', 'mod', 'gradle', 'sbt',
+      
+      // Others
+      'makefile', 'cmake', 'dockerfile', 'vagrantfile',
+      'r', 'rmd', 'ipynb', 'jl', 'elm', 'ex', 'exs', 'erl', 'hrl'
+    ];
+    
+    return textExtensions.includes(extension);
+  };
+
+  const enhancedCanPreview = (): boolean => {
+    // First check explicit MIME types
+    if (PREVIEW_ALLOWED_TYPES.includes(fileInfo.mimeType)) {
+      return true;
+    }
+    
+    // For generic MIME types, check file extension
+    if (fileInfo.mimeType === 'application/octet-stream' || 
+        fileInfo.mimeType === 'text/plain' || 
+        fileInfo.mimeType === 'application/unknown') {
+      return isTextFileByExtension(fileInfo.originalName);
+    }
+    
+    // Check if any text MIME type prefix matches
+    const textPrefixes = ['text/', 'application/json', 'application/xml', 'application/javascript'];
+    return textPrefixes.some(prefix => fileInfo.mimeType.startsWith(prefix));
+  };
+
+  const canPreview = enhancedCanPreview();
   const isSensitive = SENSITIVE_TYPES.includes(fileInfo.mimeType);
   
   const getContentTypeLabel = () => {
@@ -221,17 +488,11 @@ export function SecureFilePreview({
       );
     }
 
-    if (fileInfo.mimeType.startsWith('text/')) {
-      return (
-        <div className="bg-secondary/20 rounded-lg p-4 h-96 overflow-auto">
-          <iframe
-            src={previewUrl}
-            className="w-full h-full border-0"
-            title={fileInfo.originalName}
-            onError={() => setError('Failed to load text preview')}
-          />
-        </div>
-      );
+    // Handle text files and other file types detected by extension
+    if (fileInfo.mimeType.startsWith('text/') || 
+        isTextFileByExtension(fileInfo.originalName) ||
+        ['application/json', 'application/xml', 'application/yaml', 'application/javascript'].includes(fileInfo.mimeType)) {
+      return <TextFilePreview blob={decryptedContent} filename={fileInfo.originalName} onError={setError} />;
     }
 
     return (
