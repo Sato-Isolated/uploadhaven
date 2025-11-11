@@ -1,6 +1,7 @@
 "use client";
 
-import { ReactNode, useState } from "react";
+import { ReactNode, useState, useRef, useEffect } from "react";
+import { createPortal } from "react-dom";
 
 interface TooltipProps {
   content: ReactNode;
@@ -19,10 +20,65 @@ export function Tooltip({
 }: TooltipProps) {
   const [isVisible, setIsVisible] = useState(false);
   const [timeoutId, setTimeoutId] = useState<NodeJS.Timeout | null>(null);
+  const [coords, setCoords] = useState({ top: 0, left: 0 });
+  const triggerRef = useRef<HTMLDivElement>(null);
+  const tooltipRef = useRef<HTMLDivElement>(null);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const updatePosition = () => {
+    if (!triggerRef.current) return;
+    
+    const triggerRect = triggerRef.current.getBoundingClientRect();
+    const tooltipHeight = tooltipRef.current?.offsetHeight || 40;
+    const tooltipWidth = tooltipRef.current?.offsetWidth || 100;
+    
+    let top = 0;
+    let left = 0;
+    
+    switch (position) {
+      case "top":
+        top = triggerRect.top - tooltipHeight - 8;
+        left = triggerRect.left + triggerRect.width / 2 - tooltipWidth / 2;
+        break;
+      case "bottom":
+        top = triggerRect.bottom + 8;
+        left = triggerRect.left + triggerRect.width / 2 - tooltipWidth / 2;
+        break;
+      case "left":
+        top = triggerRect.top + triggerRect.height / 2 - tooltipHeight / 2;
+        left = triggerRect.left - tooltipWidth - 8;
+        break;
+      case "right":
+        top = triggerRect.top + triggerRect.height / 2 - tooltipHeight / 2;
+        left = triggerRect.right + 8;
+        break;
+    }
+    
+    setCoords({ top, left });
+  };
+
+  useEffect(() => {
+    if (isVisible) {
+      updatePosition();
+      window.addEventListener('scroll', updatePosition, true);
+      window.addEventListener('resize', updatePosition);
+      
+      return () => {
+        window.removeEventListener('scroll', updatePosition, true);
+        window.removeEventListener('resize', updatePosition);
+      };
+    }
+  }, [isVisible]);
 
   const showTooltip = () => {
     if (timeoutId) clearTimeout(timeoutId);
-    const id = setTimeout(() => setIsVisible(true), delay);
+    const id = setTimeout(() => {
+      setIsVisible(true);
+    }, delay);
     setTimeoutId(id);
   };
 
@@ -32,58 +88,54 @@ export function Tooltip({
   };
 
   const getPositionClasses = () => {
-    switch (position) {
-      case "top":
-        return "bottom-full left-1/2 transform -translate-x-1/2 mb-2";
-      case "bottom":
-        return "top-full left-1/2 transform -translate-x-1/2 mt-2";
-      case "left":
-        return "right-full top-1/2 transform -translate-y-1/2 mr-2";
-      case "right":
-        return "left-full top-1/2 transform -translate-y-1/2 ml-2";
-      default:
-        return "bottom-full left-1/2 transform -translate-x-1/2 mb-2";
-    }
+    // Pas besoin de classes de positionnement, on utilise top/left en pixels
+    return "";
   };
 
   const getArrowClasses = () => {
     switch (position) {
       case "top":
-        return "top-full left-1/2 transform -translate-x-1/2 border-l-transparent border-r-transparent border-b-transparent border-t-border";
+        return "bottom-0 left-1/2 -translate-x-1/2 translate-y-full border-l-transparent border-r-transparent border-b-transparent border-t-popover";
       case "bottom":
-        return "bottom-full left-1/2 transform -translate-x-1/2 border-l-transparent border-r-transparent border-t-transparent border-b-border";
+        return "top-0 left-1/2 -translate-x-1/2 -translate-y-full border-l-transparent border-r-transparent border-t-transparent border-b-popover";
       case "left":
-        return "left-full top-1/2 transform -translate-y-1/2 border-t-transparent border-b-transparent border-r-transparent border-l-border";
+        return "right-0 top-1/2 -translate-y-1/2 translate-x-full border-t-transparent border-b-transparent border-r-transparent border-l-popover";
       case "right":
-        return "right-full top-1/2 transform -translate-y-1/2 border-t-transparent border-b-transparent border-l-transparent border-r-border";
+        return "left-0 top-1/2 -translate-y-1/2 -translate-x-full border-t-transparent border-b-transparent border-l-transparent border-r-popover";
       default:
-        return "top-full left-1/2 transform -translate-x-1/2 border-l-transparent border-r-transparent border-b-transparent border-t-border";
+        return "bottom-0 left-1/2 -translate-x-1/2 translate-y-full border-l-transparent border-r-transparent border-b-transparent border-t-popover";
     }
   };
 
-  return (
-    <div 
-      className={`relative inline-block ${className}`}
-      onMouseEnter={showTooltip}
-      onMouseLeave={hideTooltip}
-      onFocus={showTooltip}
-      onBlur={hideTooltip}
+  const tooltipContent = isVisible && mounted && (
+    <div
+      ref={tooltipRef}
+      className="fixed z-[9999] px-3 py-2 text-xs text-popover-foreground bg-popover border border-border tactical-border shadow-lg max-w-xs pointer-events-none"
+      style={{
+        top: `${coords.top}px`,
+        left: `${coords.left}px`,
+        animation: "fadeInUp 0.2s ease-out"
+      }}
     >
-      {children}
-      {isVisible && (
-        <div
-          className={`absolute z-50 px-3 py-2 text-xs text-popover-foreground bg-popover border border-border tactical-border shadow-lg whitespace-nowrap transition-all duration-200 ${getPositionClasses()}`}
-          style={{
-            animation: "fadeInUp 0.2s ease-out"
-          }}
-        >
-          {content}
-          <div
-            className={`absolute w-2 h-2 border-4 ${getArrowClasses()}`}
-          />
-        </div>
-      )}
+      {content}
+      <div className={`absolute w-0 h-0 border-4 ${getArrowClasses()}`} />
     </div>
+  );
+
+  return (
+    <>
+      <div 
+        ref={triggerRef}
+        className={`inline-block ${className}`}
+        onMouseEnter={showTooltip}
+        onMouseLeave={hideTooltip}
+        onFocus={showTooltip}
+        onBlur={hideTooltip}
+      >
+        {children}
+      </div>
+      {mounted && typeof document !== 'undefined' && createPortal(tooltipContent, document.body)}
+    </>
   );
 }
 

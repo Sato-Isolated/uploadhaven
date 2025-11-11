@@ -369,14 +369,14 @@ export function FileUpload() {
                 <div className="flex items-center justify-center gap-3">
                   <Link
                     href="/auth/register"
-                    className="btn-tactical-primary flex items-center gap-2 text-sm"
+                    className="btn-tactical-primary flex items-center gap-2 text-sm px-4 py-2"
                   >
                     <UserPlus className="w-4 h-4" />
                     Sign Up
                   </Link>
                   <Link
                     href="/auth/login"
-                    className="btn-tactical flex items-center gap-2 text-sm"
+                    className="btn-tactical flex items-center gap-2 text-sm px-4 py-2"
                   >
                     <LogIn className="w-4 h-4" />
                     Sign In

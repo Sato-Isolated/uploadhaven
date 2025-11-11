@@ -164,11 +164,27 @@
   
   /* Glow effect subtil */
   .glow-primary {
-    box-shadow: 0 0 8px var(--primary)20;
+    box-shadow: 0 0 8px rgba(255, 215, 0, 0.2);
   }
   
   .glow-primary:hover {
-    box-shadow: 0 0 16px var(--primary)40;
+    box-shadow: 0 0 16px rgba(255, 215, 0, 0.4);
+  }
+
+  .glow-success {
+    box-shadow: 0 0 8px rgba(0, 184, 148, 0.2);
+  }
+  
+  .glow-success:hover {
+    box-shadow: 0 0 16px rgba(0, 184, 148, 0.4);
+  }
+
+  .glow-warning {
+    box-shadow: 0 0 8px rgba(255, 140, 0, 0.2);
+  }
+  
+  .glow-warning:hover {
+    box-shadow: 0 0 16px rgba(255, 140, 0, 0.4);
   }
   
   /* Upload zone tactique */

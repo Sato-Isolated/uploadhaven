@@ -291,10 +291,12 @@ export function PulseLoading({ size = "md", className = "" }: PulseLoadingProps)
   };
 
   return (
-    <div className={`relative ${className}`}>
-      <div className={`${getSizeClasses()} bg-primary/20 tactical-border animate-ping`}></div>
-      <div className={`absolute inset-0 ${getSizeClasses()} bg-primary/40 tactical-border animate-pulse`}></div>
-      <div className={`absolute inset-1 bg-primary tactical-border`}></div>
+    <div className={`relative flex items-center justify-center ${className}`}>
+      {/* Outer pulse ring */}
+      <div className={`absolute ${getSizeClasses()} bg-primary/20 rounded-sm tactical-border animate-ping`}></div>
+      
+      {/* Inner solid core */}
+      <div className={`relative ${getSizeClasses()} bg-primary/60 rounded-sm tactical-border`}></div>
     </div>
   );
 }
