@@ -1,16 +1,16 @@
 /**
- * Système d'erreurs unifié pour l'application
+ * Unified error system for the application
  */
 
 export enum ErrorCode {
-  // Erreurs génériques
+    // Generic errors
   VALIDATION_ERROR = 'VALIDATION_ERROR',
   NOT_FOUND = 'NOT_FOUND',
   UNAUTHORIZED = 'UNAUTHORIZED',
   FORBIDDEN = 'FORBIDDEN',
   RATE_LIMITED = 'RATE_LIMITED',
   
-  // Erreurs fichiers
+  // File errors
   FILE_NOT_FOUND = 'FILE_NOT_FOUND',
   FILE_TOO_LARGE = 'FILE_TOO_LARGE',
   FILE_TYPE_NOT_ALLOWED = 'FILE_TYPE_NOT_ALLOWED',
@@ -18,28 +18,28 @@ export enum ErrorCode {
   FILE_MAX_DOWNLOADS_REACHED = 'FILE_MAX_DOWNLOADS_REACHED',
   FILE_NOT_ACCESSIBLE = 'FILE_NOT_ACCESSIBLE',
   
-  // Erreurs partage
+  // Share errors
   SHARE_NOT_FOUND = 'SHARE_NOT_FOUND',
   SHARE_EXPIRED = 'SHARE_EXPIRED',
   SHARE_MAX_ACCESS_REACHED = 'SHARE_MAX_ACCESS_REACHED',
   INVALID_PASSWORD = 'INVALID_PASSWORD',
   
-  // Erreurs système
+  // System errors
   STORAGE_ERROR = 'STORAGE_ERROR',
   DATABASE_ERROR = 'DATABASE_ERROR',
   ENCRYPTION_ERROR = 'ENCRYPTION_ERROR',
   DECRYPTION_ERROR = 'DECRYPTION_ERROR',
   
-  // Erreurs opérationnelles
+  // Operational errors
   UPLOAD_FAILED = 'UPLOAD_FAILED',
   DOWNLOAD_FAILED = 'DOWNLOAD_FAILED',
   DELETE_FAILED = 'DELETE_FAILED',
   CLEANUP_FAILED = 'CLEANUP_FAILED',
   
-  // Erreurs features
+  // Feature errors
   FEATURE_DISABLED = 'FEATURE_DISABLED',
   
-  // Erreurs configuration
+  // Configuration errors
   INVALID_CONFIGURATION = 'INVALID_CONFIGURATION'
 }
 
@@ -52,7 +52,7 @@ export interface ErrorDetails {
 }
 
 /**
- * Classe d'erreur de base pour l'application
+ * Base error class for the application
  */
 export class AppError extends Error {
   public readonly code: ErrorCode;
@@ -75,7 +75,7 @@ export class AppError extends Error {
     this.correlationId = correlationId;
     this.statusCode = this.getHttpStatusCode(code);
 
-    // Maintient la stack trace
+    // Maintain stack trace
     if (Error.captureStackTrace) {
       Error.captureStackTrace(this, AppError);
     }
@@ -138,7 +138,7 @@ export class AppError extends Error {
 }
 
 /**
- * Erreurs spécifiques par domaine
+ * Domain-specific errors
  */
 export class FileError extends AppError {
   constructor(code: ErrorCode, message: string, details?: any, correlationId?: string) {
@@ -169,7 +169,7 @@ export class CryptoError extends AppError {
 }
 
 /**
- * Factory pour créer des erreurs courantes
+ * Factory for creating common errors
  */
 export class ErrorFactory {
   static fileNotFound(fileId: string): FileError {
@@ -238,18 +238,18 @@ export class ErrorFactory {
 }
 
 /**
- * Utilitaires pour la gestion d'erreurs
+ * Error handling utilities
  */
 export class ErrorUtils {
   /**
-   * Vérifie si une erreur est une AppError
+   * Check if an error is an AppError
    */
   static isAppError(error: any): error is AppError {
     return error instanceof AppError;
   }
 
   /**
-   * Extrait les détails d'erreur pour logging
+   * Extract error details for logging
    */
   static extractErrorDetails(error: any): {
     message: string;
@@ -274,7 +274,7 @@ export class ErrorUtils {
   }
 
   /**
-   * Génère un ID de corrélation unique
+   * Generate a unique correlation ID
    */
   static generateCorrelationId(): string {
     return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;

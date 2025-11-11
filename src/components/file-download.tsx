@@ -7,6 +7,7 @@ import { useFileInfo, useDownloadFile, usePrefetchFileInfo } from "@/hooks/use-a
 import { CryptoLoading, ProgressBar, LaserScanLoading } from "@/components/ui/loading";
 import { HelpTooltip, InfoTooltip } from "@/components/ui/tooltip";
 import { useToast } from "@/components/ui/toast";
+import { SecureFilePreview } from "@/components/shared/secure-file-preview";
 
 interface FileDownloadProps {
   shareId: string;
@@ -17,6 +18,9 @@ export function FileDownload({ shareId }: FileDownloadProps) {
   const [error, setError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [downloadStage, setDownloadStage] = useState<"decrypting" | "downloading" | "processing">("downloading");
+  const [showPreview, setShowPreview] = useState(false);
+  const [encryptedContent, setEncryptedContent] = useState<string | null>(null);
+  const [fileMimeType, setFileMimeType] = useState<string | null>(null);
 
   // React Query hooks
   const { data: fileInfo, isLoading: loading, error: queryError } = useFileInfo(shareId);
@@ -36,6 +40,34 @@ export function FileDownload({ shareId }: FileDownloadProps) {
   const requiresPassword = fileInfo?.passwordProtected || false;
 
 
+  // Shared function to get encrypted content
+  const getEncryptedContent = async () => {
+    if (!fileInfo) return null;
+
+    try {
+      // Use React Query mutation to get encrypted content
+      const result = await downloadMutation.mutateAsync({ 
+        fileId: fileInfo.id, 
+        password: requiresPassword ? password : undefined,
+        shareId: shareId // Pass shareId to enable access counting
+      });
+      
+      // Store the mimeType for preview
+      setFileMimeType(result.mimeType);
+      
+      return result.content;
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : "Failed to get file content.";
+      setError(errorMessage);
+      addToast({
+        type: "error",
+        title: "Access Failed",
+        message: errorMessage
+      });
+      return null;
+    }
+  };
+
   const downloadFile = async () => {
     if (!fileInfo) return;
 
@@ -53,17 +85,14 @@ export function FileDownload({ shareId }: FileDownloadProps) {
         return;
       }
 
-      // Use React Query mutation for download
-      const result = await downloadMutation.mutateAsync({ 
-        fileId: fileInfo.id, 
-        password: requiresPassword ? password : undefined,
-        shareId: shareId // Pass shareId to enable access counting
-      });
+      // Get encrypted content (either cached or fresh)
+      const content = encryptedContent || await getEncryptedContent();
+      if (!content) return;
       
       setDownloadStage("decrypting");
       
       // Convert base64 back to ArrayBuffer
-      const binaryString = atob(result.content);
+      const binaryString = atob(content);
       const bytes = new Uint8Array(binaryString.length);
       for (let i = 0; i < binaryString.length; i++) {
         bytes[i] = binaryString.charCodeAt(i);
@@ -81,12 +110,12 @@ export function FileDownload({ shareId }: FileDownloadProps) {
       
       setDownloadStage("processing");
       
-      const blob = new Blob([decryptedData], { type: result.mimeType });
+      const blob = new Blob([decryptedData], { type: 'application/octet-stream' });
       const url = URL.createObjectURL(blob);
       
       const a = document.createElement("a");
       a.href = url;
-      a.download = result.fileName;
+      a.download = fileInfo.originalName;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -96,7 +125,7 @@ export function FileDownload({ shareId }: FileDownloadProps) {
       addToast({
         type: "success",
         title: "Download Complete",
-        message: `${result.fileName} has been downloaded successfully`
+        message: `${fileInfo.originalName} has been downloaded successfully`
       });
 
       // React Query will automatically update the file info (download count)
@@ -109,6 +138,19 @@ export function FileDownload({ shareId }: FileDownloadProps) {
         message: errorMessage
       });
     }
+  };
+
+  const handlePreview = async () => {
+    if (!fileInfo) return;
+
+    // Get encrypted content if not already cached
+    if (!encryptedContent) {
+      const content = await getEncryptedContent();
+      if (!content) return;
+      setEncryptedContent(content);
+    }
+
+    setShowPreview(true);
   };
 
   const formatFileSize = (bytes: number): string => {
@@ -282,28 +324,59 @@ export function FileDownload({ shareId }: FileDownloadProps) {
             </div>
           )}
 
-          <button
-            onClick={downloadFile}
-            disabled={downloadMutation.isPending || (requiresPassword && !password)}
-            className="btn-tactical-primary w-full flex items-center justify-center gap-2 px-6 py-3 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
-          >
-            {downloadMutation.isPending ? (
-              <>
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current"></div>
-                Processing...
-              </>
-            ) : (
-              <>
-                <Download className="w-4 h-4" />
-                Download File
-              </>
-            )}
-          </button>
+          <div className="flex flex-col sm:flex-row gap-3">
+            <button
+              onClick={handlePreview}
+              disabled={downloadMutation.isPending || (requiresPassword && !password)}
+              className="btn-tactical w-full sm:flex-1 flex items-center justify-center gap-2 px-6 py-3 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+            >
+              <Eye className="w-4 h-4" />
+              Preview File
+            </button>
+            
+            <button
+              onClick={downloadFile}
+              disabled={downloadMutation.isPending || (requiresPassword && !password)}
+              className="btn-tactical-primary w-full sm:flex-1 flex items-center justify-center gap-2 px-6 py-3 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+            >
+              {downloadMutation.isPending ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current"></div>
+                  Processing...
+                </>
+              ) : (
+                <>
+                  <Download className="w-4 h-4" />
+                  Download File
+                </>
+              )}
+            </button>
+          </div>
 
           <p className="text-xs text-muted-foreground text-center">
             File will be decrypted in your browser before download
           </p>
         </div>
+      )}
+
+      {/* Preview Modal */}
+      {showPreview && fileInfo && encryptedContent && fileMimeType && (
+        <SecureFilePreview
+          shareId={shareId}
+          fileInfo={{
+            id: fileInfo.id,
+            originalName: fileInfo.originalName,
+            mimeType: fileMimeType,
+            size: fileInfo.size,
+            uploadedAt: fileInfo.uploadedAt,
+            expiresAt: fileInfo.expiresAt,
+            passwordProtected: fileInfo.passwordProtected
+          }}
+          encryptedContent={encryptedContent}
+          password={requiresPassword ? password : undefined}
+          onClose={() => setShowPreview(false)}
+          onDownload={() => downloadFile()}
+        />
       )}
     </div>
   );

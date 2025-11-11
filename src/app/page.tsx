@@ -58,7 +58,7 @@ export default function Home() {
 
           {/* No Registration Card */}
           <div className="tactical-card p-6 text-center fade-in-up card-hover-scale tactical-scan group" style={{animationDelay: '0.1s'}}>
-            <div className="relative w-12 h-12 bg-secondary border border-success/30 tactical-border flex items-center justify-center mx-auto mb-4">
+            <div className="relative w-12 h-12 bg-secondary border border-primary/30 tactical-border flex items-center justify-center mx-auto mb-4 glow-primary">
               <svg className="w-6 h-6 text-success relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
               </svg>
@@ -82,7 +82,7 @@ export default function Home() {
 
           {/* Auto-Expiring Card */}
           <div className="tactical-card p-6 text-center fade-in-up card-hover-scale tactical-scan group" style={{animationDelay: '0.2s'}}>
-            <div className="relative w-12 h-12 bg-secondary border border-warning/30 tactical-border flex items-center justify-center mx-auto mb-4">
+            <div className="relative w-12 h-12 bg-secondary border border-primary/30 tactical-border flex items-center justify-center mx-auto mb-4 glow-primary">
               <svg className="w-6 h-6 text-warning relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>

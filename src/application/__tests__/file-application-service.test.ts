@@ -7,8 +7,8 @@ import { CryptoService } from '../../domains/security/crypto-service';
 import { ConfigurationService } from '../../domains/shared/configuration';
 import { FileEntity } from '../../domains/file/file-entity';
 import { ShareEntity } from '../../domains/share/share-entity';
-import { UploadFileCommand, DownloadFileCommand, DeleteFileCommand, CommandFactory } from '../commands';
-import { ErrorFactory, ErrorCode } from '../../domains/shared/errors';
+import { CommandFactory } from '../commands';
+import { ErrorCode } from '../../domains/shared/errors';
 
 // Mock des dépendances
 const mockFileRepository = {

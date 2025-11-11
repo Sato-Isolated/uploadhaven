@@ -10,6 +10,7 @@ export interface ShareMetadata {
   maxAccess?: number;
   passwordProtected: boolean;
   passwordHash?: string;
+  userId?: string; // User ID if share was created by authenticated user
 }
 
 export interface ShareCreateParams extends BaseCreateParams {
@@ -18,6 +19,7 @@ export interface ShareCreateParams extends BaseCreateParams {
   maxAccess?: number;
   passwordProtected?: boolean;
   passwordHash?: string;
+  userId?: string; // User ID if share was created by authenticated user
 }
 
 export class ShareEntity implements BaseEntity, Expirable, Countable<ShareEntity> {
@@ -30,7 +32,8 @@ export class ShareEntity implements BaseEntity, Expirable, Countable<ShareEntity
     public readonly accessCount: number = 0,
     public readonly maxAccess?: number,
     public readonly passwordProtected: boolean = false,
-    public readonly passwordHash?: string
+    public readonly passwordHash?: string,
+    public readonly userId?: string
   ) {}
 
   // Alias pour l'interface Countable
@@ -57,7 +60,8 @@ export class ShareEntity implements BaseEntity, Expirable, Countable<ShareEntity
       0,
       params.maxAccess,
       params.passwordProtected || false,
-      params.passwordHash
+      params.passwordHash,
+      params.userId
     );
   }
 
@@ -71,7 +75,8 @@ export class ShareEntity implements BaseEntity, Expirable, Countable<ShareEntity
       metadata.accessCount,
       metadata.maxAccess,
       metadata.passwordProtected,
-      metadata.passwordHash
+      metadata.passwordHash,
+      metadata.userId
     );
   }
 
@@ -101,12 +106,34 @@ export class ShareEntity implements BaseEntity, Expirable, Countable<ShareEntity
       this.accessCount + 1,
       this.maxAccess,
       this.passwordProtected,
-      this.passwordHash
+      this.passwordHash,
+      this.userId
     );
   }
 
   incrementAccessCount(): ShareEntity {
     return this.incrementCount();
+  }
+
+  /**
+   * Vérifie si le partage appartient à un utilisateur spécifique
+   */
+  belongsToUser(userId: string): boolean {
+    return this.userId === userId;
+  }
+
+  /**
+   * Vérifie si le partage a été créé de manière anonyme
+   */
+  isAnonymous(): boolean {
+    return !this.userId;
+  }
+
+  /**
+   * Vérifie si le partage appartient à un utilisateur connecté
+   */
+  hasOwner(): boolean {
+    return !!this.userId;
   }
 
   toMetadata(): ShareMetadata {
@@ -119,6 +146,8 @@ export class ShareEntity implements BaseEntity, Expirable, Countable<ShareEntity
       accessCount: this.accessCount,
       maxAccess: this.maxAccess,
       passwordProtected: this.passwordProtected,
+      passwordHash: this.passwordHash,
+      userId: this.userId,
     };
   }
 }

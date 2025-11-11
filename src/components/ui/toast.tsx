@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, createContext, useContext, ReactNode } from "react";
+import { useState, useEffect, createContext, useContext, ReactNode, useCallback } from "react";
 import { X, CheckCircle, AlertTriangle, Info, AlertCircle } from "lucide-react";
 
 type ToastType = "success" | "error" | "warning" | "info";
@@ -73,6 +73,13 @@ function ToastItem({ toast, onRemove }: { toast: Toast; onRemove: (id: string) =
   const [progress, setProgress] = useState(100);
   const [isPaused, setIsPaused] = useState(false);
 
+  const handleRemove = useCallback(() => {
+    setIsLeaving(true);
+    setTimeout(() => {
+      onRemove(toast.id);
+    }, 300);
+  }, [onRemove, toast.id]);
+
   useEffect(() => {
     // Trigger entrance animation
     const timer = setTimeout(() => setIsVisible(true), 50);
@@ -99,14 +106,7 @@ function ToastItem({ toast, onRemove }: { toast: Toast; onRemove: (id: string) =
     }, interval);
 
     return () => clearInterval(timer);
-  }, [toast.duration, toast.showProgress, isPaused]);
-
-  const handleRemove = () => {
-    setIsLeaving(true);
-    setTimeout(() => {
-      onRemove(toast.id);
-    }, 300);
-  };
+  }, [toast.duration, toast.showProgress, isPaused, handleRemove]);
 
   const handleMouseEnter = () => {
     setIsPaused(true);

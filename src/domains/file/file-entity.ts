@@ -11,6 +11,7 @@ export interface FileMetadata {
   downloadCount: number;
   maxDownloads?: number;
   passwordHash?: string; // Password hash if protected
+  userId?: string; // User ID if uploaded by authenticated user
 }
 
 export interface FileCreateParams extends BaseCreateParams {
@@ -20,6 +21,7 @@ export interface FileCreateParams extends BaseCreateParams {
   encryptedPath: string;
   maxDownloads?: number;
   passwordHash?: string;
+  userId?: string; // User ID if uploaded by authenticated user
 }
 
 export class FileEntity implements BaseEntity, Expirable, Countable<FileEntity> {
@@ -33,7 +35,8 @@ export class FileEntity implements BaseEntity, Expirable, Countable<FileEntity> 
     public readonly expiresAt: Date,
     public readonly downloadCount: number = 0,
     public readonly maxDownloads?: number,
-    public readonly passwordHash?: string
+    public readonly passwordHash?: string,
+    public readonly userId?: string
   ) { }
 
   // Alias pour l'interface BaseEntity
@@ -65,7 +68,8 @@ export class FileEntity implements BaseEntity, Expirable, Countable<FileEntity> 
       expiresAt,
       0,
       params.maxDownloads,
-      params.passwordHash
+      params.passwordHash,
+      params.userId
     );
   }
 
@@ -80,7 +84,8 @@ export class FileEntity implements BaseEntity, Expirable, Countable<FileEntity> 
       metadata.expiresAt,
       metadata.downloadCount,
       metadata.maxDownloads,
-      metadata.passwordHash
+      metadata.passwordHash,
+      metadata.userId
     );
   }
 
@@ -115,7 +120,8 @@ export class FileEntity implements BaseEntity, Expirable, Countable<FileEntity> 
       this.expiresAt,
       this.downloadCount,
       this.maxDownloads,
-      this.passwordHash
+      this.passwordHash,
+      this.userId
     );
   }
 
@@ -130,7 +136,8 @@ export class FileEntity implements BaseEntity, Expirable, Countable<FileEntity> 
       this.expiresAt,
       this.downloadCount + 1,
       this.maxDownloads,
-      this.passwordHash
+      this.passwordHash,
+      this.userId
     );
   }
 
@@ -140,6 +147,27 @@ export class FileEntity implements BaseEntity, Expirable, Countable<FileEntity> 
 
   isPasswordProtected(): boolean {
     return !!this.passwordHash;
+  }
+
+  /**
+   * Vérifie si le fichier appartient à un utilisateur spécifique
+   */
+  belongsToUser(userId: string): boolean {
+    return this.userId === userId;
+  }
+
+  /**
+   * Vérifie si le fichier a été uploadé de manière anonyme
+   */
+  isAnonymous(): boolean {
+    return !this.userId;
+  }
+
+  /**
+   * Vérifie si le fichier appartient à un utilisateur connecté
+   */
+  hasOwner(): boolean {
+    return !!this.userId;
   }
 
   toMetadata(): FileMetadata {
@@ -154,6 +182,7 @@ export class FileEntity implements BaseEntity, Expirable, Countable<FileEntity> 
       downloadCount: this.downloadCount,
       maxDownloads: this.maxDownloads,
       passwordHash: this.passwordHash,
+      userId: this.userId,
     };
   }
 }

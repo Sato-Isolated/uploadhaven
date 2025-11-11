@@ -9,20 +9,34 @@ import { FileApplicationService } from '@/application/file-application-service';
 import { CommandFactory } from '@/application/commands';
 import { ConfigurationService, DEFAULT_CONFIGURATION } from '@/domains/shared/configuration';
 import { rateLimiter } from '@/lib/cache';
+import { auth } from '@/lib/auth';
 import mime from 'mime-types';
 
 export async function POST(request: NextRequest) {
   return serverPerformanceMonitor.measureApiOperation('upload', async () => {
     try {
+      // Check authentication (optional - anonymous uploads are allowed)
+      let userId: string | undefined;
+      try {
+        const session = await auth.api.getSession({
+          headers: request.headers,
+        });
+        userId = session?.user?.id;
+      } catch {
+        // Silent fail - anonymous uploads are allowed
+        userId = undefined;
+      }
+
       // Get client metadata
       const clientIP = request.headers.get('x-forwarded-for') ||
         request.headers.get('x-real-ip') ||
         'unknown';
       const userAgent = request.headers.get('user-agent') || 'unknown';
 
-      // Rate limiting by IP
-      const rateLimitKey = `upload:${clientIP}`;
-      const { allowed, remaining, resetTime } = rateLimiter.check(rateLimitKey, 10, 60000); // 10 uploads per minute
+      // Rate limiting by IP (more lenient for authenticated users)
+      const rateLimitKey = userId ? `upload:user:${userId}` : `upload:ip:${clientIP}`;
+      const uploadLimit = userId ? 20 : 10; // Authenticated users get higher limit
+      const { allowed, remaining, resetTime } = rateLimiter.check(rateLimitKey, uploadLimit, 60000);
 
       if (!allowed) {
         return NextResponse.json(
@@ -43,11 +57,10 @@ export async function POST(request: NextRequest) {
       const file = formData.get('file') as File;
       const originalName = formData.get('originalName') as string;
       let mimeType = formData.get('mimeType') as string;
-      const size = Number(formData.get('size'));
       const expirationHours = formData.get('expirationHours') ? Number(formData.get('expirationHours')) : undefined;
       const maxDownloads = formData.get('maxDownloads') ? Number(formData.get('maxDownloads')) : undefined;
       const passwordProtected = formData.get('passwordProtected') === 'true';
-      let password: string | undefined = formData.get('password') as string | null || undefined;
+      const password: string | undefined = formData.get('password') as string | null || undefined;
 
       // Use mime-types library for proper MIME type detection
       if (!mimeType || mimeType === 'application/octet-stream') {
@@ -93,7 +106,8 @@ export async function POST(request: NextRequest) {
         password,
         metadata: {
           userAgent,
-          ipAddress: clientIP
+          ipAddress: clientIP,
+          userId // Include userId if authenticated
         }
       });
 

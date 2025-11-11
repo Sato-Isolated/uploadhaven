@@ -105,7 +105,6 @@ See the [Installation Guide](docs/getting-started/installation.md) for detailed 
 ## 🔐 Security
 
 - **File encryption** with AES-256-GCM algorithm
-- **Malware scanning** for all uploads
 - **File type validation** and size limits
 - **Rate limiting** to prevent abuse
 - **No permanent storage** - files auto-delete
